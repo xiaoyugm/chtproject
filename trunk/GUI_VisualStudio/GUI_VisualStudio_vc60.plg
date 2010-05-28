@@ -1,0 +1,166 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: GUI_VisualStudio - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\cht\LOCALS~1\Temp\RSP2A50.tmp" with contents
+[
+/nologo /MTd /W3 /Gm /GX /ZI /Od /I "AboutDlg" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "MARKUP_MBCS" /FR"Debug/vc60/" /Fp"Debug/vc60/GUI_VisualStudio_vc60.pch" /Yu"stdafx.h" /Fo"Debug/vc60/" /Fd"Debug/vc60/" /FD /GZ /Zm200 /c 
+"F:\ygjl\bjygjl\GUI_VisualStudio\GUI_VisualStudio.cpp"
+"F:\ygjl\bjygjl\GUI_VisualStudio\MainFrm.cpp"
+"F:\ygjl\bjygjl\GUI_VisualStudio\ResourceViewPane.cpp"
+"F:\ygjl\bjygjl\GUI_VisualStudio\DrawDoc.cpp"
+"F:\ygjl\bjygjl\GUI_VisualStudio\DrawView.cpp"
+"F:\ygjl\bjygjl\GUI_VisualStudio\MQClient.cpp"
+"F:\ygjl\bjygjl\GUI_VisualStudio\SampleFormView.cpp"
+"F:\ygjl\bjygjl\GUI_VisualStudio\TabbedViewView.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\cht\LOCALS~1\Temp\RSP2A50.tmp" 
+Creating temporary file "C:\DOCUME~1\cht\LOCALS~1\Temp\RSP2A51.tmp" with contents
+[
+winmm.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/vc60/RSDRAW-YRunD.pdb" /debug /machine:I386 /out:"bin/vc60/RSDRAW-YRunD.EXE" /pdbtype:sept 
+.\Debug\vc60\ChildFrm.obj
+.\Debug\vc60\ClassViewPane.obj
+.\Debug\vc60\DynamicHelpView.obj
+.\Debug\vc60\GUI_VisualStudio.obj
+.\Debug\vc60\GUI_VisualStudioDoc.obj
+.\Debug\vc60\GUI_VisualStudioView.obj
+.\Debug\vc60\MainFrm.obj
+.\Debug\vc60\OutputPane.obj
+.\Debug\vc60\PropertiesPane.obj
+.\Debug\vc60\ResourceViewPane.obj
+.\Debug\vc60\SolutionExplorerPane.obj
+.\Debug\vc60\StdAfx.obj
+.\Debug\vc60\DrawButton.obj
+.\Debug\vc60\DrawCar.obj
+.\Debug\vc60\DrawChart.obj
+.\Debug\vc60\DrawConduit.obj
+.\Debug\vc60\DrawDoc.obj
+.\Debug\vc60\DrawObj.obj
+.\Debug\vc60\DrawPoly.obj
+.\Debug\vc60\DrawRect.obj
+.\Debug\vc60\DrawRotary.obj
+.\Debug\vc60\DrawView.obj
+.\Debug\vc60\DrawWarn.obj
+.\Debug\vc60\FlatTabPropDlg.obj
+.\Debug\vc60\FlatTabViewDoc.obj
+.\Debug\vc60\FlatTabViewView.obj
+.\Debug\vc60\IniFile.obj
+.\Debug\vc60\MQClient.obj
+.\Debug\vc60\MQServer.obj
+.\Debug\vc60\SampleFormView.obj
+.\Debug\vc60\SetTimeDlg.obj
+.\Debug\vc60\SettingHostDlg.obj
+.\Debug\vc60\SrvrItem.obj
+.\Debug\vc60\TabbedViewView.obj
+.\Debug\vc60\Graphics.obj
+.\Debug\vc60\random.obj
+.\Debug\vc60\RealTime.obj
+.\Debug\vc60\RTSlider.obj
+.\Debug\vc60\Str.obj
+.\Debug\vc60\AxCommand.obj
+.\Debug\vc60\AxConnction.obj
+.\Debug\vc60\AxException.obj
+.\Debug\vc60\AxRecordset.obj
+.\Debug\vc60\ControlXml.obj
+.\Debug\vc60\CppSQLite3.obj
+.\Debug\vc60\Markup.obj
+.\Debug\vc60\CGridColumnManagerProfile.obj
+.\Debug\vc60\CGridColumnTraitCombo.obj
+.\Debug\vc60\CGridColumnTraitDateTime.obj
+.\Debug\vc60\CGridColumnTraitEdit.obj
+.\Debug\vc60\CGridColumnTraitImage.obj
+.\Debug\vc60\CGridColumnTraitText.obj
+.\Debug\vc60\CGridListCtrlEx.obj
+.\Debug\vc60\CGridListCtrlGroups.obj
+.\Debug\vc60\CGridRowTraitText.obj
+.\Debug\vc60\CGridRowTraitXP.obj
+.\Debug\vc60\GUI_VisualStudio.res
+]
+Creating command line "link.exe @C:\DOCUME~1\cht\LOCALS~1\Temp\RSP2A51.tmp"
+<h3>Output Window</h3>
+Compiling...
+MainFrm.cpp
+ResourceViewPane.cpp
+Generating Code...
+Skipping... (no relevant changes detected)
+GUI_VisualStudio.cpp
+DrawDoc.cpp
+DrawView.cpp
+MQClient.cpp
+SampleFormView.cpp
+TabbedViewView.cpp
+Linking...
+Creating temporary file "C:\DOCUME~1\cht\LOCALS~1\Temp\RSP2A52.tmp" with contents
+[
+/nologo /o"Debug/vc60/GUI_VisualStudio_vc60.bsc" 
+.\Debug\vc60\StdAfx.sbr
+.\Debug\vc60\ChildFrm.sbr
+.\Debug\vc60\ClassViewPane.sbr
+.\Debug\vc60\DynamicHelpView.sbr
+.\Debug\vc60\GUI_VisualStudio.sbr
+.\Debug\vc60\GUI_VisualStudioDoc.sbr
+.\Debug\vc60\GUI_VisualStudioView.sbr
+.\Debug\vc60\MainFrm.sbr
+.\Debug\vc60\OutputPane.sbr
+.\Debug\vc60\PropertiesPane.sbr
+.\Debug\vc60\ResourceViewPane.sbr
+.\Debug\vc60\SolutionExplorerPane.sbr
+.\Debug\vc60\DrawButton.sbr
+.\Debug\vc60\DrawCar.sbr
+.\Debug\vc60\DrawChart.sbr
+.\Debug\vc60\DrawConduit.sbr
+.\Debug\vc60\DrawDoc.sbr
+.\Debug\vc60\DrawObj.sbr
+.\Debug\vc60\DrawPoly.sbr
+.\Debug\vc60\DrawRect.sbr
+.\Debug\vc60\DrawRotary.sbr
+.\Debug\vc60\DrawView.sbr
+.\Debug\vc60\DrawWarn.sbr
+.\Debug\vc60\FlatTabPropDlg.sbr
+.\Debug\vc60\FlatTabViewDoc.sbr
+.\Debug\vc60\FlatTabViewView.sbr
+.\Debug\vc60\IniFile.sbr
+.\Debug\vc60\MQClient.sbr
+.\Debug\vc60\MQServer.sbr
+.\Debug\vc60\SampleFormView.sbr
+.\Debug\vc60\SetTimeDlg.sbr
+.\Debug\vc60\SettingHostDlg.sbr
+.\Debug\vc60\SrvrItem.sbr
+.\Debug\vc60\TabbedViewView.sbr
+.\Debug\vc60\Graphics.sbr
+.\Debug\vc60\random.sbr
+.\Debug\vc60\RealTime.sbr
+.\Debug\vc60\RTSlider.sbr
+.\Debug\vc60\Str.sbr
+.\Debug\vc60\AxCommand.sbr
+.\Debug\vc60\AxConnction.sbr
+.\Debug\vc60\AxException.sbr
+.\Debug\vc60\AxRecordset.sbr
+.\Debug\vc60\ControlXml.sbr
+.\Debug\vc60\CppSQLite3.sbr
+.\Debug\vc60\Markup.sbr
+.\Debug\vc60\CGridColumnManagerProfile.sbr
+.\Debug\vc60\CGridColumnTraitCombo.sbr
+.\Debug\vc60\CGridColumnTraitDateTime.sbr
+.\Debug\vc60\CGridColumnTraitEdit.sbr
+.\Debug\vc60\CGridColumnTraitImage.sbr
+.\Debug\vc60\CGridColumnTraitText.sbr
+.\Debug\vc60\CGridListCtrlEx.sbr
+.\Debug\vc60\CGridListCtrlGroups.sbr
+.\Debug\vc60\CGridRowTraitText.sbr
+.\Debug\vc60\CGridRowTraitXP.sbr]
+Creating command line "bscmake.exe @C:\DOCUME~1\cht\LOCALS~1\Temp\RSP2A52.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+RSDRAW-YRunD.EXE - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
