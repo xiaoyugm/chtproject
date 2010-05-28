@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Settings CompactMode="1">
+	<TaskPanel>
+		<Item Caption="PropertyPanes" Id="300" Type="0" Expanded="1">
+			<Items>
+				<Item Caption="Pointer" Id="400" IconIndex="0" AllowDrag="0" AllowDrop="0"/>
+			</Items>
+		</Item>
+		<Item Caption="Data" Id="301" Type="0" Expanded="1">
+			<Items>
+				<Item Caption="Pointer" Id="400" IconIndex="0" AllowDrag="0" AllowDrop="0"/>
+				<Item Caption="DataSet" Id="426" IconIndex="26"/>
+				<Item Caption="OleDbDataAdapter" Id="427" IconIndex="27"/>
+				<Item Caption="OleDbConnection" Id="428" IconIndex="28"/>
+				<Item Caption="OleDbCommand" Id="429" IconIndex="29"/>
+				<Item Caption="SqlDataAdapter" Id="430" IconIndex="30"/>
+				<Item Caption="SqlConnection" Id="431" IconIndex="31"/>
+				<Item Caption="SqlCommand" Id="432" IconIndex="32"/>
+				<Item Caption="DataView" Id="433" IconIndex="33"/>
+			</Items>
+		</Item>
+		<Item Caption="Componenents" Id="302" Type="0" Expanded="1">
+			<Items>
+				<Item Caption="Pointer" Id="400" IconIndex="0" AllowDrag="0" AllowDrop="0"/>
+				<Item Caption="FileSystemWatcher" Id="434" IconIndex="34"/>
+				<Item Caption="EventLog" Id="435" IconIndex="35"/>
+				<Item Caption="DirectoryEntry" Id="436" IconIndex="36"/>
+				<Item Caption="DirectorySearcher" Id="437" IconIndex="37"/>
+				<Item Caption="MessageQueue" Id="438" IconIndex="38"/>
+				<Item Caption="PerformanceCounter" Id="439" IconIndex="39"/>
+				<Item Caption="Process" Id="440" IconIndex="40"/>
+				<Item Caption="ServiceController" Id="441" IconIndex="41"/>
+				<Item Caption="Timer" Id="442" IconIndex="42"/>
+			</Items>
+		</Item>
+		<Item Caption="Dialog Editor" Id="303" Type="0" Expanded="1">
+			<Items>
+				<Item Caption="Pointer" Id="400" IconIndex="0" AllowDrag="0" AllowDrop="0"/>
+				<Item Caption="Button" Id="401" IconIndex="1"/>
+				<Item Caption="Check Box" Id="402" IconIndex="2"/>
+				<Item Caption="Edit Control" Id="403" IconIndex="3"/>
+				<Item Caption="Combo Box" Id="404" IconIndex="4"/>
+				<Item Caption="List Box" Id="405" IconIndex="5"/>
+				<Item Caption="Group Box" Id="406" IconIndex="6"/>
+				<Item Caption="Radio Button" Id="407" IconIndex="7"/>
+				<Item Caption="Static Text" Id="408" IconIndex="8"/>
+				<Item Caption="Picture Control" Id="409" IconIndex="9"/>
+				<Item Caption="Horizontal Scroll Bar" Id="410" IconIndex="10"/>
+				<Item Caption="Vertical Scroll Bar" Id="411" IconIndex="11"/>
+				<Item Caption="Slider Control" Id="412" IconIndex="12"/>
+				<Item Caption="Spin Control" Id="413" IconIndex="13"/>
+				<Item Caption="Progress Control" Id="414" IconIndex="14"/>
+				<Item Caption="Hot Key" Id="415" IconIndex="15"/>
+				<Item Caption="List Control" Id="416" IconIndex="16"/>
+				<Item Caption="Tree Control" Id="417" IconIndex="17"/>
+				<Item Caption="Tab Control" Id="418" IconIndex="18"/>
+				<Item Caption="Animation Control" Id="419" IconIndex="19"/>
+				<Item Caption="Rich Edit 2.0 Control" Id="420" IconIndex="20"/>
+				<Item Caption="Date Time Picker" Id="421" IconIndex="21"/>
+				<Item Caption="Month Calendar Control" Id="422" IconIndex="22"/>
+				<Item Caption="IP Address Control" Id="423" IconIndex="23"/>
+				<Item Caption="Extended Combo Box" Id="424" IconIndex="24"/>
+				<Item Caption="Custom Control" Id="425" IconIndex="25"/>
+			</Items>
+		</Item>
+		<Item Caption="Clipboard Ring" Id="304" Type="0" Expanded="1">
+			<Items>
+				<Item Caption="Pointer" Id="400" IconIndex="0" AllowDrag="0" AllowDrop="0"/>
+			</Items>
+		</Item>
+		<Item Caption="General" Id="305" Type="0" Expanded="1">
+			<Items>
+				<Item Caption="Pointer" Id="400" IconIndex="0" AllowDrag="0" AllowDrop="0" Selected="1"/>
+			</Items>
+		</Item>
+	</TaskPanel>
+	<NormalLayout>
+		<CommandBars Schema="36">
+			<CommandBars>
+				<CommandBar Class="CXTPToolBar" BarID="128" Flags="63" Style="4194304" Title="Standard" MRUWidth="32767">
+					<Controls OriginalControls="1">
+						<Control Class="CXTPControlPopup" Type="4" Id="130" Caption="New" TooltipText="New" DescriptionText="Create a new document" CommandBarId="16777216"/>
+						<Control Class="CXTPControlPopup" Type="4" Id="157" Caption="New item" TooltipText="Add New Item" DescriptionText="Add New Item" CommandBarId="16777217"/>
+						<Control Class="CXTPControlButton" Id="57601" Caption="打开" TooltipText="打开" DescriptionText="打开一个现有文档"/>
+						<Control Class="CXTPControlButton" Id="57603" Caption="保存" TooltipText="保存" DescriptionText="保存活动文档"/>
+						<Control Class="CXTPControlButton" Id="32774" Caption="Save All" TooltipText="Save All" DescriptionText="Save All"/>
+						<Control Class="CXTPControlButton" Id="57635" BeginGroup="1" Caption="Cut" TooltipText="Cut" DescriptionText="Cut the selection and put it on the Clipboard"/>
+						<Control Class="CXTPControlButton" Id="57634" Caption="Copy" TooltipText="Copy" DescriptionText="Copy the selection and put it on the Clipboard"/>
+						<Control Class="CXTPControlButton" Id="57637" Caption="Paste" TooltipText="Paste" DescriptionText="Insert Clipboard contents"/>
+						<Control Class="CXTPControlButton" Id="57643" BeginGroup="1" Caption="Undo" TooltipText="Undo" DescriptionText="Undo the last action"/>
+						<Control Class="CXTPControlButton" Id="57644" Caption="Redo" TooltipText="Redo" DescriptionText="Redo the previously undone action"/>
+						<Control Class="CXTPControlButton" Id="181" BeginGroup="1" Caption="Start" TooltipText="Start" DescriptionText="Start"/>
+						<Control Class="CXTPControlComboBox" Type="5" Id="32815" Caption="Solution Platforms" TooltipText="Solution Platforms" DescriptionText="Solution Platforms" Width="100" CommandBarId="16777218" DropDown="0"/>
+						<Control Class="CXTPControlComboBox" Type="5" Id="32777" Width="100" CommandBarId="16777219" DropDown="0"/>
+						<Control Class="CXTPControlButton" Id="140" BeginGroup="1" Caption="Find in File" TooltipText="Find in File" DescriptionText="Find in File"/>
+						<Control Class="CXTPControlComboBox" Type="5" Id="32816" Caption="Find" Style="1" Width="180" CommandBarId="16777220"/>
+						<Control Class="CXTPControlButton" Id="200" BeginGroup="1" Caption="Solution Explorer" TooltipText="Solution Explorer" DescriptionText="Solution Explorer"/>
+						<Control Class="CXTPControlButton" Id="202" Caption="Properties" TooltipText="Properties" DescriptionText="Properties"/>
+						<Control Class="CXTPControlButton" Id="201" Caption="Resource View" TooltipText="Resource View" DescriptionText="Resource View"/>
+						<Control Class="CXTPControlButton" Id="203" Caption="Toolbox" TooltipText="Toolbox" DescriptionText="Toolbox"/>
+						<Control Class="CXTPControlPopup" Type="4" Id="207" IconId="204" Caption="Other Windows" TooltipText="Class View" DescriptionText="Class View" CommandBarId="16777221"/>
+						<OriginalControls>
+							<Control Class="CXTPControlPopup" Type="4" Id="130" Caption="New" TooltipText="New" DescriptionText="Create a new document" CommandBarId="16777222"/>
+							<Control Class="CXTPControlPopup" Type="4" Id="157" Caption="New item" TooltipText="Add New Item" DescriptionText="Add New Item" CommandBarId="16777223"/>
+							<Control Class="CXTPControlButton" Id="57601" Caption="打开" TooltipText="打开" DescriptionText="打开一个现有文档"/>
+							<Control Class="CXTPControlButton" Id="57603" Caption="保存" TooltipText="保存" DescriptionText="保存活动文档"/>
+							<Control Class="CXTPControlButton" Id="32774" Caption="Save All" TooltipText="Save All" DescriptionText="Save All"/>
+							<Control Class="CXTPControlButton" Id="57635" BeginGroup="1" Caption="Cut" TooltipText="Cut" DescriptionText="Cut the selection and put it on the Clipboard"/>
+							<Control Class="CXTPControlButton" Id="57634" Caption="Copy" TooltipText="Copy" DescriptionText="Copy the selection and put it on the Clipboard"/>
+							<Control Class="CXTPControlButton" Id="57637" Caption="Paste" TooltipText="Paste" DescriptionText="Insert Clipboard contents"/>
+							<Control Class="CXTPControlButton" Id="57643" BeginGroup="1" Caption="Undo" TooltipText="Undo" DescriptionText="Undo the last action"/>
+							<Control Class="CXTPControlButton" Id="57644" Caption="Redo" TooltipText="Redo" DescriptionText="Redo the previously undone action"/>
+							<Control Class="CXTPControlButton" Id="181" BeginGroup="1" Caption="Start" TooltipText="Start" DescriptionText="Start"/>
+							<Control Class="CXTPControlComboBox" Type="5" Id="32815" Caption="Solution Platforms" TooltipText="Solution Platforms" DescriptionText="Solution Platforms" Width="100" CommandBarId="16777224" DropDown="0"/>
+							<Control Class="CXTPControlComboBox" Type="5" Id="32777" Width="100" CommandBarId="16777225" DropDown="0"/>
+							<Control Class="CXTPControlButton" Id="140" BeginGroup="1" Caption="Find in File" TooltipText="Find in File" DescriptionText="Find in File"/>
+							<Control Class="CXTPControlComboBox" Type="5" Id="32816" Caption="Find" Style="1" Width="180" CommandBarId="16777226"/>
+							<Control Class="CXTPControlButton" Id="200" BeginGroup="1" Caption="Solution Explorer" TooltipText="Solution Explorer" DescriptionText="Solution Explorer"/>
+							<Control Class="CXTPControlButton" Id="202" Caption="Properties" TooltipText="Properties" DescriptionText="Properties"/>
+							<Control Class="CXTPControlButton" Id="201" Caption="Resource View" TooltipText="Resource View" DescriptionText="Resource View"/>
+							<Control Class="CXTPControlButton" Id="203" Caption="Toolbox" TooltipText="Toolbox" DescriptionText="Toolbox"/>
+							<Control Class="CXTPControlPopup" Type="4" Id="207" Caption="Other Windows" CommandBarId="16777227"/>
+						</OriginalControls>
+					</Controls>
+				</CommandBar>
+				<CommandBar Class="CXTPPopupBar" Type="2" Position="5" BarID="16777216" Style="4194304">
+					<Controls>
+						<Control Class="CXTPControlButton" Id="130" Caption="New Project..." TooltipText="New" DescriptionText="Create a new document"/>
+						<Control Class="CXTPControlButton" Id="131" Caption="New Blank Solution..."/>
+					</Controls>
+				</CommandBar>
+				<CommandBar Class="CXTPPopupBar" Type="2" Position="5" BarID="16777217" Style="4194304">
+					<Controls>
+						<Control Class="CXTPControlButton" Id="157" Caption="Add New Item" TooltipText="Add New Item" DescriptionText="Add New Item"/>
+						<Control Class="CXTPControlButton" Id="158" Caption="Add Existing Item..."/>
+						<Control Class="CXTPControlButton" Id="182" Caption="Add Class..."/>
+					</Controls>
+				</CommandBar>
+				<CommandBar Class="CXTPControlComboBoxList" Type="2" Position="6" BarID="16777218" MRUWidth="150">
+					<Items Count="3" Item0="Debug" Item1="Release" Item2="Configuration Manager"/>
+				</CommandBar>
+				<CommandBar Class="CXTPControlComboBoxList" Type="2" Position="6" BarID="16777219" MRUWidth="150">
+					<Items Count="2" Item0="Win32" Item1="Configuration Manager"/>
+				</CommandBar>
+				<CommandBar Class="CXTPControlComboBoxList" Type="2" Position="6" BarID="16777220">
+					<Items Count="3" Item0="Line1" Item1="Line2" Item2="Line3"/>
+				</CommandBar>
+				<CommandBar Class="CXTPPopupBar" Type="2" Position="5" BarID="16777221" Style="4194304">
+					<Controls>
+						<Control Class="CXTPControlButton" Id="204" Caption="Class View" TooltipText="Class View" DescriptionText="Class View"/>
+						<Control Class="CXTPControlButton" Id="205" Caption="Output" TooltipText="Output" DescriptionText="Output"/>
+						<Control Class="CXTPControlButton" Id="206" Caption="Dynamic Help" TooltipText="Dynamic Help" DescriptionText="Dynamic Help"/>
+					</Controls>
+				</CommandBar>
+				<CommandBar Class="CXTPPopupBar" Type="2" Position="5" BarID="16777222" Style="4194304">
+					<Controls>
+						<Control Class="CXTPControlButton" Id="130" Caption="New Project..." TooltipText="New" DescriptionText="Create a new document"/>
+						<Control Class="CXTPControlButton" Id="131" Caption="New Blank Solution..."/>
+					</Controls>
+				</CommandBar>
+				<CommandBar Class="CXTPPopupBar" Type="2" Position="5" BarID="16777223" Style="4194304">
+					<Controls>
+						<Control Class="CXTPControlButton" Id="157" Caption="Add New Item" TooltipText="Add New Item" DescriptionText="Add New Item"/>
+						<Control Class="CXTPControlButton" Id="158" Caption="Add Existing Item..."/>
+						<Control Class="CXTPControlButton" Id="182" Caption="Add Class..."/>
+					</Controls>
+				</CommandBar>
+				<CommandBar Class="CXTPControlComboBoxList" Type="2" Position="6" BarID="16777224" MRUWidth="150">
+					<Items Count="3" Item0="Debug" Item1="Release" Item2="Configuration Manager"/>
+				</CommandBar>
+				<CommandBar Class="CXTPControlComboBoxList" Type="2" Position="6" BarID="16777225" MRUWidth="150">
+					<Items Count="2" Item0="Win32" Item1="Configuration Manager"/>
+				</CommandBar>
+				<CommandBar Class="CXTPControlComboBoxList" Type="2" Position="6" BarID="16777226">
+					<Items Count="3" Item0="Line1" Item1="Line2" Item2="Line3"/>
+				</CommandBar>
+				<CommandBar Class="CXTPPopupBar" Type="2" Position="5" BarID="16777227" Style="4194304">
+					<Controls>
+						<Control Class="CXTPControlButton" Id="204" Caption="Class View" TooltipText="Class View" DescriptionText="Class View"/>
+						<Control Class="CXTPControlButton" Id="205" Caption="Output" TooltipText="Output" DescriptionText="Output"/>
+						<Control Class="CXTPControlButton" Id="206" Caption="Dynamic Help" TooltipText="Dynamic Help" DescriptionText="Dynamic Help"/>
+					</Controls>
+				</CommandBar>
+			</CommandBars>
+			<Layout>
+				<DockState Version="36" ScreenSize="1440, 900" Count="5">
+					<BarInfo0 BarId="1" MRUWidth="32767"/>
+					<BarInfo1 BarId="128" MRUWidth="32767" PointPos="0, 22"/>
+					<BarInfo2 BarId="189" MRUWidth="32767" PointPos="0, 48"/>
+					<BarInfo3 BarId="137" MRUWidth="32767" PointPos="499, 48" MRUDockPos="499, 48, 998, 74"/>
+					<BarInfo4 BarId="134" Visible="0" MRUWidth="32767"/>
+				</DockState>
+				<DockBars>
+					<DockBar0 Count="10" Id1="1" Id3="128" Id5="137" Id6="189" Id8="134"/>
+				</DockBars>
+			</Layout>
+		</CommandBars>
+		<Shortcuts Schema="36">
+			<Shortcut Id="57600" Key="Ctrl+N"/>
+			<Shortcut Id="57601" Key="Ctrl+O"/>
+			<Shortcut Id="57603" Key="Ctrl+S"/>
+			<Shortcut Id="57607" Key="Ctrl+P"/>
+			<Shortcut Id="57643" Key="Ctrl+Z"/>
+			<Shortcut Id="57635" Key="Ctrl+X"/>
+			<Shortcut Id="57634" Key="Ctrl+C"/>
+			<Shortcut Id="57637" Key="Ctrl+V"/>
+			<Shortcut Id="57643" Key="Alt+Backspace"/>
+			<Shortcut Id="57635" Key="Shift+Del"/>
+			<Shortcut Id="57634" Key="Ctrl+Ins"/>
+			<Shortcut Id="57637" Key="Shift+Ins"/>
+			<Shortcut Id="57680" Key="F6"/>
+			<Shortcut Id="57681" Key="Shift+F6"/>
+			<Shortcut Id="154" Key="Shift+Alt+Enter"/>
+		</Shortcuts>
+		<Options Schema="36" AlwaysShowFullMenus="1" ShowFullAfterDelay="1" ToolBarScreenTips="1" ToolBarAccelTips="0" LargeIcons="0" Animation="0"/>
+		<DockingPane>
+			<Summary Panes="21" TopContainer="8" Client="14"/>
+			<Pane-1 Type="0" DockingCX="150" DockingCY="120" Title="Output\nOutput\n" ID="205" DockingHolder="15" LastHolder="15"/>
+			<Pane-2 Type="0" DockingCX="200" DockingCY="120" Title="Toolbox\nToolbox\n" ID="203" DockingHolder="17" LastHolder="17"/>
+			<Pane-3 Type="0" DockingCX="230" DockingCY="140" Title="Class View\nClass View\n" ID="204" DockingHolder="10" LastHolder="10"/>
+			<Pane-4 Type="0" DockingCX="230" DockingCY="140" Title="Solution Explorer\nSolution Explorer\n" ID="200" DockingHolder="10" LastHolder="10"/>
+			<Pane-5 Type="0" DockingCX="230" DockingCY="140" Title="Resource View\nResource View\n" ID="201" DockingHolder="10" LastHolder="10"/>
+			<Pane-6 Type="0" DockingCX="210" DockingCY="140" Title="Dynamic Help\nDynamic Help\n" ID="206" DockingHolder="18" LastHolder="18"/>
+			<Pane-7 Type="0" DockingCX="180" DockingCY="140" Title="Properties\nProperties\n" ID="202" DockingHolder="11" FloatingHolder="21" LastHolder="11"/>
+			<Pane-8 Type="2" Horiz="1" Panes="3" Pane-1="9" Pane-2="12" Pane-3="16"/>
+			<Pane-9 Type="2" DockingCX="230" DockingCY="140" Panes="2" Pane-1="10" Pane-2="11"/>
+			<Pane-10 Type="1" DockingCX="230" DockingCY="140" Panes="3" Selected="3" Pane-1="4" Pane-2="3" Pane-3="5"/>
+			<Pane-11 Type="1" DockingCX="180" DockingCY="140" Panes="1" Selected="7" Pane-1="7"/>
+			<Pane-12 Type="2" DockingCX="1002" Panes="2" Pane-1="13" Pane-2="15"/>
+			<Pane-13 Type="2" DockingCY="462" Horiz="1" Panes="1" Pane-1="14"/>
+			<Pane-14 Type="4"/>
+			<Pane-15 Type="1" DockingCX="150" DockingCY="284" Panes="1" Selected="1" Pane-1="1"/>
+			<Pane-16 Type="2" DockingCX="200" DockingCY="120" Panes="2" Pane-1="17" Pane-2="18"/>
+			<Pane-17 Type="1" DockingCX="200" DockingCY="120" Panes="1" Selected="2" Pane-1="2"/>
+			<Pane-18 Type="1" DockingCX="210" DockingCY="140" Panes="0"/>
+			<Pane-19 Type="3" WindowRectTopPos="485" WindowRectBottomPos="625" WindowRectLeftPos="6" WindowRectRightPos="186" TopContaner="20"/>
+			<Pane-20 Type="2" DockingCX="180" DockingCY="140" Horiz="1" Panes="1" Pane-1="21"/>
+			<Pane-21 Type="1" DockingCX="180" DockingCY="140" Panes="0"/>
+		</DockingPane>
+	</NormalLayout>
+	<FullScreenLayout/>
+</Settings>
