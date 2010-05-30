@@ -120,6 +120,15 @@ using namespace std;
 #include "CGridListCtrlEx\CGridListCtrlGroups.h"
 #include "CListCtrl_DataModel.h"
 
+//Support for AxLib library
+#include "dbAx\AxLib.h"
+
+//Derived AxLib classes
+#include "dbAx\AxAccountSet.hpp"
+#include "dbAx\AxContactCmd.hpp"
+#include "dbAx\AxContactSet.hpp"
+#include "dbAx\CardFileEvents.hpp"
+#include "dbAx\AccountSetEvents.hpp"
 
 
 
