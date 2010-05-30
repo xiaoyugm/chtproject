@@ -1137,11 +1137,27 @@ SOURCE=.\RealTime\Str.h
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=.\dbAx\AccountSetEvents.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbAx\AxAccountSet.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dbAx\AxCommand.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\dbAx\AxConnction.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbAx\AxContactCmd.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbAx\AxContactSet.hpp
 # End Source File
 # Begin Source File
 
@@ -1154,6 +1170,10 @@ SOURCE=.\dbAx\AxLib.h
 # Begin Source File
 
 SOURCE=.\dbAx\AxRecordset.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbAx\CardFileEvents.hpp
 # End Source File
 # Begin Source File
 

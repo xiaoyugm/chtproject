@@ -45,6 +45,7 @@ public:
 	int             m_nSortedCol;
 	bool            m_bAscending;
 	CXTHeaderCtrl   m_header;
+	CListCtrl_DataModel m_DataModel;
 
   //AxLib objects
   CAxConnection   m_Cn;
