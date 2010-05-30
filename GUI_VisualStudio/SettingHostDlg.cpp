@@ -125,24 +125,28 @@ BOOL CSettingHostDlg::OnInitDialog()
 
 	// Load window placement
 //	LoadPlacement(_T("CListCtrlDlg"));
+	// Give better margin to editors
+	m_listCtrl.SetCellMargin(1.2);
+	CGridRowTraitXP* pRowTrait = new CGridRowTraitXP;
+	m_listCtrl.SetDefaultRowTrait(pRowTrait);
 	// Create Columns
 	m_listCtrl.InsertHiddenLabelColumn();	// Requires one never uses column 0
 
 	// TODO: Add extra initialization here
-	m_listCtrl.InsertColumn(1, _T("Column One"),   LVCFMT_LEFT, 125);
+/*	m_listCtrl.InsertColumn(1, _T("Column One"),   LVCFMT_LEFT, 125);
 	m_listCtrl.InsertColumn(2, _T("Column Two"),   LVCFMT_LEFT, 125);
 	m_listCtrl.InsertColumn(3, _T("Column Three"), LVCFMT_LEFT, 125);
 	m_listCtrl.InsertColumn(4, _T("Column One"),   LVCFMT_LEFT, 125);
 	m_listCtrl.InsertColumn(5, _T("Column Two"),   LVCFMT_LEFT, 125);
 	m_listCtrl.InsertColumn(6, _T("Column Three"), LVCFMT_LEFT, 125);
 	m_listCtrl.InsertColumn(7, _T("Column One"),   LVCFMT_LEFT, 125);
-
+*/
 	int iItem;
 	for (iItem = 0; iItem < 50; ++iItem)
 	{
 		CString strItem;
 		strItem.Format(_T("Item %d"), iItem);
-		m_listCtrl.InsertItem(iItem, strItem, 0);
+//		m_listCtrl.InsertItem(iItem, strItem, 0);
 	}
 
 	// Get the windows handle to the header control for the
@@ -189,8 +193,56 @@ BOOL CSettingHostDlg::OnInitDialog()
 	m_listCtrl.EnableUserListColor(BoolType(m_bListColor));
 	m_listCtrl.EnableUserRowColor(BoolType(m_bRowColor));
 
+
+	for(int col = 0; col < m_DataModel.GetColCount() ; ++col)
+	{
+		const string& title = m_DataModel.GetColTitle(col);
+		CGridColumnTrait* pTrait = NULL;
+		if (col==0)	// City
+		{
+			pTrait = new CGridColumnTraitEdit;
+		}
+		if (col==1)	// State
+		{
+			CGridColumnTraitCombo* pComboTrait = new CGridColumnTraitCombo;
+			const vector<string>& states = m_DataModel.GetStates();
+			for(size_t i=0; i < states.size() ; ++i)
+				pComboTrait->AddItem((int)i, CString(states[i].c_str()));
+			pTrait = pComboTrait;
+		}
+		if (col==2)	// Country
+		{
+			CGridColumnTraitCombo* pComboTrait = new CGridColumnTraitCombo;
+			pComboTrait->SetStyle( pComboTrait->GetStyle() | CBS_DROPDOWNLIST);
+			const vector<string>& countries = m_DataModel.GetCountries();
+			for(size_t i=0; i < countries.size() ; ++i)
+				pComboTrait->AddItem((int)i, CString(countries[i].c_str()));
+			pTrait = pComboTrait;
+		}
+		m_listCtrl.InsertColumnTrait(col+1, CString(title.c_str()), LVCFMT_LEFT, 100, col, pTrait);
+	}
+
+	// Insert data into list-control by copying from datamodel
+	int nItem = 0;
+	for(size_t rowId = 0; rowId < m_DataModel.GetRowIds() ; ++rowId)
+	{
+		nItem = m_listCtrl.InsertItem(++nItem, CString(m_DataModel.GetCellText(rowId, 0).c_str()));
+		m_listCtrl.SetItemData(nItem, rowId);
+		for(int col = 0; col < m_DataModel.GetColCount() ; ++col)
+		{
+			m_listCtrl.SetItemText(nItem, col+1, CString(m_DataModel.GetCellText(rowId, col).c_str()));
+		}
+	}
+
+
+
+	CGridColumnManagerProfile* pColumnProfile = new CGridColumnManagerProfile(_T("Sample List"));
+	pColumnProfile->AddColumnProfile(_T("Default"));
+	pColumnProfile->AddColumnProfile(_T("Special"));
+	m_listCtrl.SetupColumnConfig(pColumnProfile);
+
 //	OnSelendokComboThemes();
-    BuildAccountList();
+//    BuildAccountList();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -355,7 +407,7 @@ void CSettingHostDlg::OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult)
   if ( pNMLV->uNewState == 3 && !m_AccountSet._IsEmpty() )
   {
     m_AccountSet.AbsolutePosition(pNMLV->iItem + 1);
-//    BuildAccountList();
+    BuildAccountList();
   }
 }
 
