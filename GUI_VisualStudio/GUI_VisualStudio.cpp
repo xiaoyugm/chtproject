@@ -249,6 +249,7 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 	}
 
 	CSettingHostDlg dlg;
+	dlg.m_strtable =  _T("digitaltype");
 	if(dlg.DoModal() != IDOK)
 		return FALSE;
 
