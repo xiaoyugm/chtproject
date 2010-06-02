@@ -1,5 +1,7 @@
 #pragma once
 
+extern DTypeTable	     m_DTypeTable;
+
 struct CListCtrl_DataRecord
 {
 	CListCtrl_DataRecord()
@@ -19,14 +21,19 @@ struct CListCtrl_DataRecord
 	{
 		switch(col)
 		{
-		case 0: { static string title0("City"); return title ? title0 : m_City; }
-		case 1: { static string title1("State"); return title ? title1 : m_State; }
-		case 2: { static string title2("Country"); return title ? title2 : m_Country; }
+		case 0: { static string title0(m_DTypeTable.m_DTypeTFD.Name); return title ? title0 : m_City; }
+		case 1: { static string title1(m_DTypeTable.m_DTypeTFD.name0); return title ? title1 : m_State; }
+		case 2: { static string title2(m_DTypeTable.m_DTypeTFD.name1); return title ? title2 : m_Country; }
+		case 3: { static string title2(m_DTypeTable.m_DTypeTFD.name2); return title ? title2 : m_Country; }
+		case 4: { static string title0(m_DTypeTable.m_DTypeTFD.palms); return title ? title0 : m_City; }
+		case 5: { static string title1(m_DTypeTable.m_DTypeTFD.falm); return title ? title1 : m_State; }
+		case 6: { static string title2(m_DTypeTable.m_DTypeTFD.recdate); return title ? title2 : m_Country; }
+		case 7: { static string title2(m_DTypeTable.m_DTypeTFD.Useridadd); return title ? title2 : m_Country; }
 		default:{ static string emptyStr; return emptyStr; }
 		}
 	}
 
-	int  GetColCount() const { return 3; }
+	int  GetColCount() const { return 8; }
 };
 
 class CListCtrl_DataModel
@@ -50,6 +57,7 @@ public:
 		m_Records.push_back( CListCtrl_DataRecord("Aarhus", "Jutland", "Denmark") );
 		m_Records.push_back( CListCtrl_DataRecord("Odense", "Fyn", "Denmark") );
 		m_Records.push_back( CListCtrl_DataRecord("Malmoe", "Skaane", "Sweeden") );
+		m_Records.push_back( CListCtrl_DataRecord("Copenhagen", "Sjaelland", "Denmark") );
 
 		if (m_RowMultiplier > 1)
 		{

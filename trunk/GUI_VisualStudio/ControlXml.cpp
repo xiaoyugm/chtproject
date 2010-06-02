@@ -10,6 +10,9 @@
 
 using namespace std;
 
+PDescriptionTable	     m_PDescriptionTable;
+DTypeTable	     m_DTypeTable;
+ATypeTable	     m_ATypeTable;
 OthersSetting    m_OthersSetting;
 ViewWindows      m_ViewWindows[4];
 FormView         m_FormView[20];
@@ -115,6 +118,25 @@ bool CControlXml::ParseGroups(CMarkup& xml)
 		m_OthersSetting.IP = strnumForm;
         return true;
 	}
+	else if ( xml.FindElem(_T("PointsSetting")) )
+    {
+    // Extract the group name.
+        CString strnumForm = xml.GetAttrib(_T("numForms"));
+        strnumForm = xml.GetAttrib(_T("Name"));
+		m_OthersSetting.DBname = strnumForm;
+
+        if ( xml.IntoElem() )
+        {
+            while( true )
+            {
+                // Parse each control group (recursive method).
+                if ( !ParsePS(xml) )
+                    break;
+            }
+            xml.OutOfElem();
+        }
+        return true;
+    }
     else if ( xml.FindElem(_T("FormViews")) )
     {
     // Extract the group name.
@@ -179,6 +201,102 @@ bool CControlXml::ParseDrawView(CMarkup& xml)
 	m_DrawView[numForm].DrawViewName = groupName;
     
     return true;
+}
+
+bool CControlXml::ParsePS(CMarkup& xml)
+{
+	LPCTSTR str1 = "",str2 = "",str3 = "";
+    // Look for <Controls> element.
+    if (xml.FindElem(_T("Analogtype")) )
+	{
+		// Extract the group name.
+        CString strnumForm = xml.GetAttrib(_T("TABLE"));
+    	m_ATypeTable.TableName = strnumForm;
+        CString groupName = xml.GetAttrib(_T("Name"));
+    	m_ATypeTable.NameD = groupName;
+     	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn0")),str1,str2,str3);
+        m_ATypeTable.m_ATypeTField.AID = str1;
+        m_ATypeTable.m_ATypeTField.Name = str2;
+        m_ATypeTable.m_ATypeTField.ltop = str3;
+     	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn1")),str1,str2,str3);
+        m_ATypeTable.m_ATypeTField.lbom = str1;
+        m_ATypeTable.m_ATypeTField.palmu = str2;
+        m_ATypeTable.m_ATypeTField.palmd = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn2")),str1,str2,str3);
+    m_ATypeTable.m_ATypeTField.pbrk = str1;
+    m_ATypeTable.m_ATypeTField.prtn = str2;
+    m_ATypeTable.m_ATypeTField.punit = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn3")),str1,str2,str3);
+    m_ATypeTable.m_ATypeTField.pico = str1;
+    m_ATypeTable.m_ATypeTField.falm = str2;
+    m_ATypeTable.m_ATypeTField.fdel = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn4")),str1,str2,str3);
+    m_ATypeTable.m_ATypeTField.recdate = str1;
+    m_ATypeTable.m_ATypeTField.deldate = str2;
+    m_ATypeTable.m_ATypeTField.Useridadd = str3;
+    strnumForm = xml.GetAttrib(_T("DBColumn5"));
+    m_ATypeTable.m_ATypeTField.Useriddel = strnumForm;
+
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading0")),str1,str2,str3);
+    m_ATypeTable.m_ATypeTFD.Name = str1;
+    m_ATypeTable.m_ATypeTFD.punit = str2;
+    m_ATypeTable.m_ATypeTFD.ltop = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading1")),str1,str2,str3);
+    m_ATypeTable.m_ATypeTFD.lbom = str1;
+    m_ATypeTable.m_ATypeTFD.palmu = str2;
+    m_ATypeTable.m_ATypeTFD.palmd = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading2")),str1,str2,str3);
+    m_ATypeTable.m_ATypeTFD.pbrk = str1;
+        m_ATypeTable.m_ATypeTFD.prtn = str2;
+        m_ATypeTable.m_ATypeTFD.falm = str3;
+      	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading3")),str1,str2,str3);
+        m_ATypeTable.m_ATypeTFD.recdate = str1;
+        m_ATypeTable.m_ATypeTFD.pico = str2;
+        m_ATypeTable.m_ATypeTFD.Useridadd = str3;
+        return true;
+	}
+    else if (xml.FindElem(_T("Digitaltype")) )
+	{
+        // Extract the group name.
+        CString strnumForm = xml.GetAttrib(_T("TABLE"));
+    	m_DTypeTable.TableName = strnumForm;
+        CString groupName = xml.GetAttrib(_T("Name"));
+    	m_DTypeTable.NameD = groupName;
+     	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn0")),str1,str2,str3);
+        m_DTypeTable.m_DTypeTField.DID = str1;
+        m_DTypeTable.m_DTypeTField.Name = str2;
+        m_DTypeTable.m_DTypeTField.ptype = str3;
+     	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn1")),str1,str2,str3);
+        m_DTypeTable.m_DTypeTField.name0 = str1;
+        m_DTypeTable.m_DTypeTField.name1 = str2;
+        m_DTypeTable.m_DTypeTField.name2 = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn2")),str1,str2,str3);
+    m_DTypeTable.m_DTypeTField.palms = str1;
+    m_DTypeTable.m_DTypeTField.falm = str2;
+    m_DTypeTable.m_DTypeTField.fdel = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn3")),str1,str2,str3);
+    m_DTypeTable.m_DTypeTField.recdate = str1;
+    m_DTypeTable.m_DTypeTField.deldate = str2;
+    m_DTypeTable.m_DTypeTField.Useridadd = str3;
+    strnumForm = xml.GetAttrib(_T("DBColumn4"));
+    m_DTypeTable.m_DTypeTField.Useriddel = strnumForm;
+
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading0")),str1,str2,str3);
+    m_DTypeTable.m_DTypeTFD.Name = str1;
+    m_DTypeTable.m_DTypeTFD.ptype = str2;
+    m_DTypeTable.m_DTypeTFD.name0 = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading1")),str1,str2,str3);
+    m_DTypeTable.m_DTypeTFD.name1 = str1;
+    m_DTypeTable.m_DTypeTFD.name2 = str2;
+    m_DTypeTable.m_DTypeTFD.palms = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading2")),str1,str2,str3);
+    m_DTypeTable.m_DTypeTFD.falm = str1;
+        m_DTypeTable.m_DTypeTFD.recdate = str2;
+        m_DTypeTable.m_DTypeTFD.Useridadd = str3;
+        return true;
+	}
+    
+	return false;
 }
 
 bool CControlXml::ParseGroup(CMarkup& xml)

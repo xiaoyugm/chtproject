@@ -30,35 +30,44 @@ public:
   CAxAccountSet() { _SetDefaultValues(); }
   ~CAxAccountSet() { }
 
-  CString     m_szAccountID;
-  CString     m_szName;
-  CString     m_szAddress;
-  CString     m_szPhone1;
-  CString     m_szPhone2;
-  CString     m_szEmail;
-  CString     m_szNote;
+  CString     m_szName,m_szptype,m_szname0,m_szname1,m_szname2,m_szfalm,m_szUseridadd,m_szUseriddel;
+  unsigned char     m_szpalms;
+  COleDateTime   m_szrecdate,m_szdeldate;
+  bool m_szfdel;
+  int m_szDID;
 
   //Set default values of class members
   void _SetDefaultValues()
   {
-    m_szAccountID  = _T("");
-    m_szName       = _T("");
-    m_szAddress    = _T("");
-    m_szPhone1     = _T("");
-    m_szPhone2     = _T("");
-    m_szEmail      = _T("");
-    m_szNote       = _T("");
+    m_szName  = _T("");
+    m_szptype       = _T("");
+    m_szname0    = _T("");
+    m_szname1     = _T("");
+    m_szname2     = _T("");
+    m_szpalms      = 0;
+    m_szfalm       = _T("");
+    m_szfdel ,m_szDID      = 0;
+//    m_szrecdate    = _T("");
+//    m_szdeldate     = _T("");
+    m_szUseridadd     = _T("");
+    m_szUseriddel      = _T("");
   };
 
   //Exchange field values with data provider
   void DoFieldExchange(bool bSave = FALSE)
   {
-    FX_VarChar           (bSave, _T("AccountID"),  m_szAccountID);
-    FX_VarChar           (bSave, _T("Name"),       m_szName);
-    FX_Text              (bSave, _T("Address"),    m_szAddress);
-    FX_VarChar           (bSave, _T("Phone1"),     m_szPhone1);
-    FX_VarChar           (bSave, _T("Phone2"),     m_szPhone2);
-    FX_VarChar           (bSave, _T("Email"),      m_szEmail);
-    FX_Text              (bSave, _T("Note"),       m_szNote);
+    FX_Integer           (bSave, _T("DID"),  m_szDID);
+    FX_VarChar           (bSave, _T("Name"),  m_szName);
+    FX_VarChar           (bSave, _T("ptype"),       m_szptype);
+    FX_VarChar              (bSave, _T("name0"),    m_szname0);
+    FX_VarChar           (bSave, _T("name1"),     m_szname1);
+    FX_VarChar           (bSave, _T("name2"),     m_szname2);
+    FX_TinyInt           (bSave, _T("palms"),      m_szpalms);
+    FX_VarChar              (bSave, _T("falm"),       m_szfalm);
+    FX_Bool              (bSave, _T("fdel"),  m_szfdel);
+    FX_DateTime           (bSave, _T("recdate"),       m_szrecdate);
+    FX_DateTime              (bSave, _T("deldate"),    m_szdeldate);
+    FX_VarChar           (bSave, _T("Useridadd"),     m_szUseridadd);
+    FX_VarChar           (bSave, _T("Useriddel"),     m_szUseriddel);
   };
 };

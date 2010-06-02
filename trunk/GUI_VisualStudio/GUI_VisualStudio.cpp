@@ -242,16 +242,17 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 	GdiplusStartupInput gdiplusStartupInput;
 	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-	CSettingHostDlg dlg;
-	if(dlg.DoModal() != IDOK)
-		return FALSE;
-
-
 	if(!InitUIInfo())
 	{
 		AfxMessageBox("没有找到合适的分辨率配置文件，请确认是否有当前屏幕分辨率的配置文件!");
 		return FALSE;
 	}
+
+	CSettingHostDlg dlg;
+	if(dlg.DoModal() != IDOK)
+		return FALSE;
+
+
 
 	gstrTimeOut = GetAppPath();
 
