@@ -59,6 +59,127 @@ struct CStrWarn{
 
 
 //////////////////////////////////////////////////////////////////////////
+//表结构
+struct ATypeTField	 {
+	CString AID;                      //模拟量 类型id
+	CString Name;                    //模拟量 类型名称描述   
+	CString ltop;	                  	//高量程
+	CString lbom;	                	//低量程
+	CString palmu;	               //高报警值
+	CString palmd;	              //低报警值
+	CString pbrk;	                 //模拟量类型断电值
+	CString prtn;	                 //模拟量类型复电值
+	CString punit;		        // (计量)单位
+	CString pico;                    //
+	CString falm;                    //
+	CString fdel;		        // (计量)单位
+	CString recdate;		        // (计量)单位
+	CString deldate;		        // (计量)单位
+	CString Useridadd;		        // (计量)单位
+	CString Useriddel;		        // (计量)单位
+};
+struct ATypeTFD	 {
+	CString AID;                      //模拟量 类型id
+	CString Name;                    //模拟量 类型名称描述   
+	CString ltop;	                  	//高量程
+	CString lbom;	                	//低量程
+	CString palmu;	               //高报警值
+	CString palmd;	              //低报警值
+	CString pbrk;	                 //模拟量类型断电值
+	CString prtn;	                 //模拟量类型复电值
+	CString punit;		        // (计量)单位
+	CString pico;                    //
+	CString falm;                    //
+	CString fdel;		        // (计量)单位
+	CString recdate;		        // (计量)单位
+	CString deldate;		        // (计量)单位
+	CString Useridadd;		        // (计量)单位
+	CString Useriddel;		        // (计量)单位
+};
+
+//模拟量类型
+struct ATypeTable	 {
+	CString TableName;                //表名   
+	CString NameD;                    //表名称描述   
+	ATypeTField        m_ATypeTField;      //模拟量 类型结构
+	ATypeTFD        m_ATypeTFD;      //模拟量 类型结构
+};
+//开关量类型
+struct DTypeTField	 {
+	CString TableName;                //表名   
+	CString NameD;                    //表名称描述   
+	CString     DID;                      //开关量类型id
+	CString Name;                    //开关量类型名称描述   
+	CString ptype;	                  	//高量程
+	CString name0;	                	//低量程
+	CString name1;	               //高报警值
+	CString name2;	              //低报警值
+	CString     palms;	                 //开关量类型断电值
+	CString falm;                    //
+	CString fdel;		        // (计量)单位
+	CString recdate;		        // (计量)单位
+	CString deldate;		        // (计量)单位
+	CString Useridadd;		        // (计量)单位
+	CString Useriddel;		        // (计量)单位
+};
+struct DTypeTFD	 {
+	CString TableName;                //表名   
+	CString NameD;                    //表名称描述   
+	CString     DID;                      //开关量类型id
+	CString Name;                    //开关量类型名称描述   
+	CString ptype;	                  	//高量程
+	CString name0;	                	//低量程
+	CString name1;	               //高报警值
+	CString name2;	              //低报警值
+	CString     palms;	                 //开关量类型断电值
+	CString falm;                    //
+	CString fdel;		        // (计量)单位
+	CString recdate;		        // (计量)单位
+	CString deldate;		        // (计量)单位
+	CString Useridadd;		        // (计量)单位
+	CString Useriddel;		        // (计量)单位
+};
+struct DTypeTable	 {
+	CString TableName;                //表名   
+	CString NameD;                    //表名称描述   
+	DTypeTField        m_DTypeTField;      //开关量类型结构
+	DTypeTFD        m_DTypeTFD;      //开关量类型结构
+};
+//测点描述表
+struct PDescriptionTable	 {
+	CString TableName;                //表名   
+	CString NameD;                    //表名称描述   
+	int     PID;                      //开关量类型id
+	CString ptype;	                  	//高量程
+	CString utype;	                	//低量程
+	CString typeID;	               //高报警值
+	CString potioinid;	              //低报警值
+	int     fds;	                 //开关量类型断电值
+	CString chan;                    //
+	CString subOpr;                    //
+	CString fdel;		        // (计量)单位
+	CString recdate;		        // (计量)单位
+	CString deldate;		        // (计量)单位
+	CString Useridadd;		        // (计量)单位
+	CString Useriddel;		        // (计量)单位
+};
+
+
+//控制表
+
+
+//馈电管理表
+
+
+//调校管理表
+
+
+//安装地点表
+
+
+//用户表
+
+
 
 //////////////////////////////////////////////////////////////////////////
 //模拟量 类型结构
@@ -108,6 +229,7 @@ struct OthersSetting {
 	int           Port;                     //端口号
 //	int       numFormView;                  //FormView数量
 	CString   IP;	                        //IP地址   
+	CString   DBname;	                        //数据库名称   
 };
 
 //DrawView

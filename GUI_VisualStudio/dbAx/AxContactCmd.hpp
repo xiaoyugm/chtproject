@@ -36,7 +36,7 @@ public:
   void _CreateParameters()
   {
     ADOParameter *pParam = NULL;
-    pParam = CreateParameter(_T("AccntID"), adVarChar, adParamInput, 32,
+    pParam = CreateParameter(_T("DID"), adVarChar, adParamInput, 32,
       &_variant_t((LPCTSTR) m_szAccntIDParam));
     pParam->Release();
   };
@@ -44,6 +44,6 @@ public:
   //Update command parameters
   void _UpdateParameters()
   {
-    _SetParamValue(_T("AccntID"), &_variant_t((LPCTSTR) m_szAccntIDParam));
+    _SetParamValue(_T("DID"), &_variant_t((LPCTSTR) m_szAccntIDParam));
   };
 };

@@ -45,6 +45,7 @@
 #define ID_PROJECT_ADDRESOURCE          156
 #define ID_PROJECT_ADDNEWITEM           157
 #define ID_PROJECT_ADDEXISTINGITEM      158
+#define IDD_DIALOG_ADDSQL               158
 #define ID_PROJECT_NEWFOLDER            159
 #define ID_BUILD_BUILDSOLUTION          160
 #define ID_BUILD_REBUILDSOLUTION        161
@@ -163,8 +164,15 @@
 #define IDC_BUT_DEL                     1002
 #define IDC_BUT_MOD                     1003
 #define IDC_CLR_SORTBACK                1004
+#define IDC_EDIT1                       1005
+#define IDC_EDIT2                       1006
+#define IDC_EDIT3                       1007
+#define IDC_EDIT4                       1008
+#define IDC_EDIT5                       1009
 #define IDC_FTS_XT_HASARROWS            1010
+#define IDC_EDIT6                       1010
 #define IDC_FTS_XT_HASHOMEEND           1011
+#define IDC_EDIT7                       1011
 #define IDC_FTS_XT_HSCROLL              1012
 #define IDC_FTS_XT_BOTTOM               1013
 #define IDC_MANIPULATE                  1019
@@ -239,9 +247,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        158
+#define _APS_NEXT_RESOURCE_VALUE        159
 #define _APS_NEXT_COMMAND_VALUE         32793
-#define _APS_NEXT_CONTROL_VALUE         1005
+#define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

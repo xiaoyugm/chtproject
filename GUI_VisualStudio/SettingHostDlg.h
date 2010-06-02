@@ -7,6 +7,15 @@
 // SettingHostDlg.h : header file
 //
 
+#include "CListCtrl_DataModel.h"
+//Derived AxLib classes
+#include "dbAx\AxAccountSet.hpp"
+#include "dbAx\AxContactCmd.hpp"
+#include "dbAx\AxContactSet.hpp"
+#include "dbAx\CardFileEvents.hpp"
+#include "dbAx\AccountSetEvents.hpp"
+
+
 /////////////////////////////////////////////////////////////////////////////
 // CSettingHostDlg dialog
 
@@ -46,6 +55,8 @@ public:
 	bool            m_bAscending;
 	CXTHeaderCtrl   m_header;
 	CListCtrl_DataModel m_DataModel;
+	CString2DataType m_Str2Data;
+	int  sqlid;
 
   //AxLib objects
   CAxConnection   m_Cn;

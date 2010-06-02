@@ -37,10 +37,12 @@ private:
     bool ReadFile(const CString& xmlFile, CString& xmlText);
 //    bool RegisterParseControlFunction(const CString& strType, ParseControlFn parseControlFn);
 
+    bool ParsePS(CMarkup& xml);    
     bool ParseGroups(CMarkup& xml);
     bool ParseGroup(CMarkup& xml);    
     bool ParseDrawView(CMarkup& xml);    
 
+    bool        ParseCH(CMarkup& xml);
     bool        ParseControls(CMarkup& xml);
 //    static void ParseControl_Common(CMarkup& xml, CWndControl* pControl);    
 //    void        PerformLinking(CMarkup& xml);
