@@ -12,38 +12,38 @@ GO
 
 CREATE TABLE [BJygjl].[dbo].[analogtype] (
 	[AID] [int]  NOT NULL PRIMARY KEY,
-	[Name] [char] (10) NOT NULL ,
+	[Name] [char] (20) NOT NULL ,
 	[ltop] [float] (8) NOT NULL,
 	[lbom] [float] (8) NOT NULL,
 	[palmu] [float] (8) NOT NULL,
 	[palmd] [float] (8) NOT NULL,
 	[pbrk] [float] (8) NOT NULL,
 	[prtn] [float] (8) NOT NULL,
-	[punit] [char] (10) NOT NULL ,
+	[punit] [char] (20) NOT NULL ,
 	[pico] [int] ,
 	[falm] [char] (50)  ,
 	[fdel] [bit]  NOT NULL,
 	[recdate] [datetime] ,
 	[deldate] [datetime] ,
-	[Useridadd] [char] (10) NOT NULL ,
-	[Useriddel] [char] (10) NOT NULL 
+	[Useridadd] [char] (20) NOT NULL ,
+	[Useriddel] [char] (20) NOT NULL 
 ) ON [PRIMARY] 
 GO
 
 CREATE TABLE [BJygjl].[dbo].[digitaltype] (
 	[DID] [int]  NOT NULL PRIMARY KEY,
-	[Name] [char] (10) NOT NULL ,
-	[ptype] [char] (10) NOT NULL ,
-	[name0] [char] (10) NOT NULL ,
-	[name1] [char] (10) ,
-	[name2] [char] (10) ,
+	[Name] [char] (20) NOT NULL ,
+	[ptype] [char] (20) NOT NULL ,
+	[name0] [char] (20) NOT NULL ,
+	[name1] [char] (20) ,
+	[name2] [char] (20) ,
 	[palms] [tinyint]  NOT NULL,
 	[falm] [char] (50)  ,
 	[fdel] [bit]  NOT NULL,
 	[recdate] [datetime] ,
 	[deldate] [datetime] ,
-	[Useridadd] [char] (10) NOT NULL ,
-	[Useriddel] [char] (10) NOT NULL 
+	[Useridadd] [char] (20) NOT NULL ,
+	[Useriddel] [char] (20) NOT NULL 
 ) ON [PRIMARY] 
 GO
 
@@ -83,8 +83,8 @@ GO
 
 CREATE TABLE [BJygjl].[dbo].[user] (
 	[UID] [int]  NOT NULL PRIMARY KEY,
-	[Name] [char] (10) NOT NULL ,
-	[upwd] [char] (10) NOT NULL,
+	[Name] [char] (20) NOT NULL ,
+	[upwd] [char] (20) NOT NULL,
 	[classer] [int] NOT NULL
 ) ON [PRIMARY] 
 GO
@@ -107,7 +107,7 @@ CREATE TABLE [BJygjl].[dbo].[adjustemendation] (
 	[dflag] [bit]  NOT NULL ,
 	[recdate] [datetime] ,
 	[deldate] [datetime] ,
-	[Useridadd] [char] (10) NOT NULL ,
-	[Useriddel] [char] (10) NOT NULL 
+	[Useridadd] [char] (20) NOT NULL ,
+	[Useriddel] [char] (20) NOT NULL 
 ) ON [PRIMARY] 
 GO
