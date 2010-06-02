@@ -79,7 +79,7 @@ BOOL CAccountDlg::OnInitDialog()
          szFind = m_pAccountSet->m_szname2;
         szFind.TrimRight();
 	  GetDlgItem(IDC_EDIT4)->SetWindowText(szFind);
-         szFind = m_pAccountSet->m_szpalms;
+	  szFind.Format("%d",m_pAccountSet->m_szpalms);
         szFind.TrimRight();
 	  GetDlgItem(IDC_EDIT5)->SetWindowText(szFind);
          szFind = m_pAccountSet->m_szptype;

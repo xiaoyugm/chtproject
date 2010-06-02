@@ -49,10 +49,10 @@ static char THIS_FILE[] = __FILE__;
 
 using namespace dbAx;
 
+extern  ADTypeTable	     m_ADTypeTable[9];
 #define BoolType(b) b?true:false
 /////////////////////////////////////////////////////////////////////////////
 // CSettingHostDlg dialog
-
 
 CSettingHostDlg::CSettingHostDlg(CWnd* pParent /*=NULL*/)
 	: CXTResizeDialog(CSettingHostDlg::IDD, pParent)
@@ -65,9 +65,9 @@ CSettingHostDlg::CSettingHostDlg(CWnd* pParent /*=NULL*/)
 	m_bRowColor = TRUE;
 	m_bSortColor = TRUE;
 	sqlid = 0;
+	m_strtable = _T("");
 	//}}AFX_DATA_INIT
 }
-
 
 void CSettingHostDlg::DoDataExchange(CDataExchange* pDX)
 {
@@ -81,7 +81,6 @@ void CSettingHostDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CLR_SORTBACK, m_cpSortBack);
     //}}AFX_DATA_MAP
 }
-
 
 BEGIN_MESSAGE_MAP(CSettingHostDlg, CXTResizeDialog)
 	//{{AFX_MSG_MAP(CSettingHostDlg)
@@ -126,11 +125,11 @@ BOOL CSettingHostDlg::OnInitDialog()
 	// Enable Office XP themes.
 	XTThemeManager()->SetTheme(xtThemeOfficeXP);
 
-	MoveWindow(CRect(200,200,1100,700));
+	MoveWindow(CRect(50,100,960,700));
 	// Load window placement
 //	LoadPlacement(_T("CListCtrlDlg"));
 	// Give better margin to editors
-	m_listCtrl.SetCellMargin(1.2);
+/*	m_listCtrl.SetCellMargin(1.2);
 	CGridRowTraitXP* pRowTrait = new CGridRowTraitXP;
 	m_listCtrl.SetDefaultRowTrait(pRowTrait);
 	// Create Columns
@@ -144,7 +143,7 @@ BOOL CSettingHostDlg::OnInitDialog()
 		strItem.Format(_T("Item %d"), iItem);
 //		m_listCtrl.InsertItem(iItem, strItem, 0);
 	}
-
+*/
 	// Get the windows handle to the header control for the
 	// list control then subclass the control.
 	HWND hWndHeader = m_listCtrl.GetDlgItem(0)->GetSafeHwnd();
@@ -185,42 +184,136 @@ BOOL CSettingHostDlg::OnInitDialog()
 	m_cpRowText.SetDefaultColor(m_listCtrl.GetListTextColor());
 */
 
-	for(int col = 0; col < m_DataModel.GetColCount() ; ++col)
+/*	for(int col = 0; col < m_DataModel.GetColCount() ; ++col)
 	{
 		const string& title = m_DataModel.GetColTitle(col);
 		CGridColumnTrait* pTrait = NULL;
-//		if (col==0)	// City
+		if (col==0)	// City
 		{
 			pTrait = new CGridColumnTraitEdit;
 		}
 		if (col==1)	// State
 		{
-/*			CGridColumnTraitCombo* pComboTrait = new CGridColumnTraitCombo;
+			CGridColumnTraitCombo* pComboTrait = new CGridColumnTraitCombo;
 			const vector<string>& states = m_DataModel.GetStates();
 			for(size_t i=0; i < states.size() ; ++i)
 				pComboTrait->AddItem((int)i, CString(states[i].c_str()));
-			pTrait = pComboTrait;*/
+			pTrait = pComboTrait;
 		}
 		if (col==2)	// Country
 		{
-/*			CGridColumnTraitCombo* pComboTrait = new CGridColumnTraitCombo;
+			CGridColumnTraitCombo* pComboTrait = new CGridColumnTraitCombo;
 			pComboTrait->SetStyle( pComboTrait->GetStyle() | CBS_DROPDOWNLIST);
 			const vector<string>& countries = m_DataModel.GetCountries();
 			for(size_t i=0; i < countries.size() ; ++i)
 				pComboTrait->AddItem((int)i, CString(countries[i].c_str()));
-			pTrait = pComboTrait;*/
+			pTrait = pComboTrait;
 		}
 		m_listCtrl.InsertColumnTrait(col+1, CString(title.c_str()), LVCFMT_LEFT, 100, col, NULL);
-	}
+	}*/
 //	OnSelendokComboThemes();
 	m_listCtrl.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_SHOWSELALWAYS | LVS_EX_GRIDLINES);
 	m_listCtrl.EnableUserSortColor(BoolType(m_bSortColor));
 	m_listCtrl.EnableUserListColor(BoolType(m_bListColor));
 	m_listCtrl.EnableUserRowColor(BoolType(m_bRowColor));
 
+
+	if(m_ADTypeTable[1].TableName ==  m_strtable)
+	{
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[1].m_DTypeTFD.Name,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(1,m_ADTypeTable[1].m_DTypeTFD.name0,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(2,m_ADTypeTable[1].m_DTypeTFD.name1,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(3,m_ADTypeTable[1].m_DTypeTFD.name2,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(4,m_ADTypeTable[1].m_DTypeTFD.palms,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(5,m_ADTypeTable[1].m_DTypeTFD.falm,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(6,m_ADTypeTable[1].m_DTypeTFD.recdate,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(7,m_ADTypeTable[1].m_DTypeTFD.Useridadd,LVCFMT_LEFT,100);
+	}
+
     BuildAccountList();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
+}
+
+//BuildAccountList will populate the Account list with all
+//available records. This method is called on startup and 
+//each time a new Account record is added, edited, or deleted
+void CSettingHostDlg::BuildAccountList()
+{
+    m_listCtrl.DeleteAllItems();
+
+  try
+  {
+    if ( m_AccountSet._IsEmpty() )
+    {
+      m_listCtrl.InsertItem(0, _T("<< >>"));
+      return;
+    }
+    m_listCtrl.SetItemCount(m_AccountSet.RecordCount());
+    int iItem = 0;
+
+
+       	// Insert data into list-control by copying from datamodel
+    	int nItem = 0;
+/*    	for(size_t rowId = 0; rowId < m_DataModel.GetRowIds() ; ++rowId)
+		{
+		nItem = m_listCtrl.InsertItem(++nItem, CString(m_DataModel.GetCellText(rowId, 0).c_str()));
+		m_listCtrl.SetItemData(nItem, rowId);
+    		for(int col = 0; col < m_DataModel.GetColCount() ; ++col)
+			{
+			m_listCtrl.SetItemText(nItem, col+1, CString(m_DataModel.GetCellText(rowId, col).c_str()));
+			}
+		}
+*/
+
+
+    m_AccountSet.MoveFirst();
+    while ( !m_AccountSet.IsEOF() )
+    {
+		if(m_ADTypeTable[1].TableName ==  m_strtable)
+		{
+			  CString dddd;
+			  m_listCtrl.InsertItem(iItem, m_AccountSet.m_szName);
+		//		dddd = m_AccountSet.m_szptype;
+		//		bool xxx = m_AccountSet.m_szfdel;
+			  m_listCtrl.SetItemText(iItem, 1, m_AccountSet.m_szname0);
+			  m_listCtrl.SetItemText(iItem, 2, m_AccountSet.m_szname1);
+			  m_listCtrl.SetItemText(iItem, 3, m_AccountSet.m_szname2);
+			  dddd.Format("%d",m_AccountSet.m_szpalms);
+			  m_listCtrl.SetItemText(iItem, 4, dddd);
+			  m_listCtrl.SetItemText(iItem, 5, m_AccountSet.m_szfalm);
+			  COleDateTime oleDateTime=m_AccountSet.m_szrecdate;
+		//	  CString   str   =   oleDateTime.Format(_T("%A, %B %d, %Y")); 
+			  CString   str   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+		//	  oleDateTime = m_AccountSet.m_szdeldate;
+			  m_listCtrl.SetItemText(iItem, 6, str);
+			  m_listCtrl.SetItemText(iItem, 7, m_AccountSet.m_szUseridadd);
+		}
+        iItem++;
+    	sqlid = m_AccountSet.m_szDID +1;
+        m_AccountSet.MoveNext();
+    }
+
+    //Highlight the first item
+/*    LV_ITEM lvi;
+		lvi.mask = LVIF_TEXT;
+		lvi.iItem = 0;
+		lvi.iSubItem = 0;
+	  lvi.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
+	  lvi.state = LVIS_SELECTED | LVIS_FOCUSED;
+		lvi.pszText = (LPSTR)(LPCTSTR)m_AccountSet.m_szAccountID;
+		lvi.iImage = 0;
+		lvi.iIndent = 0;
+		lvi.cchTextMax = 50;
+
+    m_listCtrl.SetItemState(lvi.iItem, &lvi);*/
+    m_AccountSet.MoveFirst();
+  }
+  catch ( dbAx::CAxException *e )
+  {
+    MessageBox(e->m_szErrorDesc, _T("CardFile Message"), MB_OK);
+    delete e;
+  }
 }
 
 void CSettingHostDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -270,12 +363,12 @@ BOOL CSettingHostDlg::ConnectToProvider()
 {
   //Connection string generated by AxGen. Change the settings as 
   //required for a particular environment
-  CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
-                          User ID=sa;Password=sunset;\
-                          Data Source=(local)\\SQLEXPRESS;Initial Catalog=BJygjl");
 //  CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
 //                          User ID=sa;Password=sunset;\
-//                          Data Source=127.0.0.1;Initial Catalog=CardFile");
+                          Data Source=(local)\\SQLEXPRESS;Initial Catalog=BJygjl");
+  CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
+                          User ID=sa;Password=sunset;\
+                          Data Source=127.0.0.1;Initial Catalog=BJygjl");
 
 //All calls to the AxLib should be wrapped in a try / catch block
   try
@@ -473,82 +566,3 @@ void CSettingHostDlg::OnBtnMOD()
     BuildAccountList();
 }
 
-//BuildAccountList will populate the Account list with all
-//available records. This method is called on startup and 
-//each time a new Account record is added, edited, or deleted
-void CSettingHostDlg::BuildAccountList()
-{
-    m_listCtrl.DeleteAllItems();
-
-  try
-  {
-    if ( m_AccountSet._IsEmpty() )
-    {
-      m_listCtrl.InsertItem(0, _T("<< >>"));
-      return;
-    }
-    m_listCtrl.SetItemCount(m_AccountSet.RecordCount());
-    int iItem = 0;
-
-
-       	// Insert data into list-control by copying from datamodel
-    	int nItem = 0;
-/*    	for(size_t rowId = 0; rowId < m_DataModel.GetRowIds() ; ++rowId)
-		{
-		nItem = m_listCtrl.InsertItem(++nItem, CString(m_DataModel.GetCellText(rowId, 0).c_str()));
-		m_listCtrl.SetItemData(nItem, rowId);
-    		for(int col = 0; col < m_DataModel.GetColCount() ; ++col)
-			{
-			m_listCtrl.SetItemText(nItem, col+1, CString(m_DataModel.GetCellText(rowId, col).c_str()));
-			}
-		}
-*/
-
-
-    m_AccountSet.MoveFirst();
-    while ( !m_AccountSet.IsEOF() )
-    {
-	  CString dddd;
-	  m_listCtrl.InsertItem(iItem, m_AccountSet.m_szName);
-//		dddd = m_AccountSet.m_szptype;
-//		bool xxx = m_AccountSet.m_szfdel;
-      m_listCtrl.SetItemText(iItem, 1, m_AccountSet.m_szName);
-      m_listCtrl.SetItemText(iItem, 2, m_AccountSet.m_szname0);
-      m_listCtrl.SetItemText(iItem, 3, m_AccountSet.m_szname1);
-      m_listCtrl.SetItemText(iItem, 4, m_AccountSet.m_szname2);
-	  dddd.Format("%d",m_AccountSet.m_szpalms);
-      m_listCtrl.SetItemText(iItem, 5, dddd);
-      m_listCtrl.SetItemText(iItem, 6, m_AccountSet.m_szfalm);
-	  COleDateTime oleDateTime=m_AccountSet.m_szrecdate;
-//	  CString   str   =   oleDateTime.Format(_T("%A, %B %d, %Y")); 
-	  CString   str   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-//	  oleDateTime = m_AccountSet.m_szdeldate;
-      m_listCtrl.SetItemText(iItem, 7, str);
-      m_listCtrl.SetItemText(iItem, 8, m_AccountSet.m_szUseridadd);
-
-      iItem++;
-	  sqlid = m_AccountSet.m_szDID +1;
-      m_AccountSet.MoveNext();
-    }
-
-    //Highlight the first item
-/*    LV_ITEM lvi;
-		lvi.mask = LVIF_TEXT;
-		lvi.iItem = 0;
-		lvi.iSubItem = 0;
-	  lvi.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
-	  lvi.state = LVIS_SELECTED | LVIS_FOCUSED;
-		lvi.pszText = (LPSTR)(LPCTSTR)m_AccountSet.m_szAccountID;
-		lvi.iImage = 0;
-		lvi.iIndent = 0;
-		lvi.cchTextMax = 50;
-
-    m_listCtrl.SetItemState(lvi.iItem, &lvi);*/
-    m_AccountSet.MoveFirst();
-  }
-  catch ( dbAx::CAxException *e )
-  {
-    MessageBox(e->m_szErrorDesc, _T("CardFile Message"), MB_OK);
-    delete e;
-  }
-}

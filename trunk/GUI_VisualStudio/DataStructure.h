@@ -60,6 +60,7 @@ struct CStrWarn{
 
 //////////////////////////////////////////////////////////////////////////
 //表结构
+//模拟量类型
 struct ATypeTField	 {
 	CString AID;                      //模拟量 类型id
 	CString Name;                    //模拟量 类型名称描述   
@@ -97,13 +98,6 @@ struct ATypeTFD	 {
 	CString Useriddel;		        // (计量)单位
 };
 
-//模拟量类型
-struct ATypeTable	 {
-	CString TableName;                //表名   
-	CString NameD;                    //表名称描述   
-	ATypeTField        m_ATypeTField;      //模拟量 类型结构
-	ATypeTFD        m_ATypeTFD;      //模拟量 类型结构
-};
 //开关量类型
 struct DTypeTField	 {
 	CString TableName;                //表名   
@@ -139,16 +133,9 @@ struct DTypeTFD	 {
 	CString Useridadd;		        // (计量)单位
 	CString Useriddel;		        // (计量)单位
 };
-struct DTypeTable	 {
-	CString TableName;                //表名   
-	CString NameD;                    //表名称描述   
-	DTypeTField        m_DTypeTField;      //开关量类型结构
-	DTypeTFD        m_DTypeTFD;      //开关量类型结构
-};
+
 //测点描述表
 struct PDescriptionTable	 {
-	CString TableName;                //表名   
-	CString NameD;                    //表名称描述   
 	int     PID;                      //开关量类型id
 	CString ptype;	                  	//高量程
 	CString utype;	                	//低量程
@@ -162,6 +149,16 @@ struct PDescriptionTable	 {
 	CString deldate;		        // (计量)单位
 	CString Useridadd;		        // (计量)单位
 	CString Useriddel;		        // (计量)单位
+};
+
+struct ADTypeTable	 {
+	CString TableName;                //表名   
+	CString NameD;                    //表名称描述   
+	ATypeTField        m_ATypeTField;      //模拟量 类型结构
+	ATypeTFD        m_ATypeTFD;      //模拟量 类型结构
+	DTypeTField        m_DTypeTField;      //开关量类型结构
+	DTypeTFD        m_DTypeTFD;      //开关量类型结构
+	PDescriptionTable     m_PDescriptionTable;
 };
 
 

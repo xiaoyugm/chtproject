@@ -57,6 +57,7 @@ public:
 	CListCtrl_DataModel m_DataModel;
 	CString2DataType m_Str2Data;
 	int  sqlid;
+	CString     m_strtable;
 
   //AxLib objects
   CAxConnection   m_Cn;
