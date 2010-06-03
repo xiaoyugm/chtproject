@@ -241,6 +241,7 @@
 #define IDC_COMBO_THEMES                32792
 #define ID_A_D                          32793
 #define ID_D_D                          32794
+#define ID_LOCALTION                    32795
 #define ID_EDIT_STATE                   32815
 #define ID_EDIT_FIND_EX                 32816
 #define ID_GOTO_URL                     32817
@@ -261,7 +262,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        159
-#define _APS_NEXT_COMMAND_VALUE         32795
+#define _APS_NEXT_COMMAND_VALUE         32796
 #define _APS_NEXT_CONTROL_VALUE         1019
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

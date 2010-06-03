@@ -41,6 +41,7 @@ BEGIN
     BEGIN
         MENUITEM "模拟量类型定义",              ID_A_D
         MENUITEM "开关量类型定义",              ID_D_D
+        MENUITEM "安装位置定义",                ID_LOCALTION
     END
     POPUP "页面编辑"
     BEGIN
@@ -160,7 +161,7 @@ END
 IDD_DIALOG_HOST_SETTING DIALOGEX 0, 0, 272, 187
 STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "设置主机信息"
-FONT 9, "宋体"
+FONT 9, "宋体", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "确定(&O)",IDOK,151,130,50,14,NOT WS_VISIBLE
     PUSHBUTTON      "取消(&C)",IDCANCEL,92,129,50,14,NOT WS_VISIBLE

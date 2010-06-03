@@ -51,7 +51,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_MANIPULATE, OnManipulate)
 	ON_COMMAND(ID_D_D, OnDigital)
 	ON_COMMAND(ID_A_D, OnAnalog)
-//	ON_MESSAGE(WM_XTP_PRETRANSLATEMOUSEMSG, OnTabbarMouseMsg)
+	ON_COMMAND(ID_LOCALTION, OnLocation)
+//	ON_MESSAGE(WM_XTP_PRETRANSLATEMOUSEMSG, OnTabbarMouseMsg)  
 //    ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_INFO, OnSelchangeTabInfo)
 	//}}AFX_MSG_MAP
 	ON_MESSAGE(XTPWM_DOCKINGPANE_NOTIFY, OnDockingPaneNotify)
@@ -1215,9 +1216,12 @@ void CMainFrame::OnAnalog()
 //		return FALSE;
 }
 
-//void CMainFrame::OnGenus() 
-//{
-//}
+void CMainFrame::OnLocation() 
+{
+	CSettingHostDlg dlg;
+	dlg.m_strtable =  _T("fixlocation");
+	dlg.DoModal() ;
+}
 
 void CMainFrame::OnSimulation() 
 {
