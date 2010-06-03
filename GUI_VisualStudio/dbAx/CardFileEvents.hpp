@@ -13,7 +13,7 @@ public:
                EventStatusEnum * adStatus,
                _ADOConnection * pConnection)
       {
-        AfxMessageBox(_T("Connected to CardFile"));
+        AfxMessageBox(_T("Connected to BJygjl"));
         return S_OK;
       }
 };
