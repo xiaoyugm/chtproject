@@ -174,11 +174,22 @@
 #define IDC_FTS_XT_HASHOMEEND           1011
 #define IDC_EDIT7                       1011
 #define IDC_FTS_XT_HSCROLL              1012
+#define IDC_STATIC1                     1012
 #define IDC_FTS_XT_BOTTOM               1013
+#define IDC_STATIC2                     1013
+#define IDC_STATIC3                     1014
+#define IDC_STATIC4                     1015
+#define IDC_STATIC5                     1016
+#define IDC_STATIC6                     1017
+#define IDC_STATIC7                     1018
 #define IDC_MANIPULATE                  1019
+#define IDC_STATIC8                     1019
 #define IDC_DELETE_ALL                  1020
+#define IDC_EDIT8                       1020
 #define IDC_TAB_NUM                     1021
+#define IDC_STATIC9                     1021
 #define IDC_TEXT                        1022
+#define IDC_EDIT9                       1022
 #define IDC_DELETE_TAB                  1023
 #define IDC_MODIFY_TAB                  1024
 #define IDC_ADD_TAB                     1025
@@ -228,6 +239,8 @@
 #define ID_SKINFRAMEWORK_VISTABLACK     32791
 #define ID_SKINFRAMEWORK_SYSTEM         32792
 #define IDC_COMBO_THEMES                32792
+#define ID_A_D                          32793
+#define ID_D_D                          32794
 #define ID_EDIT_STATE                   32815
 #define ID_EDIT_FIND_EX                 32816
 #define ID_GOTO_URL                     32817
@@ -248,8 +261,8 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        159
-#define _APS_NEXT_COMMAND_VALUE         32793
-#define _APS_NEXT_CONTROL_VALUE         1006
+#define _APS_NEXT_COMMAND_VALUE         32795
+#define _APS_NEXT_CONTROL_VALUE         1019
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

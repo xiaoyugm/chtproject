@@ -27,6 +27,7 @@
 #include "FlatTabViewView.h"
 #include "FlatTabViewDoc.h"
 #include "ChildFrm.h"
+#include "SettingHostDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -48,6 +49,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_OnSimulation, OnSimulation)
 	ON_COMMAND(ID_OnGenus, OnGenus)
 	ON_COMMAND(ID_MANIPULATE, OnManipulate)
+	ON_COMMAND(ID_D_D, OnDigital)
+	ON_COMMAND(ID_A_D, OnAnalog)
 //	ON_MESSAGE(WM_XTP_PRETRANSLATEMOUSEMSG, OnTabbarMouseMsg)
 //    ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_INFO, OnSelchangeTabInfo)
 	//}}AFX_MSG_MAP
@@ -1196,6 +1199,25 @@ void CMainFrame::OnUpdateTheme(CCmdUI* pCmdUI)
 	pCmdUI->SetCheck(pCmdUI->m_nID == m_nTheme ? TRUE : FALSE);
 }
 
+void CMainFrame::OnDigital() 
+{
+	CSettingHostDlg dlg;
+	dlg.m_strtable =  _T("digitaltype");
+	dlg.DoModal() ;
+}
+
+void CMainFrame::OnAnalog() 
+{
+	CSettingHostDlg dlg;
+	dlg.m_strtable =  _T("analogtype");
+	dlg.DoModal() ;
+//	if(dlg.DoModal() != IDOK)
+//		return FALSE;
+}
+
+//void CMainFrame::OnGenus() 
+//{
+//}
 
 void CMainFrame::OnSimulation() 
 {

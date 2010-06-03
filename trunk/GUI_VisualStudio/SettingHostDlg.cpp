@@ -110,8 +110,6 @@ BOOL CSettingHostDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);         // Set big icon
 	SetIcon(m_hIcon, FALSE);        // Set small icon
 
-	SetWindowText(_T("Settings"));
-
 	// Set control resizing.
 	SetResize(IDOK,                  SZ_TOP_RIGHT,   SZ_TOP_RIGHT);
 	SetResize(IDCANCEL,              SZ_TOP_RIGHT,   SZ_TOP_RIGHT);
@@ -125,7 +123,6 @@ BOOL CSettingHostDlg::OnInitDialog()
 	// Enable Office XP themes.
 	XTThemeManager()->SetTheme(xtThemeOfficeXP);
 
-	MoveWindow(CRect(50,100,960,700));
 	// Load window placement
 //	LoadPlacement(_T("CListCtrlDlg"));
 	// Give better margin to editors
@@ -220,6 +217,8 @@ BOOL CSettingHostDlg::OnInitDialog()
 
 	if(m_ADTypeTable[1].TableName ==  m_strtable)
 	{
+    	SetWindowText(_T(m_ADTypeTable[1].NameD));
+    	MoveWindow(CRect(50,100,960,700));
 		m_listCtrl.InsertColumn(0,m_ADTypeTable[1].m_DTypeTFD.Name,LVCFMT_LEFT,100);
 		m_listCtrl.InsertColumn(1,m_ADTypeTable[1].m_DTypeTFD.name0,LVCFMT_LEFT,100);
 		m_listCtrl.InsertColumn(2,m_ADTypeTable[1].m_DTypeTFD.name1,LVCFMT_LEFT,100);
@@ -228,6 +227,22 @@ BOOL CSettingHostDlg::OnInitDialog()
 		m_listCtrl.InsertColumn(5,m_ADTypeTable[1].m_DTypeTFD.falm,LVCFMT_LEFT,100);
 		m_listCtrl.InsertColumn(6,m_ADTypeTable[1].m_DTypeTFD.recdate,LVCFMT_LEFT,100);
 		m_listCtrl.InsertColumn(7,m_ADTypeTable[1].m_DTypeTFD.Useridadd,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(8,m_ADTypeTable[1].m_DTypeTFD.ptype,LVCFMT_LEFT,100);
+	}
+	if(m_ADTypeTable[0].TableName ==  m_strtable)
+	{
+    	SetWindowText(_T(m_ADTypeTable[0].NameD));
+    	MoveWindow(CRect(50,100,960,700));
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[0].m_DTypeTFD.Name,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(1,m_ADTypeTable[0].m_DTypeTFD.ltop,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(2,m_ADTypeTable[0].m_DTypeTFD.lbom,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(3,m_ADTypeTable[0].m_DTypeTFD.palmu,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(4,m_ADTypeTable[0].m_DTypeTFD.palmd,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(5,m_ADTypeTable[0].m_DTypeTFD.pbrk,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(6,m_ADTypeTable[0].m_DTypeTFD.prtn,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(7,m_ADTypeTable[0].m_DTypeTFD.punit,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(8,m_ADTypeTable[0].m_DTypeTFD.recdate,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(9,m_ADTypeTable[0].m_DTypeTFD.Useridadd,LVCFMT_LEFT,100);
 	}
 
     BuildAccountList();
@@ -244,17 +259,81 @@ void CSettingHostDlg::BuildAccountList()
 
   try
   {
-    if ( m_AccountSet._IsEmpty() )
-    {
-      m_listCtrl.InsertItem(0, _T("<< >>"));
-      return;
-    }
-    m_listCtrl.SetItemCount(m_AccountSet.RecordCount());
-    int iItem = 0;
-
+	  if(m_ADTypeTable[1].TableName ==  m_strtable)
+	  {
+		if ( m_AccountSet._IsEmpty() )
+		{
+		  m_listCtrl.InsertItem(0, _T("<< >>"));
+		  return;
+		}
+		m_listCtrl.SetItemCount(m_AccountSet.RecordCount());
+		int iItem = 0;
+		m_AccountSet.MoveFirst();
+		while ( !m_AccountSet.IsEOF() )
+		{
+				  CString dddd;
+				  m_listCtrl.InsertItem(iItem, m_AccountSet.m_szName);
+			//		dddd = m_AccountSet.m_szptype;
+			//		bool xxx = m_AccountSet.m_szfdel;
+				  m_listCtrl.SetItemText(iItem, 1, m_AccountSet.m_szname0);
+				  m_listCtrl.SetItemText(iItem, 2, m_AccountSet.m_szname1);
+				  m_listCtrl.SetItemText(iItem, 3, m_AccountSet.m_szname2);
+				  dddd.Format("%d",m_AccountSet.m_szpalms);
+				  m_listCtrl.SetItemText(iItem, 4, dddd);
+				  m_listCtrl.SetItemText(iItem, 5, m_AccountSet.m_szfalm);
+				  COleDateTime oleDateTime=m_AccountSet.m_szrecdate;
+			//	  CString   str   =   oleDateTime.Format(_T("%A, %B %d, %Y")); 
+				  CString   str   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+			//	  oleDateTime = m_AccountSet.m_szdeldate;
+				  m_listCtrl.SetItemText(iItem, 6, str);
+				  m_listCtrl.SetItemText(iItem, 7, m_AccountSet.m_szUseridadd);
+				  m_listCtrl.SetItemText(iItem, 8, m_AccountSet.m_szptype);
+			iItem++;
+			sqlid = m_AccountSet.m_szDID +1;
+			m_AccountSet.MoveNext();
+		}
+        m_AccountSet.MoveFirst();
+	  }
+	  else if(m_ADTypeTable[0].TableName ==  m_strtable)
+	  {
+		if ( m_ContactSet._IsEmpty() )
+		{
+//		  m_listCtrl.InsertItem(0, _T("<< >>"));
+		  return;
+		}
+		m_listCtrl.SetItemCount(m_ContactSet.RecordCount());
+		int iItem = 0;
+		m_ContactSet.MoveFirst();
+		while ( !m_ContactSet.IsEOF() )
+		{
+				  CString dddd;
+				  m_listCtrl.InsertItem(iItem, m_ContactSet.m_szName);
+				  dddd.Format("%.4f",m_ContactSet.m_szltop);
+				  m_listCtrl.SetItemText(iItem, 1, dddd);
+				  dddd.Format("%.4f",m_ContactSet.m_szlbom);
+				  m_listCtrl.SetItemText(iItem, 2, dddd);
+				  dddd.Format("%.4f",m_ContactSet.m_szpalmu);
+				  m_listCtrl.SetItemText(iItem, 3, dddd);
+				  dddd.Format("%.4f",m_ContactSet.m_szpalmd);
+				  m_listCtrl.SetItemText(iItem, 4, dddd);
+				  dddd.Format("%.4f",m_ContactSet.m_szpbrk);
+				  m_listCtrl.SetItemText(iItem, 5, dddd);
+				  dddd.Format("%.4f",m_ContactSet.m_szprtn);
+				  m_listCtrl.SetItemText(iItem, 6, dddd);
+				  m_listCtrl.SetItemText(iItem, 7, m_ContactSet.m_szpunit);
+				  COleDateTime oleDateTime=m_ContactSet.m_szrecdate;
+				  dddd   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+				  m_listCtrl.SetItemText(iItem, 8, dddd);
+				  m_listCtrl.SetItemText(iItem, 9, m_ContactSet.m_szUseridadd);
+			iItem++;
+			sqlid = m_ContactSet.m_szAID +1;
+			m_ContactSet.MoveNext();
+		}
+        m_ContactSet.MoveFirst();
+	  }
 
        	// Insert data into list-control by copying from datamodel
-    	int nItem = 0;
+//    	int nItem = 0;
 /*    	for(size_t rowId = 0; rowId < m_DataModel.GetRowIds() ; ++rowId)
 		{
 		nItem = m_listCtrl.InsertItem(++nItem, CString(m_DataModel.GetCellText(rowId, 0).c_str()));
@@ -265,34 +344,6 @@ void CSettingHostDlg::BuildAccountList()
 			}
 		}
 */
-
-
-    m_AccountSet.MoveFirst();
-    while ( !m_AccountSet.IsEOF() )
-    {
-		if(m_ADTypeTable[1].TableName ==  m_strtable)
-		{
-			  CString dddd;
-			  m_listCtrl.InsertItem(iItem, m_AccountSet.m_szName);
-		//		dddd = m_AccountSet.m_szptype;
-		//		bool xxx = m_AccountSet.m_szfdel;
-			  m_listCtrl.SetItemText(iItem, 1, m_AccountSet.m_szname0);
-			  m_listCtrl.SetItemText(iItem, 2, m_AccountSet.m_szname1);
-			  m_listCtrl.SetItemText(iItem, 3, m_AccountSet.m_szname2);
-			  dddd.Format("%d",m_AccountSet.m_szpalms);
-			  m_listCtrl.SetItemText(iItem, 4, dddd);
-			  m_listCtrl.SetItemText(iItem, 5, m_AccountSet.m_szfalm);
-			  COleDateTime oleDateTime=m_AccountSet.m_szrecdate;
-		//	  CString   str   =   oleDateTime.Format(_T("%A, %B %d, %Y")); 
-			  CString   str   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-		//	  oleDateTime = m_AccountSet.m_szdeldate;
-			  m_listCtrl.SetItemText(iItem, 6, str);
-			  m_listCtrl.SetItemText(iItem, 7, m_AccountSet.m_szUseridadd);
-		}
-        iItem++;
-    	sqlid = m_AccountSet.m_szDID +1;
-        m_AccountSet.MoveNext();
-    }
 
     //Highlight the first item
 /*    LV_ITEM lvi;
@@ -306,12 +357,12 @@ void CSettingHostDlg::BuildAccountList()
 		lvi.iIndent = 0;
 		lvi.cchTextMax = 50;
 
-    m_listCtrl.SetItemState(lvi.iItem, &lvi);*/
     m_AccountSet.MoveFirst();
+    m_listCtrl.SetItemState(lvi.iItem, &lvi);*/
   }
   catch ( dbAx::CAxException *e )
   {
-    MessageBox(e->m_szErrorDesc, _T("CardFile Message"), MB_OK);
+    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
     delete e;
   }
 }
@@ -363,12 +414,12 @@ BOOL CSettingHostDlg::ConnectToProvider()
 {
   //Connection string generated by AxGen. Change the settings as 
   //required for a particular environment
-//  CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
-//                          User ID=sa;Password=sunset;\
-                          Data Source=(local)\\SQLEXPRESS;Initial Catalog=BJygjl");
   CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
                           User ID=sa;Password=sunset;\
-                          Data Source=127.0.0.1;Initial Catalog=BJygjl");
+                          Data Source=(local)\\SQLEXPRESS;Initial Catalog=BJygjl");
+//  CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
+//                          User ID=sa;Password=sunset;\
+//                          Data Source=127.0.0.1;Initial Catalog=BJygjl");
 
 //All calls to the AxLib should be wrapped in a try / catch block
   try
@@ -392,21 +443,23 @@ BOOL CSettingHostDlg::ConnectToProvider()
     m_Cn.CursorLocation(adUseClient);
     m_Cn.Open((LPCTSTR)szConnect);
 
-    //Create the AccountSet, Recordset events, and Open
-    //Note that options are set on the CAxRecordset object
-    //before callint the Open method. In this instance,
-    //the Create method must be called first. See the
-    //note below regarding m_ContactSet.
-    m_AccountSet.Create();
-    m_AccountSet.CursorType(adOpenDynamic);
-    m_AccountSet.CacheSize(50);
-    m_AccountSet._SetRecordsetEvents(new CAccountSetEvents);
-    m_AccountSet.Open(_T("Select * From digitaltype"), &m_Cn);
+	if(m_ADTypeTable[1].TableName ==  m_strtable)
+	{
+		//Create the AccountSet, Recordset events, and Open
+		//Note that options are set on the CAxRecordset object
+		//before callint the Open method. In this instance,
+		//the Create method must be called first. See the
+		//note below regarding m_ContactSet.
+		m_AccountSet.Create();
+		m_AccountSet.CursorType(adOpenDynamic);
+		m_AccountSet.CacheSize(50);
+		m_AccountSet._SetRecordsetEvents(new CAccountSetEvents);
+		m_AccountSet.Open(_T("Select * From digitaltype"), &m_Cn);
 
-    //Set the marshal options to minimize records returned to server
-    //to only those that have been edited.
-    m_AccountSet.MarshalOptions(adMarshalModifiedOnly);
-
+		//Set the marshal options to minimize records returned to server
+		//to only those that have been edited.
+		m_AccountSet.MarshalOptions(adMarshalModifiedOnly);
+	}
     //Setup the command object that will execute the stored
     //procedure "get_Contacts" to match contact information
     //with the currently selected Account record.
@@ -426,10 +479,20 @@ BOOL CSettingHostDlg::ConnectToProvider()
     //to the Create method. This is handled automatically when opening
     //the recordset.
 //    m_ContactSet.Open(&m_ContactCmd, adOpenDynamic);
+	if(m_ADTypeTable[0].TableName ==  m_strtable)
+	{
+		m_ContactSet.Create();
+		m_ContactSet.CursorType(adOpenDynamic);
+		m_ContactSet.CacheSize(50);
+		m_ContactSet._SetRecordsetEvents(new CAccountSetEvents);
+		m_ContactSet.Open(_T("Select * From analogtype"), &m_Cn);
+		m_ContactSet.MarshalOptions(adMarshalModifiedOnly);
+	}
+
   }
   catch ( dbAx::CAxException *e )
   {
-    MessageBox(e->m_szErrorDesc, _T("CardFile Message"), MB_OK);
+    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
     delete e;
     return (FALSE);
   }
@@ -467,15 +530,18 @@ void CSettingHostDlg::OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult)
        BuildAccountList();
    }   */
 //   AfxMessageBox(sTemp);
-
-
-
-  // TODO: Add your control notification handler code here
   *pResult = 0;
 
-  if ( pNMLV->uNewState == 3 && !m_AccountSet._IsEmpty() )
+  if ( pNMLV->uNewState == 3 )
   {
-    m_AccountSet.AbsolutePosition(pNMLV->iItem + 1);
+	  if(m_ADTypeTable[1].TableName ==  m_strtable && !m_AccountSet._IsEmpty() ) 
+	  {
+           m_AccountSet.AbsolutePosition(pNMLV->iItem + 1);
+	  }
+	  else if(m_ADTypeTable[0].TableName ==  m_strtable && !m_ContactSet._IsEmpty() )
+	  {
+           m_ContactSet.AbsolutePosition(pNMLV->iItem + 1);
+	  }
 //    BuildAccountList();
   }
 }
@@ -500,7 +566,7 @@ void CSettingHostDlg::OnClose()
   }
   catch ( CAxException *e )
   {
-    MessageBox(e->m_szErrorDesc, _T("CardFile Message"), MB_OK);
+    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
     delete e;
   }
 
@@ -523,6 +589,7 @@ void CSettingHostDlg::OnBtnADD()
 {
   CAccountDlg dlg(this);
   dlg.acdid= sqlid;
+  dlg.strtable= m_strtable;
 
   if ( dlg.DoModal() == IDOK )
     BuildAccountList();
@@ -531,7 +598,16 @@ void CSettingHostDlg::OnBtnADD()
 void CSettingHostDlg::OnBtnDEL()
 {
   CString szMsg;
-  szMsg.Format(_T("Delete %s?"), m_AccountSet.m_szName);
+	  if(m_ADTypeTable[1].TableName ==  m_strtable ) 
+	  {
+         szMsg.Format(_T("Delete %s?"), m_AccountSet.m_szName);
+	  }
+	  else if(m_ADTypeTable[0].TableName ==  m_strtable )
+	  {
+         szMsg.Format(_T("Delete %s?"), m_ContactSet.m_szName);
+	  }
+
+
 
   MessageBeep(MB_ICONEXCLAMATION);
   int Reply = AfxMessageBox(szMsg, MB_YESNO);
@@ -542,11 +618,14 @@ void CSettingHostDlg::OnBtnDEL()
     {
       //Delete the current Account and all
       //related Contact information
-      CString szExecStr;
+//      CString szExecStr;
 //      szExecStr.Format(_T("Delete From Contact Where AccountID = '%s'"),
 //        m_AccountSet.m_szName);
 
-      m_AccountSet.Delete();
+	  if(m_ADTypeTable[1].TableName ==  m_strtable ) 
+         m_AccountSet.Delete();
+	  else if(m_ADTypeTable[0].TableName ==  m_strtable )
+         m_ContactSet.Delete();
 //      m_Cn.Execute(szExecStr);
 
       BuildAccountList();
@@ -554,7 +633,7 @@ void CSettingHostDlg::OnBtnDEL()
   }
   catch ( dbAx::CAxException *e )
   {
-    MessageBox(e->m_szErrorDesc, _T("CardFile Message"), MB_OK);
+    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
     delete e;
   }
 }
@@ -562,6 +641,7 @@ void CSettingHostDlg::OnBtnDEL()
 void CSettingHostDlg::OnBtnMOD()
 {
   CAccountDlg dlg(TRUE, this);
+  dlg.strtable= m_strtable;
   if ( dlg.DoModal() == IDOK )
     BuildAccountList();
 }

@@ -164,6 +164,8 @@ protected:
 	afx_msg void OnSkinFramework(UINT nID);
 
 ///	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
+	afx_msg void OnDigital();
+	afx_msg void OnAnalog();
 	afx_msg void OnSimulation();
 	afx_msg void OnGenus();
 	afx_msg void OnManipulate();

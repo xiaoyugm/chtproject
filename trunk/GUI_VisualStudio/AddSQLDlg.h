@@ -18,7 +18,9 @@ public:
     CAccountDlg(BOOL bEditMode, CWnd* pParent = NULL);
 	virtual ~CAccountDlg();
 
-  int    acdid;
+    CString strtable,str1,str2,str3,str4,str5,str6,str7,str8,str9;
+    int    acdid;
+	CString2DataType m_Str2Data;
 // Dialog Data
 	enum { IDD = IDD_DIALOG_ADDSQL };
 
@@ -30,6 +32,7 @@ protected:
 
   //AxLib class pointers
   CAxAccountSet   *m_pAccountSet;
+  CAxContactSet   *m_pContactSet;
 
 	DECLARE_MESSAGE_MAP()
 public:

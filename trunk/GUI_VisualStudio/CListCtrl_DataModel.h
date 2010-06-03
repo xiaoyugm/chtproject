@@ -29,6 +29,7 @@ struct CListCtrl_DataRecord
 //		case 5: { static string title1(m_ADTypeTable.m_DTypeTFD.falm); return title ? title1 : m_State; }
 //		case 6: { static string title2(m_ADTypeTable.m_DTypeTFD.recdate); return title ? title2 : m_Country; }
 //		case 7: { static string title2(m_ADTypeTable.m_DTypeTFD.Useridadd); return title ? title2 : m_Country; }
+		case 0: { static string title0("Copenhagen"); return title ? title0 : m_City; }
 		default:{ static string emptyStr; return emptyStr; }
 		}
 	}

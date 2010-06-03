@@ -61,49 +61,11 @@ struct CStrWarn{
 //////////////////////////////////////////////////////////////////////////
 //表结构
 //模拟量类型
-struct ATypeTField	 {
-	CString AID;                      //模拟量 类型id
-	CString Name;                    //模拟量 类型名称描述   
-	CString ltop;	                  	//高量程
-	CString lbom;	                	//低量程
-	CString palmu;	               //高报警值
-	CString palmd;	              //低报警值
-	CString pbrk;	                 //模拟量类型断电值
-	CString prtn;	                 //模拟量类型复电值
-	CString punit;		        // (计量)单位
-	CString pico;                    //
-	CString falm;                    //
-	CString fdel;		        // (计量)单位
-	CString recdate;		        // (计量)单位
-	CString deldate;		        // (计量)单位
-	CString Useridadd;		        // (计量)单位
-	CString Useriddel;		        // (计量)单位
-};
-struct ATypeTFD	 {
-	CString AID;                      //模拟量 类型id
-	CString Name;                    //模拟量 类型名称描述   
-	CString ltop;	                  	//高量程
-	CString lbom;	                	//低量程
-	CString palmu;	               //高报警值
-	CString palmd;	              //低报警值
-	CString pbrk;	                 //模拟量类型断电值
-	CString prtn;	                 //模拟量类型复电值
-	CString punit;		        // (计量)单位
-	CString pico;                    //
-	CString falm;                    //
-	CString fdel;		        // (计量)单位
-	CString recdate;		        // (计量)单位
-	CString deldate;		        // (计量)单位
-	CString Useridadd;		        // (计量)单位
-	CString Useriddel;		        // (计量)单位
-};
-
 //开关量类型
+//安装地点表
 struct DTypeTField	 {
-	CString TableName;                //表名   
-	CString NameD;                    //表名称描述   
-	CString     DID;                      //开关量类型id
-	CString Name;                    //开关量类型名称描述   
+	CString     DID;                      //模拟量开关量类型id
+	CString Name;                    //模拟量开关量类型名称描述   
 	CString ptype;	                  	//高量程
 	CString name0;	                	//低量程
 	CString name1;	               //高报警值
@@ -115,12 +77,19 @@ struct DTypeTField	 {
 	CString deldate;		        // (计量)单位
 	CString Useridadd;		        // (计量)单位
 	CString Useriddel;		        // (计量)单位
+
+	CString ltop;	                  	//高量程
+	CString lbom;	                	//低量程
+	CString palmu;	               //高报警值
+	CString palmd;	              //低报警值
+	CString pbrk;	                 //模拟量类型断电值
+	CString prtn;	                 //模拟量类型复电值
+	CString punit;		        // (计量)单位
+	CString pico;                    //
 };
 struct DTypeTFD	 {
-	CString TableName;                //表名   
-	CString NameD;                    //表名称描述   
-	CString     DID;                      //开关量类型id
-	CString Name;                    //开关量类型名称描述   
+	CString     DID;                      //模拟量开关量类型id
+	CString Name;                    //模拟量开关量类型名称描述   
 	CString ptype;	                  	//高量程
 	CString name0;	                	//低量程
 	CString name1;	               //高报警值
@@ -132,6 +101,16 @@ struct DTypeTFD	 {
 	CString deldate;		        // (计量)单位
 	CString Useridadd;		        // (计量)单位
 	CString Useriddel;		        // (计量)单位
+
+	CString ltop;	                  	//高量程
+	CString lbom;	                	//低量程
+	CString palmu;	               //高报警值
+	CString palmd;	              //低报警值
+	CString pbrk;	                 //模拟量类型断电值
+	CString prtn;	                 //模拟量类型复电值
+	CString punit;		        // (计量)单位
+	CString pico;                    //
+
 };
 
 //测点描述表
@@ -151,11 +130,12 @@ struct PDescriptionTable	 {
 	CString Useriddel;		        // (计量)单位
 };
 
+
 struct ADTypeTable	 {
 	CString TableName;                //表名   
 	CString NameD;                    //表名称描述   
-	ATypeTField        m_ATypeTField;      //模拟量 类型结构
-	ATypeTFD        m_ATypeTFD;      //模拟量 类型结构
+//	ATypeTField        m_ATypeTField;      //模拟量 类型结构
+//	ATypeTFD        m_ATypeTFD;      //模拟量 类型结构
 	DTypeTField        m_DTypeTField;      //开关量类型结构
 	DTypeTFD        m_DTypeTFD;      //开关量类型结构
 	PDescriptionTable     m_PDescriptionTable;
@@ -169,9 +149,6 @@ struct ADTypeTable	 {
 
 
 //调校管理表
-
-
-//安装地点表
 
 
 //用户表
