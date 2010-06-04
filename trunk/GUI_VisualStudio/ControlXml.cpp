@@ -293,6 +293,50 @@ bool CControlXml::ParsePS(CMarkup& xml)
         m_ADTypeTable[1].m_DTypeTFD.Useridadd = str3;
         return true;
 	}
+    else if (xml.FindElem(_T("Pointdescription")) )
+	{
+        // Extract the group name.
+        CString strnumForm = xml.GetAttrib(_T("TABLE"));
+    	m_ADTypeTable[3].TableName = strnumForm;
+        CString groupName = xml.GetAttrib(_T("Name"));
+    	m_ADTypeTable[3].NameD = groupName;
+     	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn0")),str1,str2,str3);
+        m_ADTypeTable[3].m_DTypeTField.DID = str1;
+        m_ADTypeTable[3].m_DTypeTField.ptype = str2;
+        m_ADTypeTable[3].m_DTypeTField.utype = str3;
+     	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn1")),str1,str2,str3);
+        m_ADTypeTable[3].m_DTypeTField.typeID = str1;
+        m_ADTypeTable[3].m_DTypeTField.positionid = str2;
+        m_ADTypeTable[3].m_DTypeTField.fds = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn2")),str1,str2,str3);
+    m_ADTypeTable[3].m_DTypeTField.chan = str1;
+    m_ADTypeTable[3].m_DTypeTField.subOpr = str2;
+    m_ADTypeTable[3].m_DTypeTField.fdel = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn3")),str1,str2,str3);
+    m_ADTypeTable[3].m_DTypeTField.recdate = str1;
+    m_ADTypeTable[3].m_DTypeTField.deldate = str2;
+    m_ADTypeTable[3].m_DTypeTField.Useridadd = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn4")),str1,str2,str3);
+    m_ADTypeTable[3].m_DTypeTField.Useriddel = str1;
+    m_ADTypeTable[3].m_DTypeTField.pointnum = str2;
+
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading0")),str1,str2,str3);
+    m_ADTypeTable[3].m_DTypeTFD.ptype = str1;
+    m_ADTypeTable[3].m_DTypeTFD.utype = str2;
+    m_ADTypeTable[3].m_DTypeTFD.typeID = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading1")),str1,str2,str3);
+    m_ADTypeTable[3].m_DTypeTFD.potioinid = str1;
+    m_ADTypeTable[3].m_DTypeTFD.fds = str2;
+    m_ADTypeTable[3].m_DTypeTFD.chan = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading2")),str1,str2,str3);
+    m_ADTypeTable[3].m_DTypeTFD.subOpr = str1;
+        m_ADTypeTable[3].m_DTypeTFD.recdate = str2;
+        m_ADTypeTable[3].m_DTypeTFD.Useridadd = str3;
+	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading3")),str1,str2,str3);
+        m_ADTypeTable[3].m_DTypeTFD.Name = str1;
+        m_ADTypeTable[3].m_DTypeTFD.pointnum = str2;
+        return true;
+	}
     else if (xml.FindElem(_T("Fixlocation")) )
 	{
         // Extract the group name.

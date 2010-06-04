@@ -319,7 +319,7 @@ void CAccountDlg::OnBnClickedOk()
 		if ( !m_bEditMode )
 		{
 		  m_pMAlocation->m_szlocationID = acdid;
-		  m_pContactSet->AddNew();  //Add a new, blank record
+		  m_pMAlocation->AddNew();  //Add a new, blank record
 		}
 		UpdateData(TRUE);           //Exchange dialog data
 		  m_pMAlocation->m_szName = str1;

@@ -38,6 +38,7 @@
 #include "TabbedViewView.h"
 #include "ControlXml.h"
 
+#include "SettingHostDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -237,7 +238,7 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 	pMainFrame->ShowWindow(SW_SHOWMAXIMIZED);
 	pMainFrame->UpdateWindow();
 
-	// Initialize GDI+.
+	// Initialize GDI+.   
 	GdiplusStartupInput gdiplusStartupInput;
 	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
@@ -246,6 +247,11 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 		AfxMessageBox("没有找到合适的分辨率配置文件，请确认是否有当前屏幕分辨率的配置文件!");
 		return FALSE;
 	}
+
+	CSettingHostDlg dlg;
+	dlg.m_strtable =  _T("pointdescription");
+	if(dlg.DoModal() != IDOK)
+		return FALSE;
 
 	gstrTimeOut = GetAppPath();
 
