@@ -19,6 +19,7 @@ CAccountDlg::CAccountDlg(CWnd* pParent /*=NULL*/)
   m_pAccountSet = NULL;
   m_pParent = pParent;
   m_pContactSet = NULL;
+  m_pMAlocation = NULL;
 }
 
 CAccountDlg::CAccountDlg(BOOL bEditMode, CWnd* pParent /*=NULL*/)
@@ -28,6 +29,7 @@ CAccountDlg::CAccountDlg(BOOL bEditMode, CWnd* pParent /*=NULL*/)
   m_pAccountSet = NULL;
   m_pParent = pParent;
   m_pContactSet = NULL;
+  m_pMAlocation = NULL;
 }
 
 CAccountDlg::~CAccountDlg()
@@ -75,6 +77,8 @@ BOOL CAccountDlg::OnInitDialog()
          m_pAccountSet = &((CSettingHostDlg*) m_pParent)->m_AccountSet;
 	 else if(m_ADTypeTable[0].TableName ==  strtable)
           m_pContactSet = &((CSettingHostDlg*) m_pParent)->m_ContactSet;
+	 else if(m_ADTypeTable[2].TableName ==  strtable)
+          m_pMAlocation = &((CSettingHostDlg*) m_pParent)->m_MAlocation;
 
   CDialog::OnInitDialog();
 
@@ -137,12 +141,29 @@ BOOL CAccountDlg::OnInitDialog()
 		  GetDlgItem(IDC_STATIC5)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.palmd);
 		  GetDlgItem(IDC_STATIC6)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.pbrk);
 		  GetDlgItem(IDC_STATIC7)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.prtn);
-
-
-//		  szFind = m_pContactSet->m_szUseridadd;
-//		  szFind.TrimRight();
-//   		  GetDlgItem(IDC_EDIT9)->SetWindowText(szFind);
 	}
+    else if(m_ADTypeTable[2].TableName ==  strtable)
+	{
+    	SetWindowText(_T(m_ADTypeTable[2].NameD));
+			szFind = m_pMAlocation->m_szName;
+			szFind.TrimRight();
+		  GetDlgItem(IDC_EDIT1)->SetWindowText(szFind);
+		  GetDlgItem(IDC_EDIT8)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC8)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT7)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC7)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT6)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC6)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT5)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC5)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT4)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC4)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT3)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC3)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT2)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC2)->ShowWindow(SW_HIDE);;
+	}
+
   }
   else
   {
@@ -167,6 +188,26 @@ BOOL CAccountDlg::OnInitDialog()
 		  GetDlgItem(IDC_STATIC6)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.pbrk);
 		  GetDlgItem(IDC_STATIC7)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.prtn);
 	}
+    else if(m_ADTypeTable[2].TableName ==  strtable)
+	{
+    	SetWindowText(_T(m_ADTypeTable[2].NameD));
+		  GetDlgItem(IDC_EDIT8)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC8)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT7)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC7)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT6)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC6)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT5)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC5)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT4)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC4)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT3)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC3)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT2)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC2)->ShowWindow(SW_HIDE);;
+	}
+
+
   }
 
   return TRUE;  // return TRUE unless you set the focus to a control
@@ -266,13 +307,28 @@ void CAccountDlg::OnBnClickedOk()
 		  m_pContactSet->m_szrecdate = CTime.GetCurrentTime();
 		  m_pContactSet->m_szpunit = str8;
 
-
 		m_pContactSet->Update();    //Update the recordset
 
 		//If this is a new record, requery the database table
 		//otherwise we may out-of-sync
 		if ( !m_bEditMode )
 		  m_pContactSet->Requery();
+	}
+	else if(m_ADTypeTable[2].TableName ==  strtable)
+	{
+		if ( !m_bEditMode )
+		{
+		  m_pMAlocation->m_szlocationID = acdid;
+		  m_pContactSet->AddNew();  //Add a new, blank record
+		}
+		UpdateData(TRUE);           //Exchange dialog data
+		  m_pMAlocation->m_szName = str1;
+		m_pMAlocation->Update();    //Update the recordset
+
+		//If this is a new record, requery the database table
+		//otherwise we may out-of-sync
+		if ( !m_bEditMode )
+		  m_pMAlocation->Requery();
 	}
 
   }

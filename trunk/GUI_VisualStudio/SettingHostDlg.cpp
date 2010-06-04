@@ -249,7 +249,7 @@ BOOL CSettingHostDlg::OnInitDialog()
 	{
     	SetWindowText(_T(m_ADTypeTable[2].NameD));
     	MoveWindow(CRect(300,300,460,700));
-		m_listCtrl.InsertColumn(0,m_ADTypeTable[2].m_DTypeTFD.Name,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[2].m_DTypeTFD.Name,LVCFMT_LEFT,300);
 	}
 
     BuildAccountList();
@@ -338,6 +338,27 @@ void CSettingHostDlg::BuildAccountList()
 		}
         m_ContactSet.MoveFirst();
 	  }
+	  else if(m_ADTypeTable[2].TableName ==  m_strtable)
+	  {
+		if ( m_MAlocation._IsEmpty() )
+		{
+//		  m_listCtrl.InsertItem(0, _T("<< >>"));
+		  return;
+		}
+		m_listCtrl.SetItemCount(m_MAlocation.RecordCount());
+		int iItem = 0;
+		m_MAlocation.MoveFirst();
+		while ( !m_MAlocation.IsEOF() )
+		{
+    		  m_listCtrl.InsertItem(iItem, m_MAlocation.m_szName);
+			iItem++;
+			sqlid = m_MAlocation.m_szlocationID +1;
+			m_MAlocation.MoveNext();
+		}
+        m_MAlocation.MoveFirst();
+	  }
+
+
 
        	// Insert data into list-control by copying from datamodel
 //    	int nItem = 0;
@@ -495,6 +516,15 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_ContactSet.Open(_T("Select * From analogtype"), &m_Cn);
 		m_ContactSet.MarshalOptions(adMarshalModifiedOnly);
 	}
+	if(m_ADTypeTable[2].TableName ==  m_strtable)
+	{
+		m_MAlocation.Create();
+		m_MAlocation.CursorType(adOpenDynamic);
+		m_MAlocation.CacheSize(50);
+		m_MAlocation._SetRecordsetEvents(new CAccountSetEvents);
+		m_MAlocation.Open(_T("Select * From fixlocation"), &m_Cn);
+		m_MAlocation.MarshalOptions(adMarshalModifiedOnly);
+	}
 
   }
   catch ( dbAx::CAxException *e )
@@ -549,6 +579,10 @@ void CSettingHostDlg::OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult)
 	  {
            m_ContactSet.AbsolutePosition(pNMLV->iItem + 1);
 	  }
+	  else if(m_ADTypeTable[2].TableName ==  m_strtable && !m_MAlocation._IsEmpty() )
+	  {
+           m_MAlocation.AbsolutePosition(pNMLV->iItem + 1);
+	  }
 //    BuildAccountList();
   }
 }
@@ -562,9 +596,10 @@ void CSettingHostDlg::OnClose()
   {
     if ( m_AccountSet._IsOpen() )
       m_AccountSet.Close();
-
     if ( m_ContactSet._IsOpen() )
       m_ContactSet.Close();
+    if ( m_MAlocation._IsOpen() )
+      m_MAlocation.Close();
 
     m_Cn.Close();
 

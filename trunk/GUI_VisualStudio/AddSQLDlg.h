@@ -2,6 +2,7 @@
 
 
 //Derived AxLib classes
+#include "dbAx\AxMAlocationSet.hpp"
 #include "dbAx\AxAccountSet.hpp"
 #include "dbAx\AxContactCmd.hpp"
 #include "dbAx\AxContactSet.hpp"
@@ -33,6 +34,7 @@ protected:
   //AxLib class pointers
   CAxAccountSet   *m_pAccountSet;
   CAxContactSet   *m_pContactSet;
+  CAxMAlocationSet   *m_pMAlocation;
 
 	DECLARE_MESSAGE_MAP()
 public:
