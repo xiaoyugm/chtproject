@@ -60,9 +60,6 @@ struct CStrWarn{
 
 //////////////////////////////////////////////////////////////////////////
 //表结构
-//模拟量类型
-//开关量类型
-//安装地点表
 struct DTypeTField	 {
 	CString     DID;                      //模拟量开关量类型id
 	CString Name;                    //模拟量开关量类型名称描述   
@@ -86,59 +83,58 @@ struct DTypeTField	 {
 	CString prtn;	                 //模拟量类型复电值
 	CString punit;		        // (计量)单位
 	CString pico;                    //
+//测点描述表
+	CString     pointnum;                       //点号
+	CString     utype;	                	//传感器类型（0是电流型，1是频率型）
+	CString     typeID;	                        //类型ID
+	CString     positionid;	                    //位置ID
+	CString     fds;	                    //测点所在分站
+	CString     chan;                       //测点所在通道
+	CString     subOpr;                     //报警标志
 };
 struct DTypeTFD	 {
+//开关量类型
+//安装地点表
 	CString     DID;                      //模拟量开关量类型id
 	CString Name;                    //模拟量开关量类型名称描述   
-	CString ptype;	                  	//高量程
-	CString name0;	                	//低量程
-	CString name1;	               //高报警值
-	CString name2;	              //低报警值
-	CString     palms;	                 //开关量类型断电值
-	CString falm;                    //
-	CString fdel;		        // (计量)单位
-	CString recdate;		        // (计量)单位
-	CString deldate;		        // (计量)单位
-	CString Useridadd;		        // (计量)单位
-	CString Useriddel;		        // (计量)单位
+	CString ptype;	                  	//开关量类型  测点类型（0是模拟量，1是开关量）
+	CString name0;	                	//0态名称
+	CString name1;	                    //1态名称
+	CString name2;	                    //2态名称
+	CString     palms;	                 //开关量类型报警状态
+	CString falm;                    //报警文字
+	CString fdel;		           // 删除标志
+	CString recdate;		        // 记录时间
+	CString deldate;		        // 删除时间
+	CString Useridadd;		        // 添加操作用户
+	CString Useriddel;		        // 删除操作用户
 
+//模拟量类型
 	CString ltop;	                  	//高量程
 	CString lbom;	                	//低量程
-	CString palmu;	               //高报警值
-	CString palmd;	              //低报警值
+	CString palmu;	                    //高报警值
+	CString palmd;	                    //低报警值
 	CString pbrk;	                 //模拟量类型断电值
 	CString prtn;	                 //模拟量类型复电值
-	CString punit;		        // (计量)单位
-	CString pico;                    //
-
-};
+	CString punit;		                // (计量)单位
+	CString pico;                    //图标编号
 
 //测点描述表
-struct PDescriptionTable	 {
-	int     PID;                      //开关量类型id
-	CString ptype;	                  	//高量程
-	CString utype;	                	//低量程
-	CString typeID;	               //高报警值
-	CString potioinid;	              //低报警值
-	int     fds;	                 //开关量类型断电值
-	CString chan;                    //
-	CString subOpr;                    //
-	CString fdel;		        // (计量)单位
-	CString recdate;		        // (计量)单位
-	CString deldate;		        // (计量)单位
-	CString Useridadd;		        // (计量)单位
-	CString Useriddel;		        // (计量)单位
+	CString     pointnum;                       //点号
+	CString     utype;	                	//传感器类型（0是电流型，1是频率型）
+	CString     typeID;	                        //类型ID
+	CString     potioinid;	                    //位置ID
+	CString     fds;	                    //测点所在分站
+	CString     chan;                       //测点所在通道
+	CString     subOpr;                     //报警标志
 };
 
 
 struct ADTypeTable	 {
 	CString TableName;                //表名   
 	CString NameD;                    //表名称描述   
-//	ATypeTField        m_ATypeTField;      //模拟量 类型结构
-//	ATypeTFD        m_ATypeTFD;      //模拟量 类型结构
-	DTypeTField        m_DTypeTField;      //开关量类型结构
-	DTypeTFD        m_DTypeTFD;      //开关量类型结构
-	PDescriptionTable     m_PDescriptionTable;
+	DTypeTField        m_DTypeTField;      //模拟量开关量类型结构
+	DTypeTFD        m_DTypeTFD;      //模拟量开关量类型描述
 };
 
 

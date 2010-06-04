@@ -184,12 +184,16 @@
 #define IDC_STATIC7                     1018
 #define IDC_MANIPULATE                  1019
 #define IDC_STATIC8                     1019
+#define IDC_COMBO1                      1019
 #define IDC_DELETE_ALL                  1020
 #define IDC_EDIT8                       1020
+#define IDC_COMBO2                      1020
 #define IDC_TAB_NUM                     1021
 #define IDC_STATIC9                     1021
+#define IDC_COMBO3                      1021
 #define IDC_TEXT                        1022
 #define IDC_EDIT9                       1022
+#define IDC_COMBO4                      1022
 #define IDC_DELETE_TAB                  1023
 #define IDC_MODIFY_TAB                  1024
 #define IDC_ADD_TAB                     1025
@@ -261,9 +265,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        159
+#define _APS_NEXT_RESOURCE_VALUE        160
 #define _APS_NEXT_COMMAND_VALUE         32796
-#define _APS_NEXT_CONTROL_VALUE         1019
+#define _APS_NEXT_CONTROL_VALUE         1020
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

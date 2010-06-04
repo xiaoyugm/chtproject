@@ -112,14 +112,24 @@ BOOL CSettingHostDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);        // Set small icon
 
 	// Set control resizing.
-	SetResize(IDOK,                  SZ_TOP_RIGHT,   SZ_TOP_RIGHT);
-	SetResize(IDCANCEL,              SZ_TOP_RIGHT,   SZ_TOP_RIGHT);
+//	SetResize(IDOK,                  SZ_TOP_RIGHT,   SZ_TOP_RIGHT);
+	SetResize(IDOK,                  SZ_BOTTOM_LEFT,   SZ_BOTTOM_LEFT);
+	SetResize(IDCANCEL,              SZ_BOTTOM_LEFT,   SZ_BOTTOM_LEFT);
 	SetResize(IDC_LIST_CTRL,         SZ_TOP_LEFT,    SZ_BOTTOM_RIGHT);
 
 //	SetResize(IDC_GBOX_HEADER,       SZ_BOTTOM_LEFT, SZ_BOTTOM_RIGHT);
 	SetResize(IDC_BUT_ADD,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_BUT_DEL,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_BUT_MOD,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
+
+	SetResize(IDC_COMBO1,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
+	SetResize(IDC_COMBO2,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
+	SetResize(IDC_COMBO3,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
+	SetResize(IDC_COMBO4,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
+	SetResize(IDC_STATIC1,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
+	SetResize(IDC_STATIC2,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
+	SetResize(IDC_STATIC3,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
+	SetResize(IDC_STATIC4,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 
 	// Enable Office XP themes.
 	XTThemeManager()->SetTheme(xtThemeOfficeXP);
@@ -218,7 +228,8 @@ BOOL CSettingHostDlg::OnInitDialog()
 
 	if(m_ADTypeTable[1].TableName ==  m_strtable)
 	{
-    	SetWindowText(_T(m_ADTypeTable[1].NameD));
+		HideControls();
+		SetWindowText(_T(m_ADTypeTable[1].NameD));
     	MoveWindow(CRect(50,100,960,700));
 		m_listCtrl.InsertColumn(0,m_ADTypeTable[1].m_DTypeTFD.Name,LVCFMT_LEFT,100);
 		m_listCtrl.InsertColumn(1,m_ADTypeTable[1].m_DTypeTFD.name0,LVCFMT_LEFT,100);
@@ -232,7 +243,8 @@ BOOL CSettingHostDlg::OnInitDialog()
 	}
 	if(m_ADTypeTable[0].TableName ==  m_strtable)
 	{
-    	SetWindowText(_T(m_ADTypeTable[0].NameD));
+		HideControls();
+		SetWindowText(_T(m_ADTypeTable[0].NameD));
     	MoveWindow(CRect(50,100,960,700));
 		m_listCtrl.InsertColumn(0,m_ADTypeTable[0].m_DTypeTFD.Name,LVCFMT_LEFT,100);
 		m_listCtrl.InsertColumn(1,m_ADTypeTable[0].m_DTypeTFD.ltop,LVCFMT_LEFT,100);
@@ -247,9 +259,19 @@ BOOL CSettingHostDlg::OnInitDialog()
 	}
 	if(m_ADTypeTable[2].TableName ==  m_strtable)
 	{
-    	SetWindowText(_T(m_ADTypeTable[2].NameD));
+		HideControls();
+		SetWindowText(_T(m_ADTypeTable[2].NameD));
     	MoveWindow(CRect(300,300,460,700));
 		m_listCtrl.InsertColumn(0,m_ADTypeTable[2].m_DTypeTFD.Name,LVCFMT_LEFT,300);
+	}
+	if(m_ADTypeTable[3].TableName ==  m_strtable)
+	{
+		HideControls();
+		SetWindowText(_T(m_ADTypeTable[3].NameD));
+    	MoveWindow(CRect(50,100,960,700));
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[3].m_DTypeTFD.Name,LVCFMT_LEFT,200);
+		m_listCtrl.InsertColumn(1,m_ADTypeTable[3].m_DTypeTFD.pointnum,LVCFMT_LEFT,200);
+		m_listCtrl.InsertColumn(2,m_ADTypeTable[3].m_DTypeTFD.utype,LVCFMT_LEFT,200);
 	}
 
     BuildAccountList();
@@ -471,7 +493,7 @@ BOOL CSettingHostDlg::ConnectToProvider()
     m_Cn.CursorLocation(adUseClient);
     m_Cn.Open((LPCTSTR)szConnect);
 
-	if(m_ADTypeTable[1].TableName ==  m_strtable)
+//	if(m_ADTypeTable[1].TableName ==  m_strtable)
 	{
 		//Create the AccountSet, Recordset events, and Open
 		//Note that options are set on the CAxRecordset object
@@ -507,7 +529,7 @@ BOOL CSettingHostDlg::ConnectToProvider()
     //to the Create method. This is handled automatically when opening
     //the recordset.
 //    m_ContactSet.Open(&m_ContactCmd, adOpenDynamic);
-	if(m_ADTypeTable[0].TableName ==  m_strtable)
+//	if(m_ADTypeTable[0].TableName ==  m_strtable)
 	{
 		m_ContactSet.Create();
 		m_ContactSet.CursorType(adOpenDynamic);
@@ -516,7 +538,7 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_ContactSet.Open(_T("Select * From analogtype"), &m_Cn);
 		m_ContactSet.MarshalOptions(adMarshalModifiedOnly);
 	}
-	if(m_ADTypeTable[2].TableName ==  m_strtable)
+//	if(m_ADTypeTable[2].TableName ==  m_strtable)
 	{
 		m_MAlocation.Create();
 		m_MAlocation.CursorType(adOpenDynamic);
@@ -525,6 +547,12 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_MAlocation.Open(_T("Select * From fixlocation"), &m_Cn);
 		m_MAlocation.MarshalOptions(adMarshalModifiedOnly);
 	}
+		m_PointDes.Create();
+		m_PointDes.CursorType(adOpenDynamic);
+		m_PointDes.CacheSize(50);
+		m_PointDes._SetRecordsetEvents(new CAccountSetEvents);
+		m_PointDes.Open(_T("Select * From pointdescription"), &m_Cn);
+		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
 
   }
   catch ( dbAx::CAxException *e )
@@ -583,6 +611,10 @@ void CSettingHostDlg::OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult)
 	  {
            m_MAlocation.AbsolutePosition(pNMLV->iItem + 1);
 	  }
+	  else if(m_ADTypeTable[3].TableName ==  m_strtable && !m_PointDes._IsEmpty() )
+	  {
+           m_PointDes.AbsolutePosition(pNMLV->iItem + 1);
+	  }
 //    BuildAccountList();
   }
 }
@@ -600,6 +632,8 @@ void CSettingHostDlg::OnClose()
       m_ContactSet.Close();
     if ( m_MAlocation._IsOpen() )
       m_MAlocation.Close();
+    if ( m_PointDes._IsOpen() )
+      m_PointDes.Close();
 
     m_Cn.Close();
 
@@ -637,6 +671,27 @@ void CSettingHostDlg::OnBtnADD()
     BuildAccountList();
 }
 
+void CSettingHostDlg::HideControls()
+{
+    	GetDlgItem(IDC_STATIC1)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_STATIC2)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_STATIC3)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_STATIC4)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_COMBO1)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_COMBO2)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_COMBO3)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_COMBO4)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDOK)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDCANCEL)->ShowWindow(SW_HIDE);;
+}
+
+void CSettingHostDlg::HideAMD()
+{
+    	GetDlgItem(IDC_BUT_ADD)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_BUT_DEL)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_BUT_MOD)->ShowWindow(SW_HIDE);;
+}
+
 void CSettingHostDlg::OnBtnDEL()
 {
   CString szMsg;
@@ -647,6 +702,14 @@ void CSettingHostDlg::OnBtnDEL()
 	  else if(m_ADTypeTable[0].TableName ==  m_strtable )
 	  {
          szMsg.Format(_T("Delete %s?"), m_ContactSet.m_szName);
+	  }
+	  else if(m_ADTypeTable[2].TableName ==  m_strtable )
+	  {
+         szMsg.Format(_T("Delete %s?"), m_MAlocation.m_szName);
+	  }
+	  else if(m_ADTypeTable[3].TableName ==  m_strtable )
+	  {
+         szMsg.Format(_T("Delete %s?"), m_PointDes.m_szName);
 	  }
 
 
@@ -668,6 +731,10 @@ void CSettingHostDlg::OnBtnDEL()
          m_AccountSet.Delete();
 	  else if(m_ADTypeTable[0].TableName ==  m_strtable )
          m_ContactSet.Delete();
+	  else if(m_ADTypeTable[2].TableName ==  m_strtable )
+         m_MAlocation.Delete();
+	  else if(m_ADTypeTable[3].TableName ==  m_strtable )
+         m_PointDes.Delete();
 //      m_Cn.Execute(szExecStr);
 
       BuildAccountList();

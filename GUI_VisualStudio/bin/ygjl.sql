@@ -49,18 +49,20 @@ GO
 
 CREATE TABLE [BJygjl].[dbo].[pointdescription] (
 	[PID] [int]  NOT NULL  PRIMARY KEY,
-	[ptype] [bit] NOT NULL,
-	[utype] [bit]  NOT NULL,
-	[typeID] [int]  NOT NULL ,
-	[potioinid] [int]  NOT NULL ,
-	[fds] [int]  NOT NULL ,
-	[chan] [int]  NOT NULL ,
-	[subOpr] [bit]  NOT NULL,
-	[fdel] [bit]  NOT NULL,
+	[Name] [char] (50) NOT NULL ,
+	[pointnum] [char] (10),
+	[ptype] [SMALLINT] ,
+	[utype] [char] (20)  ,
+	[typeID] [SMALLINT]   ,
+	[positionid] [SMALLINT]   ,
+	[fds] [SMALLINT]   ,
+	[chan] [SMALLINT]   ,
+	[subOpr] [char] (20)  ,
+	[fdel] [bit]  ,
 	[recdate] [datetime] ,
 	[deldate] [datetime] ,
-	[Useridadd] [char] (10) NOT NULL ,
-	[Useriddel] [char] (10) NOT NULL 
+	[Useridadd] [char] (20)  ,
+	[Useriddel] [char] (20)  
 ) ON [PRIMARY] 
 GO
 

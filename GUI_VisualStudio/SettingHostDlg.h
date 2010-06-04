@@ -9,6 +9,7 @@
 
 //#include "CListCtrl_DataModel.h"
 //Derived AxLib classes
+#include "dbAx\AxPointDescription.hpp"
 #include "dbAx\AxMAlocationSet.hpp"
 #include "dbAx\AxAccountSet.hpp"
 #include "dbAx\AxContactCmd.hpp"
@@ -66,10 +67,14 @@ public:
   CAxContactCmd   m_ContactCmd;
   CAxContactSet   m_ContactSet;
   CAxMAlocationSet   m_MAlocation;
+  CAxPointDescription  m_PointDes;
 
   //Connect to the data provider via dbAx
   BOOL         ConnectToProvider();
   void         BuildAccountList();
+
+  void   HideControls();
+  void   HideAMD();
 
 	void SortColumn(int iCol, bool bAsc);
 // Overrides
