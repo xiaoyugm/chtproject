@@ -1177,6 +1177,10 @@ SOURCE=.\dbAx\AxLib.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\dbAx\AxMAlocationSet.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dbAx\AxRecordset.cpp
 # End Source File
 # Begin Source File

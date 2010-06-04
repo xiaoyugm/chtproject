@@ -18,7 +18,7 @@
     suitability or usefulness in any application in which it may be used.
 **************************************************************************/
 #pragma once
-#include "dbAx\AxLib.h"
+#include "AxLib.h"
 
 using namespace dbAx;
 

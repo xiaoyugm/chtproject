@@ -7,8 +7,9 @@
 // SettingHostDlg.h : header file
 //
 
-#include "CListCtrl_DataModel.h"
+//#include "CListCtrl_DataModel.h"
 //Derived AxLib classes
+#include "dbAx\AxMAlocationSet.hpp"
 #include "dbAx\AxAccountSet.hpp"
 #include "dbAx\AxContactCmd.hpp"
 #include "dbAx\AxContactSet.hpp"
@@ -54,7 +55,7 @@ public:
 	int             m_nSortedCol;
 	bool            m_bAscending;
 	CXTHeaderCtrl   m_header;
-	CListCtrl_DataModel m_DataModel;
+//	CListCtrl_DataModel m_DataModel;
 	CString2DataType m_Str2Data;
 	int  sqlid;
 	CString     m_strtable;
@@ -64,6 +65,7 @@ public:
   CAxAccountSet   m_AccountSet;
   CAxContactCmd   m_ContactCmd;
   CAxContactSet   m_ContactSet;
+  CAxMAlocationSet   m_MAlocation;
 
   //Connect to the data provider via dbAx
   BOOL         ConnectToProvider();
