@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "..\GUI_VisualStudio.h"
 #include "CGridListCtrlEx.h"
 
 #include <shlwapi.h>	// IsThemeEnabled
@@ -2468,6 +2469,44 @@ void CGridListCtrlEx::OnContextMenuHeader(CWnd* pWnd, CPoint point, int nCol)
 //------------------------------------------------------------------------
 void CGridListCtrlEx::OnContextMenuCell(CWnd* pWnd, CPoint point, int nRow, int nCol)
 {
+//	CListCtrl &CList =  GetListCtrl();//获取当前列表控件的指针
+
+       CMenu       menu ,* pSubMenu;//定义下面要用到的cmenu对象
+
+       menu.LoadMenu(IDC_POPLISTCONTROL);//装载自定义的右键菜单
+
+       pSubMenu = menu.GetSubMenu(0);//获取第一个弹出菜单，所以第一个菜单必须有子菜单
+
+    CPoint oPoint;//定义一个用于确定光标位置的位置
+
+    GetCursorPos( &oPoint);//获取当前光标的位置，以便使得菜单可以跟随光标
+
+//       int istat;//=CList.GetSelectionMark();//用istat存放当前选定的是第几项
+
+//    CString pString; //=CList.GetItemText(istat,0);//获取当前项中的数据，0代表是第0列
+//	pString="您选择的路径是:"+pString ;//显示当前选择项
+
+//       MessageBox(pString);//显示当前选中的路径
+       
+
+	// Will return zero if no selection was made (TPM_RETURNCMD)
+//	int nResult = menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RETURNCMD, point.x, point.y, this, 0);
+	int nResult = pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
+	switch(nResult)
+	{
+		case 0: 
+			break;
+		case 1:	
+			m_pColumnManager->OpenColumnEditor(*this, nCol); 
+			break;
+		case 2: 
+			m_pColumnManager->OpenColumnPicker(*this); break;
+		case 3: 
+			m_pColumnManager->ResetColumnsDefault(*this); break;
+		default:
+			break;
+	}
+
 }
 
 

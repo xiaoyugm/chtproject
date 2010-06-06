@@ -5,13 +5,13 @@ Go
 USE BJygjl
 
 CREATE TABLE [BJygjl].[dbo].[fixlocation] (
-	[locationID] [int]  NOT NULL PRIMARY KEY,
+	[locationID] [int]  NOT NULL PRIMARY KEY IDENTITY(1,1),
 	[Name] [varchar] (20)
 ) ON [PRIMARY] 
 GO
 
 CREATE TABLE [BJygjl].[dbo].[analogtype] (
-	[AID] [int]  NOT NULL PRIMARY KEY,
+	[AID] [int]  NOT NULL PRIMARY KEY IDENTITY(1,1),
 	[Name] [char] (20) NOT NULL ,
 	[ltop] [float] (8) ,
 	[lbom] [float] (8) ,
@@ -31,7 +31,7 @@ CREATE TABLE [BJygjl].[dbo].[analogtype] (
 GO
 
 CREATE TABLE [BJygjl].[dbo].[digitaltype] (
-	[DID] [int]  NOT NULL PRIMARY KEY,
+	[DID] [int]  NOT NULL PRIMARY KEY IDENTITY(1,1),
 	[Name] [char] (20) NOT NULL ,
 	[ptype] [char] (20)  ,
 	[name0] [char] (20)  ,
@@ -48,7 +48,7 @@ CREATE TABLE [BJygjl].[dbo].[digitaltype] (
 GO
 
 CREATE TABLE [BJygjl].[dbo].[pointdescription] (
-	[PID] [int]  NOT NULL  PRIMARY KEY,
+	[PID] [int]  NOT NULL  PRIMARY KEY  IDENTITY(1,1),
 	[Name] [char] (50) NOT NULL ,
 	[pointnum] [char] (10),
 	[ptype] [SMALLINT] ,
@@ -67,7 +67,7 @@ CREATE TABLE [BJygjl].[dbo].[pointdescription] (
 GO
 
 CREATE TABLE [BJygjl].[dbo].[control] (
-	[CID] [int]  NOT NULL  PRIMARY KEY,
+	[CID] [int]  NOT NULL  PRIMARY KEY IDENTITY(1,1),
 	[ptype] [bit]  NOT NULL,
 	[utype] [bit]  NOT NULL,
 	[typeid] [int]  NOT NULL ,
@@ -84,7 +84,7 @@ CREATE TABLE [BJygjl].[dbo].[control] (
 GO
 
 CREATE TABLE [BJygjl].[dbo].[user] (
-	[UID] [int]  NOT NULL PRIMARY KEY,
+	[UID] [int]  NOT NULL PRIMARY KEY IDENTITY(1,1),
 	[Name] [char] (20) NOT NULL ,
 	[upwd] [char] (20) NOT NULL,
 	[classer] [int] NOT NULL
@@ -92,7 +92,7 @@ CREATE TABLE [BJygjl].[dbo].[user] (
 GO
 
 CREATE TABLE [BJygjl].[dbo].[feedelectricity] (
-	[EID] [int]  NOT NULL  PRIMARY KEY,
+	[EID] [int]  NOT NULL  PRIMARY KEY IDENTITY(1,1),
 	[kdid] [int]  NOT NULL,
 	[ddid] [int]  NOT NULL,
 	[dflag] [bit]  NOT NULL ,
@@ -104,7 +104,7 @@ CREATE TABLE [BJygjl].[dbo].[feedelectricity] (
 GO
 
 CREATE TABLE [BJygjl].[dbo].[adjustemendation] (
-	[AEID] [int]  NOT NULL  PRIMARY KEY,
+	[AEID] [int]  NOT NULL  PRIMARY KEY IDENTITY(1,1),
 	[ptid] [int]  NOT NULL,
 	[dflag] [bit]  NOT NULL ,
 	[recdate] [datetime] ,

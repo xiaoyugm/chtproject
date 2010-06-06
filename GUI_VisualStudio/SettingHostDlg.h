@@ -38,6 +38,10 @@ public:
 	BOOL                m_bSortColor;
 	BOOL    m_bListColor;
 	BOOL    m_bRowColor;
+	CXTFlatComboBox	m_wndComboSize1;
+	CXTFlatComboBox	m_wndComboSize2;
+	CXTFlatComboBox	m_wndComboSize3;
+	CXTFlatComboBox	m_wndComboSize4;
 	//}}AFX_DATA
 //	COLORREF            m_crSortText;
 //	COLORREF            m_crSortBack;
@@ -58,8 +62,10 @@ public:
 	CXTHeaderCtrl   m_header;
 //	CListCtrl_DataModel m_DataModel;
 	CString2DataType m_Str2Data;
-	int  sqlid;
+	int  sqlid,PointDesid;
 	CString     m_strtable;
+	vector<CString> m_Records;
+	bool            m_bADD,m_bSwitch;
 
   //AxLib objects
   CAxConnection   m_Cn;
@@ -68,13 +74,21 @@ public:
   CAxContactSet   m_ContactSet;
   CAxMAlocationSet   m_MAlocation;
   CAxPointDescription  m_PointDes;
+  CAxPointDescription  *m_PointDesNew;
 
   //Connect to the data provider via dbAx
   BOOL         ConnectToProvider();
   void         BuildAccountList();
 
   void   HideControls();
+  void   ShowControls();
+  void   ShowAMD();
   void   HideAMD();
+  void   FalseFC();
+  void   TrueFC();
+  void   InsA();
+  void   InsD();
+  void   InsP();
 
 	void SortColumn(int iCol, bool bAsc);
 // Overrides
@@ -93,9 +107,12 @@ protected:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
+	afx_msg void OnBtnD2();
 	afx_msg void OnBtnADD();
 	afx_msg void OnBtnDEL();
 	afx_msg void OnBtnMOD();
+	afx_msg void OnBtnOK();
+	afx_msg void OnBtnCANCEL();
     afx_msg void OnClose();
     afx_msg void OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult);
 		// NOTE: the ClassWizard will add member functions here

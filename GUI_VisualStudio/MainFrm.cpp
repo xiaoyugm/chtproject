@@ -41,7 +41,7 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNAMIC(CMainFrame, CMDIFrameWnd)
 
 BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
-	//{{AFX_MSG_MAP(CMainFrame)
+	//{{AFX_MSG_MAP(CMainFrame)   
 	ON_WM_CREATE()
 	ON_COMMAND(ID_WINDOW_AUTOHIDEALL, OnWindowAutohideall)
 	ON_COMMAND(ID_WINDOW_MORE, OnWindowMore)
@@ -52,6 +52,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_D_D, OnDigital)
 	ON_COMMAND(ID_A_D, OnAnalog)
 	ON_COMMAND(ID_LOCALTION, OnLocation)
+	ON_COMMAND(ID_BROWSERMOD, OnPBrowser)
 //	ON_MESSAGE(WM_XTP_PRETRANSLATEMOUSEMSG, OnTabbarMouseMsg)  
 //    ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_INFO, OnSelchangeTabInfo)
 	//}}AFX_MSG_MAP
@@ -1221,6 +1222,13 @@ void CMainFrame::OnLocation()
 	CSettingHostDlg dlg;
 	dlg.m_strtable =  _T("fixlocation");
 	dlg.DoModal() ;
+}
+
+void CMainFrame::OnPBrowser() 
+{
+	CSettingHostDlg dlg;
+	dlg.m_strtable =  _T("pointdescription");
+	dlg.DoModal();
 }
 
 void CMainFrame::OnSimulation() 
