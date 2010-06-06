@@ -66,7 +66,12 @@ CSettingHostDlg::CSettingHostDlg(CWnd* pParent /*=NULL*/)
 	m_bRowColor = TRUE;
 	m_bSortColor = TRUE;
 	sqlid = 0;
+	PointDesid = 0;
 	m_strtable = _T("");
+	m_PointDesNew = &m_PointDes;
+	m_bADD = false;
+	m_bSwitch = false;
+
 	//}}AFX_DATA_INIT
 }
 
@@ -78,6 +83,10 @@ void CSettingHostDlg::DoDataExchange(CDataExchange* pDX)
 //	DDV_MaxChars(pDX, m_strHostIP, 15);
 //	DDX_Text(pDX, IDC_EDIT_PORT, m_strPort);
 //	DDX_Text(pDX, IDC_EDIT_TIMEOUT, m_strTimeOut);
+	DDX_Control(pDX, IDC_COMBO1, m_wndComboSize1);
+	DDX_Control(pDX, IDC_COMBO2, m_wndComboSize2);
+	DDX_Control(pDX, IDC_COMBO3, m_wndComboSize3);
+	DDX_Control(pDX, IDC_COMBO4, m_wndComboSize4);
 	DDX_Control(pDX, IDC_LIST_CTRL, m_listCtrl);
 	DDX_Control(pDX, IDC_CLR_SORTBACK, m_cpSortBack);
     //}}AFX_DATA_MAP
@@ -91,8 +100,11 @@ BEGIN_MESSAGE_MAP(CSettingHostDlg, CXTResizeDialog)
 	ON_WM_QUERYDRAGICON()
     ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_CTRL, OnItemChangedList)
 	ON_BN_CLICKED(IDC_BUT_ADD, OnBtnADD)
+	ON_BN_CLICKED(IDC_BUT_ADD2, OnBtnD2)
 	ON_BN_CLICKED(IDC_BUT_DEL, OnBtnDEL)
 	ON_BN_CLICKED(IDC_BUT_MOD, OnBtnMOD)
+	ON_BN_CLICKED(IDOKADM, OnBtnOK)
+	ON_BN_CLICKED(IDCANCELADM, OnBtnCANCEL)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -113,12 +125,13 @@ BOOL CSettingHostDlg::OnInitDialog()
 
 	// Set control resizing.
 //	SetResize(IDOK,                  SZ_TOP_RIGHT,   SZ_TOP_RIGHT);
-	SetResize(IDOK,                  SZ_BOTTOM_LEFT,   SZ_BOTTOM_LEFT);
-	SetResize(IDCANCEL,              SZ_BOTTOM_LEFT,   SZ_BOTTOM_LEFT);
+	SetResize(IDOKADM,                  SZ_BOTTOM_LEFT,   SZ_BOTTOM_LEFT);
+	SetResize(IDCANCELADM,              SZ_BOTTOM_LEFT,   SZ_BOTTOM_LEFT);
 	SetResize(IDC_LIST_CTRL,         SZ_TOP_LEFT,    SZ_BOTTOM_RIGHT);
 
 //	SetResize(IDC_GBOX_HEADER,       SZ_BOTTOM_LEFT, SZ_BOTTOM_RIGHT);
 	SetResize(IDC_BUT_ADD,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
+	SetResize(IDC_BUT_ADD2,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_BUT_DEL,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_BUT_MOD,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 
@@ -130,6 +143,27 @@ BOOL CSettingHostDlg::OnInitDialog()
 	SetResize(IDC_STATIC2,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_STATIC3,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_STATIC4,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
+
+	// insert strings into the size combo box.
+	for(int i = 01; i < 65; i++)
+	{
+		CString strItem;
+		strItem.Format(_T("%d"), i);
+    	m_wndComboSize3.AddString(strItem);
+    	m_wndComboSize4.AddString(strItem);
+	}
+    	m_wndComboSize2.AddString(_T("电流电压型"));
+    	m_wndComboSize2.AddString(_T("频率型（200-1000HZ）"));
+    	m_wndComboSize2.AddString(_T("频率型ABD21（64-214HZ）"));
+
+		m_MAlocation.MoveFirst();
+		while ( !m_MAlocation.IsEOF() )
+		{
+        	m_wndComboSize1.AddString(m_MAlocation.m_szName);
+			m_MAlocation.MoveNext();
+		}
+        m_MAlocation.MoveFirst();
+
 
 	// Enable Office XP themes.
 	XTThemeManager()->SetTheme(xtThemeOfficeXP);
@@ -226,37 +260,10 @@ BOOL CSettingHostDlg::OnInitDialog()
 	m_listCtrl.EnableUserRowColor(BoolType(m_bRowColor));
 
 
-	if(m_ADTypeTable[1].TableName ==  m_strtable)
-	{
-		HideControls();
-		SetWindowText(_T(m_ADTypeTable[1].NameD));
-    	MoveWindow(CRect(50,100,960,700));
-		m_listCtrl.InsertColumn(0,m_ADTypeTable[1].m_DTypeTFD.Name,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(1,m_ADTypeTable[1].m_DTypeTFD.name0,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(2,m_ADTypeTable[1].m_DTypeTFD.name1,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(3,m_ADTypeTable[1].m_DTypeTFD.name2,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(4,m_ADTypeTable[1].m_DTypeTFD.palms,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(5,m_ADTypeTable[1].m_DTypeTFD.falm,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(6,m_ADTypeTable[1].m_DTypeTFD.recdate,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(7,m_ADTypeTable[1].m_DTypeTFD.Useridadd,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(8,m_ADTypeTable[1].m_DTypeTFD.ptype,LVCFMT_LEFT,100);
-	}
 	if(m_ADTypeTable[0].TableName ==  m_strtable)
-	{
-		HideControls();
-		SetWindowText(_T(m_ADTypeTable[0].NameD));
-    	MoveWindow(CRect(50,100,960,700));
-		m_listCtrl.InsertColumn(0,m_ADTypeTable[0].m_DTypeTFD.Name,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(1,m_ADTypeTable[0].m_DTypeTFD.ltop,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(2,m_ADTypeTable[0].m_DTypeTFD.lbom,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(3,m_ADTypeTable[0].m_DTypeTFD.palmu,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(4,m_ADTypeTable[0].m_DTypeTFD.palmd,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(5,m_ADTypeTable[0].m_DTypeTFD.pbrk,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(6,m_ADTypeTable[0].m_DTypeTFD.prtn,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(7,m_ADTypeTable[0].m_DTypeTFD.punit,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(8,m_ADTypeTable[0].m_DTypeTFD.recdate,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(9,m_ADTypeTable[0].m_DTypeTFD.Useridadd,LVCFMT_LEFT,100);
-	}
+         InsA();
+	if(m_ADTypeTable[1].TableName ==  m_strtable)
+         InsD();
 	if(m_ADTypeTable[2].TableName ==  m_strtable)
 	{
 		HideControls();
@@ -265,14 +272,7 @@ BOOL CSettingHostDlg::OnInitDialog()
 		m_listCtrl.InsertColumn(0,m_ADTypeTable[2].m_DTypeTFD.Name,LVCFMT_LEFT,300);
 	}
 	if(m_ADTypeTable[3].TableName ==  m_strtable)
-	{
-		HideControls();
-		SetWindowText(_T(m_ADTypeTable[3].NameD));
-    	MoveWindow(CRect(50,100,960,700));
-		m_listCtrl.InsertColumn(0,m_ADTypeTable[3].m_DTypeTFD.Name,LVCFMT_LEFT,200);
-		m_listCtrl.InsertColumn(1,m_ADTypeTable[3].m_DTypeTFD.pointnum,LVCFMT_LEFT,200);
-		m_listCtrl.InsertColumn(2,m_ADTypeTable[3].m_DTypeTFD.utype,LVCFMT_LEFT,200);
-	}
+         InsP();
 
     BuildAccountList();
 
@@ -378,6 +378,29 @@ void CSettingHostDlg::BuildAccountList()
 			m_MAlocation.MoveNext();
 		}
         m_MAlocation.MoveFirst();
+	  }
+	  else if(m_ADTypeTable[3].TableName ==  m_strtable)
+	  {
+		if ( m_PointDes._IsEmpty() )
+		{
+//		  m_listCtrl.InsertItem(0, _T("<< >>"));
+		  return;
+		}
+		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
+		int iItem = 0;
+        m_Records.clear();
+		m_PointDes.MoveFirst();
+		while ( !m_PointDes.IsEOF() )
+		{
+    		m_listCtrl.InsertItem(iItem, m_PointDes.m_szName);
+    		m_listCtrl.SetItemText(iItem, 1, m_PointDes.m_szpointnum);
+			m_listCtrl.SetItemText(iItem, 2, m_PointDes.m_szutype);
+			iItem++;
+			PointDesid = m_PointDes.m_szPID +1;
+			m_Records.push_back(m_PointDes.m_szpointnum );
+			m_PointDes.MoveNext();
+		}
+        m_PointDes.MoveFirst();
 	  }
 
 
@@ -663,33 +686,243 @@ void CSettingHostDlg::SortColumn(int iCol, bool bAsc)
 
 void CSettingHostDlg::OnBtnADD()
 {
-  CAccountDlg dlg(this);
-  dlg.acdid= sqlid;
-  dlg.strtable= m_strtable;
+	if(m_ADTypeTable[3].TableName ==  m_strtable )
+	{
+		m_bADD = true;
+		m_bSwitch = false;
+          m_listCtrl.DeleteColumn(2);
+          m_listCtrl.DeleteColumn(1);
+          m_listCtrl.DeleteColumn(0);
+		  HideAMD();
+		  InsA();
+		  m_strtable = m_ADTypeTable[0].TableName;  
+		  BuildAccountList();
+		  ShowControls();
+           GetDlgItem(IDC_STATIC2)->ShowWindow(SW_SHOW);
+           GetDlgItem(IDC_COMBO2)->ShowWindow(SW_SHOW);
+		   TrueFC();
+	}
+	else
+	{
+		  CAccountDlg dlg(this);
+		  dlg.acdid= sqlid;
+		  dlg.strtable= m_strtable;
+		  if ( dlg.DoModal() == IDOK )
+			BuildAccountList();
+	}
+}
 
-  if ( dlg.DoModal() == IDOK )
-    BuildAccountList();
+void CSettingHostDlg::OnBtnD2()
+{
+		m_bADD = true;
+		m_bSwitch = true;
+          m_listCtrl.DeleteColumn(2);
+          m_listCtrl.DeleteColumn(1);
+          m_listCtrl.DeleteColumn(0);
+		  HideAMD();
+		  InsD();
+		  m_strtable = m_ADTypeTable[1].TableName;  
+		  BuildAccountList();
+		  ShowControls();
+        GetDlgItem(IDC_STATIC2)->ShowWindow(SW_HIDE);
+        GetDlgItem(IDC_COMBO2)->ShowWindow(SW_HIDE);
+		TrueFC();
+}
+
+void CSettingHostDlg::OnBtnOK()
+{
+  try
+  {
+	vector<CString>::iterator  iter;
+	int fff = 0;
+	m_PointDesNew->m_szPID  = PointDesid;
+
+	UpdateData(TRUE);           //Exchange dialog data
+	COleDateTime CTime;
+	CString  m_strsel,dddd,szFind;
+
+	m_wndComboSize1.GetWindowText(m_strsel);
+	if(m_bSwitch)
+    	m_PointDesNew->m_szName = m_strsel +"|" + m_AccountSet.m_szName;
+	else
+    	m_PointDesNew->m_szName = m_strsel +"|" + m_ContactSet.m_szName;
+	m_wndComboSize3.GetWindowText(m_strsel);
+	m_PointDesNew->m_szfds = m_Str2Data.String2Int(m_strsel);
+	m_wndComboSize4.GetWindowText(dddd);
+	m_PointDesNew->m_szchan = m_Str2Data.String2Int(dddd);
+	if(m_bSwitch)
+    	m_PointDesNew->m_szpointnum = m_strsel +"D"+dddd;
+	else
+    	m_PointDesNew->m_szpointnum = m_strsel +"A"+dddd;
+
+	for(iter = m_Records.begin(); iter != m_Records.end(); ++iter)
+	{
+			szFind = *iter;
+			szFind.TrimRight();
+		if(szFind == m_PointDesNew->m_szpointnum)
+		{
+			fff = 100;
+				break;
+		}
+	}
+	if(m_bADD)
+	{
+		if(fff == 100)
+		{
+			AfxMessageBox("点号已存在，重新选择", MB_OK);
+			return;
+		}
+	}
+	m_wndComboSize2.GetWindowText(m_strsel);
+	m_PointDesNew->m_szutype = m_strsel;
+	if(m_bSwitch)
+	{
+    	m_PointDesNew->m_szptype = 1;     //开关量
+    	m_PointDesNew->m_sztypeID = m_AccountSet.m_szDID;
+	}
+	else
+	{
+    	m_PointDesNew->m_szptype = 0;     //模拟量
+    	m_PointDesNew->m_sztypeID = m_ContactSet.m_szAID;
+	}
+	m_PointDesNew->m_szpositionid = 0;
+	m_PointDesNew->m_szsubOpr = "";
+	m_PointDesNew->m_szfdel = false;
+	m_PointDesNew->m_szrecdate = CTime.GetCurrentTime();
+	m_PointDesNew->m_szUseridadd = "";
+
+	if(m_bADD)
+        m_PointDesNew->AddNew();  //Add a new, blank record
+	m_PointDesNew->Update();    //Update the recordset
+		//If this is a new record, requery the database table
+		//otherwise we may out-of-sync
+	if(m_bADD)
+        m_PointDesNew->Requery();
+  }
+  catch (CAxException *e)
+  {
+    AfxMessageBox(e->m_szErrorDesc, MB_OK);
+    delete e;
+  }
+	for (int iItem = 9; iItem >= 0; iItem--)
+		m_listCtrl.DeleteColumn(iItem);
+		  InsP();
+		  ShowAMD();
+		  m_strtable = m_ADTypeTable[3].TableName;  
+		  BuildAccountList();
+}
+
+void CSettingHostDlg::OnBtnCANCEL()
+{
+	for (int iItem = 9; iItem >= 0; iItem--)
+		m_listCtrl.DeleteColumn(iItem);
+		  InsP();
+		  ShowAMD();
+		  m_strtable = m_ADTypeTable[3].TableName;  
+		  BuildAccountList();
+
+}
+
+void CSettingHostDlg::TrueFC()
+{
+    GetDlgItem(IDC_COMBO3)->EnableWindow(TRUE);
+    GetDlgItem(IDC_COMBO4)->EnableWindow(TRUE);
+}
+
+void CSettingHostDlg::FalseFC()
+{
+    GetDlgItem(IDC_COMBO3)->EnableWindow(FALSE);
+    GetDlgItem(IDC_COMBO4)->EnableWindow(FALSE);
 }
 
 void CSettingHostDlg::HideControls()
 {
-    	GetDlgItem(IDC_STATIC1)->ShowWindow(SW_HIDE);;
-    	GetDlgItem(IDC_STATIC2)->ShowWindow(SW_HIDE);;
-    	GetDlgItem(IDC_STATIC3)->ShowWindow(SW_HIDE);;
-    	GetDlgItem(IDC_STATIC4)->ShowWindow(SW_HIDE);;
-    	GetDlgItem(IDC_COMBO1)->ShowWindow(SW_HIDE);;
-    	GetDlgItem(IDC_COMBO2)->ShowWindow(SW_HIDE);;
-    	GetDlgItem(IDC_COMBO3)->ShowWindow(SW_HIDE);;
-    	GetDlgItem(IDC_COMBO4)->ShowWindow(SW_HIDE);;
-    	GetDlgItem(IDOK)->ShowWindow(SW_HIDE);;
-    	GetDlgItem(IDCANCEL)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_STATIC1)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDC_STATIC2)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDC_STATIC3)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDC_STATIC4)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDC_COMBO1)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDC_COMBO2)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDC_COMBO3)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDC_COMBO4)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDOKADM)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDCANCELADM)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDC_BUT_ADD2)->ShowWindow(SW_HIDE);
+}
+
+void CSettingHostDlg::ShowControls()
+{
+    	GetDlgItem(IDC_STATIC1)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDC_STATIC2)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDC_STATIC3)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDC_STATIC4)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDC_COMBO1)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDC_COMBO2)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDC_COMBO3)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDC_COMBO4)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDOKADM)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDCANCELADM)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDC_BUT_ADD2)->ShowWindow(SW_HIDE);;
 }
 
 void CSettingHostDlg::HideAMD()
 {
     	GetDlgItem(IDC_BUT_ADD)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_BUT_ADD2)->ShowWindow(SW_HIDE);;
     	GetDlgItem(IDC_BUT_DEL)->ShowWindow(SW_HIDE);;
     	GetDlgItem(IDC_BUT_MOD)->ShowWindow(SW_HIDE);;
+}
+
+void CSettingHostDlg::ShowAMD()
+{
+    	GetDlgItem(IDC_BUT_ADD)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDC_BUT_ADD2)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDC_BUT_DEL)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDC_BUT_MOD)->ShowWindow(SW_SHOW);;
+}
+void CSettingHostDlg::InsA()
+{
+		HideControls();
+    	MoveWindow(CRect(50,100,960,700));
+		SetWindowText(_T(m_ADTypeTable[0].NameD));
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[0].m_DTypeTFD.Name,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(1,m_ADTypeTable[0].m_DTypeTFD.ltop,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(2,m_ADTypeTable[0].m_DTypeTFD.lbom,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(3,m_ADTypeTable[0].m_DTypeTFD.palmu,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(4,m_ADTypeTable[0].m_DTypeTFD.palmd,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(5,m_ADTypeTable[0].m_DTypeTFD.pbrk,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(6,m_ADTypeTable[0].m_DTypeTFD.prtn,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(7,m_ADTypeTable[0].m_DTypeTFD.punit,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(8,m_ADTypeTable[0].m_DTypeTFD.recdate,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(9,m_ADTypeTable[0].m_DTypeTFD.Useridadd,LVCFMT_LEFT,100);
+}
+
+void CSettingHostDlg::InsD()
+{
+		HideControls();
+		SetWindowText(_T(m_ADTypeTable[1].NameD));
+    	MoveWindow(CRect(50,100,960,700));
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[1].m_DTypeTFD.Name,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(1,m_ADTypeTable[1].m_DTypeTFD.name0,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(2,m_ADTypeTable[1].m_DTypeTFD.name1,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(3,m_ADTypeTable[1].m_DTypeTFD.name2,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(4,m_ADTypeTable[1].m_DTypeTFD.palms,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(5,m_ADTypeTable[1].m_DTypeTFD.falm,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(6,m_ADTypeTable[1].m_DTypeTFD.recdate,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(7,m_ADTypeTable[1].m_DTypeTFD.Useridadd,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(8,m_ADTypeTable[1].m_DTypeTFD.ptype,LVCFMT_LEFT,100);
+}
+
+void CSettingHostDlg::InsP()
+{
+		HideControls();
+    	GetDlgItem(IDC_BUT_ADD2)->ShowWindow(SW_SHOW);;
+    	GetDlgItem(IDC_BUT_ADD)->SetWindowText(_T("增加模拟量"));;
+		SetWindowText(_T(m_ADTypeTable[3].NameD));
+    	MoveWindow(CRect(50,100,960,700));
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[3].m_DTypeTFD.Name,LVCFMT_LEFT,200);
+		m_listCtrl.InsertColumn(1,m_ADTypeTable[3].m_DTypeTFD.pointnum,LVCFMT_LEFT,200);
+		m_listCtrl.InsertColumn(2,m_ADTypeTable[3].m_DTypeTFD.utype,LVCFMT_LEFT,200);
 }
 
 void CSettingHostDlg::OnBtnDEL()
@@ -711,8 +944,6 @@ void CSettingHostDlg::OnBtnDEL()
 	  {
          szMsg.Format(_T("Delete %s?"), m_PointDes.m_szName);
 	  }
-
-
 
   MessageBeep(MB_ICONEXCLAMATION);
   int Reply = AfxMessageBox(szMsg, MB_YESNO);
@@ -749,9 +980,70 @@ void CSettingHostDlg::OnBtnDEL()
 
 void CSettingHostDlg::OnBtnMOD()
 {
-  CAccountDlg dlg(TRUE, this);
-  dlg.strtable= m_strtable;
-  if ( dlg.DoModal() == IDOK )
-    BuildAccountList();
+	LPCTSTR str1 = "",str2 = "",str3 = "";
+	CString strItem, strf,strc;
+	if(m_ADTypeTable[3].TableName ==  m_strtable )
+	{
+		m_bADD = false;
+      	m_Str2Data.SplittoCString(m_PointDesNew->m_szName,str1,str2,str3);
+		m_wndComboSize1.SetWindowText(str1);
+		strItem = m_PointDesNew->m_szutype;
+		strItem.TrimRight();
+		m_wndComboSize2.SetWindowText(strItem);
+		strItem = m_PointDesNew->m_szpointnum;
+		strItem.TrimRight();
+		int n =strItem.Find("A");
+		if(n != -1)
+		{
+			m_bSwitch = false;
+    		strf = strItem.Mid(0,n);
+    		strc = strItem.Mid(n+1);
+		}
+		int m =strItem.Find("D");
+		if(m != -1)
+		{
+			m_bSwitch = true;
+    		strf = strItem.Mid(0,m);
+    		strc = strItem.Mid(m+1);
+		}
+		m_wndComboSize3.SetWindowText(strf);
+		m_wndComboSize4.SetWindowText(strc);
+
+          m_listCtrl.DeleteColumn(2);
+          m_listCtrl.DeleteColumn(1);
+          m_listCtrl.DeleteColumn(0);
+		  HideAMD();
+
+    	if(m_bSwitch)
+		{
+		  InsD();
+		  m_strtable = m_ADTypeTable[1].TableName;  
+		}
+		else
+		{
+		  InsA();
+		  m_strtable = m_ADTypeTable[0].TableName;  
+		}
+		  BuildAccountList();
+		  ShowControls();
+    	if(m_bSwitch)
+		{
+           GetDlgItem(IDC_STATIC2)->ShowWindow(SW_HIDE);
+           GetDlgItem(IDC_COMBO2)->ShowWindow(SW_HIDE);
+		}
+		else
+		{
+           GetDlgItem(IDC_STATIC2)->ShowWindow(SW_SHOW);
+           GetDlgItem(IDC_COMBO2)->ShowWindow(SW_SHOW);
+		}
+		FalseFC();
+	}
+	else
+	{
+		  CAccountDlg dlg(TRUE, this);
+		  dlg.strtable= m_strtable;
+		  if ( dlg.DoModal() == IDOK )
+			BuildAccountList();
+	}
 }
 

@@ -15,7 +15,7 @@
 #include <afxext.h>
 #endif
 
-class CSampleFormView : public CFormView
+class CSampleFormView : public CFormView,CGridColumnManager
 {
 protected:
 	CSampleFormView();           // protected constructor used by dynamic creation
@@ -62,6 +62,10 @@ public:
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CSampleFormView)
 	public:
+	virtual void OpenColumnEditor(CGridListCtrlEx& owner, int nCol)
+	{
+		int ddddd= 888;
+	}
 	virtual void OnInitialUpdate();
 //	virtual CScrollBar* GetScrollBarCtrl(int nBar) const;
 	protected:
@@ -82,6 +86,8 @@ protected:
 //	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 //	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 //	afx_msg void OnPaint();
+	afx_msg void OnRclick(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

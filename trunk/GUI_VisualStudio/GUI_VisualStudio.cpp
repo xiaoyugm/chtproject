@@ -248,10 +248,10 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 		return FALSE;
 	}
 
-	CSettingHostDlg dlg;
-	dlg.m_strtable =  _T("pointdescription");
-	if(dlg.DoModal() != IDOK)
-		return FALSE;
+//	CSettingHostDlg dlg;
+//	dlg.m_strtable =  _T("pointdescription");
+//	if(dlg.DoModal() != IDOK)
+//		return FALSE;
 
 	gstrTimeOut = GetAppPath();
 

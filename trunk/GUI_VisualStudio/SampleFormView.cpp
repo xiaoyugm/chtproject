@@ -62,6 +62,8 @@ BEGIN_MESSAGE_MAP(CSampleFormView, CFormView)
 //	ON_WM_CREATE()
 //	ON_WM_ERASEBKGND()
 //	ON_WM_PAINT()
+	ON_WM_CONTEXTMENU()
+    ON_NOTIFY_REFLECT(NM_RCLICK, OnRclick)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -121,11 +123,9 @@ void CSampleFormView::OnInitialUpdate()
 	m_List1.SetImageList(&m_SampleFormImageList, LVSIL_SMALL);
 	m_List2.SetImageList(&m_ImageList, LVSIL_SMALL);
 	// Give better margin to editors
-//	m_List1.SetCellMargin(1.2);
-//	CGridRowTraitXP* pRowTrait = new CGridRowTraitXP;
-//	m_List1.SetDefaultRowTrait(pRowTrait);
-
-//    	SetTitle("");
+	m_List1.SetCellMargin(1.2);
+	CGridRowTraitXP* pRowTrait = new CGridRowTraitXP;
+	m_List1.SetDefaultRowTrait(pRowTrait);
 
 	// Create Columns
 	m_List1.InsertHiddenLabelColumn();	// Requires one never uses column 0
@@ -182,6 +182,12 @@ void CSampleFormView::OnInitialUpdate()
 	m_List1.SetCellImage(1, 2, 0);
 	m_List1.SetCellImage(2, 2, 0);
 	m_List1.SetCellImage(3, 2, 1);
+
+//	CGridColumnManagerProfile* pColumnProfile = new CGridColumnManagerProfile(_T("Sample List"));
+//	pColumnProfile->AddColumnProfile(_T("Default"));
+//	pColumnProfile->AddColumnProfile(_T("Special"));
+//	m_List1.SetupColumnConfig(pColumnProfile);
+
 
 }
 
@@ -505,3 +511,37 @@ void CSampleFormView::OnPaint()
 	CFormView::DefWindowProc( WM_PAINT, (WPARAM)memDC.m_hDC, 0 );
 }
 */
+
+
+void CSampleFormView::OnRclick(NMHDR* pNMHDR, LRESULT* pResult)
+{
+//	CListCtrl &CList =  GetListCtrl();//获取当前列表控件的指针
+
+       CMenu       menu ,* pSubMenu;//定义下面要用到的cmenu对象
+
+       menu.LoadMenu(IDC_POPLISTCONTROL);//装载自定义的右键菜单
+
+       pSubMenu = menu.GetSubMenu(0);//获取第一个弹出菜单，所以第一个菜单必须有子菜单
+
+    CPoint oPoint;//定义一个用于确定光标位置的位置
+
+    GetCursorPos( &oPoint);//获取当前光标的位置，以便使得菜单可以跟随光标
+
+       int istat;//=CList.GetSelectionMark();//用istat存放当前选定的是第几项
+
+    CString pString; //=CList.GetItemText(istat,0);//获取当前项中的数据，0代表是第0列
+	pString="您选择的路径是:"+pString ;//显示当前选择项
+
+       MessageBox(pString);//显示当前选中的路径
+
+       pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
+
+}
+
+void CSampleFormView::OnContextMenu(CWnd* pWnd, CPoint point) 
+{
+CMenu menu; // 定义CMenu类对象
+menu.LoadMenu(IDC_POPLISTCONTROL); //装入刚建立的菜单 IDC_POPMENU menu.GetSubMenu(0)->TrackPopupMenu(TPM_LEFTALIGN,point.x,point.y,pWnd); 
+/*GetSubMenu(0) 得到IDC_POPMENU的第一层子菜单，TrackPopupMenu将菜单弹出到（x,y）处。由于设置为TPM_LEFTALIGN，所以菜单以（x,y）为左上角。*/
+
+}

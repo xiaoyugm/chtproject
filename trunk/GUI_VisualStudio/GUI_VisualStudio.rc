@@ -42,6 +42,7 @@ BEGIN
         MENUITEM "模拟量类型定义",              ID_A_D
         MENUITEM "开关量类型定义",              ID_D_D
         MENUITEM "安装位置定义",                ID_LOCALTION
+        MENUITEM "浏览编辑测点",                ID_BROWSERMOD
     END
     POPUP "页面编辑"
     BEGIN
@@ -122,6 +123,14 @@ BEGIN
     END
 END
 
+IDC_POPLISTCONTROL MENU DISCARDABLE 
+BEGIN
+    POPUP "列表"
+    BEGIN
+        MENUITEM "选择显示测点",                ID_SELECT_POINT
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -163,8 +172,8 @@ STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "设置主机信息"
 FONT 9, "宋体"
 BEGIN
-    DEFPUSHBUTTON   "确定(&O)",IDOK,56,198,50,14
-    PUSHBUTTON      "取消(&C)",IDCANCEL,139,198,50,14
+    DEFPUSHBUTTON   "确定(&O)",IDOKADM,56,197,50,14
+    PUSHBUTTON      "取消(&C)",IDCANCELADM,175,197,50,14
     LTEXT           "主机IP地址：",IDC_STATIC,168,57,53,8,NOT WS_VISIBLE
     EDITTEXT        IDC_EDIT_HOST_IP,93,31,113,15,ES_AUTOHSCROLL | NOT 
                     WS_VISIBLE
@@ -177,22 +186,23 @@ BEGIN
     CONTROL         "List1",IDC_LIST_CTRL,"SysListView32",LVS_REPORT | 
                     LVS_SHOWSELALWAYS | WS_TABSTOP,7,7,260,139,
                     WS_EX_STATICEDGE
-    PUSHBUTTON      "增加",IDC_BUT_ADD,27,198,50,14
-    PUSHBUTTON      "删除",IDC_BUT_DEL,95,198,50,14
-    PUSHBUTTON      "修改",IDC_BUT_MOD,168,198,50,14
+    PUSHBUTTON      "增加",IDC_BUT_ADD,18,198,50,14
+    PUSHBUTTON      "删除",IDC_BUT_DEL,144,198,50,14
+    PUSHBUTTON      "修改",IDC_BUT_MOD,205,198,50,14
     PUSHBUTTON      "SORTBACK",IDC_CLR_SORTBACK,23,121,50,14,NOT WS_VISIBLE
-    COMBOBOX        IDC_COMBO1,7,177,64,45,CBS_DROPDOWN | CBS_SORT | 
+    COMBOBOX        IDC_COMBO1,7,177,96,45,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "测点位置",IDC_STATIC1,7,161,63,12
-    COMBOBOX        IDC_COMBO2,86,177,64,43,CBS_DROPDOWN | CBS_SORT | 
+    COMBOBOX        IDC_COMBO2,121,177,76,43,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
-    LTEXT           "传感器型号",IDC_STATIC2,86,161,63,12
-    COMBOBOX        IDC_COMBO3,171,177,33,42,CBS_DROPDOWN | WS_VSCROLL | 
+    LTEXT           "传感器型号",IDC_STATIC2,121,161,63,12
+    COMBOBOX        IDC_COMBO3,206,177,27,42,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
-    LTEXT           "分站",IDC_STATIC3,171,161,24,12
-    COMBOBOX        IDC_COMBO4,226,177,41,43,CBS_DROPDOWN | WS_VSCROLL | 
+    LTEXT           "分站",IDC_STATIC3,208,161,19,12
+    COMBOBOX        IDC_COMBO4,244,177,23,43,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
-    LTEXT           "通道号",IDC_STATIC4,227,161,39,12
+    LTEXT           "通道号",IDC_STATIC4,241,161,25,12
+    PUSHBUTTON      "增加开关量",IDC_BUT_ADD2,82,198,50,14
 END
 
 IDD_DIALOG_SET_TIMER DIALOG DISCARDABLE  0, 0, 205, 98
@@ -326,153 +336,6 @@ ID_INDICATOR_WEB        ICON    DISCARDABLE     "res\\msword_web.ico"
 //
 
 IDR_HEARTBEAT           AVI     DISCARDABLE     "res\\heartbeat.avi"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog Info
-//
-
-IDD_DIALOG_HOST_SETTING DLGINIT
-BEGIN
-    IDC_COMBO2, 0x403, 11, 0
-0xe7b5, 0xf7c1, 0xe7b5, 0xb9d1, 0xcdd0, "\000" 
-    IDC_COMBO2, 0x403, 21, 0
-0xb5c6, 0xcac2, 0xcdd0, 0xa8a3, 0x3032, 0x2d30, 0x3031, 0x3030, 0x5a48, 
-0xa9a3, "\000" 
-    IDC_COMBO2, 0x403, 24, 0
-0xb5c6, 0xcac2, 0xcdd0, 0x4241, 0x3244, 0xa331, 0x36a8, 0x2d34, 0x3132, 
-0x4834, 0xa35a, 0x00a9, 
-    IDC_COMBO3, 0x403, 2, 0
-0x0031, 
-    IDC_COMBO3, 0x403, 2, 0
-0x0032, 
-    IDC_COMBO3, 0x403, 2, 0
-0x0033, 
-    IDC_COMBO3, 0x403, 2, 0
-0x0034, 
-    IDC_COMBO3, 0x403, 2, 0
-0x0035, 
-    IDC_COMBO3, 0x403, 2, 0
-0x0036, 
-    IDC_COMBO3, 0x403, 2, 0
-0x0037, 
-    IDC_COMBO3, 0x403, 2, 0
-0x0038, 
-    IDC_COMBO3, 0x403, 2, 0
-0x0039, 
-    IDC_COMBO3, 0x403, 3, 0
-0x3031, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3131, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3231, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3331, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3431, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3531, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3631, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3731, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3831, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3931, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3032, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3132, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3232, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3332, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3432, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3532, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3632, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3732, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3832, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3932, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3033, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3133, "\000" 
-    IDC_COMBO3, 0x403, 3, 0
-0x3233, "\000" 
-    IDC_COMBO4, 0x403, 2, 0
-0x0031, 
-    IDC_COMBO4, 0x403, 2, 0
-0x0032, 
-    IDC_COMBO4, 0x403, 2, 0
-0x0033, 
-    IDC_COMBO4, 0x403, 2, 0
-0x0034, 
-    IDC_COMBO4, 0x403, 2, 0
-0x0035, 
-    IDC_COMBO4, 0x403, 2, 0
-0x0036, 
-    IDC_COMBO4, 0x403, 2, 0
-0x0037, 
-    IDC_COMBO4, 0x403, 2, 0
-0x0038, 
-    IDC_COMBO4, 0x403, 2, 0
-0x0039, 
-    IDC_COMBO4, 0x403, 3, 0
-0x3031, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3131, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3231, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3331, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3431, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3531, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3631, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3731, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3831, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3931, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3032, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3132, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3232, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3332, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3432, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3532, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3632, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3732, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3832, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3932, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3033, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3133, "\000" 
-    IDC_COMBO4, 0x403, 3, 0
-0x3233, "\000" 
-    0
-END
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
