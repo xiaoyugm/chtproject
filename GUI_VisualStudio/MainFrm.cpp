@@ -663,7 +663,7 @@ LRESULT CMainFrame::OnDockingPaneNotify(WPARAM wParam, LPARAM lParam)
 					pPane->Attach(&m_wndSolutionExplorer);
 					break;
 
-/*				case ID_VIEW_PROPERTIESWINDOW:   m_pSFView1
+/*				case ID_VIEW_PROPERTIESWINDOW:   
 					if (!m_wndProperties.GetSafeHwnd())
 					{
 						m_wndProperties.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);

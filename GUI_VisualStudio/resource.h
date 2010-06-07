@@ -168,6 +168,7 @@
 #define IDC_EDIT1                       1005
 #define IDC_BUT_ADD2                    1005
 #define IDC_EDIT2                       1006
+#define IDC_LIST_DISPLAY                1006
 #define IDC_EDIT3                       1007
 #define IDC_EDIT4                       1008
 #define IDC_EDIT5                       1009
@@ -201,6 +202,14 @@
 #define IDC_MODIFY_TAB                  1024
 #define IDCANCELADM                     1024
 #define IDC_ADD_TAB                     1025
+#define IDC_LISTALLPOINT                1026
+#define IDC_LISTDISPLAY                 1027
+#define IDC_BUTTONDIS1                  1027
+#define IDC_BUTTONDIS2                  1028
+#define IDC_BUTTONDIS3                  1029
+#define IDC_BUTTONDIS4                  1030
+#define IDC_BUTTONDIS5                  1031
+#define IDC_BUTTONDIS6                  1032
 #define IDC_EDIT_HOST_IP                1065
 #define IDC_EDIT_SECOND                 1065
 #define IDC_EDIT_PORT                   1066
@@ -273,7 +282,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        161
 #define _APS_NEXT_COMMAND_VALUE         32798
-#define _APS_NEXT_CONTROL_VALUE         1025
+#define _APS_NEXT_CONTROL_VALUE         1028
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

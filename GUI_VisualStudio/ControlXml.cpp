@@ -212,6 +212,7 @@ bool CControlXml::ParsePS(CMarkup& xml)
     	m_ADTypeTable[0].TableName = strnumForm;
         CString groupName = xml.GetAttrib(_T("Name"));
     	m_ADTypeTable[0].NameD = groupName;
+
      	m_Str2Data.SplittoCString(xml.GetAttrib(_T("DBColumn0")),str1,str2,str3);
         m_ADTypeTable[0].m_DTypeTField.DID = str1;
         m_ADTypeTable[0].m_DTypeTField.Name = str2;

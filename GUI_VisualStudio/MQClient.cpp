@@ -202,7 +202,7 @@ void CMQClient::CollectDate(CNDKMessage& message)
 			}
 	}
 
-    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+/*    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 	
 		CString strItem;
 		CString strSubA;
@@ -217,7 +217,7 @@ void CMQClient::CollectDate(CNDKMessage& message)
     		pFWnd->m_pSampleFormView1->SetInfo(2,state,strItem,strSubA,strSubB);
 		if((pFWnd)&&(pFWnd->m_pSampleFormView2!= NULL))
     		pFWnd->m_pSampleFormView2->SetInfo(3,state,strItem,strSubA,strSubB);
-
+*/
 
 }
 //        CString  str;

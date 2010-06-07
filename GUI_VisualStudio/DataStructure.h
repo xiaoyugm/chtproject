@@ -244,5 +244,10 @@ struct FormView {
 	ListCtrl  m_ListCtrl[3];         //FormView的ListCtrl数据结构
 };
 
+//DisplayPoint
+struct DisplayPoint {
+	int       fds;             //分站
+	int       chan;            // 通道
+};
 
 #endif // !defined(AFX_JEINWEB_H__5D9516BA_00A4_4D7D_B08A_9EAA563AB7A7__INCLUDED_)

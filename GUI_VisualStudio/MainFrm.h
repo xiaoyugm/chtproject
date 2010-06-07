@@ -72,14 +72,6 @@ public:
 	CSampleFormView*		m_pSampleFormView7;
 	CSampleFormView*		m_pSampleFormView8;
 
-	CSampleFormView*		m_pSFView1;
-	CSampleFormView*		m_pSFView2;
-	CSampleFormView*		m_pSFView3;
-	CSampleFormView*		m_pSFView4;
-	CSampleFormView*		m_pSFView5;
-	CSampleFormView*		m_pSFView6;
-	CSampleFormView*		m_pSFView7;
-
 	CTabbedViewView*        m_pTabbedViewView;
 
 	void AddEdit();

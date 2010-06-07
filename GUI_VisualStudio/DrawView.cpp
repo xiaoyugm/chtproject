@@ -17,7 +17,6 @@
 #include "drawchart.h"
 #include "drawbutton.h"
 #include <math.h>
-#include "SetTimeDlg.h"
 #include "DrawRotary.h"
 #include "DrawConduit.h"
 #include "DrawCar.h"

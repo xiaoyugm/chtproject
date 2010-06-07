@@ -53,6 +53,8 @@ public:
 	CImageList m_SampleFormImageList;
 // Operations
 public:
+	void OpenMenu();
+	void OpenAddDel(int ilist);
 	void SetInfo(int m_List,int iItem,CString strSubA,CString strSubB,CString strSubC);
 	void SetMonitorListHead(void);
 
@@ -62,10 +64,6 @@ public:
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CSampleFormView)
 	public:
-	virtual void OpenColumnEditor(CGridListCtrlEx& owner, int nCol)
-	{
-		int ddddd= 888;
-	}
 	virtual void OnInitialUpdate();
 //	virtual CScrollBar* GetScrollBarCtrl(int nBar) const;
 	protected:
@@ -86,7 +84,9 @@ protected:
 //	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 //	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 //	afx_msg void OnPaint();
-	afx_msg void OnRclick(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnRclick1(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnRclick2(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnRclick3(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
