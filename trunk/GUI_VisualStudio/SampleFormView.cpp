@@ -13,6 +13,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 extern  FormView  m_FormView[20];
+extern  DisplayPoint  m_DisplayPoint[33];
 /////////////////////////////////////////////////////////////////////////////
 // CSampleFormView
 
@@ -63,7 +64,9 @@ BEGIN_MESSAGE_MAP(CSampleFormView, CFormView)
 //	ON_WM_ERASEBKGND()
 //	ON_WM_PAINT()
 	ON_WM_CONTEXTMENU()
-    ON_NOTIFY(NM_RCLICK,IDC_LIST_POINT1, OnRclick)
+    ON_NOTIFY(NM_RCLICK,IDC_LIST_POINT1, OnRclick1)
+    ON_NOTIFY(NM_RCLICK,IDC_LIST_POINT2, OnRclick2)
+    ON_NOTIFY(NM_RCLICK,IDC_LIST_POINT3, OnRclick3)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -110,8 +113,6 @@ void CSampleFormView::OnInitialUpdate()
 	if(theApp.DocNum == 8)
     	pFWnd->m_pSampleFormView8=this;
 
-	if(theApp.DocNum == 9)
-    	pFWnd->m_pSFView1=this;
 
 	if (!CreateImageList(m_SampleFormImageList, IDB_CLASSTREE))
 		return ;
@@ -119,6 +120,15 @@ void CSampleFormView::OnInitialUpdate()
 	m_ImageList.Create(16, 16, ILC_COLOR16 | ILC_MASK, 1, 0);
 	m_ImageList.Add(AfxGetApp()->LoadIcon(IDR_GUI_WHTYPE));
 	m_ImageList.Add(AfxGetApp()->LoadIcon(IDR_MAINFRAME));
+
+	CString strlist1,strlist2,strlist3;
+	strlist1.Format("%d",theApp.DocNum*3+1);
+	strlist2.Format("%d",theApp.DocNum*3+2);
+	strlist3.Format("%d",theApp.DocNum*3+3);
+
+	m_List1.SetWindowText(strlist1);
+	m_List2.SetWindowText(strlist2);
+	m_List3.SetWindowText(strlist3);
 
 	m_List1.SetImageList(&m_SampleFormImageList, LVSIL_SMALL);
 	m_List2.SetImageList(&m_ImageList, LVSIL_SMALL);
@@ -512,11 +522,11 @@ void CSampleFormView::OnPaint()
 }
 */
 
-
-void CSampleFormView::OnRclick(NMHDR* pNMHDR, LRESULT* pResult)
+void CSampleFormView::OnRclick1(NMHDR* pNMHDR, LRESULT* pResult)
 {
+	CString pString ;
+	m_List1.GetWindowText(pString);
 //	CListCtrl &CList =  GetListCtrl();//获取当前列表控件的指针
-
        CMenu       menu ,* pSubMenu;//定义下面要用到的cmenu对象
 
        menu.LoadMenu(IDC_POPLISTCONTROL);//装载自定义的右键菜单
@@ -527,14 +537,72 @@ void CSampleFormView::OnRclick(NMHDR* pNMHDR, LRESULT* pResult)
 
     GetCursorPos( &oPoint);//获取当前光标的位置，以便使得菜单可以跟随光标
 
-       int istat;//=CList.GetSelectionMark();//用istat存放当前选定的是第几项
+//       int istat;//=CList.GetSelectionMark();//用istat存放当前选定的是第几项
 
-    CString pString; //=CList.GetItemText(istat,0);//获取当前项中的数据，0代表是第0列
-	pString="您选择的路径是:"+pString ;//显示当前选择项
-
-       MessageBox(pString);//显示当前选中的路径
-
+//    CString pString; //=CList.GetItemText(istat,0);//获取当前项中的数据，0代表是第0列
+//	pString="您选择的路径是:"+pString ;//显示当前选择项
+//       MessageBox(pString);//显示当前选中的路径
        pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
+
+	// Will return zero if no selection was made (TPM_RETURNCMD)
+	int nResult = pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
+	switch(nResult)
+	{
+		case 0: break;
+		case 1:	OpenAddDel(1); break;
+//		case 2: m_pColumnManager->OpenColumnPicker(*this); break;
+//		case 3: m_pColumnManager->ResetColumnsDefault(*this); break;
+		default: break;
+	}
+}
+void CSampleFormView::OnRclick2(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	CString pString ;
+	m_List2.GetWindowText(pString);
+
+
+       CMenu       menu ,* pSubMenu;//定义下面要用到的cmenu对象
+       menu.LoadMenu(IDC_POPLISTCONTROL);//装载自定义的右键菜单
+       pSubMenu = menu.GetSubMenu(0);//获取第一个弹出菜单，所以第一个菜单必须有子菜单
+    CPoint oPoint;//定义一个用于确定光标位置的位置
+    GetCursorPos( &oPoint);//获取当前光标的位置，以便使得菜单可以跟随光标
+       pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
+
+	// Will return zero if no selection was made (TPM_RETURNCMD)
+	int nResult = pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
+	switch(nResult)
+	{
+		case 0: break;
+		case 1:	OpenAddDel(2); break;
+		default: break;
+	}
+}
+
+
+void CSampleFormView::OnRclick3(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	CString pString ;
+	m_List3.GetWindowText(pString);
+
+	CMenu       menu ,* pSubMenu;//定义下面要用到的cmenu对象
+       menu.LoadMenu(IDC_POPLISTCONTROL);//装载自定义的右键菜单
+       pSubMenu = menu.GetSubMenu(0);//获取第一个弹出菜单，所以第一个菜单必须有子菜单
+    CPoint oPoint;//定义一个用于确定光标位置的位置
+    GetCursorPos( &oPoint);//获取当前光标的位置，以便使得菜单可以跟随光标
+      pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
+
+	// Will return zero if no selection was made (TPM_RETURNCMD)
+	int nResult = pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
+	switch(nResult)
+	{
+		case 0: break;
+		case 1:	OpenAddDel(3); break;
+		default: break;
+	}
+}
+
+void CSampleFormView::OpenAddDel(int ilist) 
+{
 
 }
 

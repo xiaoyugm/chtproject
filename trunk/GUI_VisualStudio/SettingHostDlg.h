@@ -89,6 +89,7 @@ public:
   void   InsA();
   void   InsD();
   void   InsP();
+  void   HideDISPLAY();
 
 	void SortColumn(int iCol, bool bAsc);
 // Overrides

@@ -127,6 +127,12 @@ BOOL CSettingHostDlg::OnInitDialog()
 //	SetResize(IDOK,                  SZ_TOP_RIGHT,   SZ_TOP_RIGHT);
 	SetResize(IDOKADM,                  SZ_BOTTOM_LEFT,   SZ_BOTTOM_LEFT);
 	SetResize(IDCANCELADM,              SZ_BOTTOM_LEFT,   SZ_BOTTOM_LEFT);
+
+	CRect   rectDialog;  
+    GetClientRect(&rectDialog);  
+    int   nWidth   =   rectDialog.right   -   rectDialog.left;  
+    int   nHeight   =   rectDialog.bottom   -   rectDialog.top;  
+	GetDlgItem(IDC_LIST_CTRL)->MoveWindow(CRect(8,5,nWidth-13 ,nHeight-90));
 	SetResize(IDC_LIST_CTRL,         SZ_TOP_LEFT,    SZ_BOTTOM_RIGHT);
 
 //	SetResize(IDC_GBOX_HEADER,       SZ_BOTTOM_LEFT, SZ_BOTTOM_RIGHT);
@@ -266,6 +272,7 @@ BOOL CSettingHostDlg::OnInitDialog()
          InsD();
 	if(m_ADTypeTable[2].TableName ==  m_strtable)
 	{
+    	HideDISPLAY();
 		HideControls();
 		SetWindowText(_T(m_ADTypeTable[2].NameD));
     	MoveWindow(CRect(300,300,460,700));
@@ -273,6 +280,8 @@ BOOL CSettingHostDlg::OnInitDialog()
 	}
 	if(m_ADTypeTable[3].TableName ==  m_strtable)
          InsP();
+	if(m_ADTypeTable[4].TableName ==  m_strtable)
+         InsDIS();
 
     BuildAccountList();
 
@@ -873,6 +882,17 @@ void CSettingHostDlg::HideAMD()
     	GetDlgItem(IDC_BUT_MOD)->ShowWindow(SW_HIDE);;
 }
 
+void CSettingHostDlg::HideDISPLAY()
+{
+    	GetDlgItem(IDC_LIST_DISPLAY)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_BUTTONDIS1)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_BUTTONDIS2)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_BUTTONDIS3)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_BUTTONDIS4)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_BUTTONDIS5)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_BUTTONDIS6)->ShowWindow(SW_HIDE);;
+}
+
 void CSettingHostDlg::ShowAMD()
 {
     	GetDlgItem(IDC_BUT_ADD)->ShowWindow(SW_SHOW);;
@@ -882,6 +902,7 @@ void CSettingHostDlg::ShowAMD()
 }
 void CSettingHostDlg::InsA()
 {
+	HideDISPLAY();
 		HideControls();
     	MoveWindow(CRect(50,100,960,700));
 		SetWindowText(_T(m_ADTypeTable[0].NameD));
@@ -899,6 +920,7 @@ void CSettingHostDlg::InsA()
 
 void CSettingHostDlg::InsD()
 {
+	HideDISPLAY();
 		HideControls();
 		SetWindowText(_T(m_ADTypeTable[1].NameD));
     	MoveWindow(CRect(50,100,960,700));
@@ -915,6 +937,7 @@ void CSettingHostDlg::InsD()
 
 void CSettingHostDlg::InsP()
 {
+	HideDISPLAY();
 		HideControls();
     	GetDlgItem(IDC_BUT_ADD2)->ShowWindow(SW_SHOW);;
     	GetDlgItem(IDC_BUT_ADD)->SetWindowText(_T("增加模拟量"));;
