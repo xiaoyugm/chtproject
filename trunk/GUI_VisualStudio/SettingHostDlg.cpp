@@ -88,6 +88,7 @@ void CSettingHostDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO3, m_wndComboSize3);
 	DDX_Control(pDX, IDC_COMBO4, m_wndComboSize4);
 	DDX_Control(pDX, IDC_LIST_CTRL, m_listCtrl);
+	DDX_Control(pDX, IDC_LIST_DISPLAY, m_listDis);
 	DDX_Control(pDX, IDC_CLR_SORTBACK, m_cpSortBack);
     //}}AFX_DATA_MAP
 }
@@ -132,9 +133,18 @@ BOOL CSettingHostDlg::OnInitDialog()
     GetClientRect(&rectDialog);  
     int   nWidth   =   rectDialog.right   -   rectDialog.left;  
     int   nHeight   =   rectDialog.bottom   -   rectDialog.top;  
-	GetDlgItem(IDC_LIST_CTRL)->MoveWindow(CRect(8,5,nWidth-13 ,nHeight-90));
-	SetResize(IDC_LIST_CTRL,         SZ_TOP_LEFT,    SZ_BOTTOM_RIGHT);
-
+	if(m_ADTypeTable[4].TableName ==  m_strtable)
+	{
+    	GetDlgItem(IDC_LIST_CTRL)->MoveWindow(CRect(8,5,nWidth/2+10 ,nHeight-10));
+    	SetResize(IDC_LIST_CTRL,         SZ_TOP_LEFT,    SZ_BOTTOM_CENTER);
+    	GetDlgItem(IDC_LIST_DISPLAY)->MoveWindow(CRect(nWidth/2+180,5,10 ,nHeight-10));
+    	SetResize(IDC_LIST_DISPLAY,         SZ_TOP_CENTER,    SZ_BOTTOM_RIGHT);
+	}
+	else
+	{
+    	GetDlgItem(IDC_LIST_CTRL)->MoveWindow(CRect(8,5,nWidth-13 ,nHeight-90));
+    	SetResize(IDC_LIST_CTRL,         SZ_TOP_LEFT,    SZ_BOTTOM_RIGHT);
+	}
 //	SetResize(IDC_GBOX_HEADER,       SZ_BOTTOM_LEFT, SZ_BOTTOM_RIGHT);
 	SetResize(IDC_BUT_ADD,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_BUT_ADD2,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
@@ -149,6 +159,13 @@ BOOL CSettingHostDlg::OnInitDialog()
 	SetResize(IDC_STATIC2,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_STATIC3,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_STATIC4,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
+
+	SetResize(IDC_BUTTONDIS1,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
+	SetResize(IDC_BUTTONDIS2,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
+	SetResize(IDC_BUTTONDIS3,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
+	SetResize(IDC_BUTTONDIS4,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
+	SetResize(IDC_BUTTONDIS5,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
+	SetResize(IDC_BUTTONDIS6,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
 
 	// insert strings into the size combo box.
 	for(int i = 01; i < 65; i++)
@@ -183,14 +200,6 @@ BOOL CSettingHostDlg::OnInitDialog()
 	// Create Columns
 	m_listCtrl.InsertHiddenLabelColumn();	// Requires one never uses column 0
 
-	// TODO: Add extra initialization here
-	int iItem;
-	for (iItem = 0; iItem < 50; ++iItem)
-	{
-		CString strItem;
-		strItem.Format(_T("Item %d"), iItem);
-//		m_listCtrl.InsertItem(iItem, strItem, 0);
-	}
 */
 	// Get the windows handle to the header control for the
 	// list control then subclass the control.
@@ -294,6 +303,7 @@ BOOL CSettingHostDlg::OnInitDialog()
 void CSettingHostDlg::BuildAccountList()
 {
     m_listCtrl.DeleteAllItems();
+	LPCTSTR str1 = "",str2 = "",str3 = "";
 
   try
   {
@@ -410,6 +420,62 @@ void CSettingHostDlg::BuildAccountList()
 			m_PointDes.MoveNext();
 		}
         m_PointDes.MoveFirst();
+	  }
+	  else if(m_ADTypeTable[4].TableName ==  m_strtable)
+	  {
+		if ( m_PointDes._IsEmpty() )
+		{
+//		  m_listCtrl.InsertItem(0, _T("<< >>"));
+		  return;
+		}
+		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
+		int iItem = 0;
+//        m_Records.clear();
+		m_PointDes.MoveFirst();
+		while ( !m_PointDes.IsEOF() )
+		{
+     	m_Str2Data.SplittoCString(m_PointDes.m_szName,str1,str2,str3);
+    		m_listCtrl.InsertItem(iItem, str1);
+			CString szC = str2;
+			szC.TrimRight();
+    		m_listCtrl.SetItemText(iItem, 1, szC);
+			szC = m_PointDes.m_szpointnum;
+			szC.TrimRight();
+			m_listCtrl.SetItemText(iItem, 2, szC);
+			iItem++;
+//			m_Records.push_back(szC);
+			m_PointDes.MoveNext();
+		}
+        m_PointDes.MoveFirst();
+
+		if ( m_DisPoint._IsEmpty() )
+		{
+//		  m_listCtrl.InsertItem(0, _T("<< >>"));
+		  return;
+		}
+		m_listDis.SetItemCount(m_DisPoint.RecordCount());
+        m_Records.clear();
+		m_DisPoint.MoveFirst();
+		while ( !m_DisPoint.IsEOF() )
+		{
+			if( m_DisPoint.m_szDISID == PointDesid)
+			{
+    			m_Records.push_back(m_DisPoint.m_szstr0);
+    			m_Records.push_back(m_DisPoint.m_szstr1);
+    			m_Records.push_back(m_DisPoint.m_szstr2);
+    			m_Records.push_back(m_DisPoint.m_szstr3);
+    			m_Records.push_back(m_DisPoint.m_szstr4);
+    			m_Records.push_back(m_DisPoint.m_szstr5);
+    			m_Records.push_back(m_DisPoint.m_szstr6);
+    			m_Records.push_back(m_DisPoint.m_szstr7);
+    			m_Records.push_back(m_DisPoint.m_szstr8);
+    			m_Records.push_back(m_DisPoint.m_szstr9);
+			}
+			m_PointDes.MoveNext();
+		}
+        m_PointDes.MoveFirst();
+    	m_listCtrl.InsertItem(iItem, str1);
+
 	  }
 
 
@@ -585,6 +651,13 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_PointDes._SetRecordsetEvents(new CAccountSetEvents);
 		m_PointDes.Open(_T("Select * From pointdescription"), &m_Cn);
 		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
+
+		m_DisPoint.Create();
+		m_DisPoint.CursorType(adOpenDynamic);
+		m_DisPoint.CacheSize(50);
+		m_DisPoint._SetRecordsetEvents(new CAccountSetEvents);
+		m_DisPoint.Open(_T("Select * From dispoint"), &m_Cn);
+		m_DisPoint.MarshalOptions(adMarshalModifiedOnly);
 
   }
   catch ( dbAx::CAxException *e )
@@ -820,7 +893,7 @@ void CSettingHostDlg::OnBtnOK()
 		  m_strtable = m_ADTypeTable[3].TableName;  
 		  BuildAccountList();
 }
-
+//回到浏览测点状态
 void CSettingHostDlg::OnBtnCANCEL()
 {
 	for (int iItem = 9; iItem >= 0; iItem--)
@@ -831,13 +904,12 @@ void CSettingHostDlg::OnBtnCANCEL()
 		  BuildAccountList();
 
 }
-
+//分站、通道可以编辑
 void CSettingHostDlg::TrueFC()
 {
     GetDlgItem(IDC_COMBO3)->EnableWindow(TRUE);
     GetDlgItem(IDC_COMBO4)->EnableWindow(TRUE);
 }
-
 void CSettingHostDlg::FalseFC()
 {
     GetDlgItem(IDC_COMBO3)->EnableWindow(FALSE);
@@ -946,6 +1018,27 @@ void CSettingHostDlg::InsP()
 		m_listCtrl.InsertColumn(0,m_ADTypeTable[3].m_DTypeTFD.Name,LVCFMT_LEFT,200);
 		m_listCtrl.InsertColumn(1,m_ADTypeTable[3].m_DTypeTFD.pointnum,LVCFMT_LEFT,200);
 		m_listCtrl.InsertColumn(2,m_ADTypeTable[3].m_DTypeTFD.utype,LVCFMT_LEFT,200);
+}
+
+void CSettingHostDlg::InsDIS()
+{
+	LPCTSTR str1 = "",str2 = "",str3 = "";
+	HideAMD();
+		HideControls();
+		SetWindowText(_T(m_ADTypeTable[4].NameD));
+    	MoveWindow(CRect(50,100,960,700));
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[4].m_DTypeTFD.Name,LVCFMT_LEFT,200);
+		m_listCtrl.InsertColumn(1,m_ADTypeTable[4].m_DTypeTFD.utype,LVCFMT_LEFT,150);
+		m_listCtrl.InsertColumn(2,m_ADTypeTable[4].m_DTypeTFD.pointnum,LVCFMT_LEFT,60);
+
+		m_listDis.InsertColumn(0,m_ADTypeTable[4].m_DTypeTFD.pointnum,LVCFMT_LEFT,100);
+	// TODO: Add extra initialization here
+	for (int iItem = 0; iItem < 80; ++iItem)
+	{
+//		CString strItem;
+//		strItem.Format(_T("Item %d"), iItem);
+//		m_listDis.InsertItem(iItem, _T(""), 0);
+	}
 }
 
 void CSettingHostDlg::OnBtnDEL()

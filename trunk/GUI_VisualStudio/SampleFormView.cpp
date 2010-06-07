@@ -63,6 +63,7 @@ BEGIN_MESSAGE_MAP(CSampleFormView, CFormView)
 //	ON_WM_CREATE()
 //	ON_WM_ERASEBKGND()
 //	ON_WM_PAINT()
+	ON_WM_TIMER()
 	ON_WM_CONTEXTMENU()
     ON_NOTIFY(NM_RCLICK,IDC_LIST_POINT1, OnRclick1)
     ON_NOTIFY(NM_RCLICK,IDC_LIST_POINT2, OnRclick2)
@@ -94,25 +95,7 @@ void CSampleFormView::OnInitialUpdate()
 
 	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 
-	if(theApp.DocNum == 0)
-    	pFWnd->m_pSampleFormView=this;
-	if(theApp.DocNum == 1)
-    	pFWnd->m_pSampleFormView1=this;
-	if(theApp.DocNum == 2)
-    	pFWnd->m_pSampleFormView2=this;
-	if(theApp.DocNum == 3)
-    	pFWnd->m_pSampleFormView3=this;
-	if(theApp.DocNum == 4)
-    	pFWnd->m_pSampleFormView4=this;
-	if(theApp.DocNum == 5)
-    	pFWnd->m_pSampleFormView5=this;
-	if(theApp.DocNum == 6)
-    	pFWnd->m_pSampleFormView6=this;
-	if(theApp.DocNum == 7)
-    	pFWnd->m_pSampleFormView7=this;
-	if(theApp.DocNum == 8)
-    	pFWnd->m_pSampleFormView8=this;
-
+   	pFWnd->m_pSampleFormView=this;
 
 	if (!CreateImageList(m_SampleFormImageList, IDB_CLASSTREE))
 		return ;
@@ -197,7 +180,6 @@ void CSampleFormView::OnInitialUpdate()
 //	pColumnProfile->AddColumnProfile(_T("Default"));
 //	pColumnProfile->AddColumnProfile(_T("Special"));
 //	m_List1.SetupColumnConfig(pColumnProfile);
-
 
 }
 
@@ -603,6 +585,7 @@ void CSampleFormView::OnRclick3(NMHDR* pNMHDR, LRESULT* pResult)
 
 void CSampleFormView::OpenAddDel(int ilist) 
 {
+	int i = ilist;
 
 }
 
@@ -613,3 +596,4 @@ menu.LoadMenu(IDC_POPLISTCONTROL); //装入刚建立的菜单 IDC_POPMENU menu.GetSubMen
 /*GetSubMenu(0) 得到IDC_POPMENU的第一层子菜单，TrackPopupMenu将菜单弹出到（x,y）处。由于设置为TPM_LEFTALIGN，所以菜单以（x,y）为左上角。*/
 
 }
+

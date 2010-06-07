@@ -202,13 +202,13 @@ void CMQClient::CollectDate(CNDKMessage& message)
 			}
 	}
 
-/*    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 	
 		CString strItem;
 		CString strSubA;
 		CString strSubB;
 
-		strItem.Format(_T("Item %f"), m_CPointInfo[state].ldfValue);
+/*		strItem.Format(_T("Item %f"), m_CPointInfo[state].ldfValue);
 		strSubA.Format(_T("Sub A %f"), m_CPointInfo[state].fMax);
 		strSubB.Format(_T("Sub b %s"), m_CPointInfo[state].usUnit);
 		if((pFWnd)&&(pFWnd->m_pSampleFormView!= NULL))

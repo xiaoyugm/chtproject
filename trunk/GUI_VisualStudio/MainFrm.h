@@ -63,14 +63,6 @@ public:
 
 	int m_ontime ;
 	CSampleFormView*		m_pSampleFormView;
-	CSampleFormView*		m_pSampleFormView1;
-	CSampleFormView*		m_pSampleFormView2;
-	CSampleFormView*		m_pSampleFormView3;
-	CSampleFormView*		m_pSampleFormView4;
-	CSampleFormView*		m_pSampleFormView5;
-	CSampleFormView*		m_pSampleFormView6;
-	CSampleFormView*		m_pSampleFormView7;
-	CSampleFormView*		m_pSampleFormView8;
 
 	CTabbedViewView*        m_pTabbedViewView;
 

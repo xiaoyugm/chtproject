@@ -25,6 +25,7 @@
 
 //#include <SqlDirect.h>
 #include <String2DataType.h>
+#include "SampleFormView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -873,12 +874,17 @@ void CDrawView::OnTimer(UINT nIDEvent)
 //	        	pChild->SetWarnInfo();
 
 				}
+            	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
+              	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
+               	CSampleFormView *pFView = (CSampleFormView*)pChild->GetActiveView();	
+    			if(pFView->IsKindOf(RUNTIME_CLASS(CSampleFormView)))
+    				pFView->OpenAddDel(7);
 ///			}
 ///			break ;
 ///    	case DRAW:                                     //窗口交替显示
 ///			{
-            	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
-              	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
+//            	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
+//              	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
 //               	CDrawView *pView = (CDrawView*)pChild->GetActiveView();	
 //            	if(pView == NULL)
 //              		return;
@@ -906,7 +912,7 @@ void CDrawView::OnTimer(UINT nIDEvent)
 					}
 				}*/
 
-				pFWnd->AddEdit();
+//				pFWnd->AddEdit();
 			}
 			break ;
     	case ACTION:                                     //连续动作

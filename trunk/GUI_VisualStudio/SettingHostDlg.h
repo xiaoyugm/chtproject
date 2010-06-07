@@ -9,6 +9,7 @@
 
 //#include "CListCtrl_DataModel.h"
 //Derived AxLib classes
+#include "dbAx\AxDisPoint.hpp"
 #include "dbAx\AxPointDescription.hpp"
 #include "dbAx\AxMAlocationSet.hpp"
 #include "dbAx\AxAccountSet.hpp"
@@ -35,6 +36,7 @@ public:
 //	CString	m_strPort;
 //	CString	m_strTimeOut;
 	CGridListCtrlGroups         m_listCtrl;
+	CGridListCtrlGroups         m_listDis;
 	BOOL                m_bSortColor;
 	BOOL    m_bListColor;
 	BOOL    m_bRowColor;
@@ -75,6 +77,7 @@ public:
   CAxMAlocationSet   m_MAlocation;
   CAxPointDescription  m_PointDes;
   CAxPointDescription  *m_PointDesNew;
+  CAxDisPoint      m_DisPoint;
 
   //Connect to the data provider via dbAx
   BOOL         ConnectToProvider();
@@ -90,6 +93,7 @@ public:
   void   InsD();
   void   InsP();
   void   HideDISPLAY();
+  void   InsDIS();
 
 	void SortColumn(int iCol, bool bAsc);
 // Overrides

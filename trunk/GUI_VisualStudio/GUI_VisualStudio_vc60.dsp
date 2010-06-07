@@ -1169,6 +1169,10 @@ SOURCE=.\dbAx\AxContactSet.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dbAx\AxDispoint.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dbAx\AxException.cpp
 # End Source File
 # Begin Source File
