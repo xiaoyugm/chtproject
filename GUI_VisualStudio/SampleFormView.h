@@ -15,7 +15,7 @@
 #include <afxext.h>
 #endif
 
-class CSampleFormView : public CFormView,CGridColumnManager
+class CSampleFormView : public CFormView
 {
 protected:
 	CSampleFormView();           // protected constructor used by dynamic creation

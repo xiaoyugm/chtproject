@@ -251,6 +251,7 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 
 	CSettingHostDlg dlg;
 	dlg.m_strtable =  _T("dispoint");
+	dlg.PointDesid = 1;
 	if(dlg.DoModal() != IDOK)
 		return FALSE;
 

@@ -352,6 +352,21 @@ bool CControlXml::ParsePS(CMarkup& xml)
         m_ADTypeTable[2].m_DTypeTFD.Name = strnumForm;
         return true;
 	}
+    else if (xml.FindElem(_T("Dispoint")) )
+	{
+        // Extract the group name.
+        CString strnumForm = xml.GetAttrib(_T("TABLE"));
+    	m_ADTypeTable[4].TableName = strnumForm;
+        CString groupName = xml.GetAttrib(_T("Name"));
+    	m_ADTypeTable[4].NameD = groupName;
+        strnumForm = xml.GetAttrib(_T("DBColumn0"));
+        m_ADTypeTable[4].m_DTypeTField.DID = strnumForm;
+     	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading0")),str1,str2,str3);
+        m_ADTypeTable[4].m_DTypeTFD.Name = str1;
+        m_ADTypeTable[4].m_DTypeTFD.utype = str2;
+        m_ADTypeTable[4].m_DTypeTFD.pointnum = str3;
+        return true;
+	}
     
 
 	return false;
