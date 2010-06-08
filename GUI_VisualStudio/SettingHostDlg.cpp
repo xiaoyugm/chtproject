@@ -106,6 +106,12 @@ BEGIN_MESSAGE_MAP(CSettingHostDlg, CXTResizeDialog)
 	ON_BN_CLICKED(IDC_BUT_MOD, OnBtnMOD)
 	ON_BN_CLICKED(IDOKADM, OnBtnOK)
 	ON_BN_CLICKED(IDCANCELADM, OnBtnCANCEL)
+	ON_BN_CLICKED(IDC_BUTTONDIS1, OnButtonSelect)
+	ON_BN_CLICKED(IDC_BUTTONDIS2, OnButtonDeselect)
+	ON_BN_CLICKED(IDC_BUTTONDIS3, OnButtonSelectall)
+	ON_BN_CLICKED(IDC_BUTTONDIS4, OnButtonDeselectall)
+	ON_BN_CLICKED(IDC_BUTTONDIS5, OnButtonOK)
+	ON_BN_CLICKED(IDC_BUTTONDIS6, OnButtonCANCEL)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -448,11 +454,14 @@ void CSettingHostDlg::BuildAccountList()
 		}
         m_PointDes.MoveFirst();
 
-		if ( m_DisPoint._IsEmpty() )
+    	if ( m_DisPoint._IsEmpty() )
 		{
-//		  m_listCtrl.InsertItem(0, _T("<< >>"));
-		  return;
+			m_bADD =true;
+   		    return;
 		}
+		else
+			m_bADD =false;
+
 		m_listDis.SetItemCount(m_DisPoint.RecordCount());
         m_Records.clear();
 		m_DisPoint.MoveFirst();
@@ -460,29 +469,138 @@ void CSettingHostDlg::BuildAccountList()
 		{
 			if( m_DisPoint.m_szDISID == PointDesid)
 			{
-	    		CString strl ;
 				if(m_DisPoint.m_szstr0 != "")
 				{
 					m_DisPoint.m_szstr0.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr0,str1,str2,str3);
-        			m_Records.push_back(str1);
-        			m_Records.push_back(str2);
-        			m_Records.push_back(str3);
+					pushDIS(str1, str2, str3);
 				}
-
-    			m_Records.push_back(m_DisPoint.m_szstr3);
-    			m_Records.push_back(m_DisPoint.m_szstr4);
-    			m_Records.push_back(m_DisPoint.m_szstr5);
-    			m_Records.push_back(m_DisPoint.m_szstr6);
-    			m_Records.push_back(m_DisPoint.m_szstr7);
-    			m_Records.push_back(m_DisPoint.m_szstr8);
-    			m_Records.push_back(m_DisPoint.m_szstr9);
+				if(m_DisPoint.m_szstr1 != "")
+				{
+					m_DisPoint.m_szstr1.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr1,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr2 != "")
+				{
+					m_DisPoint.m_szstr2.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr2,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr3 != "")
+				{
+					m_DisPoint.m_szstr3.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr3,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr4 != "")
+				{
+					m_DisPoint.m_szstr4.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr4,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr5 != "")
+				{
+					m_DisPoint.m_szstr5.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr5,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr6 != "")
+				{
+					m_DisPoint.m_szstr6.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr6,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr7 != "")
+				{
+					m_DisPoint.m_szstr7.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr7,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr8 != "")
+				{
+					m_DisPoint.m_szstr8.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr8,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr9 != "")
+				{
+					m_DisPoint.m_szstr9.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr9,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr10 != "")
+				{
+					m_DisPoint.m_szstr10.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr10,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr11 != "")
+				{
+					m_DisPoint.m_szstr11.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr11,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr12 != "")
+				{
+					m_DisPoint.m_szstr12.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr12,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr13 != "")
+				{
+					m_DisPoint.m_szstr13.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr13,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr14 != "")
+				{
+					m_DisPoint.m_szstr14.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr14,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr15 != "")
+				{
+					m_DisPoint.m_szstr15.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr15,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr16 != "")
+				{
+					m_DisPoint.m_szstr16.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr16,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr17 != "")
+				{
+					m_DisPoint.m_szstr17.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr17,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr18 != "")
+				{
+					m_DisPoint.m_szstr18.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr18,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				if(m_DisPoint.m_szstr19 != "")
+				{
+					m_DisPoint.m_szstr19.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr19,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				break;
 			}
-			m_PointDes.MoveNext();
+			m_DisPoint.MoveNext();
 		}
-        m_PointDes.MoveFirst();
-    	m_listCtrl.InsertItem(iItem, str1);
-
+        m_DisPoint.MoveFirst();
+		iItem =0;
+    	vector<CString>::iterator  iter;
+    	for(iter = m_Records.begin(); iter != m_Records.end(); ++iter)
+		{
+        	m_listDis.InsertItem(iItem, *iter);
+			iItem++;
+		}
 	  }
 
 
@@ -524,9 +642,14 @@ void CSettingHostDlg::BuildAccountList()
 
 void  CSettingHostDlg::pushDIS(CString  str1,CString  str2,CString  str3)
 {
-
+        			m_Records.push_back(str1);
+        			m_Records.push_back(str2);
+        			m_Records.push_back(str3);
 }
 
+void  CSettingHostDlg::BuildDisList()
+{
+}
 
 void CSettingHostDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
@@ -710,7 +833,6 @@ void CSettingHostDlg::OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult)
    {                 
 	   sTemp.Format("%d got selected",pNMListView->iItem);            
        m_AccountSet.AbsolutePosition(pNMListView->iItem + 1);
-       BuildAccountList();
    }   */
 //   AfxMessageBox(sTemp);
   *pResult = 0;
@@ -733,7 +855,6 @@ void CSettingHostDlg::OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult)
 	  {
            m_PointDes.AbsolutePosition(pNMLV->iItem + 1);
 	  }
-//    BuildAccountList();
   }
 }
 
@@ -1176,3 +1297,158 @@ void CSettingHostDlg::OnBtnMOD()
 	}
 }
 
+void CSettingHostDlg::OnButtonSelect() 
+{
+	// TODO: Add your control notification handler code here
+	int nItemCount=m_listCtrl.GetItemCount();
+    for(int nItem=0;nItem<nItemCount;nItem++)
+	{
+		if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
+		{
+			CString strPointNo=m_listCtrl.GetItemText(nItem,2);
+			int nItemCount1=m_listDis.GetItemCount();
+			BOOL bExist=FALSE;
+			for(int j=0; j<nItemCount1; j++)
+			{
+				if(strPointNo==m_listDis.GetItemText(j,0))
+				{
+					bExist=TRUE;
+					break;
+				}
+			}
+			if(!bExist)
+				m_listDis.InsertItem(nItemCount1, strPointNo, 0);
+		}
+	}
+}
+
+void CSettingHostDlg::OnButtonDeselect() 
+{
+	int nItemCount=m_listDis.GetItemCount();
+    for(int nItem=0;nItem<nItemCount;nItem++)
+	{
+		if(m_listDis.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
+		{
+			m_listDis.DeleteItem(nItem);
+		}
+	}
+}
+
+void CSettingHostDlg::OnButtonSelectall() 
+{
+	int nItemCount=m_listCtrl.GetItemCount();
+    for(int nItem=0;nItem<nItemCount;nItem++)
+	{
+		CString strPointNo=m_listCtrl.GetItemText(nItem,2);
+		int nItemCount1=m_listDis.GetItemCount();
+		BOOL bExist=FALSE;
+		for(int j=0; j<nItemCount1; j++)
+		{
+			if(strPointNo==m_listDis.GetItemText(j,0))
+			{
+				bExist=TRUE;
+				break;
+			}
+		}
+		if(!bExist)
+			m_listDis.InsertItem(nItemCount1, strPointNo, 0);
+	}
+}
+
+void CSettingHostDlg::OnButtonDeselectall() 
+{
+	m_listDis.DeleteAllItems();
+}
+
+void CSettingHostDlg::OnButtonOK() 
+{
+		CString strPointNo;
+		int nItemCount1=m_listDis.GetItemCount();
+		BOOL bExist=FALSE;
+		for(int j=0; j<nItemCount1; j= j+3)
+		{
+			strPointNo = m_listDis.GetItemText(j,0);
+		}
+
+
+  try
+  {
+	vector<CString>::iterator  iter;
+	int fff = 0;
+	m_DisPoint.m_szDISID  = PointDesid;
+
+	UpdateData(TRUE);           //Exchange dialog data
+	COleDateTime CTime;
+	CString  m_strsel,dddd,szFind;
+
+	m_wndComboSize1.GetWindowText(m_strsel);
+	if(m_bSwitch)
+    	m_PointDesNew->m_szName = m_strsel +"|" + m_AccountSet.m_szName;
+	else
+    	m_PointDesNew->m_szName = m_strsel +"|" + m_ContactSet.m_szName;
+	m_wndComboSize3.GetWindowText(m_strsel);
+	m_PointDesNew->m_szfds = m_Str2Data.String2Int(m_strsel);
+	m_wndComboSize4.GetWindowText(dddd);
+	m_PointDesNew->m_szchan = m_Str2Data.String2Int(dddd);
+	if(m_bSwitch)
+    	m_PointDesNew->m_szpointnum = m_strsel +"D"+dddd;
+	else
+    	m_PointDesNew->m_szpointnum = m_strsel +"A"+dddd;
+
+	for(iter = m_Records.begin(); iter != m_Records.end(); ++iter)
+	{
+			szFind = *iter;
+			szFind.TrimRight();
+		if(szFind == m_PointDesNew->m_szpointnum)
+		{
+			fff = 100;
+				break;
+		}
+	}
+	if(m_bADD)
+	{
+		if(fff == 100)
+		{
+			AfxMessageBox("点号已存在，重新选择", MB_OK);
+			return;
+		}
+	}
+	m_wndComboSize2.GetWindowText(m_strsel);
+	m_PointDesNew->m_szutype = m_strsel;
+	if(m_bSwitch)
+	{
+    	m_PointDesNew->m_szptype = 1;     //开关量
+    	m_PointDesNew->m_sztypeID = m_AccountSet.m_szDID;
+	}
+	else
+	{
+    	m_PointDesNew->m_szptype = 0;     //模拟量
+    	m_PointDesNew->m_sztypeID = m_ContactSet.m_szAID;
+	}
+	m_PointDesNew->m_szpositionid = 0;
+	m_PointDesNew->m_szsubOpr = "";
+	m_PointDesNew->m_szfdel = false;
+	m_PointDesNew->m_szrecdate = CTime.GetCurrentTime();
+	m_PointDesNew->m_szUseridadd = "";
+
+	if(m_bADD)
+        m_PointDesNew->AddNew();  //Add a new, blank record
+	m_PointDesNew->Update();    //Update the recordset
+		//If this is a new record, requery the database table
+		//otherwise we may out-of-sync
+	if(m_bADD)
+        m_PointDesNew->Requery();
+  }
+  catch (CAxException *e)
+  {
+    AfxMessageBox(e->m_szErrorDesc, MB_OK);
+    delete e;
+  }
+
+
+}
+
+void CSettingHostDlg::OnButtonCANCEL() 
+{
+
+}
