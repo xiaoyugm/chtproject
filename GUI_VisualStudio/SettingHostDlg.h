@@ -94,6 +94,7 @@ public:
   void   InsP();
   void   HideDISPLAY();
   void   InsDIS();
+  void   pushDIS(CString  str1,CString  str2,CString  str3);
 
 	void SortColumn(int iCol, bool bAsc);
 // Overrides

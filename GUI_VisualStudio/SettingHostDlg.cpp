@@ -460,9 +460,16 @@ void CSettingHostDlg::BuildAccountList()
 		{
 			if( m_DisPoint.m_szDISID == PointDesid)
 			{
-    			m_Records.push_back(m_DisPoint.m_szstr0);
-    			m_Records.push_back(m_DisPoint.m_szstr1);
-    			m_Records.push_back(m_DisPoint.m_szstr2);
+	    		CString strl ;
+				if(m_DisPoint.m_szstr0 != "")
+				{
+					m_DisPoint.m_szstr0.TrimRight();
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr0,str1,str2,str3);
+        			m_Records.push_back(str1);
+        			m_Records.push_back(str2);
+        			m_Records.push_back(str3);
+				}
+
     			m_Records.push_back(m_DisPoint.m_szstr3);
     			m_Records.push_back(m_DisPoint.m_szstr4);
     			m_Records.push_back(m_DisPoint.m_szstr5);
@@ -514,6 +521,12 @@ void CSettingHostDlg::BuildAccountList()
     delete e;
   }
 }
+
+void  CSettingHostDlg::pushDIS(CString  str1,CString  str2,CString  str3)
+{
+
+}
+
 
 void CSettingHostDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
