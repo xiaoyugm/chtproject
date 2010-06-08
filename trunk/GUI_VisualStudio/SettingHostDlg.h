@@ -95,6 +95,7 @@ public:
   void   HideDISPLAY();
   void   InsDIS();
   void   pushDIS(CString  str1,CString  str2,CString  str3);
+  void   BuildDisList();
 
 	void SortColumn(int iCol, bool bAsc);
 // Overrides
@@ -110,6 +111,12 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CSettingHostDlg)
+	afx_msg void OnButtonSelect();
+	afx_msg void OnButtonDeselect();
+	afx_msg void OnButtonSelectall();
+	afx_msg void OnButtonDeselectall();
+	afx_msg void OnButtonOK();
+	afx_msg void OnButtonCANCEL();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
