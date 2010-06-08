@@ -33,11 +33,11 @@ public:
   CString  m_szstr0,m_szstr1,m_szstr2,m_szstr3,m_szstr4,m_szstr5,m_szstr6,m_szstr7,m_szstr8,m_szstr9;
   CString  m_szstr10,m_szstr11,m_szstr12,m_szstr13,m_szstr14,m_szstr15,m_szstr16,m_szstr17,m_szstr18,m_szstr19;
   CString  m_szstr20,m_szstr21,m_szstr22,m_szstr23,m_szstr24,m_szstr25,m_szstr26,m_szstr27,m_szstr28,m_szstr29;
-  CString  m_szstr30,m_szstr31,m_szstr32,m_szstr33,m_szstr34,m_szstr35,m_szstr36,m_szstr37,m_szstr38,m_szstr39;
-  CString  m_szstr40,m_szstr41,m_szstr42,m_szstr43,m_szstr44,m_szstr45,m_szstr46,m_szstr47,m_szstr48,m_szstr49;
-  CString  m_szstr50,m_szstr51,m_szstr52,m_szstr53,m_szstr54,m_szstr55,m_szstr56,m_szstr57,m_szstr58,m_szstr59;
-  CString  m_szstr60,m_szstr61,m_szstr62,m_szstr63,m_szstr64,m_szstr65,m_szstr66,m_szstr67,m_szstr68,m_szstr69;
-  CString  m_szstr70,m_szstr71,m_szstr72,m_szstr73,m_szstr74,m_szstr75,m_szstr76,m_szstr77,m_szstr78,m_szstr79;
+//  CString  m_szstr30,m_szstr31,m_szstr32,m_szstr33,m_szstr34,m_szstr35,m_szstr36,m_szstr37,m_szstr38,m_szstr39;
+//  CString  m_szstr40,m_szstr41,m_szstr42,m_szstr43,m_szstr44,m_szstr45,m_szstr46,m_szstr47,m_szstr48,m_szstr49;
+//  CString  m_szstr50,m_szstr51,m_szstr52,m_szstr53,m_szstr54,m_szstr55,m_szstr56,m_szstr57,m_szstr58,m_szstr59;
+//  CString  m_szstr60,m_szstr61,m_szstr62,m_szstr63,m_szstr64,m_szstr65,m_szstr66,m_szstr67,m_szstr68,m_szstr69;
+//  CString  m_szstr70,m_szstr71,m_szstr72,m_szstr73,m_szstr74,m_szstr75,m_szstr76,m_szstr77,m_szstr78,m_szstr79;
   int m_szDISID;
 
   //Set default values of class members
@@ -46,11 +46,11 @@ public:
     m_szstr0=m_szstr1=m_szstr2=m_szstr3=m_szstr4=m_szstr5=m_szstr6=m_szstr7=m_szstr8=m_szstr9= _T("");
     m_szstr10=m_szstr11=m_szstr12=m_szstr13=m_szstr14=m_szstr15=m_szstr16=m_szstr17=m_szstr18=m_szstr19= _T("");
     m_szstr20=m_szstr21=m_szstr22=m_szstr23=m_szstr24=m_szstr25=m_szstr26=m_szstr27=m_szstr28=m_szstr29= _T("");
-    m_szstr30=m_szstr31=m_szstr32=m_szstr33=m_szstr34=m_szstr35=m_szstr36=m_szstr37=m_szstr38=m_szstr39= _T("");
-    m_szstr40=m_szstr41=m_szstr42=m_szstr43=m_szstr44=m_szstr45=m_szstr46=m_szstr47=m_szstr48=m_szstr49= _T("");
-    m_szstr50=m_szstr51=m_szstr52=m_szstr53=m_szstr54=m_szstr55=m_szstr56=m_szstr57=m_szstr58=m_szstr59= _T("");
-    m_szstr60=m_szstr61=m_szstr62=m_szstr63=m_szstr64=m_szstr65=m_szstr66=m_szstr67=m_szstr68=m_szstr69= _T("");
-    m_szstr70=m_szstr71=m_szstr72=m_szstr73=m_szstr74=m_szstr75=m_szstr76=m_szstr77=m_szstr78=m_szstr79= _T("");
+//    m_szstr30=m_szstr31=m_szstr32=m_szstr33=m_szstr34=m_szstr35=m_szstr36=m_szstr37=m_szstr38=m_szstr39= _T("");
+//    m_szstr40=m_szstr41=m_szstr42=m_szstr43=m_szstr44=m_szstr45=m_szstr46=m_szstr47=m_szstr48=m_szstr49= _T("");
+//    m_szstr50=m_szstr51=m_szstr52=m_szstr53=m_szstr54=m_szstr55=m_szstr56=m_szstr57=m_szstr58=m_szstr59= _T("");
+//    m_szstr60=m_szstr61=m_szstr62=m_szstr63=m_szstr64=m_szstr65=m_szstr66=m_szstr67=m_szstr68=m_szstr69= _T("");
+//    m_szstr70=m_szstr71=m_szstr72=m_szstr73=m_szstr74=m_szstr75=m_szstr76=m_szstr77=m_szstr78=m_szstr79= _T("");
     m_szDISID =  0;
   };
 
@@ -88,7 +88,7 @@ public:
     FX_VarChar           (bSave, _T("LP27"),  m_szstr27);
     FX_VarChar           (bSave, _T("LP28"),  m_szstr28);
     FX_VarChar           (bSave, _T("LP29"),  m_szstr29);
-    FX_VarChar           (bSave, _T("LP30"),  m_szstr30);
+/*    FX_VarChar           (bSave, _T("LP30"),  m_szstr30);
     FX_VarChar           (bSave, _T("LP31"),  m_szstr31);
     FX_VarChar           (bSave, _T("LP32"),  m_szstr32);
     FX_VarChar           (bSave, _T("LP33"),  m_szstr33);
@@ -137,7 +137,7 @@ public:
     FX_VarChar           (bSave, _T("LP76"),  m_szstr76);
     FX_VarChar           (bSave, _T("LP77"),  m_szstr77);
     FX_VarChar           (bSave, _T("LP78"),  m_szstr78);
-    FX_VarChar           (bSave, _T("LP79"),  m_szstr79);
+    FX_VarChar           (bSave, _T("LP79"),  m_szstr79);*/
 
   
   };
