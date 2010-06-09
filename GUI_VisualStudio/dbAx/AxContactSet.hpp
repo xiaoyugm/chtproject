@@ -41,7 +41,7 @@ public:
   {
     m_szName =m_szpunit =m_szfalm=m_szUseridadd=m_szUseriddel= _T("");
     m_szAID =m_szpico =m_szltop= m_szlbom= m_szpalmu=m_szpalmd=m_szpbrk= m_szprtn = 0;
-	m_szfdel = false;
+	m_szfdel = 0;
   };
 
   //Exchange field values with data provider

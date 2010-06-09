@@ -19,7 +19,7 @@ public:
     CAccountDlg(BOOL bEditMode, CWnd* pParent = NULL);
 	virtual ~CAccountDlg();
 
-    CString strtable,str1,str2,str3,str4,str5,str6,str7,str8,str9;
+    CString strtable,str1,str2,str3,str4,str5,str6,str7,str8,str9,str10;
     int    acdid;
 	CString2DataType m_Str2Data;
 // Dialog Data
