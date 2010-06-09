@@ -44,6 +44,7 @@ public:
 	CXTFlatComboBox	m_wndComboSize2;
 	CXTFlatComboBox	m_wndComboSize3;
 	CXTFlatComboBox	m_wndComboSize4;
+	CButton	m_ctrlCheckAlm;
 	//}}AFX_DATA
 //	COLORREF            m_crSortText;
 //	COLORREF            m_crSortBack;
@@ -78,6 +79,7 @@ public:
   CAxPointDescription  m_PointDes;
   CAxPointDescription  *m_PointDesNew;
   CAxDisPoint      m_DisPoint;
+  CAxDisPoint      *m_DisPointNew;
 
   //Connect to the data provider via dbAx
   BOOL         ConnectToProvider();
@@ -115,12 +117,12 @@ protected:
 	afx_msg void OnButtonDeselect();
 	afx_msg void OnButtonSelectall();
 	afx_msg void OnButtonDeselectall();
-	afx_msg void OnButtonOK();
-	afx_msg void OnButtonCANCEL();
+	afx_msg void OnButtonSave();
+//	afx_msg void OnButtonCANCEL();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
-	afx_msg void OnBtnD2();
+	afx_msg void OnBtnADD2();
 	afx_msg void OnBtnADD();
 	afx_msg void OnBtnDEL();
 	afx_msg void OnBtnMOD();

@@ -877,8 +877,8 @@ void CDrawView::OnTimer(UINT nIDEvent)
             	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
               	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
                	CSampleFormView *pFView = (CSampleFormView*)pChild->GetActiveView();	
-    			if(pFView->IsKindOf(RUNTIME_CLASS(CSampleFormView)))
-    				pFView->OpenAddDel(7);
+//    			if(pFView->IsKindOf(RUNTIME_CLASS(CSampleFormView)))
+//    				pFView->OpenAddDel(7);
 ///			}
 ///			break ;
 ///    	case DRAW:                                     //´°¿Ú½»ÌæÏÔÊ¾

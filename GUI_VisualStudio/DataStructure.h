@@ -159,7 +159,6 @@ struct AType	 {
 	float AlarmValueH;	        //高报警值
 	float AlarmValueL;	        //低报警值
 	CString m_Unit;		        // (计量)单位
-	CString WatchName;          //测点名称   
 };
 //开关量 类型结构
 struct DType	 {
@@ -167,7 +166,6 @@ struct DType	 {
 	CString ZeroState;          //0态   开关量
 	CString OneState;           //1态   开关量
 	CString TwoState;           //2态   开关量
-	CString WatchName;          //测点名称   
 };
 
 //通道号
@@ -175,15 +173,16 @@ struct NumChannel {
 	int SensorType;                 // 传感器型号 3种 开关量无
 	int AStyle;                 	//模拟量 类型
 	float AValue;	                //模拟量当前值
-	AType        m_Atype[100];      //模拟量 类型结构
+	AType        m_Atype;           //模拟量 类型结构
 
 	CString WatchPosition;          //安装地点
+	CString WatchName;          //测点名称   
 	int EFeed;                  	//馈电状态
 	int EquipmentState;             //设备状态
 
 	int DValue;	                    //开关量当前值  
 	int DStyle;	                    //开关量 类型  
-	DType        m_Dtype[100];      //开关量 类型结构
+	DType        m_Dtype;           //开关量 类型结构
 };
 //分站
 struct SlaveStation {

@@ -6,6 +6,8 @@
 #include "SampleFormView.h"
 #include "MainFrm.h"
 
+#include "SettingHostDlg.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -59,6 +61,7 @@ void CSampleFormView::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CSampleFormView, CFormView)
 	//{{AFX_MSG_MAP(CSampleFormView)
+//	ON_COMMAND(ID_A_D, OpenAddDel)
 	ON_COMMAND(IDC_COMBO_THEMES, OnSelendokComboThemes)
 //	ON_WM_CREATE()
 //	ON_WM_ERASEBKGND()
@@ -524,14 +527,14 @@ void CSampleFormView::OnRclick1(NMHDR* pNMHDR, LRESULT* pResult)
 //    CString pString; //=CList.GetItemText(istat,0);//获取当前项中的数据，0代表是第0列
 //	pString="您选择的路径是:"+pString ;//显示当前选择项
 //       MessageBox(pString);//显示当前选中的路径
-       pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
+//       pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
 
 	// Will return zero if no selection was made (TPM_RETURNCMD)
 	int nResult = pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
 	switch(nResult)
 	{
 		case 0: break;
-		case 1:	OpenAddDel(1); break;
+		case 1:	OpenAddDel(m_Str2Data.String2Int(pString)); break;
 //		case 2: m_pColumnManager->OpenColumnPicker(*this); break;
 //		case 3: m_pColumnManager->ResetColumnsDefault(*this); break;
 		default: break;
@@ -548,14 +551,14 @@ void CSampleFormView::OnRclick2(NMHDR* pNMHDR, LRESULT* pResult)
        pSubMenu = menu.GetSubMenu(0);//获取第一个弹出菜单，所以第一个菜单必须有子菜单
     CPoint oPoint;//定义一个用于确定光标位置的位置
     GetCursorPos( &oPoint);//获取当前光标的位置，以便使得菜单可以跟随光标
-       pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
+//       pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
 
 	// Will return zero if no selection was made (TPM_RETURNCMD)
 	int nResult = pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
 	switch(nResult)
 	{
 		case 0: break;
-		case 1:	OpenAddDel(2); break;
+		case 1:	OpenAddDel(m_Str2Data.String2Int(pString)); break;
 		default: break;
 	}
 }
@@ -571,21 +574,24 @@ void CSampleFormView::OnRclick3(NMHDR* pNMHDR, LRESULT* pResult)
        pSubMenu = menu.GetSubMenu(0);//获取第一个弹出菜单，所以第一个菜单必须有子菜单
     CPoint oPoint;//定义一个用于确定光标位置的位置
     GetCursorPos( &oPoint);//获取当前光标的位置，以便使得菜单可以跟随光标
-      pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
+//      pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
 
 	// Will return zero if no selection was made (TPM_RETURNCMD)
 	int nResult = pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
 	switch(nResult)
 	{
 		case 0: break;
-		case 1:	OpenAddDel(3); break;
+		case 1:	OpenAddDel(m_Str2Data.String2Int(pString)); break;
 		default: break;
 	}
 }
 
 void CSampleFormView::OpenAddDel(int ilist) 
 {
-	int i = ilist;
+	CSettingHostDlg dlg;
+	dlg.m_strtable =  _T("dispoint");
+	dlg.PointDesid = ilist;
+	dlg.DoModal();
 
 }
 
