@@ -210,6 +210,8 @@
 #define IDC_BUTTONDIS4                  1030
 #define IDC_BUTTONDIS5                  1031
 #define IDC_BUTTONDIS6                  1032
+#define IDC_CHECK_ISALM                 1033
+#define IDC_CHECKDALM                   1034
 #define IDC_EDIT_HOST_IP                1065
 #define IDC_EDIT_SECOND                 1065
 #define IDC_EDIT_PORT                   1066
@@ -282,7 +284,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        161
 #define _APS_NEXT_COMMAND_VALUE         32798
-#define _APS_NEXT_CONTROL_VALUE         1028
+#define _APS_NEXT_CONTROL_VALUE         1035
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

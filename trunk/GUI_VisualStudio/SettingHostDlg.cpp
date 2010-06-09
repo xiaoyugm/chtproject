@@ -69,6 +69,7 @@ CSettingHostDlg::CSettingHostDlg(CWnd* pParent /*=NULL*/)
 	PointDesid = 0;
 	m_strtable = _T("");
 	m_PointDesNew = &m_PointDes;
+	m_DisPointNew = &m_DisPoint;
 	m_bADD = false;
 	m_bSwitch = false;
 
@@ -90,6 +91,7 @@ void CSettingHostDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST_CTRL, m_listCtrl);
 	DDX_Control(pDX, IDC_LIST_DISPLAY, m_listDis);
 	DDX_Control(pDX, IDC_CLR_SORTBACK, m_cpSortBack);
+	DDX_Control(pDX, IDC_CHECK_ISALM, m_ctrlCheckAlm);
     //}}AFX_DATA_MAP
 }
 
@@ -101,7 +103,7 @@ BEGIN_MESSAGE_MAP(CSettingHostDlg, CXTResizeDialog)
 	ON_WM_QUERYDRAGICON()
     ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_CTRL, OnItemChangedList)
 	ON_BN_CLICKED(IDC_BUT_ADD, OnBtnADD)
-	ON_BN_CLICKED(IDC_BUT_ADD2, OnBtnD2)
+	ON_BN_CLICKED(IDC_BUT_ADD2, OnBtnADD2)
 	ON_BN_CLICKED(IDC_BUT_DEL, OnBtnDEL)
 	ON_BN_CLICKED(IDC_BUT_MOD, OnBtnMOD)
 	ON_BN_CLICKED(IDOKADM, OnBtnOK)
@@ -110,8 +112,8 @@ BEGIN_MESSAGE_MAP(CSettingHostDlg, CXTResizeDialog)
 	ON_BN_CLICKED(IDC_BUTTONDIS2, OnButtonDeselect)
 	ON_BN_CLICKED(IDC_BUTTONDIS3, OnButtonSelectall)
 	ON_BN_CLICKED(IDC_BUTTONDIS4, OnButtonDeselectall)
-	ON_BN_CLICKED(IDC_BUTTONDIS5, OnButtonOK)
-	ON_BN_CLICKED(IDC_BUTTONDIS6, OnButtonCANCEL)
+	ON_BN_CLICKED(IDC_BUTTONDIS5, OnButtonSave)
+//	ON_BN_CLICKED(IDC_BUTTONDIS6, OnButtonCANCEL)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -166,6 +168,8 @@ BOOL CSettingHostDlg::OnInitDialog()
 	SetResize(IDC_STATIC3,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_STATIC4,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 
+	SetResize(IDC_CHECK_ISALM,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
+
 	SetResize(IDC_BUTTONDIS1,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
 	SetResize(IDC_BUTTONDIS2,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
 	SetResize(IDC_BUTTONDIS3,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
@@ -182,8 +186,7 @@ BOOL CSettingHostDlg::OnInitDialog()
     	m_wndComboSize4.AddString(strItem);
 	}
     	m_wndComboSize2.AddString(_T("电流电压型"));
-    	m_wndComboSize2.AddString(_T("频率型（200-1000HZ）"));
-    	m_wndComboSize2.AddString(_T("频率型ABD21（64-214HZ）"));
+    	m_wndComboSize2.AddString(_T("频率型"));
 
 		m_MAlocation.MoveFirst();
 		while ( !m_MAlocation.IsEOF() )
@@ -192,6 +195,8 @@ BOOL CSettingHostDlg::OnInitDialog()
 			m_MAlocation.MoveNext();
 		}
         m_MAlocation.MoveFirst();
+
+		m_ctrlCheckAlm.SetCheck(1);
 
 
 	// Enable Office XP themes.
@@ -462,130 +467,150 @@ void CSettingHostDlg::BuildAccountList()
 		else
 			m_bADD =false;
 
-		m_listDis.SetItemCount(m_DisPoint.RecordCount());
+//		m_listDis.SetItemCount(m_DisPoint.RecordCount());
         m_Records.clear();
 		m_DisPoint.MoveFirst();
 		while ( !m_DisPoint.IsEOF() )
 		{
 			if( m_DisPoint.m_szDISID == PointDesid)
 			{
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr0.TrimRight();
 				if(m_DisPoint.m_szstr0 != "")
 				{
-					m_DisPoint.m_szstr0.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr0,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr1.TrimRight();
 				if(m_DisPoint.m_szstr1 != "")
 				{
-					m_DisPoint.m_szstr1.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr1,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr2.TrimRight();
 				if(m_DisPoint.m_szstr2 != "")
 				{
-					m_DisPoint.m_szstr2.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr2,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr3.TrimRight();
 				if(m_DisPoint.m_szstr3 != "")
 				{
-					m_DisPoint.m_szstr3.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr3,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr4.TrimRight();
 				if(m_DisPoint.m_szstr4 != "")
 				{
-					m_DisPoint.m_szstr4.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr4,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr5.TrimRight();
 				if(m_DisPoint.m_szstr5 != "")
 				{
-					m_DisPoint.m_szstr5.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr5,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr6.TrimRight();
 				if(m_DisPoint.m_szstr6 != "")
 				{
-					m_DisPoint.m_szstr6.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr6,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr7.TrimRight();
 				if(m_DisPoint.m_szstr7 != "")
 				{
-					m_DisPoint.m_szstr7.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr7,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr8.TrimRight();
 				if(m_DisPoint.m_szstr8 != "")
 				{
-					m_DisPoint.m_szstr8.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr8,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr9.TrimRight();
 				if(m_DisPoint.m_szstr9 != "")
 				{
-					m_DisPoint.m_szstr9.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr9,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr10.TrimRight();
 				if(m_DisPoint.m_szstr10 != "")
 				{
-					m_DisPoint.m_szstr10.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr10,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr11.TrimRight();
 				if(m_DisPoint.m_szstr11 != "")
 				{
-					m_DisPoint.m_szstr11.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr11,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr12.TrimRight();
 				if(m_DisPoint.m_szstr12 != "")
 				{
-					m_DisPoint.m_szstr12.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr12,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr13.TrimRight();
 				if(m_DisPoint.m_szstr13 != "")
 				{
-					m_DisPoint.m_szstr13.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr13,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr14.TrimRight();
 				if(m_DisPoint.m_szstr14 != "")
 				{
-					m_DisPoint.m_szstr14.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr14,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr15.TrimRight();
 				if(m_DisPoint.m_szstr15 != "")
 				{
-					m_DisPoint.m_szstr15.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr15,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr16.TrimRight();
 				if(m_DisPoint.m_szstr16 != "")
 				{
-					m_DisPoint.m_szstr16.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr16,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr17.TrimRight();
 				if(m_DisPoint.m_szstr17 != "")
 				{
-					m_DisPoint.m_szstr17.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr17,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr18.TrimRight();
 				if(m_DisPoint.m_szstr18 != "")
 				{
-					m_DisPoint.m_szstr18.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr18,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr19.TrimRight();
 				if(m_DisPoint.m_szstr19 != "")
 				{
-					m_DisPoint.m_szstr19.TrimRight();
                 	m_Str2Data.SplittoCString(m_DisPoint.m_szstr19,str1,str2,str3);
 					pushDIS(str1, str2, str3);
 				}
@@ -594,13 +619,9 @@ void CSettingHostDlg::BuildAccountList()
 			m_DisPoint.MoveNext();
 		}
         m_DisPoint.MoveFirst();
-		iItem =0;
-    	vector<CString>::iterator  iter;
-    	for(iter = m_Records.begin(); iter != m_Records.end(); ++iter)
-		{
-        	m_listDis.InsertItem(iItem, *iter);
-			iItem++;
-		}
+
+		for ( int i = 0 ; i < m_Records.size() ; i++ )
+            	m_listDis.InsertItem(i, m_Records[i]);
 	  }
 
 
@@ -643,8 +664,17 @@ void CSettingHostDlg::BuildAccountList()
 void  CSettingHostDlg::pushDIS(CString  str1,CString  str2,CString  str3)
 {
         			m_Records.push_back(str1);
-        			m_Records.push_back(str2);
-        			m_Records.push_back(str3);
+					str2.TrimRight();
+				if((str2.Find("A")!=-1) || (str2.Find("D")!=-1 )||(str2.Find("C")!=-1) ||(str2.Find("F")!=-1))
+				{
+           			m_Records.push_back(str2);
+				}
+					str3.TrimRight();
+				if((str3.Find("A")!=-1) || (str3.Find("D")!=-1) ||(str3.Find("C")!=-1) ||(str3.Find("F")!=-1) )
+				{
+					if(str3 != str1 )
+            			m_Records.push_back(str3);
+				}
 }
 
 void  CSettingHostDlg::BuildDisList()
@@ -738,7 +768,7 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_AccountSet.CursorType(adOpenDynamic);
 		m_AccountSet.CacheSize(50);
 		m_AccountSet._SetRecordsetEvents(new CAccountSetEvents);
-		m_AccountSet.Open(_T("Select * From digitaltype"), &m_Cn);
+		m_AccountSet.Open(_T("Select * From digitaltype WHERE fdel='False'"), &m_Cn);
 
 		//Set the marshal options to minimize records returned to server
 		//to only those that have been edited.
@@ -769,7 +799,7 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_ContactSet.CursorType(adOpenDynamic);
 		m_ContactSet.CacheSize(50);
 		m_ContactSet._SetRecordsetEvents(new CAccountSetEvents);
-		m_ContactSet.Open(_T("Select * From analogtype"), &m_Cn);
+		m_ContactSet.Open(_T("Select * From analogtype WHERE fdel='False' "), &m_Cn);
 		m_ContactSet.MarshalOptions(adMarshalModifiedOnly);
 	}
 //	if(m_ADTypeTable[2].TableName ==  m_strtable)
@@ -785,7 +815,7 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_PointDes.CursorType(adOpenDynamic);
 		m_PointDes.CacheSize(50);
 		m_PointDes._SetRecordsetEvents(new CAccountSetEvents);
-		m_PointDes.Open(_T("Select * From pointdescription"), &m_Cn);
+		m_PointDes.Open(_T("Select * From pointdescription WHERE fdel='False'"), &m_Cn);
 		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
 
 		m_DisPoint.Create();
@@ -928,7 +958,7 @@ void CSettingHostDlg::OnBtnADD()
 	}
 }
 
-void CSettingHostDlg::OnBtnD2()
+void CSettingHostDlg::OnBtnADD2()
 {
 		m_bADD = true;
 		m_bSwitch = true;
@@ -966,6 +996,11 @@ void CSettingHostDlg::OnBtnOK()
 	m_PointDesNew->m_szfds = m_Str2Data.String2Int(m_strsel);
 	m_wndComboSize4.GetWindowText(dddd);
 	m_PointDesNew->m_szchan = m_Str2Data.String2Int(dddd);
+
+	if(m_strsel.GetLength() ==1)
+		m_strsel ="0" + m_strsel;
+	if(dddd.GetLength() ==1)
+		dddd ="0" + dddd;
 	if(m_bSwitch)
     	m_PointDesNew->m_szpointnum = m_strsel +"D"+dddd;
 	else
@@ -989,20 +1024,23 @@ void CSettingHostDlg::OnBtnOK()
 			return;
 		}
 	}
+	UpdateData(TRUE);           //Exchange dialog data
 	m_wndComboSize2.GetWindowText(m_strsel);
-	m_PointDesNew->m_szutype = m_strsel;
+	int s = m_wndComboSize2.GetCurSel();
 	if(m_bSwitch)
 	{
+    	m_PointDesNew->m_szutype = "";
     	m_PointDesNew->m_szptype = 1;     //开关量
     	m_PointDesNew->m_sztypeID = m_AccountSet.m_szDID;
 	}
 	else
 	{
+    	m_PointDesNew->m_szutype = m_strsel;
     	m_PointDesNew->m_szptype = 0;     //模拟量
     	m_PointDesNew->m_sztypeID = m_ContactSet.m_szAID;
 	}
 	m_PointDesNew->m_szpositionid = 0;
-	m_PointDesNew->m_szsubOpr = "";
+	m_PointDesNew->m_szsubOpr = m_ctrlCheckAlm.GetCheck();
 	m_PointDesNew->m_szfdel = false;
 	m_PointDesNew->m_szrecdate = CTime.GetCurrentTime();
 	m_PointDesNew->m_szUseridadd = "";
@@ -1063,6 +1101,7 @@ void CSettingHostDlg::HideControls()
     	GetDlgItem(IDOKADM)->ShowWindow(SW_HIDE);
     	GetDlgItem(IDCANCELADM)->ShowWindow(SW_HIDE);
     	GetDlgItem(IDC_BUT_ADD2)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDC_CHECK_ISALM)->ShowWindow(SW_HIDE);
 }
 
 void CSettingHostDlg::ShowControls()
@@ -1078,6 +1117,7 @@ void CSettingHostDlg::ShowControls()
     	GetDlgItem(IDOKADM)->ShowWindow(SW_SHOW);;
     	GetDlgItem(IDCANCELADM)->ShowWindow(SW_SHOW);;
     	GetDlgItem(IDC_BUT_ADD2)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_CHECK_ISALM)->ShowWindow(SW_SHOW);;
 }
 
 void CSettingHostDlg::HideAMD()
@@ -1156,7 +1196,7 @@ void CSettingHostDlg::InsP()
 
 void CSettingHostDlg::InsDIS()
 {
-	LPCTSTR str1 = "",str2 = "",str3 = "";
+//	LPCTSTR str1 = "",str2 = "",str3 = "";
 	HideAMD();
 		HideControls();
 		SetWindowText(_T(m_ADTypeTable[4].NameD));
@@ -1166,6 +1206,7 @@ void CSettingHostDlg::InsDIS()
 		m_listCtrl.InsertColumn(2,m_ADTypeTable[4].m_DTypeTFD.pointnum,LVCFMT_LEFT,60);
 
 		m_listDis.InsertColumn(0,m_ADTypeTable[4].m_DTypeTFD.pointnum,LVCFMT_LEFT,100);
+		m_listDis.InsertColumn(1,"",LVCFMT_LEFT,100);
 	// TODO: Add extra initialization here
 	for (int iItem = 0; iItem < 80; ++iItem)
 	{
@@ -1207,18 +1248,49 @@ void CSettingHostDlg::OnBtnDEL()
 //      CString szExecStr;
 //      szExecStr.Format(_T("Delete From Contact Where AccountID = '%s'"),
 //        m_AccountSet.m_szName);
+			COleDateTime CTime;
 
-	  if(m_ADTypeTable[1].TableName ==  m_strtable ) 
-         m_AccountSet.Delete();
-	  else if(m_ADTypeTable[0].TableName ==  m_strtable )
-         m_ContactSet.Delete();
-	  else if(m_ADTypeTable[2].TableName ==  m_strtable )
-         m_MAlocation.Delete();
-	  else if(m_ADTypeTable[3].TableName ==  m_strtable )
-         m_PointDes.Delete();
-//      m_Cn.Execute(szExecStr);
-
-      BuildAccountList();
+	int nItemCount=m_listCtrl.GetItemCount();
+    for(int nItem=0;nItem<nItemCount;nItem++)
+	{
+		if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
+		{
+			m_listCtrl.DeleteItem(nItem);
+			break;
+		}
+	}
+			  if(m_ADTypeTable[1].TableName ==  m_strtable ) 
+			  {
+        			m_AccountSet.m_szfdel = true;
+        			m_AccountSet.m_szdeldate = CTime.GetCurrentTime();
+				   m_AccountSet.Update();    //Update the recordset
+		//         m_AccountSet.Delete();
+			  }
+			  else if(m_ADTypeTable[0].TableName ==  m_strtable )
+			  {
+        			m_ContactSet.m_szfdel = true;
+        			m_ContactSet.m_szdeldate = CTime.GetCurrentTime();
+				   m_ContactSet.Update();    //Update the recordset
+		//         m_ContactSet.Delete();
+			  }
+			  else if(m_ADTypeTable[2].TableName ==  m_strtable )
+			  {
+		//        	m_MAlocation.m_szfdel = true;
+		//        	m_MAlocation.m_szdeldate = CTime.GetCurrentTime();
+		//           m_MAlocation.Update();    //Update the recordset
+				 m_MAlocation.Delete();
+			  }
+			  else if(m_ADTypeTable[3].TableName ==  m_strtable )
+			  {
+        			m_PointDes.m_szfdel = true;
+        			m_PointDes.m_szdeldate = CTime.GetCurrentTime();
+				   m_PointDes.Update();    //Update the recordset
+		//         m_PointDes.Delete();
+			  }
+		//      m_Cn.Execute(szExecStr);
+			  OnClose();
+			  ConnectToProvider();
+			  BuildAccountList();
     }
   }
   catch ( dbAx::CAxException *e )
@@ -1360,32 +1432,92 @@ void CSettingHostDlg::OnButtonDeselectall()
 	m_listDis.DeleteAllItems();
 }
 
-void CSettingHostDlg::OnButtonOK() 
+void CSettingHostDlg::OnButtonSave() 
 {
   try
   {
 	UpdateData(TRUE);           //Exchange dialog data
-       m_DisPoint.m_szDISID  = PointDesid;
-	   m_DisPoint.m_szstr0 = m_listDis.GetItemText(0,0)+"|"+m_listDis.GetItemText(1,0)+"|"+m_listDis.GetItemText(2,0);
-	   m_DisPoint.m_szstr1 = m_listDis.GetItemText(3,0)+"|"+m_listDis.GetItemText(4,0)+"|"+m_listDis.GetItemText(5,0);
-	   m_DisPoint.m_szstr2 = m_listDis.GetItemText(6,0)+"|"+m_listDis.GetItemText(7,0)+"|"+m_listDis.GetItemText(8,0);
-	   m_DisPoint.m_szstr3 = m_listDis.GetItemText(9,0)+"|"+m_listDis.GetItemText(10,0)+"|"+m_listDis.GetItemText(11,0);
-	   m_DisPoint.m_szstr4 = m_listDis.GetItemText(12,0)+"|"+m_listDis.GetItemText(13,0)+"|"+m_listDis.GetItemText(14,0);
-	   m_DisPoint.m_szstr5 = m_listDis.GetItemText(15,0)+"|"+m_listDis.GetItemText(16,0)+"|"+m_listDis.GetItemText(17,0);
-	   m_DisPoint.m_szstr6 = m_listDis.GetItemText(18,0)+"|"+m_listDis.GetItemText(19,0)+"|"+m_listDis.GetItemText(20,0);
-	   m_DisPoint.m_szstr7 = m_listDis.GetItemText(21,0)+"|"+m_listDis.GetItemText(22,0)+"|"+m_listDis.GetItemText(23,0);
-	   m_DisPoint.m_szstr8 = m_listDis.GetItemText(24,0)+"|"+m_listDis.GetItemText(25,0)+"|"+m_listDis.GetItemText(26,0);
-	   m_DisPoint.m_szstr9 = m_listDis.GetItemText(27,0)+"|"+m_listDis.GetItemText(28,0)+"|"+m_listDis.GetItemText(29,0);
-	   m_DisPoint.m_szstr10 = m_listDis.GetItemText(30,0)+"|"+m_listDis.GetItemText(31,0)+"|"+m_listDis.GetItemText(32,0);
-	   m_DisPoint.m_szstr11 = m_listDis.GetItemText(33,0)+"|"+m_listDis.GetItemText(34,0)+"|"+m_listDis.GetItemText(35,0);
-	   m_DisPoint.m_szstr12 = m_listDis.GetItemText(36,0)+"|"+m_listDis.GetItemText(37,0)+"|"+m_listDis.GetItemText(38,0);
-	   m_DisPoint.m_szstr13 = m_listDis.GetItemText(39,0)+"|"+m_listDis.GetItemText(40,0)+"|"+m_listDis.GetItemText(41,0);
-	   m_DisPoint.m_szstr14 = m_listDis.GetItemText(42,0)+"|"+m_listDis.GetItemText(43,0)+"|"+m_listDis.GetItemText(44,0);
-	   m_DisPoint.m_szstr15 = m_listDis.GetItemText(45,0)+"|"+m_listDis.GetItemText(46,0)+"|"+m_listDis.GetItemText(47,0);
-	   m_DisPoint.m_szstr16 = m_listDis.GetItemText(48,0)+"|"+m_listDis.GetItemText(49,0)+"|"+m_listDis.GetItemText(50,0);
-	   m_DisPoint.m_szstr17 = m_listDis.GetItemText(51,0)+"|"+m_listDis.GetItemText(52,0)+"|"+m_listDis.GetItemText(53,0);
-	   m_DisPoint.m_szstr18 = m_listDis.GetItemText(54,0)+"|"+m_listDis.GetItemText(55,0)+"|"+m_listDis.GetItemText(56,0);
-	   m_DisPoint.m_szstr19 = m_listDis.GetItemText(57,0)+"|"+m_listDis.GetItemText(58,0)+"|"+m_listDis.GetItemText(59,0);
+       m_DisPointNew->m_szDISID  = PointDesid;
+	   if(m_listDis.GetItemText(0,0) != "")
+    	   m_DisPointNew->m_szstr0 = m_listDis.GetItemText(0,0)+"|"+m_listDis.GetItemText(1,0)+"|"+m_listDis.GetItemText(2,0);
+	   else
+    	   m_DisPointNew->m_szstr0 = "";
+	   if(m_listDis.GetItemText(3,0) != "")
+    	   m_DisPointNew->m_szstr1 = m_listDis.GetItemText(3,0)+"|"+m_listDis.GetItemText(4,0)+"|"+m_listDis.GetItemText(5,0);
+	   else
+    	   m_DisPointNew->m_szstr1 = "";
+	   if(m_listDis.GetItemText(6,0) != "")
+    	   m_DisPointNew->m_szstr2 = m_listDis.GetItemText(6,0)+"|"+m_listDis.GetItemText(7,0)+"|"+m_listDis.GetItemText(8,0);
+	   else
+    	   m_DisPointNew->m_szstr2 = "";
+	   if(m_listDis.GetItemText(9,0) != "")
+    	   m_DisPointNew->m_szstr3 = m_listDis.GetItemText(9,0)+"|"+m_listDis.GetItemText(10,0)+"|"+m_listDis.GetItemText(11,0);
+	   else
+    	   m_DisPointNew->m_szstr3 = "";
+	   if(m_listDis.GetItemText(12,0) != "")
+    	   m_DisPointNew->m_szstr4 = m_listDis.GetItemText(12,0)+"|"+m_listDis.GetItemText(13,0)+"|"+m_listDis.GetItemText(14,0);
+	   else
+    	   m_DisPointNew->m_szstr4 = "";
+	   if(m_listDis.GetItemText(15,0) != "")
+    	   m_DisPointNew->m_szstr5 = m_listDis.GetItemText(15,0)+"|"+m_listDis.GetItemText(16,0)+"|"+m_listDis.GetItemText(17,0);
+	   else
+    	   m_DisPointNew->m_szstr5 = "";
+	   if(m_listDis.GetItemText(18,0) != "")
+    	   m_DisPointNew->m_szstr6 = m_listDis.GetItemText(18,0)+"|"+m_listDis.GetItemText(19,0)+"|"+m_listDis.GetItemText(20,0);
+	   else
+    	   m_DisPointNew->m_szstr6 = "";
+	   if(m_listDis.GetItemText(21,0) != "")
+    	   m_DisPointNew->m_szstr7 = m_listDis.GetItemText(21,0)+"|"+m_listDis.GetItemText(22,0)+"|"+m_listDis.GetItemText(23,0);
+	   else
+    	   m_DisPointNew->m_szstr7 = "";
+	   if(m_listDis.GetItemText(24,0) != "")
+    	   m_DisPointNew->m_szstr8 = m_listDis.GetItemText(24,0)+"|"+m_listDis.GetItemText(25,0)+"|"+m_listDis.GetItemText(26,0);
+	   else
+    	   m_DisPointNew->m_szstr8 = "";
+	   if(m_listDis.GetItemText(27,0) != "")
+	       m_DisPointNew->m_szstr9 = m_listDis.GetItemText(27,0)+"|"+m_listDis.GetItemText(28,0)+"|"+m_listDis.GetItemText(29,0);
+	   else
+    	   m_DisPointNew->m_szstr9 = "";
+	   if(m_listDis.GetItemText(30,0) != "")
+    	   m_DisPointNew->m_szstr10 = m_listDis.GetItemText(30,0)+"|"+m_listDis.GetItemText(31,0)+"|"+m_listDis.GetItemText(32,0);
+	   else
+    	   m_DisPointNew->m_szstr10 = "";
+	   if(m_listDis.GetItemText(33,0) != "")
+    	   m_DisPointNew->m_szstr11 = m_listDis.GetItemText(33,0)+"|"+m_listDis.GetItemText(34,0)+"|"+m_listDis.GetItemText(35,0);
+	   else
+    	   m_DisPointNew->m_szstr11 = "";
+	   if(m_listDis.GetItemText(36,0) != "")
+    	   m_DisPointNew->m_szstr12 = m_listDis.GetItemText(36,0)+"|"+m_listDis.GetItemText(37,0)+"|"+m_listDis.GetItemText(38,0);
+	   else
+    	   m_DisPointNew->m_szstr12 = "";
+	   if(m_listDis.GetItemText(39,0) != "")
+    	   m_DisPointNew->m_szstr13 = m_listDis.GetItemText(39,0)+"|"+m_listDis.GetItemText(40,0)+"|"+m_listDis.GetItemText(41,0);
+	   else
+    	   m_DisPointNew->m_szstr13 = "";
+	   if(m_listDis.GetItemText(42,0) != "")
+    	   m_DisPointNew->m_szstr14 = m_listDis.GetItemText(42,0)+"|"+m_listDis.GetItemText(43,0)+"|"+m_listDis.GetItemText(44,0);
+	   else
+    	   m_DisPointNew->m_szstr14 = "";
+	   if(m_listDis.GetItemText(45,0) != "")
+    	   m_DisPointNew->m_szstr15 = m_listDis.GetItemText(45,0)+"|"+m_listDis.GetItemText(46,0)+"|"+m_listDis.GetItemText(47,0);
+	   else
+    	   m_DisPointNew->m_szstr15 = "";
+	   if(m_listDis.GetItemText(48,0) != "")
+    	   m_DisPointNew->m_szstr16 = m_listDis.GetItemText(48,0)+"|"+m_listDis.GetItemText(49,0)+"|"+m_listDis.GetItemText(50,0);
+	   else
+    	   m_DisPointNew->m_szstr16 = "";
+	   if(m_listDis.GetItemText(51,0) != "")
+    	   m_DisPointNew->m_szstr17 = m_listDis.GetItemText(51,0)+"|"+m_listDis.GetItemText(52,0)+"|"+m_listDis.GetItemText(53,0);
+	   else
+    	   m_DisPointNew->m_szstr17 = "";
+	   if(m_listDis.GetItemText(54,0) != "")
+    	   m_DisPointNew->m_szstr18 = m_listDis.GetItemText(54,0)+"|"+m_listDis.GetItemText(55,0)+"|"+m_listDis.GetItemText(56,0);
+	   else
+    	   m_DisPointNew->m_szstr18 = "";
+	   if(m_listDis.GetItemText(57,0) != "")
+    	   m_DisPointNew->m_szstr19 = m_listDis.GetItemText(57,0)+"|"+m_listDis.GetItemText(58,0)+"|"+m_listDis.GetItemText(59,0);
+	   else
+    	   m_DisPointNew->m_szstr19 = "";
 
 	if(m_bADD)
         m_DisPoint.AddNew();  //Add a new, blank record
@@ -1394,17 +1526,17 @@ void CSettingHostDlg::OnButtonOK()
 		//otherwise we may out-of-sync
 	if(m_bADD)
         m_DisPoint.Requery();
+
+	AfxMessageBox("需要显示的测点已保存", MB_OK);
   }
   catch (CAxException *e)
   {
     AfxMessageBox(e->m_szErrorDesc, MB_OK);
     delete e;
   }
-
-
 }
 
-void CSettingHostDlg::OnButtonCANCEL() 
-{
+//void CSettingHostDlg::OnButtonCANCEL() 
+//{
 
-}
+//}

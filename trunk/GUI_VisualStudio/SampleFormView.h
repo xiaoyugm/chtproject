@@ -50,6 +50,7 @@ public:
 //	CXTFlatHeaderCtrl m_flatHeader;
 	CXTHeaderCtrl  *m_flatHeader;
 
+	CString2DataType m_Str2Data;
 	CImageList m_SampleFormImageList;
 // Operations
 public:
@@ -80,6 +81,7 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CSampleFormView)
+//	afx_msg void OpenAddDel(int ilist);
 	afx_msg void OnSelendokComboThemes();
 //	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 //	afx_msg BOOL OnEraseBkgnd(CDC* pDC);

@@ -30,17 +30,17 @@ public:
   CAxPointDescription() { _SetDefaultValues(); }
   ~CAxPointDescription() { }
 
-  CString     m_szName,m_szpointnum,m_szutype,m_szUseridadd,m_szUseriddel,m_szsubOpr;
+  CString     m_szName,m_szpointnum,m_szutype,m_szUseridadd,m_szUseriddel;
   COleDateTime   m_szrecdate,m_szdeldate;
-  bool m_szfdel;
+  bool m_szfdel,m_szsubOpr;
   int m_szPID,m_szptype,m_sztypeID,m_szpositionid,m_szfds,m_szchan;
 
   //Set default values of class members
   void _SetDefaultValues()
   {
-    m_szName=m_szpointnum =m_szsubOpr =m_szutype=m_szUseridadd=m_szUseriddel= _T("");
+    m_szName=m_szpointnum  =m_szutype=m_szUseridadd=m_szUseriddel= _T("");
     m_szPID =m_szptype =m_sztypeID= m_szpositionid= m_szfds=m_szchan=  0;
-	m_szfdel = false;
+	m_szfdel =m_szsubOpr = false;
   };
 
   //Exchange field values with data provider
@@ -55,7 +55,7 @@ public:
     FX_Integer           (bSave, _T("potioinid"),     m_szpositionid);
     FX_Integer           (bSave, _T("fds"),      m_szfds);
     FX_Integer              (bSave, _T("chan"),       m_szchan);
-    FX_VarChar           (bSave, _T("subOpr"),     m_szsubOpr);
+    FX_Bool              (bSave, _T("subOpr"),     m_szsubOpr);
     FX_Bool              (bSave, _T("fdel"),  m_szfdel);
     FX_DateTime           (bSave, _T("recdate"),       m_szrecdate);
     FX_DateTime              (bSave, _T("deldate"),    m_szdeldate);
