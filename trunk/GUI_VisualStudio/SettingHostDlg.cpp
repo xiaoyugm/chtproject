@@ -1362,82 +1362,38 @@ void CSettingHostDlg::OnButtonDeselectall()
 
 void CSettingHostDlg::OnButtonOK() 
 {
-		CString strPointNo;
-		int nItemCount1=m_listDis.GetItemCount();
-		BOOL bExist=FALSE;
-		for(int j=0; j<nItemCount1; j= j+3)
-		{
-			strPointNo = m_listDis.GetItemText(j,0);
-		}
-
-
   try
   {
-	vector<CString>::iterator  iter;
-	int fff = 0;
-	m_DisPoint.m_szDISID  = PointDesid;
-
 	UpdateData(TRUE);           //Exchange dialog data
-	COleDateTime CTime;
-	CString  m_strsel,dddd,szFind;
-
-	m_wndComboSize1.GetWindowText(m_strsel);
-	if(m_bSwitch)
-    	m_PointDesNew->m_szName = m_strsel +"|" + m_AccountSet.m_szName;
-	else
-    	m_PointDesNew->m_szName = m_strsel +"|" + m_ContactSet.m_szName;
-	m_wndComboSize3.GetWindowText(m_strsel);
-	m_PointDesNew->m_szfds = m_Str2Data.String2Int(m_strsel);
-	m_wndComboSize4.GetWindowText(dddd);
-	m_PointDesNew->m_szchan = m_Str2Data.String2Int(dddd);
-	if(m_bSwitch)
-    	m_PointDesNew->m_szpointnum = m_strsel +"D"+dddd;
-	else
-    	m_PointDesNew->m_szpointnum = m_strsel +"A"+dddd;
-
-	for(iter = m_Records.begin(); iter != m_Records.end(); ++iter)
-	{
-			szFind = *iter;
-			szFind.TrimRight();
-		if(szFind == m_PointDesNew->m_szpointnum)
-		{
-			fff = 100;
-				break;
-		}
-	}
-	if(m_bADD)
-	{
-		if(fff == 100)
-		{
-			AfxMessageBox("点号已存在，重新选择", MB_OK);
-			return;
-		}
-	}
-	m_wndComboSize2.GetWindowText(m_strsel);
-	m_PointDesNew->m_szutype = m_strsel;
-	if(m_bSwitch)
-	{
-    	m_PointDesNew->m_szptype = 1;     //开关量
-    	m_PointDesNew->m_sztypeID = m_AccountSet.m_szDID;
-	}
-	else
-	{
-    	m_PointDesNew->m_szptype = 0;     //模拟量
-    	m_PointDesNew->m_sztypeID = m_ContactSet.m_szAID;
-	}
-	m_PointDesNew->m_szpositionid = 0;
-	m_PointDesNew->m_szsubOpr = "";
-	m_PointDesNew->m_szfdel = false;
-	m_PointDesNew->m_szrecdate = CTime.GetCurrentTime();
-	m_PointDesNew->m_szUseridadd = "";
+       m_DisPoint.m_szDISID  = PointDesid;
+	   m_DisPoint.m_szstr0 = m_listDis.GetItemText(0,0)+"|"+m_listDis.GetItemText(1,0)+"|"+m_listDis.GetItemText(2,0);
+	   m_DisPoint.m_szstr1 = m_listDis.GetItemText(3,0)+"|"+m_listDis.GetItemText(4,0)+"|"+m_listDis.GetItemText(5,0);
+	   m_DisPoint.m_szstr2 = m_listDis.GetItemText(6,0)+"|"+m_listDis.GetItemText(7,0)+"|"+m_listDis.GetItemText(8,0);
+	   m_DisPoint.m_szstr3 = m_listDis.GetItemText(9,0)+"|"+m_listDis.GetItemText(10,0)+"|"+m_listDis.GetItemText(11,0);
+	   m_DisPoint.m_szstr4 = m_listDis.GetItemText(12,0)+"|"+m_listDis.GetItemText(13,0)+"|"+m_listDis.GetItemText(14,0);
+	   m_DisPoint.m_szstr5 = m_listDis.GetItemText(15,0)+"|"+m_listDis.GetItemText(16,0)+"|"+m_listDis.GetItemText(17,0);
+	   m_DisPoint.m_szstr6 = m_listDis.GetItemText(18,0)+"|"+m_listDis.GetItemText(19,0)+"|"+m_listDis.GetItemText(20,0);
+	   m_DisPoint.m_szstr7 = m_listDis.GetItemText(21,0)+"|"+m_listDis.GetItemText(22,0)+"|"+m_listDis.GetItemText(23,0);
+	   m_DisPoint.m_szstr8 = m_listDis.GetItemText(24,0)+"|"+m_listDis.GetItemText(25,0)+"|"+m_listDis.GetItemText(26,0);
+	   m_DisPoint.m_szstr9 = m_listDis.GetItemText(27,0)+"|"+m_listDis.GetItemText(28,0)+"|"+m_listDis.GetItemText(29,0);
+	   m_DisPoint.m_szstr10 = m_listDis.GetItemText(30,0)+"|"+m_listDis.GetItemText(31,0)+"|"+m_listDis.GetItemText(32,0);
+	   m_DisPoint.m_szstr11 = m_listDis.GetItemText(33,0)+"|"+m_listDis.GetItemText(34,0)+"|"+m_listDis.GetItemText(35,0);
+	   m_DisPoint.m_szstr12 = m_listDis.GetItemText(36,0)+"|"+m_listDis.GetItemText(37,0)+"|"+m_listDis.GetItemText(38,0);
+	   m_DisPoint.m_szstr13 = m_listDis.GetItemText(39,0)+"|"+m_listDis.GetItemText(40,0)+"|"+m_listDis.GetItemText(41,0);
+	   m_DisPoint.m_szstr14 = m_listDis.GetItemText(42,0)+"|"+m_listDis.GetItemText(43,0)+"|"+m_listDis.GetItemText(44,0);
+	   m_DisPoint.m_szstr15 = m_listDis.GetItemText(45,0)+"|"+m_listDis.GetItemText(46,0)+"|"+m_listDis.GetItemText(47,0);
+	   m_DisPoint.m_szstr16 = m_listDis.GetItemText(48,0)+"|"+m_listDis.GetItemText(49,0)+"|"+m_listDis.GetItemText(50,0);
+	   m_DisPoint.m_szstr17 = m_listDis.GetItemText(51,0)+"|"+m_listDis.GetItemText(52,0)+"|"+m_listDis.GetItemText(53,0);
+	   m_DisPoint.m_szstr18 = m_listDis.GetItemText(54,0)+"|"+m_listDis.GetItemText(55,0)+"|"+m_listDis.GetItemText(56,0);
+	   m_DisPoint.m_szstr19 = m_listDis.GetItemText(57,0)+"|"+m_listDis.GetItemText(58,0)+"|"+m_listDis.GetItemText(59,0);
 
 	if(m_bADD)
-        m_PointDesNew->AddNew();  //Add a new, blank record
-	m_PointDesNew->Update();    //Update the recordset
+        m_DisPoint.AddNew();  //Add a new, blank record
+	m_DisPoint.Update();    //Update the recordset
 		//If this is a new record, requery the database table
 		//otherwise we may out-of-sync
 	if(m_bADD)
-        m_PointDesNew->Requery();
+        m_DisPoint.Requery();
   }
   catch (CAxException *e)
   {
