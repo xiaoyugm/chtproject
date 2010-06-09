@@ -768,7 +768,7 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_AccountSet.CursorType(adOpenDynamic);
 		m_AccountSet.CacheSize(50);
 		m_AccountSet._SetRecordsetEvents(new CAccountSetEvents);
-		m_AccountSet.Open(_T("Select * From digitaltype WHERE fdel='False'"), &m_Cn);
+		m_AccountSet.Open(_T("Select * From digitaltype WHERE fdel=0"), &m_Cn);
 
 		//Set the marshal options to minimize records returned to server
 		//to only those that have been edited.
@@ -799,7 +799,7 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_ContactSet.CursorType(adOpenDynamic);
 		m_ContactSet.CacheSize(50);
 		m_ContactSet._SetRecordsetEvents(new CAccountSetEvents);
-		m_ContactSet.Open(_T("Select * From analogtype WHERE fdel='False' "), &m_Cn);
+		m_ContactSet.Open(_T("Select * From analogtype WHERE fdel=0 "), &m_Cn);
 		m_ContactSet.MarshalOptions(adMarshalModifiedOnly);
 	}
 //	if(m_ADTypeTable[2].TableName ==  m_strtable)
@@ -815,7 +815,7 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_PointDes.CursorType(adOpenDynamic);
 		m_PointDes.CacheSize(50);
 		m_PointDes._SetRecordsetEvents(new CAccountSetEvents);
-		m_PointDes.Open(_T("Select * From pointdescription WHERE fdel='False'"), &m_Cn);
+		m_PointDes.Open(_T("Select * From pointdescription WHERE fdel=0"), &m_Cn);
 		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
 
 		m_DisPoint.Create();

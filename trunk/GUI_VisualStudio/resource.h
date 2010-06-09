@@ -199,6 +199,7 @@
 #define IDC_COMBO4                      1022
 #define IDC_DELETE_TAB                  1023
 #define IDOKADM                         1023
+#define IDC_STATIC10                    1023
 #define IDC_MODIFY_TAB                  1024
 #define IDCANCELADM                     1024
 #define IDC_ADD_TAB                     1025
@@ -212,6 +213,7 @@
 #define IDC_BUTTONDIS6                  1032
 #define IDC_CHECK_ISALM                 1033
 #define IDC_CHECKDALM                   1034
+#define IDC_COMBO_D                     1035
 #define IDC_EDIT_HOST_IP                1065
 #define IDC_EDIT_SECOND                 1065
 #define IDC_EDIT_PORT                   1066
@@ -284,7 +286,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        161
 #define _APS_NEXT_COMMAND_VALUE         32798
-#define _APS_NEXT_CONTROL_VALUE         1035
+#define _APS_NEXT_CONTROL_VALUE         1036
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

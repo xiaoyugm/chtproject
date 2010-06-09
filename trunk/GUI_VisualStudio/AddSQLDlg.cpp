@@ -51,6 +51,7 @@ void CAccountDlg::DoDataExchange(CDataExchange* pDX)
 		  DDX_Text(pDX, IDC_EDIT7, str7);
 		  DDX_Text(pDX, IDC_EDIT8, str8);
 		  DDX_Text(pDX, IDC_EDIT9, str9);
+		  DDX_Text(pDX, IDC_COMBO_D, str10);
 /*  DDX_Text(pDX, IDC_EDIT1, m_pAccountSet->m_szName);
   DDX_Text(pDX, IDC_EDIT2, m_pAccountSet->m_szname0);
   DDX_Text(pDX, IDC_EDIT3, m_pAccountSet->m_szname1);
@@ -144,6 +145,7 @@ BOOL CAccountDlg::OnInitDialog()
 	}
     else if(m_ADTypeTable[2].TableName ==  strtable)
 	{
+
     	SetWindowText(_T(m_ADTypeTable[2].NameD));
 			szFind = m_pMAlocation->m_szName;
 			szFind.TrimRight();
