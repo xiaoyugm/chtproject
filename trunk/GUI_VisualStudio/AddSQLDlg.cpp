@@ -51,8 +51,9 @@ void CAccountDlg::DoDataExchange(CDataExchange* pDX)
 		  DDX_Text(pDX, IDC_EDIT7, str7);
 		  DDX_Text(pDX, IDC_EDIT8, str8);
 		  DDX_Text(pDX, IDC_EDIT9, str9);
-		  DDX_Text(pDX, IDC_COMBO_D, str10);
-/*  DDX_Text(pDX, IDC_EDIT1, m_pAccountSet->m_szName);
+		  DDX_Control(pDX, IDC_COMBO_D, m_ComBoxD);
+	DDX_Control(pDX, IDC_BUT_MUSIC, m_ctlMusic);
+/*  DDX_Text(pDX, IDC_EDIT1, m_pAccountSet->m_szName);  
   DDX_Text(pDX, IDC_EDIT2, m_pAccountSet->m_szname0);
   DDX_Text(pDX, IDC_EDIT3, m_pAccountSet->m_szname1);
   DDX_Text(pDX, IDC_EDIT4, m_pAccountSet->m_szname2);
@@ -65,6 +66,8 @@ BEGIN_MESSAGE_MAP(CAccountDlg, CDialog)
   ON_BN_CLICKED(IDOK, OnBnClickedOk)
   ON_BN_CLICKED(IDCANCEL, OnBnClickedCancel)
 //  ON_EN_KILLFOCUS(IDC_ACCNT_ID, OnKillFocusAccntId)
+	ON_CBN_SELCHANGE(IDC_COMBO_D, OnchangeComboD)
+	ON_BN_CLICKED(IDC_BUT_MUSIC, OnMusicPath)
 END_MESSAGE_MAP()
 
 
@@ -82,6 +85,12 @@ BOOL CAccountDlg::OnInitDialog()
           m_pMAlocation = &((CSettingHostDlg*) m_pParent)->m_MAlocation;
 
   CDialog::OnInitDialog();
+
+		m_ComBoxD.SetWindowText("二态量");
+        m_ComBoxD.AddString("二态量");
+        m_ComBoxD.AddString("分站");
+        m_ComBoxD.AddString("控制量");
+        m_ComBoxD.AddString("三态量");
 
   //If we are editing the record, disable the AccountID edit box
   if ( m_bEditMode )
@@ -114,6 +123,10 @@ BOOL CAccountDlg::OnInitDialog()
 		  GetDlgItem(IDC_EDIT7)->SetWindowText(szFind);
 		  GetDlgItem(IDC_EDIT8)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_STATIC8)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT5)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC5)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT6)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC6)->ShowWindow(SW_HIDE);;
 	}
 	else if(m_ADTypeTable[0].TableName ==  strtable)
 	{
@@ -142,6 +155,10 @@ BOOL CAccountDlg::OnInitDialog()
 		  GetDlgItem(IDC_STATIC5)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.palmd);
 		  GetDlgItem(IDC_STATIC6)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.pbrk);
 		  GetDlgItem(IDC_STATIC7)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.prtn);
+		  GetDlgItem(IDC_COMBO_D)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC10)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_CHECKDALM)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_BUT_MUSIC)->ShowWindow(SW_HIDE);;
 	}
     else if(m_ADTypeTable[2].TableName ==  strtable)
 	{
@@ -164,21 +181,31 @@ BOOL CAccountDlg::OnInitDialog()
 		  GetDlgItem(IDC_STATIC3)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_EDIT2)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_STATIC2)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_COMBO_D)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC10)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_CHECKDALM)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_BUT_MUSIC)->ShowWindow(SW_HIDE);;
 	}
 
   }
   else
   {
     //If this is to be a new record, we need to clear all
-    //edit fields in the dialog
+    //edit fields in the dialog   IDC_CHECKDALM
     for ( int i = IDC_EDIT1; i <= IDC_EDIT7; i++ )
       SetDlgItemText(i, _T(""));
       SetDlgItemText(IDC_EDIT8, _T(""));
     if(m_ADTypeTable[1].TableName ==  strtable)
 	{
     	SetWindowText(_T(m_ADTypeTable[1].NameD));
+		  GetDlgItem(IDC_EDIT5)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC5)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_EDIT8)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_STATIC8)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT6)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC6)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT4)->ShowWindow(SW_HIDE);
+		  GetDlgItem(IDC_STATIC4)->ShowWindow(SW_HIDE);
 	}
 	else if(m_ADTypeTable[0].TableName ==  strtable)
 	{
@@ -189,6 +216,10 @@ BOOL CAccountDlg::OnInitDialog()
 		  GetDlgItem(IDC_STATIC5)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.palmd);
 		  GetDlgItem(IDC_STATIC6)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.pbrk);
 		  GetDlgItem(IDC_STATIC7)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.prtn);
+		  GetDlgItem(IDC_COMBO_D)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC10)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_CHECKDALM)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_BUT_MUSIC)->ShowWindow(SW_HIDE);;
 	}
     else if(m_ADTypeTable[2].TableName ==  strtable)
 	{
@@ -207,6 +238,10 @@ BOOL CAccountDlg::OnInitDialog()
 		  GetDlgItem(IDC_STATIC3)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_EDIT2)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_STATIC2)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_COMBO_D)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC10)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_CHECKDALM)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_BUT_MUSIC)->ShowWindow(SW_HIDE);;
 	}
 
 
@@ -347,4 +382,30 @@ void CAccountDlg::OnBnClickedOk()
 void CAccountDlg::OnBnClickedCancel()
 {
   EndDialog(IDCANCEL);
+}
+
+void CAccountDlg::OnchangeComboD() 
+{
+//	m_ComBoxD.GetWindowText(m_strsel);
+	if(m_ComBoxD.GetCurSel() == 3)
+	{
+		  GetDlgItem(IDC_EDIT4)->ShowWindow(SW_SHOW);
+		  GetDlgItem(IDC_STATIC4)->ShowWindow(SW_SHOW);
+	}
+	else
+	{
+		  GetDlgItem(IDC_EDIT4)->ShowWindow(SW_HIDE);
+		  GetDlgItem(IDC_STATIC4)->ShowWindow(SW_HIDE);
+	}
+}
+
+void CAccountDlg::OnMusicPath() 
+{
+	char filter[] = "音乐文件(*.wav,*.mp3,*.mid)|*.wav;*.mp3;*.mid|所有文件(*.*)|*.*||";
+	CFileDialog filedlg(TRUE,NULL,NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,filter,NULL);
+	if(filedlg.DoModal() == IDOK)
+	{
+		str7 = filedlg.GetPathName();
+		UpdateData(FALSE);
+	}
 }
