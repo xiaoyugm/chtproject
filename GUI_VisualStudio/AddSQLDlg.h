@@ -19,7 +19,10 @@ public:
     CAccountDlg(BOOL bEditMode, CWnd* pParent = NULL);
 	virtual ~CAccountDlg();
 
-    CString strtable,str1,str2,str3,str4,str5,str6,str7,str8,str9,str10;
+	CButton	            m_ctlMusic;
+	CXTFlatComboBox     m_ComBoxD;
+
+    CString strtable,str1,str2,str3,str4,str5,str6,str7,str8,str9;
     int    acdid;
 	CString2DataType m_Str2Data;
 // Dialog Data
@@ -42,6 +45,7 @@ public:
   afx_msg void OnBnClickedOk();
   afx_msg void OnBnClickedCancel();
 
-public:
+	afx_msg void OnMusicPath();
+	afx_msg void OnchangeComboD();
   afx_msg void OnKillFocusAccntId();
 };
