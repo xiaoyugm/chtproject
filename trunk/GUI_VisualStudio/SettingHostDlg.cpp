@@ -336,8 +336,14 @@ void CSettingHostDlg::BuildAccountList()
 				  m_listCtrl.SetItemText(iItem, 1, m_AccountSet.m_szname0);
 				  m_listCtrl.SetItemText(iItem, 2, m_AccountSet.m_szname1);
 				  m_listCtrl.SetItemText(iItem, 3, m_AccountSet.m_szname2);
-				  dddd.Format("%d",m_AccountSet.m_szpalms);
+				  if(m_AccountSet.m_szpalms == 0)
+					  dddd = m_AccountSet.m_szname0;
+				  else if(m_AccountSet.m_szpalms == 1)
+					  dddd = m_AccountSet.m_szname1;
+				  else if(m_AccountSet.m_szpalms == 3)
+					  dddd = "不报警";
 				  m_listCtrl.SetItemText(iItem, 4, dddd);
+
 				  m_listCtrl.SetItemText(iItem, 5, m_AccountSet.m_szfalm);
 				  COleDateTime oleDateTime=m_AccountSet.m_szrecdate;
 			//	  CString   str   =   oleDateTime.Format(_T("%A, %B %d, %Y")); 
@@ -345,7 +351,15 @@ void CSettingHostDlg::BuildAccountList()
 			//	  oleDateTime = m_AccountSet.m_szdeldate;
 				  m_listCtrl.SetItemText(iItem, 6, str);
 				  m_listCtrl.SetItemText(iItem, 7, m_AccountSet.m_szUseridadd);
-				  dddd.Format("%d",m_AccountSet.m_szptype);
+
+				  if(m_AccountSet.m_szptype == 0)
+					  dddd = "二态量";
+				  else if(m_AccountSet.m_szptype == 1)
+					  dddd = "分站";
+				  else if(m_AccountSet.m_szptype == 2)
+					  dddd = "控制量";
+				  else if(m_AccountSet.m_szptype == 3)
+					  dddd = "三态量";
 				  m_listCtrl.SetItemText(iItem, 8, dddd);
 			iItem++;
 			sqlid = m_AccountSet.m_szDID +1;
@@ -464,8 +478,8 @@ void CSettingHostDlg::BuildAccountList()
 			m_bADD =true;
    		    return;
 		}
-		else
-			m_bADD =false;
+//		else
+//			m_bADD =false;
 
 //		m_listDis.SetItemCount(m_DisPoint.RecordCount());
         m_Records.clear();
@@ -903,6 +917,8 @@ void CSettingHostDlg::OnClose()
       m_MAlocation.Close();
     if ( m_PointDes._IsOpen() )
       m_PointDes.Close();
+    if ( m_DisPoint._IsOpen() )
+      m_PointDes.Close();
 
     m_Cn.Close();
 
@@ -992,6 +1008,7 @@ void CSettingHostDlg::OnBtnOK()
     	m_PointDesNew->m_szName = m_strsel +"|" + m_AccountSet.m_szName;
 	else
     	m_PointDesNew->m_szName = m_strsel +"|" + m_ContactSet.m_szName;
+	m_PointDesNew->m_szpositionid = 0;
 	m_wndComboSize3.GetWindowText(m_strsel);
 	m_PointDesNew->m_szfds = m_Str2Data.String2Int(m_strsel);
 	m_wndComboSize4.GetWindowText(dddd);
@@ -1002,7 +1019,14 @@ void CSettingHostDlg::OnBtnOK()
 	if(dddd.GetLength() ==1)
 		dddd ="0" + dddd;
 	if(m_bSwitch)
-    	m_PointDesNew->m_szpointnum = m_strsel +"D"+dddd;
+	{
+		if(m_AccountSet.m_szptype == 0  || m_AccountSet.m_szptype == 3)
+        	m_PointDesNew->m_szpointnum = m_strsel +"D"+dddd;
+		if(m_AccountSet.m_szptype == 1 )
+        	m_PointDesNew->m_szpointnum = m_strsel +"F"+"00";
+		if(m_AccountSet.m_szptype == 2 )
+        	m_PointDesNew->m_szpointnum = m_strsel +"C"+dddd;
+	}
 	else
     	m_PointDesNew->m_szpointnum = m_strsel +"A"+dddd;
 
@@ -1029,7 +1053,7 @@ void CSettingHostDlg::OnBtnOK()
 	int s = m_wndComboSize2.GetCurSel();
 	if(m_bSwitch)
 	{
-    	m_PointDesNew->m_szutype = "";
+    	m_PointDesNew->m_szutype = "开关量";
     	m_PointDesNew->m_szptype = 1;     //开关量
     	m_PointDesNew->m_sztypeID = m_AccountSet.m_szDID;
 	}
@@ -1039,11 +1063,13 @@ void CSettingHostDlg::OnBtnOK()
     	m_PointDesNew->m_szptype = 0;     //模拟量
     	m_PointDesNew->m_sztypeID = m_ContactSet.m_szAID;
 	}
-	m_PointDesNew->m_szpositionid = 0;
-	m_PointDesNew->m_szsubOpr = m_ctrlCheckAlm.GetCheck();
+	if(m_ctrlCheckAlm.GetCheck())
+    	m_PointDesNew->m_szsubOpr = true;
+	else
+    	m_PointDesNew->m_szsubOpr = false;
 	m_PointDesNew->m_szfdel = false;
 	m_PointDesNew->m_szrecdate = CTime.GetCurrentTime();
-	m_PointDesNew->m_szUseridadd = "";
+   	m_PointDesNew->m_szUseridadd = theApp.curuser;
 
 	if(m_bADD)
         m_PointDesNew->AddNew();  //Add a new, blank record
@@ -1261,6 +1287,7 @@ void CSettingHostDlg::OnBtnDEL()
 	}
 			  if(m_ADTypeTable[1].TableName ==  m_strtable ) 
 			  {
+                	m_AccountSet.m_szUseriddel = theApp.curuser;
         			m_AccountSet.m_szfdel = true;
         			m_AccountSet.m_szdeldate = CTime.GetCurrentTime();
 				   m_AccountSet.Update();    //Update the recordset
@@ -1268,24 +1295,20 @@ void CSettingHostDlg::OnBtnDEL()
 			  }
 			  else if(m_ADTypeTable[0].TableName ==  m_strtable )
 			  {
+                	m_ContactSet.m_szUseriddel = theApp.curuser;
         			m_ContactSet.m_szfdel = true;
         			m_ContactSet.m_szdeldate = CTime.GetCurrentTime();
 				   m_ContactSet.Update();    //Update the recordset
-		//         m_ContactSet.Delete();
 			  }
 			  else if(m_ADTypeTable[2].TableName ==  m_strtable )
-			  {
-		//        	m_MAlocation.m_szfdel = true;
-		//        	m_MAlocation.m_szdeldate = CTime.GetCurrentTime();
-		//           m_MAlocation.Update();    //Update the recordset
 				 m_MAlocation.Delete();
-			  }
 			  else if(m_ADTypeTable[3].TableName ==  m_strtable )
 			  {
+                	m_PointDes.m_szUseriddel = theApp.curuser;
         			m_PointDes.m_szfdel = true;
         			m_PointDes.m_szdeldate = CTime.GetCurrentTime();
 				   m_PointDes.Update();    //Update the recordset
-		//         m_PointDes.Delete();
+//				 m_PointDes.Delete();
 			  }
 		//      m_Cn.Execute(szExecStr);
 			  OnClose();
@@ -1322,7 +1345,10 @@ void CSettingHostDlg::OnBtnMOD()
     		strc = strItem.Mid(n+1);
 		}
 		int m =strItem.Find("D");
-		if(m != -1)
+		int o =strItem.Find("F");
+		int p =strItem.Find("C");
+
+		if((m != -1) || (o != -1) || (p != -1))
 		{
 			m_bSwitch = true;
     		strf = strItem.Mid(0,m);

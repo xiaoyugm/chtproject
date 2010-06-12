@@ -33,7 +33,8 @@ public:
   CString     m_szName,m_szpointnum,m_szutype,m_szUseridadd,m_szUseriddel;
   COleDateTime   m_szrecdate,m_szdeldate;
   bool m_szfdel,m_szsubOpr;
-  int m_szPID,m_szptype,m_sztypeID,m_szpositionid,m_szfds,m_szchan;
+  int m_szPID,m_sztypeID,m_szpositionid,m_szfds,m_szchan;
+  short m_szptype;
 
   //Set default values of class members
   void _SetDefaultValues()
@@ -49,10 +50,10 @@ public:
     FX_Integer           (bSave, _T("PID"),  m_szPID);
     FX_VarChar           (bSave, _T("Name"),  m_szName);
     FX_VarChar           (bSave, _T("pointnum"),  m_szpointnum);
-    FX_Integer           (bSave, _T("ptype"),       m_szptype);
+    FX_SmallInt           (bSave, _T("ptype"),       m_szptype);
     FX_VarChar           (bSave, _T("utype"),    m_szutype);
     FX_Integer           (bSave, _T("typeID"),     m_sztypeID);
-    FX_Integer           (bSave, _T("potioinid"),     m_szpositionid);
+    FX_Integer           (bSave, _T("positionid"),     m_szpositionid);
     FX_Integer           (bSave, _T("fds"),      m_szfds);
     FX_Integer              (bSave, _T("chan"),       m_szchan);
     FX_Bool              (bSave, _T("subOpr"),     m_szsubOpr);

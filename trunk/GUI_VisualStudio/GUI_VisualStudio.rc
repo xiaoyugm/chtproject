@@ -274,7 +274,7 @@ BEGIN
     COMBOBOX        IDC_COMBO_D,71,15,74,78,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "...",IDC_BUT_MUSIC,181,154,13,14
-    CONTROL         "是否报警，默认报警",IDC_CHECKISALM,"Button",
+    CONTROL         "是否报警，选中报警",IDC_CHECKISALM,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,17,117,83,10
 END
 

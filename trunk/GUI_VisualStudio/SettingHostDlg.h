@@ -68,18 +68,18 @@ public:
 	int  sqlid,PointDesid;
 	CString     m_strtable;
 	vector<CString> m_Records;
-	bool            m_bADD,m_bSwitch;
+	bool            m_bADD,m_bSwitch;    //增加 开关量
 
   //AxLib objects
   CAxConnection   m_Cn;
   CAxAccountSet   m_AccountSet;
-  CAxContactCmd   m_ContactCmd;
   CAxContactSet   m_ContactSet;
   CAxMAlocationSet   m_MAlocation;
   CAxPointDescription  m_PointDes;
   CAxPointDescription  *m_PointDesNew;
   CAxDisPoint      m_DisPoint;
   CAxDisPoint      *m_DisPointNew;
+  CAxContactCmd   m_ContactCmd;
 
   //Connect to the data provider via dbAx
   BOOL         ConnectToProvider();
