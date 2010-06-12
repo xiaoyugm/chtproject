@@ -198,7 +198,6 @@ BOOL CSettingHostDlg::OnInitDialog()
 
 		m_ctrlCheckAlm.SetCheck(1);
 
-
 	// Enable Office XP themes.
 	XTThemeManager()->SetTheme(xtThemeOfficeXP);
 
@@ -346,7 +345,8 @@ void CSettingHostDlg::BuildAccountList()
 			//	  oleDateTime = m_AccountSet.m_szdeldate;
 				  m_listCtrl.SetItemText(iItem, 6, str);
 				  m_listCtrl.SetItemText(iItem, 7, m_AccountSet.m_szUseridadd);
-				  m_listCtrl.SetItemText(iItem, 8, m_AccountSet.m_szptype);
+				  dddd.Format("%d",m_AccountSet.m_szptype);
+				  m_listCtrl.SetItemText(iItem, 8, dddd);
 			iItem++;
 			sqlid = m_AccountSet.m_szDID +1;
 			m_AccountSet.MoveNext();
