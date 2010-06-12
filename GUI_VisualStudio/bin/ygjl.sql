@@ -33,7 +33,7 @@ GO
 CREATE TABLE [BJygjl].[dbo].[digitaltype] (
 	[DID] [int]  NOT NULL PRIMARY KEY IDENTITY(1,1),
 	[Name] [char] (20) NOT NULL ,
-	[ptype] [char] (20)  ,
+	[ptype] [tinyint] ,
 	[name0] [char] (20)  ,
 	[name1] [char] (20) ,
 	[name2] [char] (20) ,

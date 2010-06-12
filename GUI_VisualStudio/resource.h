@@ -176,6 +176,7 @@
 #define IDC_EDIT6                       1010
 #define IDC_FTS_XT_HASHOMEEND           1011
 #define IDC_EDIT7                       1011
+#define IDC_EDIT_PATH                   1011
 #define IDC_FTS_XT_HSCROLL              1012
 #define IDC_STATIC1                     1012
 #define IDC_FTS_XT_BOTTOM               1013
@@ -215,6 +216,7 @@
 #define IDC_CHECKDALM                   1034
 #define IDC_COMBO_D                     1035
 #define IDC_BUT_MUSIC                   1036
+#define IDC_CHECKISALM                  1037
 #define IDC_EDIT_HOST_IP                1065
 #define IDC_EDIT_SECOND                 1065
 #define IDC_EDIT_PORT                   1066
@@ -287,7 +289,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        161
 #define _APS_NEXT_COMMAND_VALUE         32798
-#define _APS_NEXT_CONTROL_VALUE         1037
+#define _APS_NEXT_CONTROL_VALUE         1038
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

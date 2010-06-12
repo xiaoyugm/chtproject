@@ -19,6 +19,8 @@ public:
     CAccountDlg(BOOL bEditMode, CWnd* pParent = NULL);
 	virtual ~CAccountDlg();
 
+	CButton	            m_ISAlm;
+	CButton	            m_DAlm;
 	CButton	            m_ctlMusic;
 	CXTFlatComboBox     m_ComBoxD;
 
@@ -45,6 +47,7 @@ public:
   afx_msg void OnBnClickedOk();
   afx_msg void OnBnClickedCancel();
 
+	afx_msg void OnchangeISALM();
 	afx_msg void OnMusicPath();
 	afx_msg void OnchangeComboD();
   afx_msg void OnKillFocusAccntId();

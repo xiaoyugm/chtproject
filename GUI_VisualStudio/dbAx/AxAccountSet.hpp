@@ -30,27 +30,20 @@ public:
   CAxAccountSet() { _SetDefaultValues(); }
   ~CAxAccountSet() { }
 
-  CString     m_szName,m_szptype,m_szname0,m_szname1,m_szname2,m_szfalm,m_szUseridadd,m_szUseriddel;
-  unsigned char     m_szpalms;
+  CString     m_szName,m_szname0,m_szname1,m_szname2,m_szfalm,m_szUseridadd,m_szUseriddel;
+  unsigned char     m_szpalms,m_szptype;
   COleDateTime   m_szrecdate,m_szdeldate;
-  bool m_szfdel;
-  int m_szDID;
+  bool m_szfdel ;
+  int m_szDID ;
 
   //Set default values of class members
   void _SetDefaultValues()
   {
-    m_szName  = _T("");
-    m_szptype       = _T("");
-    m_szname0    = _T("");
-    m_szname1     = _T("");
-    m_szname2     = _T("");
-    m_szpalms      = 0;
-    m_szfalm       = _T("");
-    m_szfdel ,m_szDID      = 0;
+    m_szName =m_szname0 =m_szname1 =m_szname2 =m_szfalm =m_szUseridadd =m_szUseriddel = _T("");
+    m_szDID  =m_szptype =m_szpalms   = 0;
+	m_szfdel =false;
 //    m_szrecdate    = _T("");
 //    m_szdeldate     = _T("");
-    m_szUseridadd     = _T("");
-    m_szUseriddel      = _T("");
   };
 
   //Exchange field values with data provider
@@ -58,7 +51,7 @@ public:
   {
     FX_Integer           (bSave, _T("DID"),  m_szDID);
     FX_VarChar           (bSave, _T("Name"),  m_szName);
-    FX_VarChar           (bSave, _T("ptype"),       m_szptype);
+    FX_TinyInt           (bSave, _T("ptype"),       m_szptype);
     FX_VarChar              (bSave, _T("name0"),    m_szname0);
     FX_VarChar           (bSave, _T("name1"),     m_szname1);
     FX_VarChar           (bSave, _T("name2"),     m_szname2);
