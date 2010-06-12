@@ -60,7 +60,7 @@ public:
 	CSQLDirect		m_sqlD;		//Êý¾Ý¿â
 	CString2DataType m_String2DataType;
 	int DocNum ;
-//	CString gstrIP; ,IPPort
+	CString curuser; //,IPPort
 
 	CMQClient socketClient;
 ///	CPointInfo      *pPointInfo;
