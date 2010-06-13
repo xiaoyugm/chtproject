@@ -47,6 +47,8 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+DisplayPoint  m_DisplayPoint[33];
+SlaveStation             m_SlaveStation[64];
 extern  OthersSetting    m_OthersSetting;
 extern  DrawView         m_DrawView[20];
 extern  FormView  m_FormView[20];
@@ -80,7 +82,7 @@ CGUI_VisualStudioApp::CGUI_VisualStudioApp()
 
 	pDocTemplate = NULL ;
 	pNewDocTemplate = NULL ;
-	DocNum =0;
+	DocNum = idis = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -249,6 +251,11 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 		return FALSE;
 	}
 
+    if ( !ConnectDB() )
+       return (FALSE);
+	if(!InitPointInfo())
+		return FALSE;
+
 	CSettingHostDlg dlg;
 //	dlg.m_strtable =  _T("dispoint");
 //	dlg.PointDesid = 1;
@@ -276,12 +283,6 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 		}
 	}
 //	pDocTemplate->OpenDocumentFile(gstrTimeOut + "\\rsy\\窗口_4.rsy") ;
-///	ConnectDB();
-
-	if(!InitPointInfo())
-	{
-		return FALSE;
-	}
 
 //	gstrIP = dlg.m_strHostIP;
 //	gstrPort = dlg.m_strPort;
@@ -306,9 +307,9 @@ int CGUI_VisualStudioApp::ExitInstance()
 {
 	GdiplusShutdown(gdiplusToken);	
 
-	m_sql.Close();
-	m_sqlA.Close();
-	m_sqlD.Close();
+//	m_sql.Close();
+    if ( m_PointDes._IsOpen() )
+      m_PointDes.Close();
 		
 	socketClient.Close();
 	return CWinApp::ExitInstance();
@@ -418,25 +419,69 @@ BOOL CGUI_VisualStudioApp::StartClient()
 }
 
 //初始化结构
-void CGUI_VisualStudioApp::ConnectDB()
+BOOL CGUI_VisualStudioApp::ConnectDB()
 {
-	try
-	{
-		m_sql.Init();
-		m_sqlA.Init();
-		m_sqlD.Init();
-		if(m_sql.Connect(_T("masterdefine"),_T("kj86"),_T("kj86")))
-			AfxMessageBox("AddUser:无法连接用户参数数据库,请确定SQL SERVER服务是否运行!");
-		if(m_sqlA.Connect(_T("masterdefine"),_T("kj86"),_T("kj86")))
-			AfxMessageBox("AddUser:无法连接用户参数数据库,请确定SQL SERVER服务是否运行!");
-		if(m_sqlD.Connect(_T("masterdefine"),_T("kj86"),_T("kj86")))
-			AfxMessageBox("AddUser:无法连接用户参数数据库,请确定SQL SERVER服务是否运行!");
-	}
-	catch(CDBException *e)
-	{
-		e->ReportError();
-		return;
-	}
+  CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
+                          User ID=sa;Password=sunset;\
+                          Data Source=") +m_OthersSetting.DBname+ _T(";Initial Catalog=BJygjl");
+
+//All calls to the AxLib should be wrapped in a try / catch block
+  try
+  {
+    //Call the global Init function from the AxLib library. This will
+    //initialize COM and setup the library's connection collection.
+    //Use the namespace identifier to avoid conflict with any other
+    //init functions that may exist.
+    dbAx::Init();
+
+    //Create the connection object
+    m_Cn.Create();
+
+    //Create the Connection events object on the heap. We don't need
+    //to worry with deleting the Events object since this is handled
+    //internally by its Release function. When no longer needed, the
+    //Events object deletes itself.
+    m_Cn._SetConnectionEvents(new CCardFileEvents);
+
+    //Set the cursor location and open the database connection
+    m_Cn.CursorLocation(adUseClient);
+    m_Cn.Open((LPCTSTR)szConnect);
+
+		m_PointDes.Create();
+		m_PointDes.CursorType(adOpenDynamic);
+		m_PointDes.CacheSize(50);
+		m_PointDes._SetRecordsetEvents(new CAccountSetEvents);
+		m_PointDes.Open(_T("Select * From pointdescription WHERE fdel=0"), &m_Cn);
+		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
+
+		m_AccountSet.Create();
+		m_AccountSet.CursorType(adOpenDynamic);
+		m_AccountSet.CacheSize(50);
+		m_AccountSet._SetRecordsetEvents(new CAccountSetEvents);
+		m_AccountSet.Open(_T("Select * From digitaltype WHERE fdel=0"), &m_Cn);
+		m_AccountSet.MarshalOptions(adMarshalModifiedOnly);
+
+		m_ContactSet.Create();
+		m_ContactSet.CursorType(adOpenDynamic);
+		m_ContactSet.CacheSize(50);
+		m_ContactSet._SetRecordsetEvents(new CAccountSetEvents);
+		m_ContactSet.Open(_T("Select * From analogtype WHERE fdel=0 "), &m_Cn);
+		m_ContactSet.MarshalOptions(adMarshalModifiedOnly);
+
+		m_DisPoint.Create();
+		m_DisPoint.CursorType(adOpenDynamic);
+		m_DisPoint.CacheSize(50);
+		m_DisPoint._SetRecordsetEvents(new CAccountSetEvents);
+		m_DisPoint.Open(_T("Select * From dispoint"), &m_Cn);
+		m_DisPoint.MarshalOptions(adMarshalModifiedOnly);
+  }
+  catch ( dbAx::CAxException *e )
+  {
+    AfxMessageBox(e->m_szErrorDesc,  MB_OK);
+    delete e;
+    return (FALSE);
+  }
+  return (TRUE);
 }
 
 BOOL CGUI_VisualStudioApp::InitUIInfo()
@@ -450,37 +495,269 @@ BOOL CGUI_VisualStudioApp::InitUIInfo()
     return controlXml.ParseXml(strxmlFile);
 }
 
+void  CGUI_VisualStudioApp::pushDIS(CString  str1,CString  str2,CString  str3)
+{
+        			BuildDIS(str1);
+					str2.TrimRight();
+				if((str2.Find("A")!=-1) || (str2.Find("D")!=-1 )||(str2.Find("C")!=-1) ||(str2.Find("F")!=-1))
+				{
+           			BuildDIS(str2);
+				}
+					str3.TrimRight();
+				if((str3.Find("A")!=-1) || (str3.Find("D")!=-1) ||(str3.Find("C")!=-1) ||(str3.Find("F")!=-1) )
+				{
+					if(str3 != str1 )
+            			BuildDIS(str3);
+				}
+}
+
+void  CGUI_VisualStudioApp::BuildDIS(CString  strItem)
+{
+	bool m_bSwitch;
+	CString  strf,strc;
+		int n =strItem.Find("A");
+		if(n != -1)
+		{
+			m_bSwitch = false;
+    		strf = strItem.Mid(0,n);
+    		strc = strItem.Mid(n+1);
+		}
+		int m =strItem.Find("D");
+		int o =strItem.Find("F");
+		int p =strItem.Find("C");
+
+		if((m != -1) || (o != -1) || (p != -1))
+		{
+			m_bSwitch = true;
+    		strf = strItem.Mid(0,m);
+    		strc = strItem.Mid(m+1);
+		}
+		int nlist = m_DisPoint.m_szDISID;
+		int nfds = m_Str2Data.String2Int(strf);
+		int nchan = m_Str2Data.String2Int(strc);
+		  m_DisplayPoint[nlist].m_ColumnPoint[idis].fds = nfds;
+		  m_DisplayPoint[nlist].m_ColumnPoint[idis].chan = nchan;
+		  if(m_bSwitch)
+		  {
+			  if(m != -1)
+        		  m_DisplayPoint[nlist].m_ColumnPoint[idis].CPName = m_SlaveStation[nfds].m_NumChan[nchan].m_Dtype[0].WatchName;
+			  if(o != -1)
+        		  m_DisplayPoint[nlist].m_ColumnPoint[idis].CPName = m_SlaveStation[nfds].m_NumChan[nchan].m_Dtype[1].WatchName;
+			  if(p != -1)
+        		  m_DisplayPoint[nlist].m_ColumnPoint[idis].CPName = m_SlaveStation[nfds].m_NumChan[nchan].m_Dtype[2].WatchName;
+		  }
+		  else
+    		  m_DisplayPoint[nlist].m_ColumnPoint[idis].CPName = m_SlaveStation[nfds].m_NumChan[nchan].m_Atype.WatchName;
+    	m_DisplayPoint[nlist].m_ColumnPoint[idis].CPpointnum = strItem;
+
+		  m_DisplayPoint[nlist].m_ColumnPoint[60].fds = idis;
+		  idis++;
+}
+
 BOOL CGUI_VisualStudioApp::InitPointInfo()
 {
-				m_CWarnPoint[0].OldwarnPoint = 9 ;
-				m_CWarnPoint[0].warnPoint = 9 ;
-
-		       	m_CPointInfo[1].fMin = 0 ;   //fMeasureMin
-		   		m_CPointInfo[1].fMax = 5 ;  
-		    	m_CPointInfo[1].unWarnMin = 3 ;   //"unWarnMinValue"
-		     	m_CPointInfo[1].unWarnMax = 4 ;  //"unWarnMaxValue"
-		      	m_CPointInfo[1].usUnit = "v" ;
-				
-		       	m_CPointInfo[2].fMin = 4 ;   //fMeasureMin
-		   		m_CPointInfo[2].fMax = 20 ;  
-		    	m_CPointInfo[2].unWarnMin = 10 ;   //"unWarnMinValue"
-		     	m_CPointInfo[2].unWarnMax = 15 ;  //"unWarnMaxValue"
-		      	m_CPointInfo[2].usUnit = "ma" ;
-
-		       	m_CPointInfo[3].fMin = 1 ;   //fMeasureMin
-		   		m_CPointInfo[3].fMax = 5 ;  
-		    	m_CPointInfo[3].unWarnMin = 3 ;   //"unWarnMinValue"
-		     	m_CPointInfo[3].unWarnMax = 4 ;  //"unWarnMaxValue"
-		      	m_CPointInfo[3].usUnit = "v" ;
-				
-		      	m_CPointInfo[4].usUnit = "k" ;
-    
-		for(UINT n=1;n<9;n++)
+	LPCTSTR str1 = "",str2 = "",str3 = "";
+		if ( m_PointDes._IsEmpty() )
+		  return TRUE;
+		int xxx = m_PointDes.RecordCount();
+		int iItem = 0;
+		m_PointDes.MoveFirst();
+		while ( !m_PointDes.IsEOF() )
 		{
-                m_CPointInfo[n].lWarn_state = 255 ;
-				m_CPointInfo[n].strExplaintemp = "  13501325918 " ;
-                m_CPointInfo[n].strWarnCausetemp = "  演示版  ";
+			if(m_PointDes.m_szptype == 0)
+			{
+      		m_ContactSet.MoveFirst();
+    		while ( !m_ContactSet.IsEOF() )
+			{
+				if(m_ContactSet.m_szAID == m_PointDes.m_sztypeID)
+					break;
+    			m_ContactSet.MoveNext();
+			}
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.WatchName = m_PointDes.m_szName;
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.m_RangeH = m_ContactSet.m_szltop;
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.m_RangeL = m_ContactSet.m_szlbom;
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.AlarmValueH = m_ContactSet.m_szpalmu;
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.AlarmValueL = m_ContactSet.m_szpalmd;
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.Apbrk = m_ContactSet.m_szpbrk;
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.Aprtn =m_ContactSet.m_szprtn;
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.SensorType = 0;
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.m_Unit = m_ContactSet.m_szpunit;
+			}
+			else
+			{
+      		m_AccountSet.MoveFirst();
+    		while ( !m_AccountSet.IsEOF() )
+			{
+				if(m_AccountSet.m_szDID == m_PointDes.m_sztypeID)
+					break;
+    			m_AccountSet.MoveNext();
+			}
+//            m_AccountSet.MoveFirst();
+			int nptype = m_PointDes.m_szptype;
+			if( nptype == 4)
+				nptype =1;
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Dtype[nptype-1].WatchName = m_PointDes.m_szName;
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Dtype[nptype-1].AlarmState = m_AccountSet.m_szpalms;
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Dtype[nptype-1].ZeroState = m_AccountSet.m_szname0;
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Dtype[nptype-1].OneState = m_AccountSet.m_szname1;
+    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Dtype[nptype-1].TwoState = m_AccountSet.m_szname2;
+			}
+    		m_PointDes.MoveNext();
 		}
+        m_PointDes.MoveFirst();
+
+    	if ( m_DisPoint._IsEmpty() )
+   		    return TRUE;
+//		m_listDis.SetItemCount(m_DisPoint.RecordCount());
+		m_DisPoint.MoveFirst();
+		while ( !m_DisPoint.IsEOF() )
+		{
+			idis =0;
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr0.TrimRight();
+				if(m_DisPoint.m_szstr0 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr0,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr1.TrimRight();
+				if(m_DisPoint.m_szstr1 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr1,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr2.TrimRight();
+				if(m_DisPoint.m_szstr2 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr2,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr3.TrimRight();
+				if(m_DisPoint.m_szstr3 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr3,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr4.TrimRight();
+				if(m_DisPoint.m_szstr4 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr4,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr5.TrimRight();
+				if(m_DisPoint.m_szstr5 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr5,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr6.TrimRight();
+				if(m_DisPoint.m_szstr6 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr6,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr7.TrimRight();
+				if(m_DisPoint.m_szstr7 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr7,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr8.TrimRight();
+				if(m_DisPoint.m_szstr8 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr8,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr9.TrimRight();
+				if(m_DisPoint.m_szstr9 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr9,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr10.TrimRight();
+				if(m_DisPoint.m_szstr10 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr10,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr11.TrimRight();
+				if(m_DisPoint.m_szstr11 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr11,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr12.TrimRight();
+				if(m_DisPoint.m_szstr12 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr12,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr13.TrimRight();
+				if(m_DisPoint.m_szstr13 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr13,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr14.TrimRight();
+				if(m_DisPoint.m_szstr14 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr14,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr15.TrimRight();
+				if(m_DisPoint.m_szstr15 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr15,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr16.TrimRight();
+				if(m_DisPoint.m_szstr16 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr16,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr17.TrimRight();
+				if(m_DisPoint.m_szstr17 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr17,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr18.TrimRight();
+				if(m_DisPoint.m_szstr18 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr18,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				str1 = "",str2 = "",str3 = "";
+					m_DisPoint.m_szstr19.TrimRight();
+				if(m_DisPoint.m_szstr19 != "")
+				{
+                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr19,str1,str2,str3);
+					pushDIS(str1, str2, str3);
+				}
+				m_DisPoint.MoveNext();
+		}
+        m_DisPoint.MoveFirst();
+
+
    		return TRUE;
 
 /*	CString strSQL;

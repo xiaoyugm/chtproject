@@ -49,7 +49,8 @@ static char THIS_FILE[] = __FILE__;
 
 using namespace dbAx;
 
-DisplayPoint  m_DisplayPoint[33];
+extern SlaveStation             m_SlaveStation[64];
+extern DisplayPoint  m_DisplayPoint[33];
 extern  OthersSetting    m_OthersSetting;
 extern  ADTypeTable	     m_ADTypeTable[9];
 #define BoolType(b) b?true:false
@@ -476,11 +477,9 @@ void CSettingHostDlg::BuildAccountList()
 
     	if ( m_DisPoint._IsEmpty() )
 		{
-			m_bADD =true;
+      		m_bADD =true;
    		    return;
 		}
-//		else
-//			m_bADD =false;
 
 //		m_listDis.SetItemCount(m_DisPoint.RecordCount());
         m_Records.clear();
@@ -489,6 +488,7 @@ void CSettingHostDlg::BuildAccountList()
 		{
 			if( m_DisPoint.m_szDISID == PointDesid)
 			{
+    			m_bADD =false;
 				str1 = "",str2 = "",str3 = "";
 					m_DisPoint.m_szstr0.TrimRight();
 				if(m_DisPoint.m_szstr0 != "")
@@ -631,6 +631,8 @@ void CSettingHostDlg::BuildAccountList()
 				}
 				break;
 			}
+			else
+        		m_bADD =true;
 			m_DisPoint.MoveNext();
 		}
         m_DisPoint.MoveFirst();
@@ -694,6 +696,7 @@ void  CSettingHostDlg::pushDIS(CString  str1,CString  str2,CString  str3)
 
 void  CSettingHostDlg::BuildDisList()
 {
+
 }
 
 void CSettingHostDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -919,7 +922,7 @@ void CSettingHostDlg::OnClose()
     if ( m_PointDes._IsOpen() )
       m_PointDes.Close();
     if ( m_DisPoint._IsOpen() )
-      m_PointDes.Close();
+      m_DisPoint.Close();
 
     m_Cn.Close();
 
@@ -1055,7 +1058,7 @@ void CSettingHostDlg::OnBtnOK()
 	if(m_bSwitch)
 	{
     	m_PointDesNew->m_szutype = "开关量";
-    	m_PointDesNew->m_szptype = 1;     //开关量
+    	m_PointDesNew->m_szptype = 1+m_AccountSet.m_szptype;     //开关量
     	m_PointDesNew->m_sztypeID = m_AccountSet.m_szDID;
 	}
 	else
@@ -1463,6 +1466,20 @@ void CSettingHostDlg::OnButtonSave()
 {
   try
   {
+	if(!m_bADD)
+	{
+        if ( m_DisPoint._IsOpen() )
+               m_DisPoint.Close();
+		m_DisPoint.Create();
+		m_DisPoint.CursorType(adOpenDynamic);
+		m_DisPoint.CacheSize(50);
+		m_DisPoint._SetRecordsetEvents(new CAccountSetEvents);
+		CString strPointNo; 
+		strPointNo.Format(_T("SELECT * From dispoint WHERE DISID = %d"),PointDesid);
+		m_DisPoint.Open(strPointNo, &m_Cn);
+		m_DisPoint.MarshalOptions(adMarshalModifiedOnly);
+	}
+
 	UpdateData(TRUE);           //Exchange dialog data
        m_DisPointNew->m_szDISID  = PointDesid;
 	   if(m_listDis.GetItemText(0,0) != "")
@@ -1562,12 +1579,13 @@ void CSettingHostDlg::OnButtonSave()
     delete e;
   }
 
+	CString strItem, strf,strc;
   for(int i =0; i< 60; i++)
   {
 	  if(m_listDis.GetItemText(i,0) != "")
 	  {
           m_DisplayPoint[PointDesid].m_ColumnPoint[i].CPpointnum = m_listDis.GetItemText(i,0);
-		  m_DisplayPoint[PointDesid].m_ColumnPoint[60].fds = i;
+		  strItem = m_listDis.GetItemText(i,0);
 		int n =strItem.Find("A");
 		if(n != -1)
 		{
@@ -1585,11 +1603,29 @@ void CSettingHostDlg::OnButtonSave()
     		strf = strItem.Mid(0,m);
     		strc = strItem.Mid(m+1);
 		}
+		int nfds = m_Str2Data.String2Int(strf);
+		int nchan = m_Str2Data.String2Int(strc);
+		  m_DisplayPoint[PointDesid].m_ColumnPoint[i].fds = nfds;
+		  m_DisplayPoint[PointDesid].m_ColumnPoint[i].chan = nchan;
+		  if(m_bSwitch)
+		  {
+			  if(m != -1)
+        		  m_DisplayPoint[PointDesid].m_ColumnPoint[i].CPName = m_SlaveStation[nfds].m_NumChan[nchan].m_Dtype[0].WatchName;
+			  if(o != -1)
+        		  m_DisplayPoint[PointDesid].m_ColumnPoint[i].CPName = m_SlaveStation[nfds].m_NumChan[nchan].m_Dtype[1].WatchName;
+			  if(p != -1)
+        		  m_DisplayPoint[PointDesid].m_ColumnPoint[i].CPName = m_SlaveStation[nfds].m_NumChan[nchan].m_Dtype[2].WatchName;
+		  }
+		  else
+    		  m_DisplayPoint[PointDesid].m_ColumnPoint[i].CPName = m_SlaveStation[nfds].m_NumChan[nchan].m_Atype.WatchName;
+    	m_DisplayPoint[PointDesid].m_ColumnPoint[i].CPpointnum = strItem;
+
+		  m_DisplayPoint[PointDesid].m_ColumnPoint[60].fds = i;
+
 	  }
 	  else
 		  break;
   }
-
 
   MessageBeep(MB_OK);
   EndDialog(IDOK);

@@ -54,8 +54,8 @@ public:
 	CImageList m_SampleFormImageList;
 // Operations
 public:
-	void OpenMenu();
-	void OpenAddDel(int ilist);
+	void BuildList(int nlist ,int ilist);
+	void OpenAddDel(int nlist ,int ilist);
 	void SetInfo(int m_List,int iItem,CString strSubA,CString strSubB,CString strSubC);
 	void SetMonitorListHead(void);
 

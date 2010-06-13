@@ -35,6 +35,10 @@
 #include "drawview.h"
 //#include <SqlDirect.h>
 #include <String2DataType.h>
+#include "dbAx\AxPointDescription.hpp"
+#include "dbAx\AxAccountSet.hpp"
+#include "dbAx\AxContactSet.hpp"
+#include "dbAx\AxDisPoint.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 // CGUI_VisualStudioApp:
@@ -51,15 +55,22 @@ public:
 
 	CString GetAppPath();				//返回应用程序所在路径
 	ULONG_PTR           gdiplusToken;
+	CString2DataType m_Str2Data;
 	
 	BOOL   InitUIInfo();
-	void ConnectDB();
+	BOOL   ConnectDB();
 	BOOL   InitPointInfo();
-	CSQLDirect		m_sql;		//数据库
-	CSQLDirect		m_sqlA;		//数据库
-	CSQLDirect		m_sqlD;		//数据库
+    void   pushDIS(CString  str1,CString  str2,CString  str3);
+	void   BuildDIS(CString  strItem);
+
+  CAxConnection   m_Cn;
+  CAxPointDescription  m_PointDes;
+  CAxAccountSet   m_AccountSet;
+  CAxContactSet   m_ContactSet;
+  CAxDisPoint      m_DisPoint;
+	//	CSQLDirect		m_sqlD;		//数据库
 	CString2DataType m_String2DataType;
-	int DocNum ;
+	int DocNum ,idis;
 	CString curuser; //,IPPort
 
 	CMQClient socketClient;
