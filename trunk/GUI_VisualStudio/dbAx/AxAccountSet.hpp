@@ -31,10 +31,9 @@ public:
   ~CAxAccountSet() { }
 
   CString     m_szName,m_szname0,m_szname1,m_szname2,m_szfalm,m_szUseridadd,m_szUseriddel;
-  unsigned char     m_szpalms,m_szptype;
+  int  m_szDID,   m_szpalms,m_szptype;
   COleDateTime   m_szrecdate,m_szdeldate;
   bool m_szfdel ;
-  int m_szDID ;
 
   //Set default values of class members
   void _SetDefaultValues()
@@ -51,11 +50,11 @@ public:
   {
     FX_Integer           (bSave, _T("DID"),  m_szDID);
     FX_VarChar           (bSave, _T("Name"),  m_szName);
-    FX_TinyInt           (bSave, _T("ptype"),       m_szptype);
+    FX_Integer           (bSave, _T("ptype"),       m_szptype);
     FX_VarChar              (bSave, _T("name0"),    m_szname0);
     FX_VarChar           (bSave, _T("name1"),     m_szname1);
     FX_VarChar           (bSave, _T("name2"),     m_szname2);
-    FX_TinyInt           (bSave, _T("palms"),      m_szpalms);
+    FX_Integer           (bSave, _T("palms"),      m_szpalms);
     FX_VarChar              (bSave, _T("falm"),       m_szfalm);
     FX_Bool              (bSave, _T("fdel"),  m_szfdel);
     FX_DateTime           (bSave, _T("recdate"),       m_szrecdate);
