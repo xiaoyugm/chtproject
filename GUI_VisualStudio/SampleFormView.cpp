@@ -184,6 +184,14 @@ void CSampleFormView::OnInitialUpdate()
 //	pColumnProfile->AddColumnProfile(_T("Special"));
 //	m_List1.SetupColumnConfig(pColumnProfile);
 
+	CString pString ;
+	m_List1.GetWindowText(pString);
+	BuildList(1, m_Str2Data.String2Int(pString));
+	m_List2.GetWindowText(pString);
+	BuildList(2, m_Str2Data.String2Int(pString));
+	m_List3.GetWindowText(pString);
+	BuildList(3, m_Str2Data.String2Int(pString));
+
 }
 
 void CSampleFormView::SetInfo(int m_List,int iItem,CString strSubA,CString strSubB,CString strSubC) 
@@ -534,7 +542,7 @@ void CSampleFormView::OnRclick1(NMHDR* pNMHDR, LRESULT* pResult)
 	switch(nResult)
 	{
 		case 0: break;
-		case 1:	OpenAddDel(m_Str2Data.String2Int(pString)); break;
+		case 1:	OpenAddDel(1, m_Str2Data.String2Int(pString)); break;
 //		case 2: m_pColumnManager->OpenColumnPicker(*this); break;
 //		case 3: m_pColumnManager->ResetColumnsDefault(*this); break;
 		default: break;
@@ -558,7 +566,7 @@ void CSampleFormView::OnRclick2(NMHDR* pNMHDR, LRESULT* pResult)
 	switch(nResult)
 	{
 		case 0: break;
-		case 1:	OpenAddDel(m_Str2Data.String2Int(pString)); break;
+		case 1:	OpenAddDel(2, m_Str2Data.String2Int(pString)); break;
 		default: break;
 	}
 }
@@ -581,18 +589,73 @@ void CSampleFormView::OnRclick3(NMHDR* pNMHDR, LRESULT* pResult)
 	switch(nResult)
 	{
 		case 0: break;
-		case 1:	OpenAddDel(m_Str2Data.String2Int(pString)); break;
+		case 1:	OpenAddDel(3, m_Str2Data.String2Int(pString)); break;
 		default: break;
 	}
 }
 
-void CSampleFormView::OpenAddDel(int ilist) 
+void CSampleFormView::OpenAddDel(int nlist ,int ilist) 
 {
 	CSettingHostDlg dlg;
 	dlg.m_strtable =  _T("dispoint");
 	dlg.PointDesid = ilist;
-//	if(dlg.DoModal() == IDOK)
-dlg.DoModal();
+	if(dlg.DoModal() == IDOK)
+		BuildList(nlist, ilist);
+}
+
+void CSampleFormView::BuildList(int nlist ,int ilist) 
+{
+		if(nlist == 1)
+		{
+			int ncount = m_DisplayPoint[ilist].m_ColumnPoint[60].fds;
+            m_List1.DeleteAllItems();
+    		m_List1.SetItemCount(ncount);
+		   for(int i = 0; i <= ncount; i ++)
+		   {
+				  CString dddd =m_DisplayPoint[ilist].m_ColumnPoint[i].CPName;
+				  dddd.TrimRight();
+				  m_List1.InsertItem(i, "");
+				  m_List1.SetItemText(i, 1, dddd);
+				  m_List1.SetItemText(i, 2, "");
+				  dddd =m_DisplayPoint[ilist].m_ColumnPoint[i].CPpointnum;
+				  dddd.TrimRight();
+				  m_List1.SetItemText(i, 3, dddd);
+		   }
+		}
+		if(nlist == 2)
+		{
+			int ncount = m_DisplayPoint[ilist].m_ColumnPoint[60].fds;
+            m_List2.DeleteAllItems();
+    		m_List2.SetItemCount(ncount);
+		   for(int i = 0; i <= ncount; i ++)
+		   {
+				  CString dddd =m_DisplayPoint[ilist].m_ColumnPoint[i].CPName;
+				  dddd.TrimRight();
+				  m_List2.InsertItem(i, "");
+				  m_List2.SetItemText(i, 1, dddd);
+				  m_List2.SetItemText(i, 2, "");
+				  dddd =m_DisplayPoint[ilist].m_ColumnPoint[i].CPpointnum;
+				  dddd.TrimRight();
+				  m_List2.SetItemText(i, 3, dddd);
+		   }
+		}
+		if(nlist == 3)
+		{
+			int ncount = m_DisplayPoint[ilist].m_ColumnPoint[60].fds;
+            m_List3.DeleteAllItems();
+    		m_List3.SetItemCount(ncount);
+		   for(int i = 0; i <= ncount; i ++)
+		   {
+				  CString dddd =m_DisplayPoint[ilist].m_ColumnPoint[i].CPName;
+				  dddd.TrimRight();
+				  m_List3.InsertItem(i, "");
+				  m_List3.SetItemText(i, 1, dddd);
+				  m_List3.SetItemText(i, 2, "");
+				  dddd =m_DisplayPoint[ilist].m_ColumnPoint[i].CPpointnum;
+				  dddd.TrimRight();
+				  m_List3.SetItemText(i, 3, dddd);
+		   }
+		}
 }
 
 void CSampleFormView::OnContextMenu(CWnd* pWnd, CPoint point) 

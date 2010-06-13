@@ -154,14 +154,24 @@ struct ADTypeTable	 {
 //////////////////////////////////////////////////////////////////////////
 //模拟量 类型结构
 struct AType	 {
+	CString WatchPosition;          //安装地点
+	CString WatchName;              //测点名称   
+	float AValue;	                //模拟量当前值
 	float m_RangeH;	        	//高量程
 	float m_RangeL;	        	//低量程
 	float AlarmValueH;	        //高报警值
 	float AlarmValueL;	        //低报警值
+	float Apbrk;	                 //模拟量类型断电值
+	float Aprtn;	                 //模拟量类型复电值
+	int   SensorType;                 // 传感器型号 3种 开关量无
 	CString m_Unit;		        // (计量)单位
+//	int   AStyle;                 	//模拟量 类型
 };
 //开关量 类型结构
 struct DType	 {
+	CString WatchPosition;          //安装地点
+	CString WatchName;              //测点名称   
+	int DValue;	                    //开关量当前值  
 	int AlarmState;	            //报警状态  
 	CString ZeroState;          //0态   开关量
 	CString OneState;           //1态   开关量
@@ -170,19 +180,13 @@ struct DType	 {
 
 //通道号
 struct NumChannel {
-	int SensorType;                 // 传感器型号 3种 开关量无
-	int AStyle;                 	//模拟量 类型
-	float AValue;	                //模拟量当前值
 	AType        m_Atype;           //模拟量 类型结构
 
-	CString WatchPosition;          //安装地点
-	CString WatchName;          //测点名称   
 	int EFeed;                  	//馈电状态
 	int EquipmentState;             //设备状态
 
-	int DValue;	                    //开关量当前值  
-	int DStyle;	                    //开关量 类型  
-	DType        m_Dtype;           //开关量 类型结构
+//	int DStyle;	                    //开关量 类型  
+	DType        m_Dtype[4];           //开关量 类型结构
 };
 //分站
 struct SlaveStation {
