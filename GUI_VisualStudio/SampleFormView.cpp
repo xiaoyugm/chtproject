@@ -591,8 +591,8 @@ void CSampleFormView::OpenAddDel(int ilist)
 	CSettingHostDlg dlg;
 	dlg.m_strtable =  _T("dispoint");
 	dlg.PointDesid = ilist;
-	dlg.DoModal();
-
+//	if(dlg.DoModal() == IDOK)
+dlg.DoModal();
 }
 
 void CSampleFormView::OnContextMenu(CWnd* pWnd, CPoint point) 

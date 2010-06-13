@@ -49,6 +49,7 @@ static char THIS_FILE[] = __FILE__;
 
 using namespace dbAx;
 
+DisplayPoint  m_DisplayPoint[33];
 extern  OthersSetting    m_OthersSetting;
 extern  ADTypeTable	     m_ADTypeTable[9];
 #define BoolType(b) b?true:false
@@ -1553,13 +1554,46 @@ void CSettingHostDlg::OnButtonSave()
 	if(m_bADD)
         m_DisPoint.Requery();
 
-	AfxMessageBox("需要显示的测点已保存", MB_OK);
+//	AfxMessageBox("需要显示的测点已保存", MB_OK);
   }
   catch (CAxException *e)
   {
     AfxMessageBox(e->m_szErrorDesc, MB_OK);
     delete e;
   }
+
+  for(int i =0; i< 60; i++)
+  {
+	  if(m_listDis.GetItemText(i,0) != "")
+	  {
+          m_DisplayPoint[PointDesid].m_ColumnPoint[i].CPpointnum = m_listDis.GetItemText(i,0);
+		  m_DisplayPoint[PointDesid].m_ColumnPoint[60].fds = i;
+		int n =strItem.Find("A");
+		if(n != -1)
+		{
+			m_bSwitch = false;
+    		strf = strItem.Mid(0,n);
+    		strc = strItem.Mid(n+1);
+		}
+		int m =strItem.Find("D");
+		int o =strItem.Find("F");
+		int p =strItem.Find("C");
+
+		if((m != -1) || (o != -1) || (p != -1))
+		{
+			m_bSwitch = true;
+    		strf = strItem.Mid(0,m);
+    		strc = strItem.Mid(m+1);
+		}
+	  }
+	  else
+		  break;
+  }
+
+
+  MessageBeep(MB_OK);
+  EndDialog(IDOK);
+
 }
 
 //void CSettingHostDlg::OnButtonCANCEL() 
