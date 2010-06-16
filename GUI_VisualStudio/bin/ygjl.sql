@@ -68,26 +68,25 @@ GO
 
 CREATE TABLE [BJygjl].[dbo].[control] (
 	[CID] [int]  NOT NULL  PRIMARY KEY IDENTITY(1,1),
-	[ptype] [bit]  NOT NULL,
-	[utype] [bit]  NOT NULL,
-	[typeid] [int]  NOT NULL ,
-	[positionid] [int]  NOT NULL ,
-	[fds] [int]  NOT NULL ,
-	[chan] [int]  NOT NULL ,
-	[subOpr] [bit]  NOT NULL,
-	[fdel] [bit]  NOT NULL,
+	[Name] [char] (50) NOT NULL ,
+	[pointnum] [char] (10),
+	[PID] [int]  ,
+	[cpointnum] [char] (10),
+	[cPID] [int]  ,
+	[ByFds] [bit]  ,
+	[fdel] [bit]  ,
 	[recdate] [datetime] ,
 	[deldate] [datetime] ,
-	[Useridadd] [char] (10) NOT NULL ,
-	[Useriddel] [char] (10) NOT NULL 
+	[Useridadd] [char] (20) ,
+	[Useriddel] [char] (20) 
 ) ON [PRIMARY] 
 GO
 
 CREATE TABLE [BJygjl].[dbo].[user] (
 	[UID] [int]  NOT NULL PRIMARY KEY IDENTITY(1,1),
-	[Name] [char] (20) NOT NULL ,
-	[upwd] [char] (20) NOT NULL,
-	[classer] [int] NOT NULL
+	[Name] [char] (20) ,
+	[upwd] [char] (20) ,
+	[classer] [int] 
 ) ON [PRIMARY] 
 GO
 
@@ -136,5 +135,11 @@ CREATE TABLE [BJygjl].[dbo].[dispoint] (
 	[LP17] [char] (100) ,
 	[LP18] [char] (100) ,
 	[LP19] [char] (100) 
+) ON [PRIMARY] 
+GO
+
+CREATE TABLE [BJygjl].[dbo].[specialcontrol] (
+	[SID] [int]  ,
+	[SpeCtrol] [bit] 
 ) ON [PRIMARY] 
 GO

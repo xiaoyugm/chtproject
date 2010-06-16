@@ -14,8 +14,9 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+extern  SlaveStation             m_SlaveStation[64][64];
 extern  FormView  m_FormView[20];
-extern  DisplayPoint  m_DisplayPoint[33];
+extern  DisplayPoint  m_DisplayPoint[32][64];
 /////////////////////////////////////////////////////////////////////////////
 // CSampleFormView
 
@@ -607,51 +608,78 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 {
 		if(nlist == 1)
 		{
-			int ncount = m_DisplayPoint[ilist].m_ColumnPoint[60].fds;
+			int ncount = m_DisplayPoint[ilist][60].fds;
             m_List1.DeleteAllItems();
     		m_List1.SetItemCount(ncount);
 		   for(int i = 0; i <= ncount; i ++)
 		   {
-				  CString dddd =m_DisplayPoint[ilist].m_ColumnPoint[i].CPName;
+		int nfds = m_DisplayPoint[ilist][i].fds;
+		if(!nfds)
+			return;
+		int nchan = m_DisplayPoint[ilist][i].chan;
+				  CString dddd =m_DisplayPoint[ilist][i].CPName;
 				  dddd.TrimRight();
 				  m_List1.InsertItem(i, "");
 				  m_List1.SetItemText(i, 1, dddd);
-				  m_List1.SetItemText(i, 2, "");
-				  dddd =m_DisplayPoint[ilist].m_ColumnPoint[i].CPpointnum;
+				  int nptype = m_DisplayPoint[ilist][i].ptype;
+				  if( nptype== 0)
+					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].m_Atype.AValue);
+				  else
+					  dddd = m_SlaveStation[nfds][nchan].m_Dtype[nptype-1].DValue;
+    			  m_List1.SetItemText(i, 2, dddd);
+				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();
 				  m_List1.SetItemText(i, 3, dddd);
 		   }
 		}
 		if(nlist == 2)
 		{
-			int ncount = m_DisplayPoint[ilist].m_ColumnPoint[60].fds;
+			int ncount = m_DisplayPoint[ilist][60].fds;
             m_List2.DeleteAllItems();
     		m_List2.SetItemCount(ncount);
 		   for(int i = 0; i <= ncount; i ++)
 		   {
-				  CString dddd =m_DisplayPoint[ilist].m_ColumnPoint[i].CPName;
+		int nfds = m_DisplayPoint[ilist][i].fds;
+		if(!nfds)
+			return;
+		int nchan = m_DisplayPoint[ilist][i].chan;
+				  CString dddd =m_DisplayPoint[ilist][i].CPName;
 				  dddd.TrimRight();
 				  m_List2.InsertItem(i, "");
 				  m_List2.SetItemText(i, 1, dddd);
-				  m_List2.SetItemText(i, 2, "");
-				  dddd =m_DisplayPoint[ilist].m_ColumnPoint[i].CPpointnum;
+				  int nptype = m_DisplayPoint[ilist][i].ptype;
+				  if( nptype== 0)
+					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].m_Atype.AValue);
+				  else
+					  dddd = m_SlaveStation[nfds][nchan].m_Dtype[nptype-1].DValue;
+    			  m_List2.SetItemText(i, 2, dddd);
+				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();
 				  m_List2.SetItemText(i, 3, dddd);
 		   }
 		}
 		if(nlist == 3)
 		{
-			int ncount = m_DisplayPoint[ilist].m_ColumnPoint[60].fds;
+			int ncount = m_DisplayPoint[ilist][60].fds;
             m_List3.DeleteAllItems();
     		m_List3.SetItemCount(ncount);
 		   for(int i = 0; i <= ncount; i ++)
 		   {
-				  CString dddd =m_DisplayPoint[ilist].m_ColumnPoint[i].CPName;
+		int nfds = m_DisplayPoint[ilist][i].fds;
+		if(!nfds)
+			return;
+		int nchan = m_DisplayPoint[ilist][i].chan;
+				  CString dddd =m_DisplayPoint[ilist][i].CPName;
 				  dddd.TrimRight();
 				  m_List3.InsertItem(i, "");
 				  m_List3.SetItemText(i, 1, dddd);
-				  m_List3.SetItemText(i, 2, "");
-				  dddd =m_DisplayPoint[ilist].m_ColumnPoint[i].CPpointnum;
+				  int nptype = m_DisplayPoint[ilist][i].ptype;
+				  if( nptype== 0 )
+					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].m_Atype.AValue);
+				  else
+					  dddd = m_SlaveStation[nfds][nchan].m_Dtype[nptype-1].DValue;
+    			  m_List3.SetItemText(i, 2, dddd);
+				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();
 				  m_List3.SetItemText(i, 3, dddd);
 		   }

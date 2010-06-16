@@ -139,6 +139,8 @@ protected:
 	afx_msg void OnEditState(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnUpdateEditState(CCmdUI* pCmdUI);
 
+	afx_msg void OnSoundPath();
+	afx_msg void OnUpdateOnSoundPath(CCmdUI* pCmdUI);
 	afx_msg void OnEditPlatform(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnUpdateEditPlatform(CCmdUI* pCmdUI);
 	afx_msg void OnFullScreen();
@@ -164,6 +166,7 @@ protected:
 	CWnd* CreateToolBox();
 	void ResetToolboxItems();
 
+	BOOL m_bSoundPath;
 	int m_nState;
 	int m_nPlatform;
 	CString m_strIniFileName;

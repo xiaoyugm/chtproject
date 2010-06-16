@@ -39,6 +39,7 @@
 #include "dbAx\AxAccountSet.hpp"
 #include "dbAx\AxContactSet.hpp"
 #include "dbAx\AxDisPoint.hpp"
+#include "dbAx\CardFileEvents.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 // CGUI_VisualStudioApp:
@@ -57,12 +58,15 @@ public:
 	ULONG_PTR           gdiplusToken;
 	CString2DataType m_Str2Data;
 	
+	void   OnCloseDB();
 	BOOL   InitUIInfo();
 	BOOL   ConnectDB();
 	BOOL   InitPointInfo();
+	BOOL   InitDisplay();
     void   pushDIS(CString  str1,CString  str2,CString  str3);
 	void   BuildDIS(CString  strItem);
 
+    CCardFileEvents *pCnEvents;
   CAxConnection   m_Cn;
   CAxPointDescription  m_PointDes;
   CAxAccountSet   m_AccountSet;
