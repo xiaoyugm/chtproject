@@ -367,6 +367,23 @@ bool CControlXml::ParsePS(CMarkup& xml)
         m_ADTypeTable[4].m_DTypeTFD.pointnum = str3;
         return true;
 	}
+    else if (xml.FindElem(_T("Control")) )
+	{
+        // Extract the group name.
+        CString strnumForm = xml.GetAttrib(_T("TABLE"));
+    	m_ADTypeTable[5].TableName = strnumForm;
+        CString groupName = xml.GetAttrib(_T("Name"));
+    	m_ADTypeTable[5].NameD = groupName;
+     	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading0")),str1,str2,str3);
+        m_ADTypeTable[5].m_DTypeTFD.Name = str1;
+        m_ADTypeTable[5].m_DTypeTFD.pointnum = str2;
+        m_ADTypeTable[5].m_DTypeTFD.chan = str3;
+     	m_Str2Data.SplittoCString(xml.GetAttrib(_T("ColumnHeading1")),str1,str2,str3);
+        m_ADTypeTable[5].m_DTypeTFD.falm = str1;
+        m_ADTypeTable[5].m_DTypeTFD.recdate = str2;
+        m_ADTypeTable[5].m_DTypeTFD.Useridadd = str3;
+        return true;
+	}
     
 
 	return false;

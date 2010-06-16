@@ -102,7 +102,7 @@ struct DTypeTFD	 {
 	CString name1;	                    //1态名称
 	CString name2;	                    //2态名称
 	CString     palms;	                 //开关量类型报警状态
-	CString falm;                    //报警文字
+	CString falm;                    //报警音乐
 	CString fdel;		           // 删除标志
 	CString recdate;		        // 记录时间
 	CString deldate;		        // 删除时间
@@ -114,10 +114,10 @@ struct DTypeTFD	 {
 	CString lbom;	                	//低量程
 	CString palmu;	                    //高报警值
 	CString palmd;	                    //低报警值
-	CString pbrk;	                 //模拟量类型断电值
-	CString prtn;	                 //模拟量类型复电值
+	CString pbrk;	                    //模拟量类型断电值
+	CString prtn;	                    //模拟量类型复电值
 	CString punit;		                // (计量)单位
-	CString pico;                    //图标编号
+	CString pico;                       //图标编号
 
 //测点描述表
 	CString     pointnum;                       //点号
@@ -131,10 +131,10 @@ struct DTypeTFD	 {
 
 
 struct ADTypeTable	 {
-	CString TableName;                //表名   
-	CString NameD;                    //表名称描述   
+	CString TableName;                     //表名   
+	CString NameD;                         //表名称描述   
 	DTypeTField        m_DTypeTField;      //模拟量开关量类型结构
-	DTypeTFD        m_DTypeTFD;      //模拟量开关量类型描述
+	DTypeTFD        m_DTypeTFD;            //模拟量开关量类型描述
 };
 
 
@@ -154,8 +154,8 @@ struct ADTypeTable	 {
 //////////////////////////////////////////////////////////////////////////
 //模拟量 类型结构
 struct AType	 {
-	CString WatchPosition;          //安装地点
-	CString WatchName;              //测点名称   
+	CString falma;                  //报警音乐
+	CString WatchName;              //测点安装地点名称   
 	float AValue;	                //模拟量当前值
 	float m_RangeH;	        	//高量程
 	float m_RangeL;	        	//低量程
@@ -163,38 +163,32 @@ struct AType	 {
 	float AlarmValueL;	        //低报警值
 	float Apbrk;	                 //模拟量类型断电值
 	float Aprtn;	                 //模拟量类型复电值
-	int   SensorType;                 // 传感器型号 3种 开关量无
 	CString m_Unit;		        // (计量)单位
-//	int   AStyle;                 	//模拟量 类型
+	CString         utype;           //模拟量类型名称
 };
 //开关量 类型结构
 struct DType	 {
-	CString WatchPosition;          //安装地点
-	CString WatchName;              //测点名称   
-	int DValue;	                    //开关量当前值  
+	CString falmd;                  //报警音乐
+	CString WatchName;              //测点安装地点名称   
+	CString DValue;	                    //开关量当前值  
 	int AlarmState;	            //报警状态  
 	CString ZeroState;          //0态   开关量
 	CString OneState;           //1态   开关量
 	CString TwoState;           //2态   开关量
+	CString       utype;           //开关量类型名称
 };
 
 //通道号
 struct NumChannel {
-	AType        m_Atype;           //模拟量 类型结构
-
 	int EFeed;                  	//馈电状态
 	int EquipmentState;             //设备状态
-
-//	int DStyle;	                    //开关量 类型  
-	DType        m_Dtype[4];           //开关量 类型结构
 };
 //分站
 struct SlaveStation {
 	int FStyle;	                        //分站类型  
 	int IsScan;	                        //是否巡检   
-	NumChannel        m_NumChan[65];    //通道
-//	ST_FIELD_INFO  field_info;       	//这个人的植物信息
-	
+	AType        m_Atype;               //模拟量 类型结构
+	DType        m_Dtype[3];            //开关量 类型结构
 };
 
 //IP
@@ -247,17 +241,13 @@ struct FormView {
 	ListCtrl  m_ListCtrl[3];         //FormView的ListCtrl数据结构
 };
 
-struct ColumnPoint {
-	CString     CPName;                    //模拟量开关量类型名称描述   
-	CString     CPpointnum;                       //点号
-	int       fds;             //分站
-	int       chan;            // 通道
-
-};
-
 //DisplayPoint
 struct DisplayPoint {
-     ColumnPoint m_ColumnPoint[66];
+	CString     CPName;                    //模拟量开关量类型名称描述   
+	CString     CPpointnum;                       //点号
+	int         fds;             //分站
+	int         chan;            // 通道
+	int         ptype;           //模拟量开关量类型
 };
 
 #endif // !defined(AFX_JEINWEB_H__5D9516BA_00A4_4D7D_B08A_9EAA563AB7A7__INCLUDED_)

@@ -47,8 +47,8 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-DisplayPoint  m_DisplayPoint[33];
-SlaveStation             m_SlaveStation[64];
+DisplayPoint  m_DisplayPoint[32][64];
+SlaveStation             m_SlaveStation[64][64];
 extern  OthersSetting    m_OthersSetting;
 extern  DrawView         m_DrawView[20];
 extern  FormView  m_FormView[20];
@@ -169,7 +169,7 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 		RUNTIME_CLASS(CDrawDoc),
 		RUNTIME_CLASS(CChildFrame), // custom MDI child frame
 		RUNTIME_CLASS(CDrawView));
-	pDocTemplate->SetContainerInfo(IDR_DRAWTYPE_CNTR_IP);
+//	pDocTemplate->SetContainerInfo(IDR_DRAWTYPE_CNTR_IP);
 ///	pDocTemplate->SetServerInfo(
 ///		IDR_DRAWTYPE_SRVR_EMB, IDR_DRAWTYPE_SRVR_IP,
 ///		RUNTIME_CLASS(CInPlaceFrame));
@@ -218,6 +218,10 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 	CCommandLineInfo cmdInfo;
 	ParseCommandLine(cmdInfo);
 
+	// Dispatch commands specified on the command line
+	if (!ProcessShellCommand(cmdInfo))
+		return FALSE;
+
 	// Check to see if launched as OLE server
 	if (cmdInfo.m_bRunEmbedded || cmdInfo.m_bRunAutomated)
 	{
@@ -230,10 +234,6 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 	//  to update the system registry in case it has been damaged.
 	m_server.UpdateRegistry(OAT_INPLACE_SERVER);
 	COleObjectFactory::UpdateRegistryAll();
-
-	// Dispatch commands specified on the command line
-	if (!ProcessShellCommand(cmdInfo))
-		return FALSE;
 
 	// The main window has been initialized, so show and update it.
 	//SW_SHOWMAXIMIZED              SW_SHOWNORMAL
@@ -255,12 +255,14 @@ BOOL CGUI_VisualStudioApp::InitInstance()
        return (FALSE);
 	if(!InitPointInfo())
 		return FALSE;
+	if(!InitDisplay())
+		return FALSE;
 
 	CSettingHostDlg dlg;
-//	dlg.m_strtable =  _T("dispoint");
+	dlg.m_strtable =  _T("control");   
 //	dlg.PointDesid = 1;
-//	if(dlg.DoModal() != IDOK)
-//		return FALSE;
+	if(dlg.DoModal() != IDOK)
+		return FALSE;
 
 	gstrTimeOut = GetAppPath();
 
@@ -308,8 +310,7 @@ int CGUI_VisualStudioApp::ExitInstance()
 	GdiplusShutdown(gdiplusToken);	
 
 //	m_sql.Close();
-    if ( m_PointDes._IsOpen() )
-      m_PointDes.Close();
+	OnCloseDB();
 		
 	socketClient.Close();
 	return CWinApp::ExitInstance();
@@ -526,37 +527,62 @@ void  CGUI_VisualStudioApp::BuildDIS(CString  strItem)
 		int o =strItem.Find("F");
 		int p =strItem.Find("C");
 
-		if((m != -1) || (o != -1) || (p != -1))
+		if(m != -1)
 		{
 			m_bSwitch = true;
     		strf = strItem.Mid(0,m);
     		strc = strItem.Mid(m+1);
 		}
+		if(o != -1)
+		{
+			m_bSwitch = true;
+    		strf = strItem.Mid(0,o);
+    		strc = strItem.Mid(o+1);
+		}
+		if(p != -1)
+		{
+			m_bSwitch = true;
+    		strf = strItem.Mid(0,p);
+    		strc = strItem.Mid(p+1);
+		}
+
 		int nlist = m_DisPoint.m_szDISID;
 		int nfds = m_Str2Data.String2Int(strf);
 		int nchan = m_Str2Data.String2Int(strc);
-		  m_DisplayPoint[nlist].m_ColumnPoint[idis].fds = nfds;
-		  m_DisplayPoint[nlist].m_ColumnPoint[idis].chan = nchan;
+		  m_DisplayPoint[nlist][idis].fds = nfds;
+		  m_DisplayPoint[nlist][idis].chan = nchan;
 		  if(m_bSwitch)
 		  {
 			  if(m != -1)
-        		  m_DisplayPoint[nlist].m_ColumnPoint[idis].CPName = m_SlaveStation[nfds].m_NumChan[nchan].m_Dtype[0].WatchName;
+			  {
+    			  m_DisplayPoint[nlist][idis].ptype = 1;
+				  strf = m_SlaveStation[nfds][nchan].m_Dtype[0].WatchName;
+			  }
 			  if(o != -1)
-        		  m_DisplayPoint[nlist].m_ColumnPoint[idis].CPName = m_SlaveStation[nfds].m_NumChan[nchan].m_Dtype[1].WatchName;
+			  {
+    			  m_DisplayPoint[nlist][idis].ptype = 2;
+				  strf = m_SlaveStation[nfds][nchan].m_Dtype[1].WatchName;
+			  }
 			  if(p != -1)
-        		  m_DisplayPoint[nlist].m_ColumnPoint[idis].CPName = m_SlaveStation[nfds].m_NumChan[nchan].m_Dtype[2].WatchName;
+			  {
+    			  m_DisplayPoint[nlist][idis].ptype = 3;
+				  strf = m_SlaveStation[nfds][nchan].m_Dtype[2].WatchName;
+			  }
+       		  m_DisplayPoint[nlist][idis].CPName = strf;
 		  }
 		  else
-    		  m_DisplayPoint[nlist].m_ColumnPoint[idis].CPName = m_SlaveStation[nfds].m_NumChan[nchan].m_Atype.WatchName;
-    	m_DisplayPoint[nlist].m_ColumnPoint[idis].CPpointnum = strItem;
+		  {
+			  m_DisplayPoint[nlist][idis].ptype = 0;
+    		  m_DisplayPoint[nlist][idis].CPName = m_SlaveStation[nfds][nchan].m_Atype.WatchName;
+		  }
+      	  m_DisplayPoint[nlist][idis].CPpointnum = strItem;
 
-		  m_DisplayPoint[nlist].m_ColumnPoint[60].fds = idis;
+		  m_DisplayPoint[nlist][60].fds = idis;
 		  idis++;
 }
 
 BOOL CGUI_VisualStudioApp::InitPointInfo()
 {
-	LPCTSTR str1 = "",str2 = "",str3 = "";
 		if ( m_PointDes._IsEmpty() )
 		  return TRUE;
 		int xxx = m_PointDes.RecordCount();
@@ -564,48 +590,155 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 		m_PointDes.MoveFirst();
 		while ( !m_PointDes.IsEOF() )
 		{
-			if(m_PointDes.m_szptype == 0)
+	    	int nptype = m_PointDes.m_szptype;
+    		int nfds = m_PointDes.m_szfds;
+    		int nchan = m_PointDes.m_szchan;
+			if(nptype == 0  || nptype == 1)
 			{
-      		m_ContactSet.MoveFirst();
-    		while ( !m_ContactSet.IsEOF() )
-			{
+        		m_ContactSet.MoveFirst();
+        		while ( !m_ContactSet.IsEOF() )
+				{
 				if(m_ContactSet.m_szAID == m_PointDes.m_sztypeID)
 					break;
     			m_ContactSet.MoveNext();
-			}
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.WatchName = m_PointDes.m_szName;
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.m_RangeH = m_ContactSet.m_szltop;
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.m_RangeL = m_ContactSet.m_szlbom;
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.AlarmValueH = m_ContactSet.m_szpalmu;
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.AlarmValueL = m_ContactSet.m_szpalmd;
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.Apbrk = m_ContactSet.m_szpbrk;
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.Aprtn =m_ContactSet.m_szprtn;
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.SensorType = 0;
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Atype.m_Unit = m_ContactSet.m_szpunit;
+				}
+  				m_SlaveStation[nfds][nchan].m_Atype.WatchName = m_PointDes.m_szName;
+    			m_SlaveStation[nfds][nchan].m_Atype.m_RangeH = m_ContactSet.m_szltop;
+    			m_SlaveStation[nfds][nchan].m_Atype.m_RangeL = m_ContactSet.m_szlbom;
+    			m_SlaveStation[nfds][nchan].m_Atype.AlarmValueH = m_ContactSet.m_szpalmu;
+    			m_SlaveStation[nfds][nchan].m_Atype.AlarmValueL = m_ContactSet.m_szpalmd;
+    			m_SlaveStation[nfds][nchan].m_Atype.Apbrk = m_ContactSet.m_szpbrk;
+    			m_SlaveStation[nfds][nchan].m_Atype.Aprtn =m_ContactSet.m_szprtn;
+    			m_SlaveStation[nfds][nchan].m_Atype.utype = m_PointDes.m_szutype;
+    			m_SlaveStation[nfds][nchan].m_Atype.m_Unit = m_ContactSet.m_szpunit;
+    			m_SlaveStation[nfds][nchan].m_Atype.falma = m_ContactSet.m_szfalm;
 			}
 			else
 			{
-      		m_AccountSet.MoveFirst();
-    		while ( !m_AccountSet.IsEOF() )
-			{
+        		m_AccountSet.MoveFirst();
+        		while ( !m_AccountSet.IsEOF() )
+				{
 				if(m_AccountSet.m_szDID == m_PointDes.m_sztypeID)
 					break;
     			m_AccountSet.MoveNext();
-			}
+				}
 //            m_AccountSet.MoveFirst();
 			int nptype = m_PointDes.m_szptype;
-			if( nptype == 4)
-				nptype =1;
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Dtype[nptype-1].WatchName = m_PointDes.m_szName;
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Dtype[nptype-1].AlarmState = m_AccountSet.m_szpalms;
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Dtype[nptype-1].ZeroState = m_AccountSet.m_szname0;
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Dtype[nptype-1].OneState = m_AccountSet.m_szname1;
-    			m_SlaveStation[m_PointDes.m_szfds].m_NumChan[m_PointDes.m_szchan].m_Dtype[nptype-1].TwoState = m_AccountSet.m_szname2;
+			if( nptype == 13)
+				nptype =10;
+			if(nptype == 11)
+				nchan =0;
+    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].WatchName = m_PointDes.m_szName;
+    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].AlarmState = m_AccountSet.m_szpalms;
+    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].ZeroState = m_AccountSet.m_szname0;
+    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].OneState = m_AccountSet.m_szname1;
+    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].TwoState = m_AccountSet.m_szname2;
+    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].utype = m_PointDes.m_szutype;
+    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].falmd = m_AccountSet.m_szfalm;
 			}
     		m_PointDes.MoveNext();
 		}
         m_PointDes.MoveFirst();
 
+		return TRUE;
+
+/*	CString strSQL;
+	unsigned short k = 1;
+	try
+	{
+		strSQL.Format("SELECT * FROM uPointProperty");
+		if(m_sql.ExecuteSQL(strSQL)==SQL_SUCCESS)
+		{
+			int nRet=m_sql.Fetch();
+			while(!nRet)
+			{
+				unsigned short unPointNo=(unsigned short)m_String2DataType.String2Int(m_sql.GetCol(1));
+				BOOL bValueTypetemp= m_String2DataType.Str2Bool(m_sql.GetCol(6));
+///				CString strLabeltemp=m_sql.GetCol(10);
+				CString strExplaintemp=m_sql.GetCol(11);
+				m_CPointInfo[unPointNo].strExplaintemp = strExplaintemp ;
+				m_CWarnPoint[k].warnPoint = unPointNo ;
+				k++;
+				m_CWarnPoint[1].OldwarnPoint = k ;
+
+				if(bValueTypetemp)
+				{
+            		strSQL.Format("SELECT * FROM uAnologPointProperty WHERE unPointNo = %d",unPointNo);
+	             	if(m_sqlA.ExecuteSQL( strSQL )==SQL_SUCCESS)
+					{
+	            		if(!m_sqlA.Fetch())
+						{
+		            		m_CPointInfo[unPointNo].fMin = (double)m_String2DataType.String2Double(m_sqlA.GetCol(2));   //fMeasureMin
+		            		m_CPointInfo[unPointNo].fMax = (double)m_String2DataType.String2Double(m_sqlA.GetCol(3));   //"fMeasureMax"
+		                	UINT unWarnCause=(UINT)m_String2DataType.String2Int(m_sqlA.GetCol(5));
+		         	    	m_CPointInfo[unPointNo].unWarnMin = (double)m_String2DataType.String2Double(m_sqlA.GetCol(7));   //"unWarnMinValue"
+		        	    	m_CPointInfo[unPointNo].unWarnMax = (double)m_String2DataType.String2Double(m_sqlA.GetCol(8));  //"unWarnMaxValue"
+		        	    	m_CPointInfo[unPointNo].usUnit = m_sqlA.GetCol(9);
+
+		    		    	strSQL.Format("SELECT * FROM uWarnClass WHERE unWarnClassNo = %d",unWarnCause+1);
+                           if(m_sqlA.ExecuteSQL(strSQL) == SQL_SUCCESS)
+						   {
+			            		if(!m_sqlA.Fetch())
+                                   m_CPointInfo[unPointNo].strWarnCausetemp=m_sqlA.GetCol(2);
+						   }
+					     	else{
+			            		AfxMessageBox("数据库表uWarnClass查询失败");
+			                      return FALSE;
+							}
+						}  
+					}
+        	    	else
+					{
+        	    		AfxMessageBox("数据库表uAnologPointProperty没有打开");
+                        return FALSE;
+					}
+				}
+				else
+				{
+					strSQL.Format("SELECT * FROM uSwitchPointProperty WHERE unPointNo = %d",unPointNo);
+					if(m_sqlD.ExecuteSQL( strSQL )==SQL_SUCCESS)
+					{
+						if(!m_sqlD.Fetch())
+						{
+							UINT unWarnCause=(UINT)m_String2DataType.String2Int(m_sqlD.GetCol(3));
+			        		strSQL.Format("SELECT * FROM uWarnClass WHERE unWarnClassNo = %d", unWarnCause+1);
+                            if(m_sqlD.ExecuteSQL(strSQL) == SQL_SUCCESS)
+							{
+			        	       	if(!m_sqlD.Fetch())
+                                    m_CPointInfo[unPointNo].strWarnCausetemp=m_sqlD.GetCol(2);
+							}
+				     		else{
+			            		AfxMessageBox("数据库表uWarnClass查询失败");
+			                         return FALSE;
+							}
+						}
+					}
+					else
+					{
+						AfxMessageBox("数据库表uSwitchPointProperty没有打开");
+			             return FALSE;
+					}
+				}
+				nRet=m_sql.Fetch();
+			}
+     		return TRUE;
+		}
+		else
+		{
+			AfxMessageBox("数据库表uMonitorPointEdit没有打开");
+			return FALSE;
+		}
+	}
+	catch(CDBException *e)
+	{
+		e->ReportError();
+		return FALSE;
+	}*/
+}
+
+BOOL CGUI_VisualStudioApp::InitDisplay()
+{
+	LPCTSTR str1 = "",str2 = "",str3 = "";
     	if ( m_DisPoint._IsEmpty() )
    		    return TRUE;
 //		m_listDis.SetItemCount(m_DisPoint.RecordCount());
@@ -756,105 +889,35 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 				m_DisPoint.MoveNext();
 		}
         m_DisPoint.MoveFirst();
-
-
-   		return TRUE;
-
-/*	CString strSQL;
-	unsigned short k = 1;
-	try
-	{
-		strSQL.Format("SELECT * FROM uPointProperty");
-		if(m_sql.ExecuteSQL(strSQL)==SQL_SUCCESS)
-		{
-			int nRet=m_sql.Fetch();
-			while(!nRet)
-			{
-				unsigned short unPointNo=(unsigned short)m_String2DataType.String2Int(m_sql.GetCol(1));
-				BOOL bValueTypetemp= m_String2DataType.Str2Bool(m_sql.GetCol(6));
-///				CString strLabeltemp=m_sql.GetCol(10);
-				CString strExplaintemp=m_sql.GetCol(11);
-				m_CPointInfo[unPointNo].strExplaintemp = strExplaintemp ;
-				m_CWarnPoint[k].warnPoint = unPointNo ;
-				k++;
-				m_CWarnPoint[1].OldwarnPoint = k ;
-
-				if(bValueTypetemp)
-				{
-            		strSQL.Format("SELECT * FROM uAnologPointProperty WHERE unPointNo = %d",unPointNo);
-	             	if(m_sqlA.ExecuteSQL( strSQL )==SQL_SUCCESS)
-					{
-	            		if(!m_sqlA.Fetch())
-						{
-		            		m_CPointInfo[unPointNo].fMin = (double)m_String2DataType.String2Double(m_sqlA.GetCol(2));   //fMeasureMin
-		            		m_CPointInfo[unPointNo].fMax = (double)m_String2DataType.String2Double(m_sqlA.GetCol(3));   //"fMeasureMax"
-		                	UINT unWarnCause=(UINT)m_String2DataType.String2Int(m_sqlA.GetCol(5));
-		         	    	m_CPointInfo[unPointNo].unWarnMin = (double)m_String2DataType.String2Double(m_sqlA.GetCol(7));   //"unWarnMinValue"
-		        	    	m_CPointInfo[unPointNo].unWarnMax = (double)m_String2DataType.String2Double(m_sqlA.GetCol(8));  //"unWarnMaxValue"
-		        	    	m_CPointInfo[unPointNo].usUnit = m_sqlA.GetCol(9);
-
-		    		    	strSQL.Format("SELECT * FROM uWarnClass WHERE unWarnClassNo = %d",unWarnCause+1);
-                           if(m_sqlA.ExecuteSQL(strSQL) == SQL_SUCCESS)
-						   {
-			            		if(!m_sqlA.Fetch())
-                                   m_CPointInfo[unPointNo].strWarnCausetemp=m_sqlA.GetCol(2);
-						   }
-					     	else{
-			            		AfxMessageBox("数据库表uWarnClass查询失败");
-			                      return FALSE;
-							}
-						}  
-					}
-        	    	else
-					{
-        	    		AfxMessageBox("数据库表uAnologPointProperty没有打开");
-                        return FALSE;
-					}
-				}
-				else
-				{
-					strSQL.Format("SELECT * FROM uSwitchPointProperty WHERE unPointNo = %d",unPointNo);
-					if(m_sqlD.ExecuteSQL( strSQL )==SQL_SUCCESS)
-					{
-						if(!m_sqlD.Fetch())
-						{
-							UINT unWarnCause=(UINT)m_String2DataType.String2Int(m_sqlD.GetCol(3));
-			        		strSQL.Format("SELECT * FROM uWarnClass WHERE unWarnClassNo = %d", unWarnCause+1);
-                            if(m_sqlD.ExecuteSQL(strSQL) == SQL_SUCCESS)
-							{
-			        	       	if(!m_sqlD.Fetch())
-                                    m_CPointInfo[unPointNo].strWarnCausetemp=m_sqlD.GetCol(2);
-							}
-				     		else{
-			            		AfxMessageBox("数据库表uWarnClass查询失败");
-			                         return FALSE;
-							}
-						}
-					}
-					else
-					{
-						AfxMessageBox("数据库表uSwitchPointProperty没有打开");
-			             return FALSE;
-					}
-				}
-				nRet=m_sql.Fetch();
-			}
-     		return TRUE;
-		}
-		else
-		{
-			AfxMessageBox("数据库表uMonitorPointEdit没有打开");
-			return FALSE;
-		}
-	}
-	catch(CDBException *e)
-	{
-		e->ReportError();
-		return FALSE;
-	}*/
+		return TRUE;
 }
 
+void CGUI_VisualStudioApp::OnCloseDB()
+{
+  try
+  {
+    if ( m_AccountSet._IsOpen() )
+      m_AccountSet.Close();
+    if ( m_ContactSet._IsOpen() )
+      m_ContactSet.Close();
+//    if ( m_MAlocation._IsOpen() )
+//      m_MAlocation.Close();
+    if ( m_PointDes._IsOpen() )
+      m_PointDes.Close();
+    if ( m_DisPoint._IsOpen() )
+      m_DisPoint.Close();
 
+    m_Cn.Close();
+
+    //Cleanup the AxLib library
+    dbAx::Term();
+  }
+  catch ( CAxException *e )
+  {
+    AfxMessageBox(e->m_szErrorDesc,  MB_OK);
+    delete e;
+  }
+}
 
 
 // App command to run the dialog

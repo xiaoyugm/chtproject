@@ -48,7 +48,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_WM_CLOSE()
 	ON_COMMAND(ID_OnSimulation, OnSimulation)
 	ON_COMMAND(ID_OnGenus, OnGenus)
-	ON_COMMAND(ID_MANIPULATE, OnManipulate)
+	ON_COMMAND(ID_MANIPULATE, OnSoundPath)
+	ON_UPDATE_COMMAND_UI(ID_MANIPULATE, OnUpdateOnSoundPath)
 	ON_COMMAND(ID_D_D, OnDigital)
 	ON_COMMAND(ID_A_D, OnAnalog)
 	ON_COMMAND(ID_LOCALTION, OnLocation)
@@ -111,6 +112,7 @@ CMainFrame::CMainFrame()
 	m_nState = 1;
 	m_nPlatform = 0;
 	m_bFullScreen = FALSE;
+	m_bSoundPath = TRUE;
 
 	// get path of executable
 	TCHAR szBuff[_MAX_PATH];
@@ -167,7 +169,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CXTPCommandBars* pCommandBars = GetCommandBars();
 
-	CXTPCommandBar* pMenuBar = pCommandBars->SetMenu(_T("Menu Bar"), IDR_DRAWTYPE);
+	CXTPCommandBar* pMenuBar = pCommandBars->SetMenu(_T("Menu Bar"), IDR_MAINFRAME);
 	pMenuBar->SetFlags(xtpFlagIgnoreSetMenuMessage | xtpFlagHideMDIButtons);  //main  IDR_MAINFRAME
 
 /*	CXTPToolBar* pCommandBar = (CXTPToolBar*)pCommandBars->Add(_T("Standard"), xtpBarTop);
@@ -778,7 +780,7 @@ int CMainFrame::OnCreateControl(LPCREATECONTROLSTRUCT lpCreateControl)
 		}
 		if (lpCreateControl->nID == ID_VIEW_FULLSCREEN)
 		{
-			lpCreateControl->buttonStyle = xtpButtonIconAndCaption;
+//			lpCreateControl->buttonStyle = xtpButtonIconAndCaption;
 			return TRUE;
 		}
 
@@ -1057,12 +1059,12 @@ void CMainFrame::OnFullScreen()
 	// Else create new fullscreen layout. Hide all toolbars and DockingPanes.
 	else
 	{		
-		for (int i = 0; i < GetCommandBars()->GetCount(); i++)
+//		for (int i = 0; i < GetCommandBars()->GetCount(); i++)
 		{
-			CXTPToolBar* pToolBar = GetCommandBars()->GetAt(i);
-			pToolBar->SetVisible((pToolBar->GetType() == xtpBarTypeMenuBar) || (pToolBar->GetBarID() == IDR_TOOLBAR_FULLSCREEN));
+//			CXTPToolBar* pToolBar = GetCommandBars()->GetAt(i);
+//			pToolBar->SetVisible((pToolBar->GetType() == xtpBarTypeMenuBar) || (pToolBar->GetBarID() == IDR_TOOLBAR_FULLSCREEN));
 		}
-		m_paneManager.CloseAll();
+//		m_paneManager.CloseAll();
 	}
 	
 	// Save old layout
@@ -1073,7 +1075,7 @@ void CMainFrame::OnFullScreen()
 	m_pFullScreenLayout = pxLayoutSave;
 
 
-	if (m_bFullScreen)
+/*	if (m_bFullScreen)
 	{
 		GetWindowRect(&m_rcMainFrame);
 
@@ -1096,7 +1098,7 @@ void CMainFrame::OnFullScreen()
 		ModifyStyle(0, WS_CAPTION|WS_THICKFRAME);
 		MoveWindow(&m_rcMainFrame);
 		m_wndStatusBar.ShowWindow(SW_SHOW);
-	}
+	}*/
 	RecalcLayout(TRUE);
 }
 
@@ -1594,4 +1596,77 @@ void CMainFrame::TestProgress()
 	{
 		m_wndProgCtrl.StepIt();
 	}
+}
+
+void CMainFrame::OnSoundPath()
+{
+	m_bSoundPath ^= 1;
+
+	CXTPPropExchangeXMLNode px(FALSE, 0, _T("Settings"));
+	CXTPPropExchangeXMLNode* pxLayoutSave = DYNAMIC_DOWNCAST(CXTPPropExchangeXMLNode, px.GetSection(_T("FullScreenLayout")));
+	ASSERT(pxLayoutSave);
+
+	// Save current layout
+	if (pxLayoutSave != 0)
+	{	
+		ExchangeLayout(pxLayoutSave, FALSE);
+	}
+
+	// If Full screen layout exists
+	if (m_pFullScreenLayout && m_pFullScreenLayout->IsSectionExists(_T("CommandBars")))
+	{
+		// Set it
+		m_pFullScreenLayout->SetLoading(TRUE);
+		ExchangeLayout(m_pFullScreenLayout, FALSE);
+	}
+	// Else create new fullscreen layout. Hide all toolbars and DockingPanes.
+	else
+	{		
+//		for (int i = 0; i < GetCommandBars()->GetCount(); i++)
+		{
+//			CXTPToolBar* pToolBar = GetCommandBars()->GetAt(i);
+//			pToolBar->SetVisible((pToolBar->GetType() == xtpBarTypeMenuBar) || (pToolBar->GetBarID() == IDR_TOOLBAR_FULLSCREEN));
+		}
+//		m_paneManager.CloseAll();
+	}
+	
+	// Save old layout
+	if (m_pFullScreenLayout)
+	{
+		delete m_pFullScreenLayout;
+	}
+	m_pFullScreenLayout = pxLayoutSave;
+
+
+/*	if (m_bFullScreen)
+	{
+		GetWindowRect(&m_rcMainFrame);
+
+		ModifyStyle(WS_CAPTION|WS_THICKFRAME, 0);
+		
+		// Now resize the main window
+		CRect rcScreen = XTPMultiMonitor()->GetScreenArea(this);
+		
+		int cxBorder = ::GetSystemMetrics(SM_CXBORDER);
+		int cyBorder = ::GetSystemMetrics(SM_CYBORDER);
+
+		SetWindowPos(NULL, rcScreen.left - cxBorder, rcScreen.top - cyBorder, 
+			rcScreen.Width() + cxBorder * 2, rcScreen.Height() + cyBorder * 2, SWP_NOZORDER);
+
+		m_wndStatusBar.ShowWindow(SW_HIDE);
+
+	} 
+	else
+	{
+		ModifyStyle(0, WS_CAPTION|WS_THICKFRAME);
+		MoveWindow(&m_rcMainFrame);
+		m_wndStatusBar.ShowWindow(SW_SHOW);
+	}*/
+	RecalcLayout(TRUE);
+}
+
+void CMainFrame::OnUpdateOnSoundPath(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(m_bSoundPath);
+
 }
