@@ -74,6 +74,7 @@ CREATE TABLE [BJygjl].[dbo].[control] (
 	[cpointnum] [char] (10),
 	[cPID] [int]  ,
 	[ByFds] [bit]  ,
+	[pcpointnum] [char] (10),
 	[fdel] [bit]  ,
 	[recdate] [datetime] ,
 	[deldate] [datetime] ,

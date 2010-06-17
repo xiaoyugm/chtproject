@@ -82,6 +82,7 @@ public:
   CAxDisPoint      *m_DisPointNew;
   CAxContactCmd   m_ContactCmd;
   CAxControl      m_Control;
+  CAxControl      *m_ControlNew;
 
   //Connect to the data provider via dbAx
   BOOL         ConnectToProvider();
@@ -99,6 +100,7 @@ public:
   void   InsD();
   void   InsP();
   void   InsC();
+  void   InsAddC();
   void   InsDIS();
   void   pushDIS(CString  str1,CString  str2,CString  str3);
   void   BuildDisList();
