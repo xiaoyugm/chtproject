@@ -72,6 +72,7 @@ CSettingHostDlg::CSettingHostDlg(CWnd* pParent /*=NULL*/)
 	m_strtable = _T("");
 	m_PointDesNew = &m_PointDes;
 	m_DisPointNew = &m_DisPoint;
+	m_ControlNew = &m_Control;
 	m_bADD = false;
 	m_bSwitch = false;
 
@@ -143,11 +144,19 @@ BOOL CSettingHostDlg::OnInitDialog()
     GetClientRect(&rectDialog);  
     int   nWidth   =   rectDialog.right   -   rectDialog.left;  
     int   nHeight   =   rectDialog.bottom   -   rectDialog.top;  
-	if(m_ADTypeTable[4].TableName == m_strtable )
+	if(m_ADTypeTable[4].TableName == m_strtable || m_strtable == "AddControl")
 	{
 		GetDlgItem(IDC_LIST_CTRL)->MoveWindow(CRect(8,5,nWidth/2+10 ,nHeight-10));
     	SetResize(IDC_LIST_CTRL,         SZ_TOP_LEFT,    SZ_BOTTOM_CENTER);
-    	GetDlgItem(IDC_LIST_DISPLAY)->MoveWindow(CRect(nWidth/2+180,5,10 ,nHeight-10));
+		if(m_strtable == "AddControl")
+		{
+        	GetDlgItem(IDC_LIST_DISPLAY)->MoveWindow(nWidth/2+150,5,nWidth/2-168  ,nHeight-15);
+        	GetDlgItem(IDC_COMBO3)->MoveWindow(nWidth/2 + 50,nHeight-60,40 ,20);
+        	GetDlgItem(IDC_STATIC3)->MoveWindow(nWidth/2 + 50,nHeight-80,40 ,20);
+        	GetDlgItem(IDC_CHECK_ISALM)->MoveWindow(nWidth/2 + 40,nHeight-160,100 ,20);
+		}
+		else
+        	GetDlgItem(IDC_LIST_DISPLAY)->MoveWindow(CRect(nWidth/2+180,5,10 ,nHeight-10));
     	SetResize(IDC_LIST_DISPLAY,         SZ_TOP_CENTER,    SZ_BOTTOM_RIGHT);
 	}
  	else
@@ -163,15 +172,23 @@ BOOL CSettingHostDlg::OnInitDialog()
 
 	SetResize(IDC_COMBO1,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_COMBO2,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
-	SetResize(IDC_COMBO3,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_COMBO4,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_STATIC1,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_STATIC2,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
-	SetResize(IDC_STATIC3,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_STATIC4,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 
+		if(m_strtable == "AddControl")
+		{
+	SetResize(IDC_STATIC3,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
+	SetResize(IDC_COMBO3,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
+	SetResize(IDC_CHECK_ISALM,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
+		}
+		else
+		{
+  	SetResize(IDC_STATIC3,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
+	SetResize(IDC_COMBO3,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_CHECK_ISALM,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
-
+		}
 	SetResize(IDC_BUTTONDIS1,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
 	SetResize(IDC_BUTTONDIS2,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
 	SetResize(IDC_BUTTONDIS3,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
@@ -220,7 +237,8 @@ BOOL CSettingHostDlg::OnInitDialog()
 	// Get the windows handle to the header control for the
 	// list control then subclass the control.
 	HWND hWndHeader = m_listCtrl.GetDlgItem(0)->GetSafeHwnd();
-	m_header.SubclassWindow(hWndHeader);
+	if(m_strtable != "AddControl")
+    	m_header.SubclassWindow(hWndHeader);
 
 	// add bitmap images.
 //	m_header.SetBitmap(0, IDB_COLUMN_0, FALSE, RGB(0,255,0));
@@ -309,6 +327,8 @@ BOOL CSettingHostDlg::OnInitDialog()
          InsDIS();
 	if(m_ADTypeTable[5].TableName ==  m_strtable)
          InsC();
+	if(m_strtable == "AddControl")
+         InsAddC();
 
     BuildAccountList();
 
@@ -680,19 +700,28 @@ void CSettingHostDlg::BuildAccountList()
 		if ( m_PointDes._IsEmpty() )
 		  return;
 //		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
+		CString dddd,cccc;
 		int iItem = 0;
+		int iItem1 = 0;
 		int nfds = m_wndComboSize3.GetCurSel();
 		m_PointDes.MoveFirst();
 		while ( !m_PointDes.IsEOF() )
 		{
-			if(m_PointDes.m_szfds == nfds+1)
-//        	m_Str2Data.SplittoCString(m_PointDes.m_szName,str1,str2,str3);
-    		m_listCtrl.InsertItem(iItem, m_PointDes.m_szName);
-    		m_listCtrl.SetItemText(iItem, 1, m_PointDes.m_szpointnum);
-//			szC = m_PointDes.m_szpointnum;
-//			szC.TrimRight();
-//			m_listCtrl.SetItemText(iItem, 2, szC);
-			iItem++;
+    		dddd = m_PointDes.m_szpointnum;
+			cccc.Format("%d", m_PointDes.m_szPID);
+			if(m_PointDes.m_szfds == nfds+1  && dddd.Find("C") == -1)
+			{
+         		m_listCtrl.InsertItem(iItem, m_PointDes.m_szName);
+        		m_listCtrl.SetItemText(iItem, 1, m_PointDes.m_szpointnum);
+        		m_listCtrl.SetItemText(iItem, 2, cccc);
+    			iItem++;
+			}
+			if(dddd.Find("C") != -1)
+			{
+         		m_listDis.InsertItem(iItem1, m_PointDes.m_szpointnum);
+        		m_listDis.SetItemText(iItem1, 1, cccc);
+    			iItem1++;
+			}
 			m_PointDes.MoveNext();
 		}
         m_PointDes.MoveFirst();
@@ -1046,41 +1075,10 @@ void CSettingHostDlg::OnBtnADD()
     	for (int iItem = 5; iItem >= 0; iItem--)
     		m_listCtrl.DeleteColumn(iItem);
 
-    	HideAMD();
-		HideControls();
-		SetWindowText(_T("增加控制策略"));
-//		BuildDisList();
-//    	MoveWindow(CRect(50,100,960,700));
-	CRect   rectDialog;  
-    GetClientRect(&rectDialog);  
-    int   nWidth   =   rectDialog.right   -   rectDialog.left;  
-    int   nHeight   =   rectDialog.bottom   -   rectDialog.top;  
-		GetDlgItem(IDC_LIST_CTRL)->MoveWindow(CRect(8,5,nWidth/4 ,nHeight-10));
-		RemoveResize(IDC_LIST_CTRL);
-    	SetResize(IDC_LIST_CTRL,         SZ_TOP_LEFT,    SZ_BOTTOM_CENTER);
-    	GetDlgItem(IDC_LIST_DISPLAY)->MoveWindow(CRect(nWidth/2+180,5,10 ,nHeight-10));
-    	SetResize(IDC_LIST_DISPLAY,         SZ_TOP_CENTER,    SZ_BOTTOM_RIGHT);
-
-
-
-		m_listCtrl.InsertColumn(0,m_ADTypeTable[5].m_DTypeTFD.Name,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(1,m_ADTypeTable[5].m_DTypeTFD.pointnum,LVCFMT_LEFT,75);
-//		m_listCtrl.InsertColumn(2,m_ADTypeTable[5].m_DTypeTFD.pointnum,LVCFMT_LEFT,60);
-
-		m_listDis.InsertColumn(0,m_ADTypeTable[5].m_DTypeTFD.chan,LVCFMT_LEFT,100);
-		m_listDis.InsertColumn(1,"",LVCFMT_LEFT,100);
-
-		  m_strtable = "AddControl";  
-		  BuildAccountList();
-		  ShowDISPLAY();
-//		  ShowControls();
-//           GetDlgItem(IDC_STATIC2)->ShowWindow(SW_SHOW);
-//           GetDlgItem(IDC_COMBO2)->ShowWindow(SW_SHOW);
-//		   TrueFC();
+		m_strtable = "AddControl";
+		OnClose();
+        OnInitDialog();
 	}
-
-
-
 	else
 	{
 		  CAccountDlg dlg(this);
@@ -1296,12 +1294,15 @@ void CSettingHostDlg::HideDISPLAY()
 void CSettingHostDlg::ShowDISPLAY()
 {
     	GetDlgItem(IDC_LIST_DISPLAY)->ShowWindow(SW_SHOW);;
-    	GetDlgItem(IDC_BUTTONDIS1)->ShowWindow(SW_SHOW);;
+//    	GetDlgItem(IDC_BUTTONDIS1)->ShowWindow(SW_SHOW);;
     	GetDlgItem(IDC_BUTTONDIS2)->ShowWindow(SW_SHOW);;
-    	GetDlgItem(IDC_BUTTONDIS3)->ShowWindow(SW_SHOW);;
+//    	GetDlgItem(IDC_BUTTONDIS3)->ShowWindow(SW_SHOW);;
     	GetDlgItem(IDC_BUTTONDIS4)->ShowWindow(SW_SHOW);;
-    	GetDlgItem(IDC_BUTTONDIS5)->ShowWindow(SW_SHOW);;
-    	GetDlgItem(IDC_BUTTONDIS6)->ShowWindow(SW_SHOW);;
+//    	GetDlgItem(IDC_BUTTONDIS5)->ShowWindow(SW_SHOW);;
+//    	GetDlgItem(IDC_BUTTONDIS6)->ShowWindow(SW_SHOW);;
+        GetDlgItem(IDC_COMBO3)->ShowWindow(SW_SHOW);
+        GetDlgItem(IDC_STATIC3)->ShowWindow(SW_SHOW);
+        GetDlgItem(IDC_CHECK_ISALM)->ShowWindow(SW_SHOW);
 }
 
 void CSettingHostDlg::ShowAMD()
@@ -1373,6 +1374,23 @@ void CSettingHostDlg::InsC()
 		m_listCtrl.InsertColumn(3,m_ADTypeTable[5].m_DTypeTFD.falm,LVCFMT_LEFT,200);
 		m_listCtrl.InsertColumn(4,m_ADTypeTable[5].m_DTypeTFD.recdate,LVCFMT_LEFT,200);
 		m_listCtrl.InsertColumn(5,m_ADTypeTable[5].m_DTypeTFD.Useridadd,LVCFMT_LEFT,200);
+}
+
+void CSettingHostDlg::InsAddC()
+{
+        	HideAMD();
+    		HideControls();
+    		SetWindowText(_T("增加控制策略"));
+        	GetDlgItem(IDC_CHECK_ISALM)->SetWindowText(_T("由分站实施"));;
+        	GetDlgItem(IDC_BUTTONDIS2)->SetWindowText(_T("增加"));;
+        	GetDlgItem(IDC_BUTTONDIS4)->SetWindowText(_T("取消"));;
+   		    ShowDISPLAY();
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[5].m_DTypeTFD.Name,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(1,m_ADTypeTable[5].m_DTypeTFD.pointnum,LVCFMT_LEFT,75);
+		m_listCtrl.InsertColumn(2,_T("PID"),LVCFMT_LEFT,60);
+
+		m_listDis.InsertColumn(0,m_ADTypeTable[5].m_DTypeTFD.chan,LVCFMT_LEFT,100);
+		m_listDis.InsertColumn(1,_T("CID"),LVCFMT_LEFT,100);
 }
 
 void CSettingHostDlg::InsDIS()
@@ -1590,6 +1608,195 @@ void CSettingHostDlg::OnButtonSelect()
 
 void CSettingHostDlg::OnButtonDeselect() 
 {
+	if(m_strtable == "AddControl")
+	{
+        BOOL bExist=TRUE;
+    	int nlistCount=0;
+    	int ndisCount=0;
+    	int nItemlist=m_listCtrl.GetItemCount();
+    	int nItemdis=m_listDis.GetItemCount();
+		CString strP1,strP2,strP3;
+        for(int nItem=0;nItem<nItemlist;nItem++)
+		{
+     		if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
+			{
+	        	 nlistCount++;
+				 strP1 = m_listCtrl.GetItemText(nItem,1);
+				for(int ndisItem=0;ndisItem<nItemdis;ndisItem++)
+				{
+     				if(m_listDis.GetItemState(ndisItem,LVIS_SELECTED) & LVIS_SELECTED)
+					{
+	        			 ndisCount++;
+					}
+				}
+			}
+		}
+		if(nlistCount>1 && ndisCount >1)
+		{
+			AfxMessageBox("多对多，请重新选择", MB_OK);
+			return;
+		}
+		if(nlistCount ==0  || ndisCount == 0)
+		{
+			AfxMessageBox("列表未选择，请重新选择", MB_OK);
+			return;
+		}
+
+        for( nItem=0;nItem<nItemlist;nItem++)
+		{
+     		if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
+			{
+				CString strPoint1=m_listCtrl.GetItemText(nItem,0);
+				CString strPoint2=m_listCtrl.GetItemText(nItem,1);
+				CString strPoint3=m_listCtrl.GetItemText(nItem,2);
+				try
+			    {
+					int fff = 0;
+					m_ControlNew->m_szCID  = PointDesid;
+//						UpdateData(TRUE);           //Exchange dialog data
+					COleDateTime CTime;
+					CString  m_strsel,dddd,szFind;
+
+					m_ControlNew->m_szName = strPoint1;
+					m_ControlNew->m_szpointnum = strPoint2;
+					m_ControlNew->m_szPID = strPoint3;
+					for(int ndis=0;ndis<nItemdis;ndis++)
+					{
+     					if(m_listDis.GetItemState(ndis,LVIS_SELECTED) & LVIS_SELECTED)
+						{
+				             strPoint1=m_listDis.GetItemText(nItem,0);
+				             strPoint2=m_listDis.GetItemText(nItem,1);
+						}
+			    		m_ControlNew->m_szcpointnum = strPoint1;
+		    			m_ControlNew->m_szcPID = strPoint2;
+					}
+
+
+
+
+
+
+
+						if(m_strsel.GetLength() ==1)
+							m_strsel ="0" + m_strsel;
+						if(dddd.GetLength() ==1)
+							dddd ="0" + dddd;
+						if(m_bSwitch)
+						{
+							if(m_AccountSet.m_szptype == 0  || m_AccountSet.m_szptype == 3)
+        						m_PointDesNew->m_szpointnum = m_strsel +"D"+dddd;
+							if(m_AccountSet.m_szptype == 1 )
+        						m_PointDesNew->m_szpointnum = m_strsel +"F"+"00";
+							if(m_AccountSet.m_szptype == 2 )
+        						m_PointDesNew->m_szpointnum = m_strsel +"C"+dddd;
+						}
+						else
+    						m_PointDesNew->m_szpointnum = m_strsel +"A"+dddd;
+
+						for(iter = m_Records.begin(); iter != m_Records.end(); ++iter)
+						{
+								szFind = *iter;
+								szFind.TrimRight();
+							if(szFind == m_PointDesNew->m_szpointnum)
+							{
+								fff = 100;
+									break;
+							}
+						}
+						if(m_bADD)
+						{
+							if(fff == 100)
+							{
+								AfxMessageBox("点号已存在，重新选择", MB_OK);
+								return;
+							}
+						}
+						UpdateData(TRUE);           //Exchange dialog data
+						m_wndComboSize2.GetWindowText(m_strsel);
+						int s = m_wndComboSize2.GetCurSel();
+						if(m_bSwitch)
+						{
+									  if(m_AccountSet.m_szptype == 0)
+										  dddd = "二态开关量";
+									  else if(m_AccountSet.m_szptype == 1)
+										  dddd = "分站";
+									  else if(m_AccountSet.m_szptype == 2)
+										  dddd = "控制开关量";
+									  else if(m_AccountSet.m_szptype == 3)
+										  dddd = "三态开关量";
+							m_PointDesNew->m_szutype = dddd;
+    						m_PointDesNew->m_szptype = 10+m_AccountSet.m_szptype;     //开关量
+    						m_PointDesNew->m_sztypeID = m_AccountSet.m_szDID;
+						}
+						else
+						{
+    						m_PointDesNew->m_szutype = m_strsel;
+							if(s == 0)
+        						m_PointDesNew->m_szptype = 0;     //模拟量
+							if(s == 1)
+        						m_PointDesNew->m_szptype = 1;     //模拟量
+    						m_PointDesNew->m_sztypeID = m_ContactSet.m_szAID;
+						}
+						if(m_ctrlCheckAlm.GetCheck())
+    						m_PointDesNew->m_szsubOpr = true;
+						else
+    						m_PointDesNew->m_szsubOpr = false;
+						m_PointDesNew->m_szfdel = false;
+						m_PointDesNew->m_szrecdate = CTime.GetCurrentTime();
+   						m_PointDesNew->m_szUseridadd = theApp.curuser;
+
+						if(m_bADD)
+							m_PointDesNew->AddNew();  //Add a new, blank record
+						m_PointDesNew->Update();    //Update the recordset
+							//If this is a new record, requery the database table
+							//otherwise we may out-of-sync
+						if(m_bADD)
+							m_PointDesNew->Requery();
+					  }
+					  catch (CAxException *e)
+					  {
+						AfxMessageBox(e->m_szErrorDesc, MB_OK);
+						delete e;
+					  }
+            }
+		}
+
+
+
+
+	for (int iItem = 10; iItem >= 0; iItem--)
+		m_listCtrl.DeleteColumn(iItem);
+		  InsP();
+		  ShowAMD();
+		  m_strtable = m_ADTypeTable[3].TableName;  
+		  BuildAccountList();
+
+
+
+
+
+
+
+
+
+
+
+//    		CString strPointNo=m_listCtrl.GetItemText(nItem,2);
+//	    	int nItemCount1=m_listDis.GetItemCount();
+//    		for(int j=0; j<nItemCount1; j++)
+			{
+//		    	if(strPointNo==m_listDis.GetItemText(j,0))
+				{
+//		    		bExist=TRUE;
+//		    		break;
+				}
+			}
+//	    	if(!bExist)
+//	    		m_listDis.InsertItem(nItemCount1, strPointNo, 0);
+
+	}
+	else
+	{
 	int nItemCount=m_listDis.GetItemCount();
     for(int nItem=0;nItem<nItemCount;nItem++)
 	{
@@ -1598,27 +1805,28 @@ void CSettingHostDlg::OnButtonDeselect()
 			m_listDis.DeleteItem(nItem);
 		}
 	}
+	}
 }
 
 void CSettingHostDlg::OnButtonSelectall() 
 {
-	int nItemCount=m_listCtrl.GetItemCount();
-    for(int nItem=0;nItem<nItemCount;nItem++)
-	{
-		CString strPointNo=m_listCtrl.GetItemText(nItem,2);
-		int nItemCount1=m_listDis.GetItemCount();
-		BOOL bExist=FALSE;
-		for(int j=0; j<nItemCount1; j++)
+    	int nItemCount=m_listCtrl.GetItemCount();
+        for(int nItem=0;nItem<nItemCount;nItem++)
 		{
-			if(strPointNo==m_listDis.GetItemText(j,0))
+    		CString strPointNo=m_listCtrl.GetItemText(nItem,2);
+	    	int nItemCount1=m_listDis.GetItemCount();
+	    	BOOL bExist=FALSE;
+    		for(int j=0; j<nItemCount1; j++)
 			{
-				bExist=TRUE;
-				break;
+		    	if(strPointNo==m_listDis.GetItemText(j,0))
+				{
+		    		bExist=TRUE;
+		    		break;
+				}
 			}
+	    	if(!bExist)
+	    		m_listDis.InsertItem(nItemCount1, strPointNo, 0);
 		}
-		if(!bExist)
-			m_listDis.InsertItem(nItemCount1, strPointNo, 0);
-	}
 }
 
 void CSettingHostDlg::OnButtonDeselectall() 
