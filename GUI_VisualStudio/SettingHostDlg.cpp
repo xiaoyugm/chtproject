@@ -675,6 +675,7 @@ void CSettingHostDlg::BuildAccountList()
 		  return;
 		}
 		m_listCtrl.SetItemCount(m_Control.RecordCount());
+        m_Records.clear();
 		int iItem = 0;
 		m_Control.MoveFirst();
 		while ( !m_Control.IsEOF() )
@@ -689,6 +690,7 @@ void CSettingHostDlg::BuildAccountList()
 				  dddd   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
 			m_listCtrl.SetItemText(iItem, 4, dddd);
 			m_listCtrl.SetItemText(iItem, 5, m_Control.m_szUseridadd);
+			m_Records.push_back(m_Control.m_szpcpointnum);
 			iItem++;
 			PointDesid = m_Control.m_szCID +1;
 			m_Control.MoveNext();
@@ -1610,12 +1612,14 @@ void CSettingHostDlg::OnButtonDeselect()
 {
 	if(m_strtable == "AddControl")
 	{
-        BOOL bExist=TRUE;
+    	vector<CString>::iterator  iter;
+		int fff = 0;
+//        BOOL bExist=TRUE;
     	int nlistCount=0;
     	int ndisCount=0;
     	int nItemlist=m_listCtrl.GetItemCount();
     	int nItemdis=m_listDis.GetItemCount();
-		CString strP1,strP2,strP3;
+		CString strP1,strP2,strP3,szFind;
         for(int nItem=0;nItem<nItemlist;nItem++)
 		{
      		if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
@@ -1626,11 +1630,38 @@ void CSettingHostDlg::OnButtonDeselect()
 				{
      				if(m_listDis.GetItemState(ndisItem,LVIS_SELECTED) & LVIS_SELECTED)
 					{
-	        			 ndisCount++;
+         				 strP2 = m_listDis.GetItemText(ndisItem,0);
+						for(iter = m_Records.begin(); iter != m_Records.end(); ++iter)
+						{
+								szFind = *iter;
+								szFind.TrimRight();
+								strP1.TrimRight();
+								strP2.TrimRight();
+							if(szFind == (strP1 +strP2))
+							{
+								fff = 100;
+								break;
+							}
+						}
+						if(fff == 100)
+						{
+							strP3.Format("%s关联%s已存在，重新选择",strP1,strP2);
+								AfxMessageBox(strP3, MB_OK);
+								break;
+						}
 					}
 				}
-			}
+				if(fff == 100)
+					break;
+			}//if
 		}
+		for(int ndisItem=0;ndisItem<nItemdis;ndisItem++)
+		{
+     			if(m_listDis.GetItemState(ndisItem,LVIS_SELECTED) & LVIS_SELECTED)
+         			 ndisCount++;
+		}
+		if(fff == 100)
+			return;
 		if(nlistCount>1 && ndisCount >1)
 		{
 			AfxMessageBox("多对多，请重新选择", MB_OK);
@@ -1649,150 +1680,58 @@ void CSettingHostDlg::OnButtonDeselect()
 				CString strPoint1=m_listCtrl.GetItemText(nItem,0);
 				CString strPoint2=m_listCtrl.GetItemText(nItem,1);
 				CString strPoint3=m_listCtrl.GetItemText(nItem,2);
-				try
-			    {
 					int fff = 0;
-					m_ControlNew->m_szCID  = PointDesid;
 //						UpdateData(TRUE);           //Exchange dialog data
 					COleDateTime CTime;
-					CString  m_strsel,dddd,szFind;
+//					CString  m_strsel,dddd,szFind;
 
 					m_ControlNew->m_szName = strPoint1;
 					m_ControlNew->m_szpointnum = strPoint2;
-					m_ControlNew->m_szPID = strPoint3;
+					m_ControlNew->m_szPID = m_Str2Data.String2Int(strPoint3);
 					for(int ndis=0;ndis<nItemdis;ndis++)
 					{
      					if(m_listDis.GetItemState(ndis,LVIS_SELECTED) & LVIS_SELECTED)
 						{
-				             strPoint1=m_listDis.GetItemText(nItem,0);
-				             strPoint2=m_listDis.GetItemText(nItem,1);
-						}
-			    		m_ControlNew->m_szcpointnum = strPoint1;
-		    			m_ControlNew->m_szcPID = strPoint2;
-					}
-
-
-
-
-
-
-
-						if(m_strsel.GetLength() ==1)
-							m_strsel ="0" + m_strsel;
-						if(dddd.GetLength() ==1)
-							dddd ="0" + dddd;
-						if(m_bSwitch)
-						{
-							if(m_AccountSet.m_szptype == 0  || m_AccountSet.m_szptype == 3)
-        						m_PointDesNew->m_szpointnum = m_strsel +"D"+dddd;
-							if(m_AccountSet.m_szptype == 1 )
-        						m_PointDesNew->m_szpointnum = m_strsel +"F"+"00";
-							if(m_AccountSet.m_szptype == 2 )
-        						m_PointDesNew->m_szpointnum = m_strsel +"C"+dddd;
-						}
-						else
-    						m_PointDesNew->m_szpointnum = m_strsel +"A"+dddd;
-
-						for(iter = m_Records.begin(); iter != m_Records.end(); ++iter)
-						{
-								szFind = *iter;
-								szFind.TrimRight();
-							if(szFind == m_PointDesNew->m_szpointnum)
+            				try
 							{
-								fff = 100;
-									break;
-							}
-						}
-						if(m_bADD)
-						{
-							if(fff == 100)
-							{
-								AfxMessageBox("点号已存在，重新选择", MB_OK);
-								return;
-							}
-						}
-						UpdateData(TRUE);           //Exchange dialog data
-						m_wndComboSize2.GetWindowText(m_strsel);
-						int s = m_wndComboSize2.GetCurSel();
-						if(m_bSwitch)
-						{
-									  if(m_AccountSet.m_szptype == 0)
-										  dddd = "二态开关量";
-									  else if(m_AccountSet.m_szptype == 1)
-										  dddd = "分站";
-									  else if(m_AccountSet.m_szptype == 2)
-										  dddd = "控制开关量";
-									  else if(m_AccountSet.m_szptype == 3)
-										  dddd = "三态开关量";
-							m_PointDesNew->m_szutype = dddd;
-    						m_PointDesNew->m_szptype = 10+m_AccountSet.m_szptype;     //开关量
-    						m_PointDesNew->m_sztypeID = m_AccountSet.m_szDID;
-						}
-						else
-						{
-    						m_PointDesNew->m_szutype = m_strsel;
-							if(s == 0)
-        						m_PointDesNew->m_szptype = 0;     //模拟量
-							if(s == 1)
-        						m_PointDesNew->m_szptype = 1;     //模拟量
-    						m_PointDesNew->m_sztypeID = m_ContactSet.m_szAID;
-						}
-						if(m_ctrlCheckAlm.GetCheck())
-    						m_PointDesNew->m_szsubOpr = true;
-						else
-    						m_PointDesNew->m_szsubOpr = false;
-						m_PointDesNew->m_szfdel = false;
-						m_PointDesNew->m_szrecdate = CTime.GetCurrentTime();
-   						m_PointDesNew->m_szUseridadd = theApp.curuser;
-
-						if(m_bADD)
-							m_PointDesNew->AddNew();  //Add a new, blank record
-						m_PointDesNew->Update();    //Update the recordset
+	         				 m_ControlNew->m_szCID  = PointDesid;
+				             strP1=m_listDis.GetItemText(nItem,0);
+				             strP2=m_listDis.GetItemText(nItem,1);
+      			    		 m_ControlNew->m_szcpointnum = strP1;
+		    			     m_ControlNew->m_szcPID = m_Str2Data.String2Int(strP2);
+							 strPoint2.TrimRight();
+							 strP1.TrimRight();
+		    			     m_ControlNew->m_szpcpointnum = strPoint2 +strP1;
+							 m_ControlNew->m_szfdel = false;
+    						 m_ControlNew->m_szrecdate = CTime.GetCurrentTime();
+     						 m_ControlNew->m_szUseridadd = theApp.curuser;
+      						m_ControlNew->AddNew();  //Add a new, blank record
+					   	    m_ControlNew->Update();    //Update the recordset
 							//If this is a new record, requery the database table
 							//otherwise we may out-of-sync
-						if(m_bADD)
-							m_PointDesNew->Requery();
-					  }
-					  catch (CAxException *e)
-					  {
-						AfxMessageBox(e->m_szErrorDesc, MB_OK);
-						delete e;
-					  }
-            }
-		}
+						    m_ControlNew->Requery();
+							PointDesid++;
+							}
+		     			    catch (CAxException *e)
+							{
+					        	AfxMessageBox(e->m_szErrorDesc, MB_OK);
+				        		delete e;
+							}
+						}//if
+					}//for
+            }//if
+		}//for
 
 
-
-
+/*
 	for (int iItem = 10; iItem >= 0; iItem--)
 		m_listCtrl.DeleteColumn(iItem);
 		  InsP();
 		  ShowAMD();
 		  m_strtable = m_ADTypeTable[3].TableName;  
 		  BuildAccountList();
+*/
 
-
-
-
-
-
-
-
-
-
-
-//    		CString strPointNo=m_listCtrl.GetItemText(nItem,2);
-//	    	int nItemCount1=m_listDis.GetItemCount();
-//    		for(int j=0; j<nItemCount1; j++)
-			{
-//		    	if(strPointNo==m_listDis.GetItemText(j,0))
-				{
-//		    		bExist=TRUE;
-//		    		break;
-				}
-			}
-//	    	if(!bExist)
-//	    		m_listDis.InsertItem(nItemCount1, strPointNo, 0);
 
 	}
 	else
