@@ -30,7 +30,7 @@ public:
   CAxControl() { _SetDefaultValues(); }
   ~CAxControl() { }
 
-  CString     m_szName,m_szpointnum,m_szcpointnum,m_szUseridadd,m_szUseriddel;
+  CString     m_szName,m_szpointnum,m_szcpointnum,m_szpcpointnum,m_szUseridadd,m_szUseriddel;
   int  m_szCID,   m_szPID,m_szcPID;
   COleDateTime   m_szrecdate,m_szdeldate;
   bool m_szfdel,m_szByFds ;
@@ -38,7 +38,7 @@ public:
   //Set default values of class members
   void _SetDefaultValues()
   {
-    m_szName =m_szpointnum =m_szcpointnum= m_szUseridadd =m_szUseriddel = _T("");
+    m_szName =m_szpointnum =m_szcpointnum= m_szpcpointnum =m_szUseridadd =m_szUseriddel = _T("");
     m_szCID  =m_szPID =m_szcPID   = 0;
 	m_szfdel = m_szByFds =false;
   };
@@ -53,6 +53,7 @@ public:
     FX_VarChar           (bSave, _T("cpointnum"),           m_szcpointnum);
     FX_Integer              (bSave, _T("cPID"),       m_szcPID);
     FX_Bool              (bSave, _T("ByFds"),       m_szByFds);
+    FX_VarChar           (bSave, _T("pcpointnum"),           m_szpcpointnum);
     FX_Bool              (bSave, _T("fdel"),        m_szfdel);
     FX_DateTime           (bSave, _T("recdate"),       m_szrecdate);
     FX_DateTime              (bSave, _T("deldate"),    m_szdeldate);
