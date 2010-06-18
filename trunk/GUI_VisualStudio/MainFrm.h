@@ -150,6 +150,7 @@ protected:
 	afx_msg void OnSkinFramework(UINT nID);
 
 ///	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
+	afx_msg void OnControlT();
 	afx_msg void OnPBrowser();
 	afx_msg void OnLocation();
 	afx_msg void OnDigital();

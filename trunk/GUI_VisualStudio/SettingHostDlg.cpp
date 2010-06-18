@@ -117,6 +117,7 @@ BEGIN_MESSAGE_MAP(CSettingHostDlg, CXTResizeDialog)
 	ON_BN_CLICKED(IDC_BUTTONDIS4, OnButtonDeselectall)
 	ON_BN_CLICKED(IDC_BUTTONDIS5, OnButtonSave)
 //	ON_BN_CLICKED(IDC_BUTTONDIS6, OnButtonCANCEL)
+	ON_CBN_SELCHANGE(IDC_COMBO3, OnchangeComboF)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -226,20 +227,14 @@ BOOL CSettingHostDlg::OnInitDialog()
 
 	// Load window placement
 //	LoadPlacement(_T("CListCtrlDlg"));
-	// Give better margin to editors
-/*	m_listCtrl.SetCellMargin(1.2);
-	CGridRowTraitXP* pRowTrait = new CGridRowTraitXP;
-	m_listCtrl.SetDefaultRowTrait(pRowTrait);
-	// Create Columns
-	m_listCtrl.InsertHiddenLabelColumn();	// Requires one never uses column 0
-
-*/
 	// Get the windows handle to the header control for the
 	// list control then subclass the control.
 	HWND hWndHeader = m_listCtrl.GetDlgItem(0)->GetSafeHwnd();
-	if(m_strtable != "AddControl")
+	if(sqlid != 1)
+	{
     	m_header.SubclassWindow(hWndHeader);
-
+		sqlid = 1;
+	}
 	// add bitmap images.
 //	m_header.SetBitmap(0, IDB_COLUMN_0, FALSE, RGB(0,255,0));
 //	m_header.SetBitmap(1, IDB_COLUMN_1, FALSE, RGB(0,255,0));
@@ -275,38 +270,12 @@ BOOL CSettingHostDlg::OnInitDialog()
 	m_cpRowText.SetDefaultColor(m_listCtrl.GetListTextColor());
 */
 
-/*	for(int col = 0; col < m_DataModel.GetColCount() ; ++col)
-	{
-		const string& title = m_DataModel.GetColTitle(col);
-		CGridColumnTrait* pTrait = NULL;
-		if (col==0)	// City
-		{
-			pTrait = new CGridColumnTraitEdit;
-		}
-		if (col==1)	// State
-		{
-			CGridColumnTraitCombo* pComboTrait = new CGridColumnTraitCombo;
-			const vector<string>& states = m_DataModel.GetStates();
-			for(size_t i=0; i < states.size() ; ++i)
-				pComboTrait->AddItem((int)i, CString(states[i].c_str()));
-			pTrait = pComboTrait;
-		}
-		if (col==2)	// Country
-		{
-			CGridColumnTraitCombo* pComboTrait = new CGridColumnTraitCombo;
-			pComboTrait->SetStyle( pComboTrait->GetStyle() | CBS_DROPDOWNLIST);
-			const vector<string>& countries = m_DataModel.GetCountries();
-			for(size_t i=0; i < countries.size() ; ++i)
-				pComboTrait->AddItem((int)i, CString(countries[i].c_str()));
-			pTrait = pComboTrait;
-		}
-		m_listCtrl.InsertColumnTrait(col+1, CString(title.c_str()), LVCFMT_LEFT, 100, col, NULL);
-	}*/
 //	OnSelendokComboThemes();
 	m_listCtrl.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_SHOWSELALWAYS | LVS_EX_GRIDLINES);
 	m_listCtrl.EnableUserSortColor(BoolType(m_bSortColor));
 	m_listCtrl.EnableUserListColor(BoolType(m_bListColor));
 	m_listCtrl.EnableUserRowColor(BoolType(m_bRowColor));
+	m_listDis.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_SHOWSELALWAYS | LVS_EX_GRIDLINES);
 
 
 	if(m_ADTypeTable[0].TableName ==  m_strtable)
@@ -670,10 +639,8 @@ void CSettingHostDlg::BuildAccountList()
 	  else if(m_ADTypeTable[5].TableName ==  m_strtable)
 	  {
 		if ( m_Control._IsEmpty() )
-		{
-//		  m_listCtrl.InsertItem(0, _T("<< >>"));
 		  return;
-		}
+     	m_listCtrl.DeleteAllItems();
 		m_listCtrl.SetItemCount(m_Control.RecordCount());
         m_Records.clear();
 		int iItem = 0;
@@ -702,6 +669,8 @@ void CSettingHostDlg::BuildAccountList()
 		if ( m_PointDes._IsEmpty() )
 		  return;
 //		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
+     	m_listCtrl.DeleteAllItems();
+     	m_listDis.DeleteAllItems();
 		CString dddd,cccc;
 		int iItem = 0;
 		int iItem1 = 0;
@@ -1304,7 +1273,7 @@ void CSettingHostDlg::ShowDISPLAY()
 //    	GetDlgItem(IDC_BUTTONDIS6)->ShowWindow(SW_SHOW);;
         GetDlgItem(IDC_COMBO3)->ShowWindow(SW_SHOW);
         GetDlgItem(IDC_STATIC3)->ShowWindow(SW_SHOW);
-        GetDlgItem(IDC_CHECK_ISALM)->ShowWindow(SW_SHOW);
+//        GetDlgItem(IDC_CHECK_ISALM)->ShowWindow(SW_SHOW);
 }
 
 void CSettingHostDlg::ShowAMD()
@@ -1376,6 +1345,7 @@ void CSettingHostDlg::InsC()
 		m_listCtrl.InsertColumn(3,m_ADTypeTable[5].m_DTypeTFD.falm,LVCFMT_LEFT,200);
 		m_listCtrl.InsertColumn(4,m_ADTypeTable[5].m_DTypeTFD.recdate,LVCFMT_LEFT,200);
 		m_listCtrl.InsertColumn(5,m_ADTypeTable[5].m_DTypeTFD.Useridadd,LVCFMT_LEFT,200);
+		GetDlgItem(IDC_BUT_MOD)->ShowWindow(SW_HIDE);
 }
 
 void CSettingHostDlg::InsAddC()
@@ -1421,21 +1391,15 @@ void CSettingHostDlg::OnBtnDEL()
 {
   CString szMsg;
 	  if(m_ADTypeTable[1].TableName ==  m_strtable ) 
-	  {
          szMsg.Format(_T("Delete %s?"), m_AccountSet.m_szName);
-	  }
 	  else if(m_ADTypeTable[0].TableName ==  m_strtable )
-	  {
          szMsg.Format(_T("Delete %s?"), m_ContactSet.m_szName);
-	  }
 	  else if(m_ADTypeTable[2].TableName ==  m_strtable )
-	  {
          szMsg.Format(_T("Delete %s?"), m_MAlocation.m_szName);
-	  }
 	  else if(m_ADTypeTable[3].TableName ==  m_strtable )
-	  {
          szMsg.Format(_T("Delete %s?"), m_PointDes.m_szName);
-	  }
+	  else if(m_ADTypeTable[5].TableName ==  m_strtable )
+         szMsg.Format(_T("Delete %s?"), m_Control.m_szName);
 
   MessageBeep(MB_ICONEXCLAMATION);
   int Reply = AfxMessageBox(szMsg, MB_YESNO);
@@ -1483,6 +1447,14 @@ void CSettingHostDlg::OnBtnDEL()
         			m_PointDes.m_szfdel = true;
         			m_PointDes.m_szdeldate = CTime.GetCurrentTime();
 				   m_PointDes.Update();    //Update the recordset
+//				 m_PointDes.Delete();
+			  }
+			  else if(m_ADTypeTable[5].TableName ==  m_strtable )
+			  {
+                	m_Control.m_szUseriddel = theApp.curuser;
+        			m_Control.m_szfdel = true;
+        			m_Control.m_szdeldate = CTime.GetCurrentTime();
+				   m_Control.Update();    //Update the recordset
 //				 m_PointDes.Delete();
 			  }
 		//      m_Cn.Execute(szExecStr);
@@ -1612,6 +1584,7 @@ void CSettingHostDlg::OnButtonDeselect()
 {
 	if(m_strtable == "AddControl")
 	{
+//		UpdateData(TRUE);           //Exchange dialog data
     	vector<CString>::iterator  iter;
 		int fff = 0;
 //        BOOL bExist=TRUE;
@@ -1690,17 +1663,25 @@ void CSettingHostDlg::OnButtonDeselect()
 					m_ControlNew->m_szPID = m_Str2Data.String2Int(strPoint3);
 					for(int ndis=0;ndis<nItemdis;ndis++)
 					{
+//						UpdateData(TRUE);           //Exchange dialog data
      					if(m_listDis.GetItemState(ndis,LVIS_SELECTED) & LVIS_SELECTED)
 						{
             				try
 							{
 	         				 m_ControlNew->m_szCID  = PointDesid;
-				             strP1=m_listDis.GetItemText(nItem,0);
-				             strP2=m_listDis.GetItemText(nItem,1);
+				             strP1=m_listDis.GetItemText(ndis,0);
+				             strP2=m_listDis.GetItemText(ndis,1);
       			    		 m_ControlNew->m_szcpointnum = strP1;
 		    			     m_ControlNew->m_szcPID = m_Str2Data.String2Int(strP2);
 							 strPoint2.TrimRight();
 							 strP1.TrimRight();
+							 strP2 = strPoint2.Mid(0,2);
+							 strP3 = strP1.Mid(0,2);
+							 if(strP2 == strP3)
+		        			     m_ControlNew->m_szByFds = true;
+							 else
+		        			     m_ControlNew->m_szByFds = false;
+
 		    			     m_ControlNew->m_szpcpointnum = strPoint2 +strP1;
 							 m_ControlNew->m_szfdel = false;
     						 m_ControlNew->m_szrecdate = CTime.GetCurrentTime();
@@ -1722,16 +1703,17 @@ void CSettingHostDlg::OnButtonDeselect()
             }//if
 		}//for
 
-
-/*
-	for (int iItem = 10; iItem >= 0; iItem--)
-		m_listCtrl.DeleteColumn(iItem);
-		  InsP();
-		  ShowAMD();
-		  m_strtable = m_ADTypeTable[3].TableName;  
-		  BuildAccountList();
-*/
-
+    	for (int iItem = 2; iItem >= 0; iItem--)
+		{
+    		m_listCtrl.DeleteColumn(iItem);
+			m_listDis.DeleteColumn(iItem);
+		}
+   	    m_strtable = m_ADTypeTable[5].TableName;  
+		OnClose();
+        OnInitDialog();
+		ShowAMD();
+		GetDlgItem(IDC_BUT_ADD2)->ShowWindow(SW_HIDE);;
+		GetDlgItem(IDC_BUT_MOD)->ShowWindow(SW_HIDE);;
 
 	}
 	else
@@ -1770,7 +1752,22 @@ void CSettingHostDlg::OnButtonSelectall()
 
 void CSettingHostDlg::OnButtonDeselectall() 
 {
-	m_listDis.DeleteAllItems();
+	if(m_strtable == "AddControl")
+	{
+    	for (int iItem = 2; iItem >= 0; iItem--)
+		{
+    		m_listCtrl.DeleteColumn(iItem);
+			m_listDis.DeleteColumn(iItem);
+		}
+   	    m_strtable = m_ADTypeTable[5].TableName;  
+		OnClose();
+        OnInitDialog();
+		ShowAMD();
+		GetDlgItem(IDC_BUT_ADD2)->ShowWindow(SW_HIDE);;
+		GetDlgItem(IDC_BUT_MOD)->ShowWindow(SW_HIDE);;
+	}
+	else
+    	m_listDis.DeleteAllItems();
 }
 
 void CSettingHostDlg::OnButtonSave() 
@@ -1954,6 +1951,32 @@ void CSettingHostDlg::OnButtonSave()
   MessageBeep(MB_OK);
   EndDialog(IDOK);
 
+}
+
+void CSettingHostDlg::OnchangeComboF() 
+{
+		if ( m_PointDes._IsEmpty() )
+		  return;
+     	m_listCtrl.DeleteAllItems();
+		CString dddd,cccc;
+		int iItem = 0;
+		int iItem1 = 0;
+		int nfds = m_wndComboSize3.GetCurSel();
+		m_PointDes.MoveFirst();
+		while ( !m_PointDes.IsEOF() )
+		{
+    		dddd = m_PointDes.m_szpointnum;
+			cccc.Format("%d", m_PointDes.m_szPID);
+			if(m_PointDes.m_szfds == nfds+1  && dddd.Find("C") == -1)
+			{
+         		m_listCtrl.InsertItem(iItem, m_PointDes.m_szName);
+        		m_listCtrl.SetItemText(iItem, 1, m_PointDes.m_szpointnum);
+        		m_listCtrl.SetItemText(iItem, 2, cccc);
+    			iItem++;
+			}
+			m_PointDes.MoveNext();
+		}
+        m_PointDes.MoveFirst();
 }
 
 //void CSettingHostDlg::OnButtonCANCEL() 
