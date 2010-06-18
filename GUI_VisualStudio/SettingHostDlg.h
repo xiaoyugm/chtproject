@@ -36,8 +36,8 @@ public:
 //	CString	m_strHostIP;
 //	CString	m_strPort;
 //	CString	m_strTimeOut;
-	CGridListCtrlGroups         m_listCtrl;
-	CGridListCtrlGroups         m_listDis;
+	CXTListCtrl         m_listCtrl;
+	CXTListCtrl         m_listDis;
 	BOOL                m_bSortColor;
 	BOOL    m_bListColor;
 	BOOL    m_bRowColor;
@@ -119,6 +119,7 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CSettingHostDlg)
+	afx_msg void OnchangeComboF();
 	afx_msg void OnButtonSelect();
 	afx_msg void OnButtonDeselect();
 	afx_msg void OnButtonSelectall();
