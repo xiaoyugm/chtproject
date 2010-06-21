@@ -1197,6 +1197,10 @@ SOURCE=.\dbAx\AxRecordset.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dbAx\AxSControl.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dbAx\CardFileEvents.hpp
 # End Source File
 # Begin Source File

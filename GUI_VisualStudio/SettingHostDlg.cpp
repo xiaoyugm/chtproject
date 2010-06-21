@@ -73,6 +73,7 @@ CSettingHostDlg::CSettingHostDlg(CWnd* pParent /*=NULL*/)
 	m_PointDesNew = &m_PointDes;
 	m_DisPointNew = &m_DisPoint;
 	m_ControlNew = &m_Control;
+	m_SControlNew = &m_SControl;
 	m_bADD = false;
 	m_bSwitch = false;
 
@@ -298,7 +299,11 @@ BOOL CSettingHostDlg::OnInitDialog()
          InsC();
 	if(m_strtable == "AddControl")
          InsAddC();
-
+	if(m_ADTypeTable[6].TableName ==  m_strtable)
+	{
+     	 m_listCtrl.ModifyExtendedStyle(0, LVS_EX_CHECKBOXES);
+         InsS();
+	}
     BuildAccountList();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control 
@@ -696,8 +701,27 @@ void CSettingHostDlg::BuildAccountList()
 			m_PointDes.MoveNext();
 		}
         m_PointDes.MoveFirst();
-
-
+	  }
+	  else if(m_ADTypeTable[6].TableName ==  m_strtable)
+	  {
+		if ( m_SControl._IsEmpty() )
+		  return;
+//     	m_listCtrl.DeleteAllItems();
+		m_listCtrl.SetItemCount(m_SControl.RecordCount());
+		int iItem = 0;
+		m_SControl.MoveFirst();
+		while ( !m_SControl.IsEOF() )
+		{
+				  CString dddd;
+				  dddd.Format("%d",m_SControl.m_szSID);
+    		m_listCtrl.InsertItem(iItem, dddd);
+			if(m_SControl.m_szSpeCtrol)
+         		m_listCtrl.SetCheck(iItem, true);
+//    		m_listCtrl.SetItemText(iItem, 1, m_Control.m_szpointnum);  
+			iItem++;
+			m_SControl.MoveNext();
+		}
+        m_SControl.MoveFirst();
 	  }
 
 
@@ -908,6 +932,13 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_Control._SetRecordsetEvents(new CAccountSetEvents);
 		m_Control.Open(_T("Select * From control WHERE fdel=0"), &m_Cn);
 		m_Control.MarshalOptions(adMarshalModifiedOnly);
+
+		m_SControl.Create();
+		m_SControl.CursorType(adOpenDynamic);
+		m_SControl.CacheSize(50);
+		m_SControl._SetRecordsetEvents(new CAccountSetEvents);
+		m_SControl.Open(_T("Select * From specialcontrol"), &m_Cn);
+		m_SControl.MarshalOptions(adMarshalModifiedOnly);
   }
   catch ( dbAx::CAxException *e )
   {
@@ -953,25 +984,17 @@ void CSettingHostDlg::OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult)
   if ( pNMLV->uNewState == 3 )
   {
 	  if(m_ADTypeTable[1].TableName ==  m_strtable && !m_AccountSet._IsEmpty() ) 
-	  {
            m_AccountSet.AbsolutePosition(pNMLV->iItem + 1);
-	  }
 	  else if(m_ADTypeTable[0].TableName ==  m_strtable && !m_ContactSet._IsEmpty() )
-	  {
            m_ContactSet.AbsolutePosition(pNMLV->iItem + 1);
-	  }
 	  else if(m_ADTypeTable[2].TableName ==  m_strtable && !m_MAlocation._IsEmpty() )
-	  {
            m_MAlocation.AbsolutePosition(pNMLV->iItem + 1);
-	  }
 	  else if(m_ADTypeTable[3].TableName ==  m_strtable && !m_PointDes._IsEmpty() )
-	  {
            m_PointDes.AbsolutePosition(pNMLV->iItem + 1);
-	  }
 	  else if(m_ADTypeTable[5].TableName ==  m_strtable && !m_Control._IsEmpty() )
-	  {
            m_Control.AbsolutePosition(pNMLV->iItem + 1);
-	  }
+	  else if(m_ADTypeTable[6].TableName ==  m_strtable && !m_SControl._IsEmpty() )
+           m_SControl.AbsolutePosition(pNMLV->iItem + 1);
   }
 }
 
@@ -994,6 +1017,8 @@ void CSettingHostDlg::OnClose()
       m_DisPoint.Close();
     if ( m_Control._IsOpen() )
       m_Control.Close();
+    if ( m_SControl._IsOpen() )
+      m_SControl.Close();
 
     m_Cn.Close();
 
@@ -1049,6 +1074,51 @@ void CSettingHostDlg::OnBtnADD()
 		m_strtable = "AddControl";
 		OnClose();
         OnInitDialog();
+	}
+	else if(m_ADTypeTable[6].TableName ==  m_strtable )
+	{
+      CString str;
+      for(int i=0; i<m_listCtrl.GetItemCount(); i++)
+      {
+           if( m_listCtrl.GetItemState(i, LVIS_SELECTED) == LVIS_SELECTED || m_listCtrl.GetCheck(i))
+           {
+//            	UpdateData(TRUE);           //Exchange dialog data
+            try
+			{
+        if ( m_SControl._IsOpen() )
+               m_SControl.Close();
+		m_SControl.Create();
+		m_SControl.CursorType(adOpenDynamic);
+		m_SControl.CacheSize(50);
+		m_SControl._SetRecordsetEvents(new CAccountSetEvents);
+		CString strPointNo; 
+		strPointNo.Format(_T("SELECT * From specialcontrol WHERE SID = %d"),i+1);
+		m_SControl.Open(strPointNo, &m_Cn);
+		m_SControl.MarshalOptions(adMarshalModifiedOnly);
+				
+				if(m_listCtrl.GetCheck(i))
+			   {
+              	m_SControl.m_szSID = i+1;
+            	m_SControl.m_szSpeCtrol = true;
+            	m_SControl.Update();    //Update the recordset
+
+//                str.Format(_T("第%d行的checkbox为选中状态"), i);
+//                AfxMessageBox(str);
+			   }
+			   else
+			   {
+              	m_SControl.m_szSID = i+1;
+            	m_SControl.m_szSpeCtrol = false;
+            	m_SControl.Update();    //Update the recordset
+			   }
+			}
+		    catch (CAxException *e)
+			{
+				AfxMessageBox(e->m_szErrorDesc, MB_OK);
+				delete e;
+			}
+           }
+      }
 	}
 	else
 	{
@@ -1365,6 +1435,18 @@ void CSettingHostDlg::InsAddC()
 		m_listDis.InsertColumn(1,_T("CID"),LVCFMT_LEFT,100);
 }
 
+void CSettingHostDlg::InsS()
+{
+	    HideDISPLAY();
+		HideControls();
+    	GetDlgItem(IDC_BUT_ADD)->SetWindowText(_T("保存"));;
+    	GetDlgItem(IDC_BUT_MOD)->SetWindowText(_T("发送"));;
+		SetWindowText(_T(m_ADTypeTable[6].NameD));
+//    	MoveWindow(CRect(50,100,960,700));
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[6].m_DTypeTFD.Name,LVCFMT_LEFT,200);
+		GetDlgItem(IDC_BUT_DEL)->ShowWindow(SW_HIDE);
+}
+
 void CSettingHostDlg::InsDIS()
 {
 //	LPCTSTR str1 = "",str2 = "",str3 = "";
@@ -1545,6 +1627,14 @@ void CSettingHostDlg::OnBtnMOD()
            GetDlgItem(IDC_COMBO2)->ShowWindow(SW_SHOW);
 		}
 		FalseFC();
+	}
+	else if(m_ADTypeTable[6].TableName ==  m_strtable )
+	{
+
+
+
+        MessageBeep(MB_OK);
+        EndDialog(IDOK);
 	}
 	else
 	{
