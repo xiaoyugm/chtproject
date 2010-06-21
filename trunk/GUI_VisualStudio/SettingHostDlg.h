@@ -9,6 +9,7 @@
 
 //#include "CListCtrl_DataModel.h"
 //Derived AxLib classes
+#include "dbAx\AxSControl.hpp"
 #include "dbAx\AxControl.hpp"
 #include "dbAx\AxDisPoint.hpp"
 #include "dbAx\AxPointDescription.hpp"
@@ -83,6 +84,8 @@ public:
   CAxContactCmd   m_ContactCmd;
   CAxControl      m_Control;
   CAxControl      *m_ControlNew;
+  CAxSControl     m_SControl;
+  CAxSControl     *m_SControlNew;
 
   //Connect to the data provider via dbAx
   BOOL         ConnectToProvider();
@@ -100,6 +103,7 @@ public:
   void   InsD();
   void   InsP();
   void   InsC();
+  void   InsS();
   void   InsAddC();
   void   InsDIS();
   void   pushDIS(CString  str1,CString  str2,CString  str3);

@@ -384,6 +384,17 @@ bool CControlXml::ParsePS(CMarkup& xml)
         m_ADTypeTable[5].m_DTypeTFD.Useridadd = str3;
         return true;
 	}
+    else if (xml.FindElem(_T("Specialcontrol")) )
+	{
+        // Extract the group name.
+        CString strnumForm = xml.GetAttrib(_T("TABLE"));
+    	m_ADTypeTable[6].TableName = strnumForm;
+        CString groupName = xml.GetAttrib(_T("Name"));
+    	m_ADTypeTable[6].NameD = groupName;
+        strnumForm = xml.GetAttrib(_T("ColumnHeading0"));
+        m_ADTypeTable[6].m_DTypeTFD.Name = strnumForm;
+        return true;
+	}
     
 
 	return false;
