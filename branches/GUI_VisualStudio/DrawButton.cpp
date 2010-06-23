@@ -117,7 +117,7 @@ void CDrawButton::Draw(CDC* pDC)
 			FontFamily  fontFamily(bstr);
 	       	SysFreeString(bstr);
 
-			Font font(&fontFamily, m_fontSize, m_fontStyle, UnitPoint);
+			Gdiplus::Font font(&fontFamily, m_fontSize, m_fontStyle, UnitPoint);
 			
 			SolidBrush  solidBrush(m_fontColor);
 			

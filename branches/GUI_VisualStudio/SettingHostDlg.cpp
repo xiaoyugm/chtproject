@@ -1080,44 +1080,48 @@ void CSettingHostDlg::OnBtnADD()
       CString str;
       for(int i=0; i<m_listCtrl.GetItemCount(); i++)
       {
-           if( m_listCtrl.GetItemState(i, LVIS_SELECTED) == LVIS_SELECTED || m_listCtrl.GetCheck(i))
-           {
-//            	UpdateData(TRUE);           //Exchange dialog data
-            try
-			{
-        if ( m_SControl._IsOpen() )
-               m_SControl.Close();
-		m_SControl.Create();
-		m_SControl.CursorType(adOpenDynamic);
-		m_SControl.CacheSize(50);
-		m_SControl._SetRecordsetEvents(new CAccountSetEvents);
-		CString strPointNo; 
-		strPointNo.Format(_T("SELECT * From specialcontrol WHERE SID = %d"),i+1);
-		m_SControl.Open(strPointNo, &m_Cn);
-		m_SControl.MarshalOptions(adMarshalModifiedOnly);
-				
-				if(m_listCtrl.GetCheck(i))
+		try
+		{
+					if ( m_SControl._IsOpen() )
+						   m_SControl.Close();
+					m_SControl.Create();
+					m_SControl.CursorType(adOpenDynamic);
+					m_SControl.CacheSize(50);
+					m_SControl._SetRecordsetEvents(new CAccountSetEvents);
+					CString strPointNo; 
+					strPointNo.Format(_T("SELECT * From specialcontrol WHERE SID = %d"),i+1);
+					m_SControl.Open(strPointNo, &m_Cn);
+					m_SControl.MarshalOptions(adMarshalModifiedOnly);
+			   if( m_listCtrl.GetItemState(i, LVIS_SELECTED) == LVIS_SELECTED || m_listCtrl.GetCheck(i))
 			   {
-              	m_SControl.m_szSID = i+1;
-            	m_SControl.m_szSpeCtrol = true;
-            	m_SControl.Update();    //Update the recordset
-
-//                str.Format(_T("第%d行的checkbox为选中状态"), i);
-//                AfxMessageBox(str);
+//            	UpdateData(TRUE);           //Exchange dialog data
+					if(m_listCtrl.GetCheck(i))
+			    	{
+              		m_SControl.m_szSID = i+1;
+            		m_SControl.m_szSpeCtrol = true;
+            		m_SControl.Update();    //Update the recordset
+	//                str.Format(_T("第%d行的checkbox为选中状态"), i);
+	//                AfxMessageBox(str);
+				    }
+				    else
+				    {
+              		m_SControl.m_szSID = i+1;
+            		m_SControl.m_szSpeCtrol = false;
+            		m_SControl.Update();    //Update the recordset
+				    }
 			   }
 			   else
 			   {
-              	m_SControl.m_szSID = i+1;
-            	m_SControl.m_szSpeCtrol = false;
-            	m_SControl.Update();    //Update the recordset
+              		m_SControl.m_szSID = i+1;
+            		m_SControl.m_szSpeCtrol = false;
+            		m_SControl.Update();    //Update the recordset
 			   }
-			}
-		    catch (CAxException *e)
-			{
-				AfxMessageBox(e->m_szErrorDesc, MB_OK);
-				delete e;
-			}
-           }
+	   	}
+		catch (CAxException *e)
+		{
+			AfxMessageBox(e->m_szErrorDesc, MB_OK);
+			delete e;
+		}
       }
 	}
 	else
@@ -1736,7 +1740,7 @@ void CSettingHostDlg::OnButtonDeselect()
 			return;
 		}
 
-        for( nItem=0;nItem<nItemlist;nItem++)
+        for(int nItem=0;nItem<nItemlist;nItem++)
 		{
      		if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
 			{

@@ -3,7 +3,7 @@
 	<NormalLayout>
 		<CommandBars Schema="36">
 			<Layout>
-				<DockState Version="36" ScreenSize="1024, 768" Count="1">
+				<DockState Version="36" ScreenSize="1440, 900" Count="1">
 					<BarInfo0 BarId="1" MRUWidth="32767"/>
 				</DockState>
 				<DockBars>
@@ -35,10 +35,10 @@
 			<Pane-1 Type="0" DockingCX="100" DockingCY="170" Title="报警显示\n报警显示\n" ID="201" DockingHolder="7" LastHolder="7"/>
 			<Pane-2 Type="0" DockingCX="230" DockingCY="135" Title="馈电异常\n馈电异常\n" ID="204" DockingHolder="7" LastHolder="7"/>
 			<Pane-3 Type="0" DockingCX="230" DockingCY="135" Title="断电控制\n断电控制\n" ID="200" DockingHolder="7" LastHolder="7"/>
-			<Pane-4 Type="2" DockingCY="666" Panes="2" Pane-1="5" Pane-2="7"/>
-			<Pane-5 Type="2" DockingCY="526" Horiz="1" Panes="1" Pane-1="6"/>
+			<Pane-4 Type="2" Panes="2" Pane-1="5" Pane-2="7"/>
+			<Pane-5 Type="2" DockingCY="628" Horiz="1" Panes="1" Pane-1="6"/>
 			<Pane-6 Type="4"/>
-			<Pane-7 Type="1" DockingCX="100" DockingCY="136" Panes="3" Selected="1" Pane-1="1" Pane-2="2" Pane-3="3"/>
+			<Pane-7 Type="1" DockingCX="100" DockingCY="170" Panes="3" Selected="1" Pane-1="1" Pane-2="2" Pane-3="3"/>
 		</DockingPane>
 	</NormalLayout>
 </Settings>

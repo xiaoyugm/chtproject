@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GUI_VisualStudio", "GUI_VisualStudio_vc60.vcproj", "{ACCD91FF-8880-4BF3-A956-F412A131F5D2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+		Unicode Debug|Win32 = Unicode Debug|Win32
+		Unicode Release|Win32 = Unicode Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ACCD91FF-8880-4BF3-A956-F412A131F5D2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ACCD91FF-8880-4BF3-A956-F412A131F5D2}.Debug|Win32.Build.0 = Debug|Win32
+		{ACCD91FF-8880-4BF3-A956-F412A131F5D2}.Release|Win32.ActiveCfg = Release|Win32
+		{ACCD91FF-8880-4BF3-A956-F412A131F5D2}.Release|Win32.Build.0 = Release|Win32
+		{ACCD91FF-8880-4BF3-A956-F412A131F5D2}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{ACCD91FF-8880-4BF3-A956-F412A131F5D2}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{ACCD91FF-8880-4BF3-A956-F412A131F5D2}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{ACCD91FF-8880-4BF3-A956-F412A131F5D2}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

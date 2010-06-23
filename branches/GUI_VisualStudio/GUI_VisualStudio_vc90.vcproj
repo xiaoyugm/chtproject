@@ -3,7 +3,10 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="GUI_VisualStudio"
+	ProjectGUID="{35838681-7394-8958-2194-287648246656}"
+	RootNamespace="GUI_VisualStudio"
 	Keyword="MFCProj"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform
@@ -109,304 +112,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Unicode Debug|Win32"
-			OutputDirectory=".\Unicode_Debug/vc90"
-			IntermediateDirectory=".\Unicode_Debug/vc90"
-			ConfigurationType="1"
-			UseOfMFC="2"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\Unicode_Debug/vc90/GUI_VisualStudio.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/Zm200 "
-				Optimization="0"
-				AdditionalIncludeDirectories="../../../Source,../../AboutDlg"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				TreatWChar_tAsBuiltInType="true"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Unicode_Debug/vc90/GUI_VisualStudio.pch"
-				AssemblerListingLocation=".\Unicode_Debug/vc90/"
-				ObjectFile=".\Unicode_Debug/vc90/"
-				ProgramDataBaseFileName=".\Unicode_Debug/vc90/"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="../../../Source;../../AboutDlg"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="../../../bin/vc90/GUI_VisualStudioUD.exe"
-				LinkIncremental="2"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="../../../lib/vc90"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Unicode_Debug/vc90/GUI_VisualStudioUD.pdb"
-				SubSystem="2"
-				EntryPointSymbol="wWinMainCRTStartup"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory=".\Release/vc90"
-			IntermediateDirectory=".\Release/vc90"
-			ConfigurationType="1"
-			UseOfMFC="2"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\Release/vc90/GUI_VisualStudio.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/Zm200 "
-				Optimization="2"
-				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../../Source,../../AboutDlg"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
-				StringPooling="true"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				TreatWChar_tAsBuiltInType="true"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Release/vc90/GUI_VisualStudio.pch"
-				AssemblerListingLocation=".\Release/vc90/"
-				ObjectFile=".\Release/vc90/"
-				ProgramDataBaseFileName=".\Release/vc90/"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="../../../Source;../../AboutDlg"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="../../../bin/vc90/GUI_VisualStudio.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="../../../lib/vc90"
-				ProgramDatabaseFile=".\Release/vc90/GUI_VisualStudio.pdb"
-				SubSystem="2"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory=".\Debug/vc90"
-			IntermediateDirectory=".\Debug/vc90"
-			ConfigurationType="1"
-			UseOfMFC="2"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\Debug/vc90/GUI_VisualStudio.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/Zm200 "
-				Optimization="0"
-				AdditionalIncludeDirectories="../../../Source,../../AboutDlg"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				TreatWChar_tAsBuiltInType="true"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Debug/vc90/GUI_VisualStudio.pch"
-				AssemblerListingLocation=".\Debug/vc90/"
-				ObjectFile=".\Debug/vc90/"
-				ProgramDataBaseFileName=".\Debug/vc90/"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="../../../Source;../../AboutDlg"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="../../../bin/vc90/GUI_VisualStudioD.exe"
-				LinkIncremental="2"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="../../../lib/vc90"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/vc90/GUI_VisualStudioD.pdb"
-				SubSystem="2"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -504,7 +209,100 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Unicode Debug|Win32"
+			OutputDirectory=".\Unicode_Debug/vc90"
+			IntermediateDirectory=".\Unicode_Debug/vc90"
+			ConfigurationType="1"
+			UseOfMFC="2"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Unicode_Debug/vc90/GUI_VisualStudio.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/Zm200 "
+				Optimization="0"
+				AdditionalIncludeDirectories="../../../Source,../../AboutDlg"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				TreatWChar_tAsBuiltInType="true"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="stdafx.h"
+				PrecompiledHeaderFile=".\Unicode_Debug/vc90/GUI_VisualStudio.pch"
+				AssemblerListingLocation=".\Unicode_Debug/vc90/"
+				ObjectFile=".\Unicode_Debug/vc90/"
+				ProgramDataBaseFileName=".\Unicode_Debug/vc90/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="4"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="../../../Source;../../AboutDlg"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="../../../bin/vc90/GUI_VisualStudioUD.exe"
+				LinkIncremental="2"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="../../../lib/vc90"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile=".\Unicode_Debug/vc90/GUI_VisualStudioUD.pdb"
+				SubSystem="2"
+				EntryPointSymbol="wWinMainCRTStartup"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -604,7 +402,99 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory=".\Release/vc90"
+			IntermediateDirectory=".\Release/vc90"
+			ConfigurationType="1"
+			UseOfMFC="2"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Release/vc90/GUI_VisualStudio.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/Zm200 "
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="../../../Source,../../AboutDlg"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				StringPooling="true"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				TreatWChar_tAsBuiltInType="true"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="stdafx.h"
+				PrecompiledHeaderFile=".\Release/vc90/GUI_VisualStudio.pch"
+				AssemblerListingLocation=".\Release/vc90/"
+				ObjectFile=".\Release/vc90/"
+				ProgramDataBaseFileName=".\Release/vc90/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="../../../Source;../../AboutDlg"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="../../../bin/vc90/GUI_VisualStudio.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="../../../lib/vc90"
+				ProgramDatabaseFile=".\Release/vc90/GUI_VisualStudio.pdb"
+				SubSystem="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -703,7 +593,99 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory=".\Debug/vc90"
+			IntermediateDirectory=".\Debug/vc90"
+			ConfigurationType="1"
+			UseOfMFC="2"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Debug/vc90/GUI_VisualStudio.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/Zm200 "
+				Optimization="0"
+				AdditionalIncludeDirectories="AboutDlg"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				TreatWChar_tAsBuiltInType="true"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="stdafx.h"
+				PrecompiledHeaderFile=".\Debug/vc90/GUI_VisualStudio.pch"
+				AssemblerListingLocation=".\Debug/vc90/"
+				ObjectFile=".\Debug/vc90/"
+				ProgramDataBaseFileName=".\Debug/vc90/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="4"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="AboutDlg"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="bin/vc90/RSDRAW-YRunD.exe"
+				LinkIncremental="2"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories=""
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile=".\Debug/vc90/GUI_VisualStudioD.pdb"
+				SubSystem="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -802,9 +784,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -876,31 +855,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Unicode Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Unicode Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Unicode Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -916,7 +879,23 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1099,34 +1078,16 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Unicode Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig&quot;&#x0D;&#x0A;"
-						Outputs="$(TargetDir)EditConfig\SyntaxEdit.ini"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig&quot;&#x0D;&#x0A;"
-						Outputs="$(TargetDir)EditConfig\SyntaxEdit.ini"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig&quot;&#x0D;&#x0A;"
-						Outputs="$(TargetDir)EditConfig\SyntaxEdit.ini"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Unicode Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig&quot;&#x0D;&#x0A;"
+						Outputs="$(TargetDir)EditConfig\SyntaxEdit.ini"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Unicode Debug|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1144,7 +1105,25 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig&quot;&#x0D;&#x0A;"
+						Outputs="$(TargetDir)EditConfig\SyntaxEdit.ini"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig&quot;&#x0D;&#x0A;"
+						Outputs="$(TargetDir)EditConfig\SyntaxEdit.ini"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1178,34 +1157,16 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Unicode Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_cpp.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_cpp.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_cpp.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Unicode Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_cpp.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Unicode Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1223,7 +1184,25 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_cpp.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
 						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_cpp.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1254,34 +1233,16 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Unicode Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_HTML_ASP.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_HTML_ASP.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_HTML_ASP.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Unicode Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_HTML_ASP.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Unicode Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1299,7 +1260,25 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_HTML_ASP.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
 						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_HTML_ASP.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1330,34 +1309,16 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Unicode Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_ini.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_ini.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_ini.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Unicode Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_ini.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Unicode Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1375,7 +1336,25 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_ini.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
 						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_ini.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1406,34 +1385,16 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Unicode Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_nsi.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_nsi.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_nsi.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Unicode Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_nsi.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Unicode Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1451,7 +1412,25 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_nsi.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
 						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_nsi.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1482,34 +1461,16 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Unicode Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_pascal.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_pascal.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_pascal.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Unicode Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_pascal.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Unicode Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1527,7 +1488,25 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_pascal.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
 						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_pascal.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1558,6 +1537,15 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
+						Name="Unicode Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_Ûchclass.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
 						Name="Unicode Debug|Win32"
 						>
 						<Tool
@@ -1576,34 +1564,16 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_schclass.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Unicode Release|x64"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_Ûchclass.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Unicode Debug|x64"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quotª$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_schclass.schclass"
-						/>ç
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_schclass.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1634,34 +1604,16 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Unicode Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-		â				CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_sql.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_sql.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Schemas\_sql.schclass"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Unicode Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_sql.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Unicode Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1679,7 +1631,25 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_sql.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
 						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Schemas&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Schemas\_sql.schclass"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1714,34 +1684,16 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Unicode Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Themes&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Themes\colorSchema0.ini"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Themes&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Themes\colorSchema0.ini"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Themes&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Themes\colorSchema0.ini"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Unicode Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Themes&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Themes\colorSchema0.ini"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Unicode Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1759,7 +1711,25 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Themes&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Themes\colorSchema0.ini"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
 						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Themes&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Themes\colorSchema0.ini"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1790,34 +1760,16 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Unicode Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Themes&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Themes\colorSchema1.ini"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Themes&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Themes\colorSchema1.ini"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Themes&quot;&#x0D;&#x0A;"
-							Outputs="$(TargetDir)EditConfig\Themes\colorSchema1.ini"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Unicode Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Themes&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Themes\colorSchema1.ini"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Unicode Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1835,7 +1787,25 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Themes&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Themes\colorSchema1.ini"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
 						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)EditConfig\Themes&quot;&#x0D;&#x0A;"
+							Outputs="$(TargetDir)EditConfig\Themes\colorSchema1.ini"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1856,4 +1826,6 @@
 			</Filter>
 		</Filter>
 	</Files>
+	<Globals>
+	</Globals>
 </VisualStudioProject>

@@ -98,7 +98,7 @@ void CDrawWarn::Draw(CDC* pDC)
 ///	BSTR bstr = _com_util::ConvertStringToBSTR(m_fontName);
 	FontFamily  fontFamily(bstr);
    	SysFreeString(bstr);
-	Font font(&fontFamily, m_fontSize, m_fontStyle, UnitPoint);
+	Gdiplus::Font font(&fontFamily, m_fontSize, m_fontStyle, UnitPoint);
 
 	for(int j =1; j<= m_nColCount; j++)
 	{

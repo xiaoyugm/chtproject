@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -26,46 +26,46 @@ LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 // Menu
 //
 
-IDR_DRAWTYPE MENU DISCARDABLE 
+IDR_DRAWTYPE MENU 
 BEGIN
     POPUP "文件(&F)"
     BEGIN
-        MENUITEM "打开(&O)...\tCtrl+O",         ID_FILE_OPEN
-        MENUITEM "关闭(&C)",                    ID_FILE_CLOSE
+        MENUITEM "打开(&O)...\tCtrl+O",           ID_FILE_OPEN
+        MENUITEM "关闭(&C)",                      ID_FILE_CLOSE
         MENUITEM SEPARATOR
-        MENUITEM "最近文件",                    ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM "最近文件",                        ID_FILE_MRU_FILE1, GRAYED
         MENUITEM SEPARATOR
-        MENUITEM "退出(&X)",                    ID_APP_EXIT
+        MENUITEM "退出(&X)",                      ID_APP_EXIT
     END
     POPUP "定义"
     BEGIN
-        MENUITEM "模拟量类型",                  ID_A_D
-        MENUITEM "开关量类型",                  ID_D_D
-        MENUITEM "安装地点",                    ID_LOCALTION
-        MENUITEM "测点浏览",                    ID_BROWSERMOD
-        MENUITEM "报警音乐",                    ID_MANIPULATE
+        MENUITEM "模拟量类型",                       ID_A_D
+        MENUITEM "开关量类型",                       ID_D_D
+        MENUITEM "安装地点",                        ID_LOCALTION
+        MENUITEM "测点浏览",                        ID_BROWSERMOD
+        MENUITEM "报警音乐",                        ID_MANIPULATE
     END
     POPUP "页面编辑"
     BEGIN
         MENUITEM "FLAT_TAB_PROP",               ID_FLAT_TAB_PROP
-        MENUITEM "FormView风格",                IDC_COMBO_THEMES
+        MENUITEM "FormView风格",                  IDC_COMBO_THEMES
     END
     POPUP "模拟图显示"
     BEGIN
-        MENUITEM "打开",                        ID_OnSimulation
+        MENUITEM "打开",                          ID_OnSimulation
     END
     POPUP "实时显示"
     BEGIN
-        MENUITEM "分类显示",                    ID_OnGenus
+        MENUITEM "分类显示",                        ID_OnGenus
     END
     POPUP "帮助(&H)"
     BEGIN
-        MENUITEM "帮助主题(&H)",                ID_HELP_FINDER
+        MENUITEM "帮助主题(&H)",                    ID_HELP_FINDER
         MENUITEM SEPARATOR
-        MENUITEM "关于 Draw(&A)...",            ID_APP_ABOUT
+        MENUITEM "关于 Draw(&A)...",              ID_APP_ABOUT
         MENUITEM "ontime",                      ID_demo
-        MENUITEM "新建(&N)\tCtrl+N",            ID_FILE_NEW
-        MENUITEM "保存(&S)\tCtrl+S",            ID_FILE_SAVE
+        MENUITEM "新建(&N)\tCtrl+N",              ID_FILE_NEW
+        MENUITEM "保存(&S)\tCtrl+S",              ID_FILE_SAVE
     END
     POPUP "&File"
     BEGIN
@@ -112,9 +112,7 @@ BEGIN
         BEGIN
             MENUITEM "Find",                        ID_FINDANDREPLACE_FIND
             MENUITEM "Replace",                     ID_FINDANDREPLACE_REPLACE
-
             MENUITEM "Find in Files",               ID_FINDANDREPLACE_FINDINFILES
-
         END
     END
     POPUP "&View"
@@ -196,14 +194,12 @@ BEGIN
         MENUITEM "&Index...",                   ID_HELP_INDEX175
         MENUITEM "&Search...",                  ID_HELP_SEARCH
         MENUITEM SEPARATOR
-        MENUITEM "&About Microsoft(r) VisualStudio IDE Sample...", 
-                                                ID_APP_ABOUT
+        MENUITEM "&About Microsoft(r) VisualStudio IDE Sample...", ID_APP_ABOUT
     END
     POPUP "Status &Bar"
     BEGIN
         MENUITEM "Show &Buttons",               ID_STATUSBAR_SHOWBUTTONS
         MENUITEM "Show &AVI Animation",         ID_STATUSBAR_SHOWAVIANIMATION
-
         MENUITEM "Show &Progress Bar",          ID_STATUSBAR_SHOWPROGRESSBAR
         MENUITEM "Show &Edit Control",          ID_STATUSBAR_SHOWEDITCONTROL
         MENUITEM "Show &Company Logo",          ID_STATUSBAR_SHOWCOMPANYLOGO
@@ -213,39 +209,39 @@ BEGIN
     END
 END
 
-IDR_DRAWTYPE_CNTR_IP MENU DISCARDABLE 
+IDR_DRAWTYPE_CNTR_IP MENU 
 BEGIN
     POPUP "文件(&F)"
     BEGIN
-        MENUITEM "新建(&N)\tCtrl+N",            ID_FILE_NEW
-        MENUITEM "打开(&O)...\tCtrl+O",         ID_FILE_OPEN
-        MENUITEM "关闭(&C)",                    ID_FILE_CLOSE
-        MENUITEM "保存(&S)\tCtrl+S",            ID_FILE_SAVE
-        MENUITEM "另存为(&A)...",               ID_FILE_SAVE_AS
+        MENUITEM "新建(&N)\tCtrl+N",              ID_FILE_NEW
+        MENUITEM "打开(&O)...\tCtrl+O",           ID_FILE_OPEN
+        MENUITEM "关闭(&C)",                      ID_FILE_CLOSE
+        MENUITEM "保存(&S)\tCtrl+S",              ID_FILE_SAVE
+        MENUITEM "另存为(&A)...",                  ID_FILE_SAVE_AS
         MENUITEM SEPARATOR
-        MENUITEM "打印(&P)...\tCtrl+P",         ID_FILE_PRINT
-        MENUITEM "打印预览(&V)",                ID_FILE_PRINT_PREVIEW
-        MENUITEM "打印设置(&R)...",             ID_FILE_PRINT_SETUP
+        MENUITEM "打印(&P)...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "打印预览(&V)",                    ID_FILE_PRINT_PREVIEW
+        MENUITEM "打印设置(&R)...",                 ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
-        MENUITEM "传送(&D)...",                 ID_FILE_SEND_MAIL
+        MENUITEM "传送(&D)...",                   ID_FILE_SEND_MAIL
         MENUITEM SEPARATOR
-        MENUITEM "最近文件",                    ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM "最近文件",                        ID_FILE_MRU_FILE1, GRAYED
         MENUITEM SEPARATOR
-        MENUITEM "退出(&X)",                    ID_APP_EXIT
+        MENUITEM "退出(&X)",                      ID_APP_EXIT
     END
     MENUITEM SEPARATOR
     MENUITEM SEPARATOR
     POPUP "窗口(&W)"
     BEGIN
-        MENUITEM "新建窗口(&N)",                ID_WINDOW_NEW
-        MENUITEM "层叠(&C)",                    ID_WINDOW_CASCADE
-        MENUITEM "平铺(&T)",                    ID_WINDOW_TILE_HORZ
-        MENUITEM "排列图标(&A)",                ID_WINDOW_ARRANGE
-        MENUITEM "分隔(&P)",                    ID_WINDOW_SPLIT
+        MENUITEM "新建窗口(&N)",                    ID_WINDOW_NEW
+        MENUITEM "层叠(&C)",                      ID_WINDOW_CASCADE
+        MENUITEM "平铺(&T)",                      ID_WINDOW_TILE_HORZ
+        MENUITEM "排列图标(&A)",                    ID_WINDOW_ARRANGE
+        MENUITEM "分隔(&P)",                      ID_WINDOW_SPLIT
     END
 END
 
-IDR_POPUP_TABS MENU DISCARDABLE 
+IDR_POPUP_TABS MENU 
 BEGIN
     POPUP "Popup"
     BEGIN
@@ -267,33 +263,34 @@ BEGIN
     END
 END
 
-IDC_POPLISTCONTROL MENU DISCARDABLE 
+IDC_POPLISTCONTROL MENU 
 BEGIN
     POPUP "列表"
     BEGIN
-        MENUITEM "选择显示测点",                ID_SELECT_POINT
+        MENUITEM "选择显示测点",                      ID_SELECT_POINT
     END
 END
 
-IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+IDR_MAINFRAME MENU 
 BEGIN
     POPUP "文件(&F)"
     BEGIN
-        MENUITEM "打开(&O)...\tCtrl+O",         ID_FILE_OPEN
-        MENUITEM "关闭(&C)",                    ID_FILE_CLOSE
+        MENUITEM "打开(&O)...\tCtrl+O",           ID_FILE_OPEN
+        MENUITEM "关闭(&C)",                      ID_FILE_CLOSE
         MENUITEM SEPARATOR
-        MENUITEM "最近文件",                    ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM "最近文件",                        ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
-        MENUITEM "退出(&X)",                    ID_APP_EXIT
+        MENUITEM "退出(&X)",                      ID_APP_EXIT
     END
     POPUP "定义"
     BEGIN
-        MENUITEM "模拟量类型",                  ID_A_D
-        MENUITEM "开关量类型",                  ID_D_D
-        MENUITEM "安装地点",                    ID_LOCALTION
-        MENUITEM "测点浏览",                    ID_BROWSERMOD
-        MENUITEM "控制规则",                    ID_CONTROLTABLE
-        MENUITEM "报警音乐",                    ID_MANIPULATE
+        MENUITEM "模拟量类型",                       ID_A_D
+        MENUITEM "开关量类型",                       ID_D_D
+        MENUITEM "安装地点",                        ID_LOCALTION
+        MENUITEM "测点浏览",                        ID_BROWSERMOD
+        MENUITEM "控制规则",                        ID_CONTROLTABLE
+        MENUITEM "特殊控制",                        ID_CONTROLS
+        MENUITEM "报警音乐",                        ID_MANIPULATE
     END
     POPUP "&File"
     BEGIN
@@ -340,9 +337,7 @@ BEGIN
         BEGIN
             MENUITEM "Find",                        ID_FINDANDREPLACE_FIND
             MENUITEM "Replace",                     ID_FINDANDREPLACE_REPLACE
-
             MENUITEM "Find in Files",               ID_FINDANDREPLACE_FINDINFILES
-
         END
     END
     POPUP "&View"
@@ -424,14 +419,12 @@ BEGIN
         MENUITEM "&Index...",                   ID_HELP_INDEX175
         MENUITEM "&Search...",                  ID_HELP_SEARCH
         MENUITEM SEPARATOR
-        MENUITEM "&About Microsoft(r) VisualStudio IDE Sample...", 
-                                                ID_APP_ABOUT
+        MENUITEM "&About Microsoft(r) VisualStudio IDE Sample...", ID_APP_ABOUT
     END
     POPUP "Status &Bar"
     BEGIN
         MENUITEM "Show &Buttons",               ID_STATUSBAR_SHOWBUTTONS
         MENUITEM "Show &AVI Animation",         ID_STATUSBAR_SHOWAVIANIMATION
-
         MENUITEM "Show &Progress Bar",          ID_STATUSBAR_SHOWPROGRESSBAR
         MENUITEM "Show &Edit Control",          ID_STATUSBAR_SHOWEDITCONTROL
         MENUITEM "Show &Company Logo",          ID_STATUSBAR_SHOWCOMPANYLOGO
@@ -447,116 +440,89 @@ END
 // Dialog
 //
 
-IDD_FLATTAB_PROP DIALOG DISCARDABLE  0, 0, 221, 170
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_FLATTAB_PROP DIALOG  0, 0, 221, 170
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "FlatTabCtrl"
 FONT 9, "宋体"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,132,102,29,8
-    CONTROL         "FTS_XT_HASARROWS",IDC_FTS_XT_HASARROWS,"Button",
-                    BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_GROUP | WS_TABSTOP,
-                    15,11,54,8
-    CONTROL         "FTS_XT_HASHOMEEND",IDC_FTS_XT_HASHOMEEND,"Button",
-                    BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,15,18,56,8
-    CONTROL         "FTS_XT_HSCROLL",IDC_FTS_XT_HSCROLL,"Button",
-                    BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,83,12,45,8
-    CONTROL         "FTS_XT_BOTTOM",IDC_FTS_XT_BOTTOM,"Button",
-                    BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,83,18,44,8
-    PUSHBUTTON      "&Manipulate Tabs",IDC_MANIPULATE,15,27,46,8,NOT 
-                    WS_VISIBLE
+    CONTROL         "FTS_XT_HASARROWS",IDC_FTS_XT_HASARROWS,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_GROUP | WS_TABSTOP,15,11,54,8
+    CONTROL         "FTS_XT_HASHOMEEND",IDC_FTS_XT_HASHOMEEND,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,15,18,56,8
+    CONTROL         "FTS_XT_HSCROLL",IDC_FTS_XT_HSCROLL,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,83,12,45,8
+    CONTROL         "FTS_XT_BOTTOM",IDC_FTS_XT_BOTTOM,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,83,18,44,8
+    PUSHBUTTON      "&Manipulate Tabs",IDC_MANIPULATE,15,27,46,8,NOT WS_VISIBLE
     LTEXT           "Tab Number:",IDC_STATIC,10,51,32,8
     EDITTEXT        IDC_TAB_NUM,45,48,30,12,ES_AUTOHSCROLL
     LTEXT           "New Text:",IDC_STATIC,81,51,26,8
     EDITTEXT        IDC_TEXT,117,48,78,12,ES_AUTOHSCROLL
-    PUSHBUTTON      "&Delete Tab At Specified Position",IDC_DELETE_TAB,10,61,
-                    99,10
-    PUSHBUTTON      "&Modify Tab At Specified Position",IDC_MODIFY_TAB,10,75,
-                    99,10
-    PUSHBUTTON      "&Add New Tab At Specified Position",IDC_ADD_TAB,10,87,
-                    99,10
+    PUSHBUTTON      "&Delete Tab At Specified Position",IDC_DELETE_TAB,10,61,99,10
+    PUSHBUTTON      "&Modify Tab At Specified Position",IDC_MODIFY_TAB,10,75,99,10
+    PUSHBUTTON      "&Add New Tab At Specified Position",IDC_ADD_TAB,10,87,99,10
     PUSHBUTTON      "Delete &All Tabs",IDC_DELETE_ALL,10,100,99,10
 END
 
 IDD_DIALOG_HOST_SETTING DIALOGEX 0, 0, 310, 219
-STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "设置主机信息"
-FONT 9, "宋体"
+FONT 9, "宋体", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "确定(&O)",IDOKADM,56,197,50,14
     PUSHBUTTON      "取消(&C)",IDCANCELADM,175,197,50,14
     LTEXT           "主机IP地址：",IDC_STATIC,176,44,53,8,NOT WS_VISIBLE
-    EDITTEXT        IDC_EDIT_HOST_IP,95,7,113,15,ES_AUTOHSCROLL | NOT 
-                    WS_VISIBLE
-    EDITTEXT        IDC_EDIT_PORT,118,7,113,15,ES_AUTOHSCROLL | ES_NUMBER | 
-                    NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT_HOST_IP,95,7,113,15,ES_AUTOHSCROLL | NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT_PORT,118,7,113,15,ES_AUTOHSCROLL | ES_NUMBER | NOT WS_VISIBLE
     LTEXT           "主机端口号：",IDC_STATIC,132,45,53,8,NOT WS_VISIBLE
-    EDITTEXT        IDC_EDIT_TIMEOUT,148,7,113,15,ES_AUTOHSCROLL | ES_NUMBER | 
-                    NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT_TIMEOUT,148,7,113,15,ES_AUTOHSCROLL | ES_NUMBER | NOT WS_VISIBLE
     LTEXT           "超时时间：",IDC_STATIC,95,45,47,8,NOT WS_VISIBLE
-    CONTROL         "List1",IDC_LIST_CTRL,"SysListView32",LVS_REPORT | 
-                    LVS_SHOWSELALWAYS | WS_TABSTOP,7,7,126,132,
-                    WS_EX_STATICEDGE
+    CONTROL         "List1",IDC_LIST_CTRL,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | WS_TABSTOP,7,7,126,132,WS_EX_STATICEDGE
     PUSHBUTTON      "增加",IDC_BUT_ADD,18,198,50,14
     PUSHBUTTON      "删除",IDC_BUT_DEL,144,198,50,14
     PUSHBUTTON      "修改",IDC_BUT_MOD,205,198,50,14
     PUSHBUTTON      "SORTBACK",IDC_CLR_SORTBACK,23,121,50,14,NOT WS_VISIBLE
-    COMBOBOX        IDC_COMBO1,7,177,96,45,CBS_DROPDOWN | CBS_SORT | 
-                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO1,7,177,96,45,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     LTEXT           "测点位置",IDC_STATIC1,7,165,63,12
-    COMBOBOX        IDC_COMBO2,105,177,76,43,CBS_DROPDOWN | CBS_SORT | 
-                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO2,105,177,76,43,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     LTEXT           "传感器型号",IDC_STATIC2,105,165,63,12
-    COMBOBOX        IDC_COMBO3,190,177,27,42,CBS_DROPDOWN | WS_VSCROLL | 
-                    WS_TABSTOP
+    COMBOBOX        IDC_COMBO3,190,177,27,42,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
     LTEXT           "分站",IDC_STATIC3,192,165,19,12
-    COMBOBOX        IDC_COMBO4,228,177,23,43,CBS_DROPDOWN | WS_VSCROLL | 
-                    WS_TABSTOP
+    COMBOBOX        IDC_COMBO4,228,177,23,43,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
     LTEXT           "通道号",IDC_STATIC4,225,165,25,12
     PUSHBUTTON      "增加开关量",IDC_BUT_ADD2,82,198,50,14
-    CONTROL         "List1",IDC_LIST_DISPLAY,"SysListView32",LVS_REPORT | 
-                    LVS_SHOWSELALWAYS | WS_TABSTOP,239,7,64,146
+    CONTROL         "List1",IDC_LIST_DISPLAY,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | WS_TABSTOP,239,7,64,146
     PUSHBUTTON      "增加",IDC_BUTTONDIS1,181,27,50,14
     PUSHBUTTON      "删除",IDC_BUTTONDIS2,181,55,50,14
     PUSHBUTTON      "全部增加",IDC_BUTTONDIS3,181,83,50,14
     PUSHBUTTON      "全部删除",IDC_BUTTONDIS4,181,115,50,14
     PUSHBUTTON      "保存",IDC_BUTTONDIS5,181,144,50,14
     PUSHBUTTON      "取消",IDC_BUTTONDIS6,109,88,50,14,NOT WS_VISIBLE
-    CONTROL         "是否报警",IDC_CHECK_ISALM,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,255,175,48,14
+    CONTROL         "是否报警",IDC_CHECK_ISALM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,255,175,48,14
 END
 
-IDD_DIALOG_SET_TIMER DIALOG DISCARDABLE  0, 0, 260, 226
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_DIALOG_SET_TIMER DIALOG  0, 0, 260, 226
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "设置"
 FONT 9, "宋体"
 BEGIN
     DEFPUSHBUTTON   "确定(&O)",IDOK,43,205,50,14
     PUSHBUTTON      "取消(&C)",IDCANCEL,157,205,50,14
-    GROUPBOX        "窗口交替显示的时间(单位：秒)",IDC_STATIC,33,135,190,67,
-                    NOT WS_VISIBLE
+    GROUPBOX        "窗口交替显示的时间(单位：秒)",IDC_STATIC,33,135,190,67,NOT WS_VISIBLE
     LTEXT           "时间：",IDC_STATIC,9,38,25,8,NOT WS_VISIBLE
-    EDITTEXT        IDC_EDIT_SECOND,52,32,109,14,ES_AUTOHSCROLL | ES_NUMBER | 
-                    NOT WS_VISIBLE
-    CONTROL         "List1",IDC_LISTALLPOINT,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,7,15,91,182
-    CONTROL         "List1",IDC_LISTDISPLAY,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,181,7,72,182
+    EDITTEXT        IDC_EDIT_SECOND,52,32,109,14,ES_AUTOHSCROLL | ES_NUMBER | NOT WS_VISIBLE
+    CONTROL         "List1",IDC_LISTALLPOINT,"SysListView32",LVS_REPORT | WS_BORDER | WS_TABSTOP,7,15,91,182
+    CONTROL         "List1",IDC_LISTDISPLAY,"SysListView32",LVS_REPORT | WS_BORDER | WS_TABSTOP,181,7,72,182
 END
 
-IDD_FORMVIEW DIALOG DISCARDABLE  0, 0, 187, 94
-STYLE WS_CHILD | WS_BORDER
+IDD_FORMVIEW DIALOG  0, 0, 187, 94
+STYLE DS_SETFONT | WS_CHILD | WS_BORDER
 FONT 10, "System"
 BEGIN
-    CONTROL         "List1",IDC_LIST_POINT1,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,7,7,45,38
-    CONTROL         "List1",IDC_LIST_POINT2,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,45,20,45,38
-    CONTROL         "List1",IDC_LIST_POINT3,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,91,28,45,38
+    CONTROL         "List1",IDC_LIST_POINT1,"SysListView32",LVS_REPORT | WS_BORDER | WS_TABSTOP,7,7,45,38
+    CONTROL         "List1",IDC_LIST_POINT2,"SysListView32",LVS_REPORT | WS_BORDER | WS_TABSTOP,45,20,45,38
+    CONTROL         "List1",IDC_LIST_POINT3,"SysListView32",LVS_REPORT | WS_BORDER | WS_TABSTOP,91,28,45,38
 END
 
-IDD_DIALOG_ADDSQL DIALOG DISCARDABLE  0, 0, 207, 263
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_DIALOG_ADDSQL DIALOG  0, 0, 207, 263
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Dialog"
 FONT 10, "宋体"
 BEGIN
@@ -578,14 +544,11 @@ BEGIN
     EDITTEXT        IDC_EDIT_PATH,71,191,111,14,ES_AUTOHSCROLL
     LTEXT           "单位",IDC_STATIC8,17,175,33,12
     EDITTEXT        IDC_EDIT8,71,173,111,14,ES_AUTOHSCROLL
-    CONTROL         "报警状态:默认0态，选中1态",IDC_CHECKDALM,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,17,138,110,10
+    CONTROL         "报警状态:默认0态，选中1态",IDC_CHECKDALM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,138,110,10
     LTEXT           "开关量类型",IDC_STATIC10,18,15,38,12
-    COMBOBOX        IDC_COMBO_D,71,15,74,78,CBS_DROPDOWN | CBS_SORT | 
-                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_D,71,15,74,78,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "...",IDC_BUT_MUSIC,181,192,13,14
-    CONTROL         "是否报警，选中报警",IDC_CHECKISALM,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,17,117,83,10
+    CONTROL         "是否报警，选中报警",IDC_CHECKISALM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,117,83,10
     LTEXT           "复电值",IDC_STATIC9,17,155,33,12
     EDITTEXT        IDC_EDIT9,71,154,111,14,ES_AUTOHSCROLL
 END
@@ -597,7 +560,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO 
 BEGIN
     IDD_FLATTAB_PROP, DIALOG
     BEGIN
@@ -647,9 +610,9 @@ END
 // Bitmap
 //
 
-IDB_COLUMN_0            BITMAP  DISCARDABLE     "res\\col_0.bmp"
-IDB_COLUMN_1            BITMAP  DISCARDABLE     "res\\col_1.bmp"
-IDB_COLUMN_2            BITMAP  DISCARDABLE     "res\\col_2.bmp"
+IDB_COLUMN_0            BITMAP                  "res\\col_0.bmp"
+IDB_COLUMN_1            BITMAP                  "res\\col_1.bmp"
+IDB_COLUMN_2            BITMAP                  "res\\col_2.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -658,25 +621,25 @@ IDB_COLUMN_2            BITMAP  DISCARDABLE     "res\\col_2.bmp"
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-ID_INDICATOR_DRAFT      ICON    DISCARDABLE     "res\\msword_draft.ico"
-ID_INDICATOR_FULLSCREEN ICON    DISCARDABLE     "res\\msword_fullscreen.ico"
-ID_INDICATOR_OUTLINE    ICON    DISCARDABLE     "res\\msword_outline.ico"
-ID_INDICATOR_PRINT      ICON    DISCARDABLE     "res\\msword_print.ico"
-ID_INDICATOR_WEB        ICON    DISCARDABLE     "res\\msword_web.ico"
+ID_INDICATOR_DRAFT      ICON                    "res\\msword_draft.ico"
+ID_INDICATOR_FULLSCREEN ICON                    "res\\msword_fullscreen.ico"
+ID_INDICATOR_OUTLINE    ICON                    "res\\msword_outline.ico"
+ID_INDICATOR_PRINT      ICON                    "res\\msword_print.ico"
+ID_INDICATOR_WEB        ICON                    "res\\msword_web.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // AVI
 //
 
-IDR_HEARTBEAT           AVI     DISCARDABLE     "res\\heartbeat.avi"
+IDR_HEARTBEAT           AVI                     "res\\heartbeat.avi"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table
 //
 
-STRINGTABLE PRELOAD DISCARDABLE 
+STRINGTABLE 
 BEGIN
     IDR_MAINFRAME           "煤矿安全监控"
     IDR_GUI_WHTYPE          "\nUntitled\nUntitled\n\n\nGUIVisualStudio.Document\nText Document"
@@ -684,13 +647,13 @@ BEGIN
     ID_FINDANDREPLACE_FINDINFILES "Find in File"
 END
 
-STRINGTABLE PRELOAD DISCARDABLE 
+STRINGTABLE 
 BEGIN
     AFX_IDS_APP_TITLE       "BodhiTech---煤矿安全监控"
     AFX_IDS_IDLEMESSAGE     "Ready"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_INDICATOR_EXT        "EXT"
     ID_INDICATOR_CAPS       "CAP"
@@ -702,7 +665,7 @@ BEGIN
     ID_MOUSCAPTION          "逻辑坐标"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_FILE_NEW             "Create a new document\nNew"
     ID_FILE_OPEN            "Open an existing document\nOpen"
@@ -715,13 +678,13 @@ BEGIN
     ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_FILE_MRU_FILE1       "Open this document"
     ID_FILE_MRU_FILE2       "Open this document"
@@ -741,13 +704,13 @@ BEGIN
     ID_FILE_MRU_FILE16      "Open this document"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
     ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
     ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
@@ -757,7 +720,7 @@ BEGIN
     ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_EDIT_CLEAR           "Erase the selection\nErase"
     ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
@@ -772,13 +735,13 @@ BEGIN
     ID_EDIT_REDO            "Redo the previously undone action\nRedo"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
     ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     AFX_IDS_SCSIZE          "Change the window size"
     AFX_IDS_SCMOVE          "Change the window position"
@@ -789,19 +752,19 @@ BEGIN
     AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
     AFX_IDS_MDICHILD        "Activate this window"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_VIEW_SOLUTIONEXPLORER "断电控制\n断电控制"
     ID_VIEW_RESOURCEVIEW    "报警显示\n报警显示"
@@ -813,7 +776,7 @@ BEGIN
     ID_VIEW_RESOURCEVIEW2   "断电控制\n断电控制"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_PANEPROPERTIES_PAGES "\nProperty Pages"
     ID_FILE_SAVE_ALL        "Save All"
@@ -822,7 +785,7 @@ BEGIN
     ID_SOLUTION_UNHIDEALL   "Unhide All"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_WEBBROWSER_HOME      "Home\nHome"
     ID_WEBBROWSER_SEARCH    "Search\nSearch"
@@ -832,23 +795,23 @@ BEGIN
     ID_PROJECT_ADDNEWITEM   "Add New Item\nAdd New Item"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_INDICATOR_ANIM       "Animation"
     ID_INDICATOR_PRINT      "Print Layout"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     181                     "Start\nStart"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_EDIT_STATE           "Solution Platforms"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_TOOLBOXFOLDER_PROPERTYPANES "PropertyPanes"
     ID_TOOLBOXFOLDER_DATA   "Data"
@@ -856,13 +819,13 @@ BEGIN
     ID_TOOLBOXFOLDER_WINDOWSFORMS "Dialog Editor"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_TOOLBOXFOLDER_CLIPBOARDRING "Clipboard Ring"
     ID_TOOLBOXFOLDER_GENERAL "General"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_TOOLBOXITEM_POINTER  "Pointer"
     ID_TOOLBOXITEM_BUTTON   "Button"
@@ -882,7 +845,7 @@ BEGIN
     ID_TOOLBOXITEM_HOT_KEY  "Hot Key"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_TOOLBOXITEM_LIST_CONTROL "List Control"
     ID_TOOLBOXITEM_TREE_CONTROL "Tree Control"
@@ -902,7 +865,7 @@ BEGIN
     ID_TOOLBOXITEM_SQLCONNECTION "SqlConnection"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_TOOLBOXITEM_SQLCOMMAND "SqlCommand"
     ID_TOOLBOXITEM_DATAVIEW "DataView"
@@ -917,7 +880,7 @@ BEGIN
     ID_TOOLBOXITEM_TIMER    "Timer"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_INDICATOR_EDIT       "Edit Text"
     ID_INDICATOR_LOGO       "Application Logo"
@@ -925,7 +888,7 @@ BEGIN
     ID_INDICATOR_VIEW       "View Shortcuts"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_THEME_VC6            "Visual Studio 6.0"
     ID_THEME_VC7            "Visual Studio 2002"
@@ -933,7 +896,7 @@ BEGIN
     ID_THEME_VC9            "Visual Studio 2008"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_VIEW_RESOURCEVIEW3   "馈电异常\n馈电异常"
     ID_VIEW_RESOURCEVIEW4   "调用显示\n调用显示"
@@ -960,7 +923,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Menu
 //
 
-ID_PROJECT_ADDNEWITEM MENU DISCARDABLE 
+ID_PROJECT_ADDNEWITEM MENU 
 BEGIN
     POPUP "New item"
     BEGIN
@@ -970,7 +933,7 @@ BEGIN
     END
 END
 
-ID_FILE_NEW_PROJECT MENU DISCARDABLE 
+ID_FILE_NEW_PROJECT MENU 
 BEGIN
     POPUP "New"
     BEGIN
@@ -979,7 +942,7 @@ BEGIN
     END
 END
 
-ID_VIEW_OTHER MENU DISCARDABLE 
+ID_VIEW_OTHER MENU 
 BEGIN
     POPUP "Other Windows"
     BEGIN
@@ -989,7 +952,7 @@ BEGIN
     END
 END
 
-IDR_WORKSPACE_POPUP MENU DISCARDABLE 
+IDR_WORKSPACE_POPUP MENU 
 BEGIN
     POPUP "&Popup"
     BEGIN
@@ -1000,7 +963,7 @@ BEGIN
     END
 END
 
-IDR_POPUP_PANES MENU DISCARDABLE 
+IDR_POPUP_PANES MENU 
 BEGIN
     POPUP "PopupPanes"
     BEGIN
@@ -1011,7 +974,7 @@ BEGIN
     END
 END
 
-ID_THEME_SKINFRAMEWORK MENU DISCARDABLE 
+ID_THEME_SKINFRAMEWORK MENU 
 BEGIN
     POPUP "SkinFramework"
     BEGIN
@@ -1027,13 +990,13 @@ END
 // Bitmap
 //
 
-IDR_PANE_PROPERTIES     BITMAP  DISCARDABLE     "res\\PaneProperties.bmp"
-IDB_CLASSTREE           BITMAP  MOVEABLE PURE   "res\\img_classtree.bmp"
-IDB_FILETREE            BITMAP  MOVEABLE PURE   "res\\img_filetree.bmp"
-IDB_RESTREE             BITMAP  MOVEABLE PURE   "res\\img_restree.bmp"
-IDR_PANE_SOLUTIONEXPLORER BITMAP  DISCARDABLE     "res\\SolutionExplorerPane.bmp"
-IDB_TOOLBOXICONS        BITMAP  MOVEABLE PURE   "res\\Toolbox.bmp"
-IDR_TOOLBAR_FULLSCREEN  BITMAP  MOVEABLE PURE   "res\\FullScreen.bmp"
+IDR_PANE_PROPERTIES     BITMAP                  "res\\PaneProperties.bmp"
+IDB_CLASSTREE           BITMAP                  "res\\img_classtree.bmp"
+IDB_FILETREE            BITMAP                  "res\\img_filetree.bmp"
+IDB_RESTREE             BITMAP                  "res\\img_restree.bmp"
+IDR_PANE_SOLUTIONEXPLORER BITMAP                  "res\\SolutionExplorerPane.bmp"
+IDB_TOOLBOXICONS        BITMAP                  "res\\Toolbox.bmp"
+IDR_TOOLBAR_FULLSCREEN  BITMAP                  "res\\FullScreen.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1042,8 +1005,8 @@ IDR_TOOLBAR_FULLSCREEN  BITMAP  MOVEABLE PURE   "res\\FullScreen.bmp"
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON    DISCARDABLE     "res\\CjSample.ico"
-IDR_GUI_WHTYPE          ICON    DISCARDABLE     "res\\GUI_VisualStudioDoc.ico"
+IDR_MAINFRAME           ICON                    "res\\CjSample.ico"
+IDR_GUI_WHTYPE          ICON                    "res\\GUI_VisualStudioDoc.ico"
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -1051,18 +1014,18 @@ IDR_GUI_WHTYPE          ICON    DISCARDABLE     "res\\GUI_VisualStudioDoc.ico"
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
     "#define _AFX_NO_OLE_RESOURCES\r\n"
@@ -1089,35 +1052,35 @@ END
 // HTML
 //
 
-IDR_DYNAMIC_HELP        HTML    MOVEABLE PURE   "res\\dynamic_help.htm"
+IDR_DYNAMIC_HELP        HTML                    "res\\dynamic_help.htm"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // 2110
 //
 
-CLEAR.GIF               2110    MOVEABLE PURE   "res\\clear.gif"
-CTXHELP_HIDE.GIF        2110    MOVEABLE PURE   "res\\ctxhelp_hide.gif"
-CTXHELP_SHOW.GIF        2110    MOVEABLE PURE   "res\\ctxhelp_show.gif"
-CTXSAMPLE_HIDE.GIF      2110    MOVEABLE PURE   "res\\ctxsample_hide.gif"
-CTXSAMPLE_SHOW.GIF      2110    MOVEABLE PURE   "res\\ctxsample_show.gif"
+CLEAR.GIF               2110                    "res\\clear.gif"
+CTXHELP_HIDE.GIF        2110                    "res\\ctxhelp_hide.gif"
+CTXHELP_SHOW.GIF        2110                    "res\\ctxhelp_show.gif"
+CTXSAMPLE_HIDE.GIF      2110                    "res\\ctxsample_hide.gif"
+CTXSAMPLE_SHOW.GIF      2110                    "res\\ctxsample_show.gif"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // PNG
 //
 
-IDR_MAINFRAME           PNG     MOVEABLE PURE   "res\\Toolbar.png"
-IDR_TOOLBAR_WEB         PNG     MOVEABLE PURE   "res\\Web.png"
-IDR_TOOLBAR_EXT         PNG     MOVEABLE PURE   "res\\MenuBar.png"
-IDR_TOOLBAR_THEME       PNG     MOVEABLE PURE   "res\\ThemeBar.png"
+IDR_MAINFRAME           PNG                     "res\\Toolbar.png"
+IDR_TOOLBAR_WEB         PNG                     "res\\Web.png"
+IDR_TOOLBAR_EXT         PNG                     "res\\MenuBar.png"
+IDR_TOOLBAR_THEME       PNG                     "res\\ThemeBar.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Toolbar
 //
 
-IDR_TOOLBAR_WEB TOOLBAR MOVEABLE PURE  16, 16
+IDR_TOOLBAR_WEB TOOLBAR  16, 16
 BEGIN
     BUTTON      ID_WEBBROWSER_BACK
     BUTTON      ID_WEBBROWSER_FORWARD
@@ -1136,7 +1099,7 @@ BEGIN
     BUTTON      ID_GOTO_URL
 END
 
-IDR_MAINFRAME TOOLBAR MOVEABLE PURE  16, 16
+IDR_MAINFRAME TOOLBAR  16, 16
 BEGIN
     BUTTON      ID_FILE_NEW_PROJECT
     BUTTON      ID_PROJECT_ADDNEWITEM
@@ -1165,7 +1128,7 @@ BEGIN
     BUTTON      ID_VIEW_OTHER
 END
 
-IDR_TOOLBAR_EXT TOOLBAR MOVEABLE PURE  16, 16
+IDR_TOOLBAR_EXT TOOLBAR  16, 16
 BEGIN
     BUTTON      ID_FILE_NEW
     BUTTON      ID_FILE_PRINT
@@ -1185,7 +1148,7 @@ BEGIN
     BUTTON      ID_VIEW_CLASSVIEW
 END
 
-IDR_PANE_PROPERTIES TOOLBAR DISCARDABLE  16, 16
+IDR_PANE_PROPERTIES TOOLBAR  16, 16
 BEGIN
     BUTTON      ID_PANEPROPERTIES_CATEGORIZED
     BUTTON      ID_PANEPROPERTIES_ALPHABETIC
@@ -1193,19 +1156,19 @@ BEGIN
     BUTTON      ID_PANEPROPERTIES_PAGES
 END
 
-IDR_PANE_SOLUTIONEXPLORER TOOLBAR DISCARDABLE  16, 16
+IDR_PANE_SOLUTIONEXPLORER TOOLBAR  16, 16
 BEGIN
     BUTTON      ID_SOLUTION_PROPERTIES
     BUTTON      ID_SOLUTION_ADDNEWFOLDER
     BUTTON      ID_SOLUTION_UNHIDEALL
 END
 
-IDR_TOOLBAR_FULLSCREEN TOOLBAR MOVEABLE PURE  16, 16
+IDR_TOOLBAR_FULLSCREEN TOOLBAR  16, 16
 BEGIN
     BUTTON      ID_VIEW_FULLSCREEN
 END
 
-IDR_TOOLBAR_THEME TOOLBAR DISCARDABLE  16, 16
+IDR_TOOLBAR_THEME TOOLBAR  16, 16
 BEGIN
     BUTTON      ID_THEME_VC6
     BUTTON      ID_THEME_VC7
@@ -1220,7 +1183,7 @@ END
 // Accelerator
 //
 
-IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+IDR_MAINFRAME ACCELERATORS 
 BEGIN
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
@@ -1240,7 +1203,6 @@ BEGIN
 END
 
 
-#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
@@ -1263,18 +1225,14 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "\0"
-            VALUE "CompanyName", "BodhiTech Software\0"
-            VALUE "FileDescription", "BodhiTech RSDRAW-YRun MFC Application\0"
-            VALUE "FileVersion", "2, 0, 0, 0\0"
-            VALUE "InternalName", "BodhiTech RSDRAW-YRun\0"
-            VALUE "LegalCopyright", "(c)2003-2010 BodhiTech Software, All Rights Reserved.\0"
-            VALUE "LegalTrademarks", "\0"
-            VALUE "OriginalFilename", "RSDRAW-YRun.EXE\0"
-            VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "GUI_VisualStudio Application\0"
-            VALUE "ProductVersion", "2, 0, 0, 0\0"
-            VALUE "SpecialBuild", "\0"
+            VALUE "CompanyName", "BodhiTech Software"
+            VALUE "FileDescription", "BodhiTech RSDRAW-YRun MFC Application"
+            VALUE "FileVersion", "2, 0, 0, 0"
+            VALUE "InternalName", "BodhiTech RSDRAW-YRun"
+            VALUE "LegalCopyright", "(c)2003-2010 BodhiTech Software, All Rights Reserved."
+            VALUE "OriginalFilename", "RSDRAW-YRun.EXE"
+            VALUE "ProductName", "GUI_VisualStudio Application"
+            VALUE "ProductVersion", "2, 0, 0, 0"
         END
     END
     BLOCK "VarFileInfo"
@@ -1283,15 +1241,13 @@ BEGIN
     END
 END
 
-#endif    // !_MAC
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table
 //
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_STATUSBAR_SHOWBUTTONS "Inserts Buttons Into Status Bar\nShow Buttons"
     ID_STATUSBAR_SHOWAVIANIMATION 
@@ -1305,24 +1261,24 @@ BEGIN
     ID_STATUSBAR_TESTPROGRESS "Tests Progress Bar Control\nTest Progress Bar"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_STATUSBAR_SHOWCOMPANYLOGO 
                             "Inserts Company Logo Into Status Bar\nShow Company Logo"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_FILE_OPEN            "Open an existing document\nOpen"
     ID_FILE_CLOSE           "Close the active document\nClose"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_FILE_MRU_FILE1       "Open this document"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
 END

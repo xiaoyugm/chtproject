@@ -135,7 +135,7 @@ void CDrawView::InvalRouteObj(CDrawObj* pObj)
 	rect.NormalizeRect();
 	int nMax = max(rect.Height(),rect.Width())/2;   //2
 	int nMin = min(rect.Height(),rect.Width())/2;
-	int nHypotenuse = sqrt(nMax * nMax + nMin * nMin) ;
+	int nHypotenuse = sqrtf(nMax * nMax + nMin * nMin) ;
 
 		rect.left = rect.left - nHypotenuse;///+rect.Width()/2;
 		rect.top = rect.top - nHypotenuse;///+rect.Height()/2 ;
@@ -188,7 +188,7 @@ void CDrawView::InvalMoveObj(CDrawObj* pObj)
 //0415
 	nMax =  max(rect.Height(),rect.Width());
 	int nMin =  min(rect.Height(),rect.Width());
-	int nHypotenuse =  sqrt(nMax * nMax + nMin * nMin);
+	int nHypotenuse =  sqrtf(nMax * nMax + nMin * nMin);
 
 		rect.left = rect.left-nHypotenuse+rect.Width()/2;
 		rect.top = rect.top -nHypotenuse+rect.Height()/2 ;

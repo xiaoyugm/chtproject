@@ -92,9 +92,15 @@
 
 #include "IniFile.h"
 
+//template class __declspec(dllimport) CStringT<TCHAR, StrTraitMFC<TCHAR, ChTraitsCRT<TCHAR> > >;
+//template class __declspec(dllimport) CSimpleStringT<TCHAR>;
+
 //#include   <afxsock.h> 
 #include <NDKClient.h>
 #pragma comment(lib,"NDK.lib")
+#include <NDKMessage.h>
+
+
 #include <SqlDirect.h>
 
 #include <GdiPlus.h>		//GDI+

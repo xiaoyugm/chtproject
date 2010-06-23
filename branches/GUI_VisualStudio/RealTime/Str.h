@@ -44,7 +44,7 @@ public:
 	char* GetChar()						{ return m_pString; }
 
 	// numeric conversion
-	template <class T> GetValue(T& var)	{ return GetVar(var); }
+	template <class T> (int)GetValue(T& var)	{ return GetVar(var); }
 
 	// search the match string : WildCards can be '?' and '*' combination
 	// return value : true (pattern matchs string), false (no match)
