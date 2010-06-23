@@ -293,6 +293,7 @@ BEGIN
         MENUITEM "安装地点",                    ID_LOCALTION
         MENUITEM "测点浏览",                    ID_BROWSERMOD
         MENUITEM "控制规则",                    ID_CONTROLTABLE
+        MENUITEM "特殊控制",                    ID_CONTROLS
         MENUITEM "报警音乐",                    ID_MANIPULATE
     END
     POPUP "&File"

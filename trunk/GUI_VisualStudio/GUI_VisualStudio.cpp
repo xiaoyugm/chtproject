@@ -259,10 +259,10 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 		return FALSE;
 
 	CSettingHostDlg dlg;
-	dlg.m_strtable =  _T("specialcontrol");   
+//	dlg.m_strtable =  _T("specialcontrol");   
 //	dlg.PointDesid = 1;
-	if(dlg.DoModal() != IDOK)
-		return FALSE;
+//	if(dlg.DoModal() != IDOK)
+//		return FALSE;
 
 	gstrTimeOut = GetAppPath();
 
