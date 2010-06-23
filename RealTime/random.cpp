@@ -57,7 +57,7 @@ void RndGen::advance_random()
         oldrand[i] = new_random;       
     }               
         
-    for (i = 24; i <= 54; i ++) 
+    for (int i = 24; i <= 54; i ++) 
     {               
         new_random = oldrand[i] - oldrand[i-24];              
         if (new_random < 0)

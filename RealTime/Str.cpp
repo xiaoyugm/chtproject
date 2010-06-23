@@ -112,7 +112,7 @@ int CStr::Format(const char* format, ...)
 	char* MaxBuf;
 	for(int i = 5; ; i ++)
 	{
-		len = (int)pow(2, i);
+		len = (int)powf(2, i);
 		MaxBuf = new char[len];
 		if (!MaxBuf) return 0;
 		// some UNIX's do not support vsnprintf and snprintf

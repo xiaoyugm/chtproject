@@ -383,9 +383,9 @@ void CSampleFormView::SetMonitorListHead()
 	CString strItem = _T("");
 	for (int iItem = 0; iItem < m_FormView[theApp.DocNum].m_ListCtrl[0].ColumniItem; ++iItem)
 		m_List1.InsertItem(iItem, strItem, 0);
-	for (iItem = 0; iItem < m_FormView[theApp.DocNum].m_ListCtrl[1].ColumniItem; ++iItem)
+	for (int iItem = 0; iItem < m_FormView[theApp.DocNum].m_ListCtrl[1].ColumniItem; ++iItem)
 		m_List2.InsertItem(iItem, strItem, 0);
-	for (iItem = 0; iItem < m_FormView[theApp.DocNum].m_ListCtrl[2].ColumniItem; ++iItem)
+	for (int iItem = 0; iItem < m_FormView[theApp.DocNum].m_ListCtrl[2].ColumniItem; ++iItem)
 		m_List3.InsertItem(iItem, strItem, 0);
 }
 

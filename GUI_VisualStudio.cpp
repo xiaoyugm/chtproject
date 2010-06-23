@@ -259,10 +259,10 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 		return FALSE;
 
 	CSettingHostDlg dlg;
-	dlg.m_strtable =  _T("specialcontrol");   
+//	dlg.m_strtable =  _T("specialcontrol");   
 //	dlg.PointDesid = 1;
-	if(dlg.DoModal() != IDOK)
-		return FALSE;
+//	if(dlg.DoModal() != IDOK)
+//		return FALSE;
 
 	gstrTimeOut = GetAppPath();
 
@@ -736,9 +736,11 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 	}*/
 }
 
+
 BOOL CGUI_VisualStudioApp::InitDisplay()
 {
-	LPCTSTR str1 = "",str2 = "",str3 = "";
+	LPCTSTR str1 = "";LPCTSTR str2 = "";LPCTSTR str3 = "";
+	CString str4 = "",str5 = "",str6 = "";
     	if ( m_DisPoint._IsEmpty() )
    		    return TRUE;
 //		m_listDis.SetItemCount(m_DisPoint.RecordCount());

@@ -339,7 +339,7 @@ void CRealTime::Grid()
 			DrawLine(xb, GT + 1, xe, GB - 1);
 	}
 
-	for(i = 1; i < YGridTicks; i ++) 
+	for(int i = 1; i < YGridTicks; i ++) 
 	{
 		yb = ye = GT + (int)(1.0 * i * (GB-GT) / YGridTicks);
 		DrawLine(GL + 1, yb, GR - 1, ye);

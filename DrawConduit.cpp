@@ -93,7 +93,7 @@ void CDrawConduit::Draw(CDC* pDC)
 		Fillpoints[i].Y = m_points[i].y;
 	}
 
-	for (i=0;i<m_nPoints;i++)
+	for (int i=0;i<m_nPoints;i++)
 	{
 		points[i].X = m_points[i].x;
 		points[i].Y = m_points[i].y;
@@ -107,7 +107,7 @@ void CDrawConduit::Draw(CDC* pDC)
 //	m_nLineSize = 5;
 	GraphicsPath Linepath;
 	Linepath.StartFigure();
-	for (i=0;i<m_nPoints-1;i++)
+	for (int i=0;i<m_nPoints-1;i++)
 	{
 		Linepath.AddLine(points[i],points[i+1]);
 	}

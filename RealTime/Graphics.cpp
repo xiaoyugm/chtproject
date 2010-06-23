@@ -570,7 +570,7 @@ void CGraphics::RightYTick()
 					xe = GR + m_rM / 10;
 				else
 					xe = GR + m_rM / 20;
-				yb = ye = GB - (int)(log10(j) * PY / m_nYStep + 1.0 * (i - 1) * PY / m_nYStep);
+				yb = ye = GB - (int)(log10f(j) * PY / m_nYStep + 1.0 * (i - 1) * PY / m_nYStep);
 				if (j == 1)
 				{
 					value = (float)(pow(10.0, m_Scale.ymin) * pow(10.0, i - 1));
