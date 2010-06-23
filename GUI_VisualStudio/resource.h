@@ -269,6 +269,7 @@
 #define ID_BROWSERMOD                   32796
 #define ID_SELECT_POINT                 32797
 #define ID_CONTROLTABLE                 32799
+#define ID_CONTROLS                     32800
 #define ID_EDIT_STATE                   32815
 #define ID_EDIT_FIND_EX                 32816
 #define ID_GOTO_URL                     32817
@@ -289,7 +290,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        161
-#define _APS_NEXT_COMMAND_VALUE         32800
+#define _APS_NEXT_COMMAND_VALUE         32801
 #define _APS_NEXT_CONTROL_VALUE         1038
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
