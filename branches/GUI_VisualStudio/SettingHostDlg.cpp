@@ -1123,6 +1123,8 @@ void CSettingHostDlg::OnBtnADD()
 			delete e;
 		}
       }
+        MessageBeep(MB_OK);
+        EndDialog(IDOK);
 	}
 	else
 	{
