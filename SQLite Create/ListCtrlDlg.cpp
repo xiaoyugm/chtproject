@@ -21,7 +21,7 @@
 #include "stdafx.h"
 #include "ListCtrl.h"
 #include "ListCtrlDlg.h"
-#include "AboutDlg.h"
+//#include "AboutDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
