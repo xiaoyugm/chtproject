@@ -77,7 +77,7 @@ BOOL CListCtrlApp::InitInstance()
 	// Change the registry key under which our settings are stored.
 	// TODO: You should modify this string to be something appropriate
 	// such as the name of your company or organization.
-	SetRegistryKey(_T("Codejock Software Sample Applications"));
+	//SetRegistryKey(_T("Codejock Software Sample Applications"));
 
 	LoadStdProfileSettings();  // Load standard INI file options (including MRU)
 
@@ -98,4 +98,17 @@ BOOL CListCtrlApp::InitInstance()
 	// Since the dialog has been closed, return FALSE so that we exit the
 	//  application, rather than start the application's message pump.
 	return FALSE;
+}
+
+/******************************************************************************
+//获得应用程序所在的路径
+******************************************************************************/
+CString CListCtrlApp::GetAppPath()
+{
+	char AppPath[MAX_PATH];
+	GetModuleFileName(NULL,AppPath,MAX_PATH);
+	CString strAppPath=CString(AppPath);
+	int i=strAppPath.ReverseFind('\\');
+	strAppPath.Delete(i,strAppPath.GetLength()-i);
+	return strAppPath;
 }

@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="ListCtrl"
 	ProjectGUID="{31363925-6364-2289-1119-791418491789}"
+	RootNamespace="ListCtrl"
 	Keyword="MFCProj"
 	TargetFrameworkVersion="0"
 	>
@@ -275,6 +276,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="sqlite3.lib"
 				OutputFile="bin/vc90/sqlitecreate.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -787,6 +789,18 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\CppSQLite3.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="ListCtrl.cpp"
 				>
 			</File>
@@ -796,6 +810,10 @@
 			</File>
 			<File
 				RelativePath="ListCtrlDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sqlite3.def"
 				>
 			</File>
 			<File
@@ -876,6 +894,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CppSQLite3.h"
+				>
+			</File>
+			<File
 				RelativePath="ListCtrl.h"
 				>
 			</File>
@@ -885,6 +907,10 @@
 			</File>
 			<File
 				RelativePath="Resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sqlite3.h"
 				>
 			</File>
 			<File
