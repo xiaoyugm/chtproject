@@ -21,7 +21,13 @@
 #include "stdafx.h"
 #include "ListCtrl.h"
 #include "ListCtrlDlg.h"
-//#include "AboutDlg.h"
+#include "AboutDlg.h"
+
+#include "CppSQLite3.h"
+#include <ctime>
+#include <iostream>
+using namespace std;
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -47,13 +53,13 @@ CListCtrlDlg::CListCtrlDlg(CWnd* pParent /*=NULL*/)
 	m_bContextMenus = TRUE;
 	m_bHotTracking = TRUE;
 	m_bHeaderImages = TRUE;
-	m_bWinTheme = FALSE;
+	m_bWinTheme = TRUE;
 	m_bDisableSizing = FALSE;
 	m_bMinSize = FALSE;
 	m_bSortColor = TRUE;
 	m_bFullRowSel = TRUE;
-	m_bGridLines = FALSE;
-	m_bCheckBoxes = FALSE;
+	m_bGridLines = TRUE;
+	m_bCheckBoxes = TRUE;
 	m_bDragDrop = FALSE;
 	m_bListColor = TRUE;
 	m_bRowColor = TRUE;
@@ -180,14 +186,23 @@ BOOL CListCtrlDlg::OnInitDialog()
 		}
 	}
 
+	//select name from sqlite_master where type='table';
+	//[获取表的数量]
+	//select count(*) from sqlite_master where type='table';
+	//[增加字段] 
+	//alter table addresslist add notes varchar2(64);
+	//[ 查看表的结构《不要分号》]
+	//.schema catalog
+
+
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);         // Set big icon
 	SetIcon(m_hIcon, FALSE);        // Set small icon
 
 	// Set control resizing.
-	SetResize(IDOK,                  SZ_TOP_RIGHT,   SZ_TOP_RIGHT);
-	SetResize(IDCANCEL,              SZ_TOP_RIGHT,   SZ_TOP_RIGHT);
+	SetResize(IDOK,                  SZ_BOTTOM_CENTER,   SZ_BOTTOM_CENTER);
+	SetResize(IDCANCEL,              SZ_BOTTOM_CENTER,   SZ_BOTTOM_CENTER);
 	SetResize(IDC_LIST_CTRL,         SZ_TOP_LEFT,    SZ_BOTTOM_RIGHT);
 
 	SetResize(IDC_GBOX_HEADER,       SZ_BOTTOM_LEFT, SZ_BOTTOM_RIGHT);
@@ -232,12 +247,12 @@ BOOL CListCtrlDlg::OnInitDialog()
 	LoadPlacement(_T("CListCtrlDlg"));
 
 	// TODO: Add extra initialization here
-	m_listCtrl.InsertColumn(0, _T("Column One"),   LVCFMT_LEFT, 125);
-	m_listCtrl.InsertColumn(1, _T("Column Two"),   LVCFMT_LEFT, 125);
-	m_listCtrl.InsertColumn(2, _T("Column Three"), LVCFMT_LEFT, 125);
+	m_listCtrl.InsertColumn(0, _T("表名"),   LVCFMT_LEFT, 125);
+	//m_listCtrl.InsertColumn(1, _T("Column Two"),   LVCFMT_LEFT, 125);
+	//m_listCtrl.InsertColumn(2, _T("Column Three"), LVCFMT_LEFT, 125);
 
 	int iItem;
-	for (iItem = 0; iItem < 100; ++iItem)
+/*	for (iItem = 0; iItem < 100; ++iItem)
 	{
 		CString strItem;
 		CString strSubA;
@@ -248,10 +263,10 @@ BOOL CListCtrlDlg::OnInitDialog()
 		strSubB.Format(_T("Sub B %d"), iItem);
 
 		m_listCtrl.InsertItem(iItem, strItem, 0);
-		m_listCtrl.SetItem(iItem, 1, LVIF_TEXT, strSubA, 0, NULL, NULL, NULL);
-		m_listCtrl.SetItem(iItem, 2, LVIF_TEXT, strSubB, 0, NULL, NULL, NULL);
+		//m_listCtrl.SetItem(iItem, 1, LVIF_TEXT, strSubA, 0, NULL, NULL, NULL);
+		//m_listCtrl.SetItem(iItem, 2, LVIF_TEXT, strSubB, 0, NULL, NULL, NULL);
 	}
-
+*/
 	// Get the windows handle to the header control for the
 	// list control then subclass the control.
 	HWND hWndHeader = m_listCtrl.GetDlgItem(0)->GetSafeHwnd();
@@ -297,6 +312,53 @@ BOOL CListCtrlDlg::OnInitDialog()
 	m_listCtrl.EnableUserRowColor(BoolType(m_bRowColor));
 
 	OnSelendokComboThemes();
+
+	OnChkFullRowSelect();
+	OnChkGridLines();
+	OnChkWintheme();
+	//OnChkCheckBoxes();
+
+	
+	CString strAppPath = theApp.GetAppPath();
+	CString strxmlFile ;
+//	strxmlFile.Format("%d",GetSystemMetrics(SM_CXSCREEN));
+	strAppPath = strAppPath + "\\setting.db";
+
+    try
+    {
+		int row;
+        CppSQLite3DB db;
+		db.SQLiteVersion();
+        remove(strAppPath);
+        db.open(strAppPath);
+
+        db.execDML("create table parts(no int, name char(20), qty int, cost number);");
+        db.execDML("insert into parts values(1, 'part1', 100, 1.11);");
+        db.execDML("insert into parts values(2, null, 200, 2.22);");
+        db.execDML("insert into parts values(3, 'part3', null, 3.33);");
+        db.execDML("insert into parts values(4, 'part4', 400, null);");
+
+        CppSQLite3Query q = db.execQuery("select name from sqlite_master where type='table';");
+        while (!q.eof())
+        {
+	    	m_listCtrl.InsertItem(iItem, q.getStringField(0), 0);
+            cout << q.getStringField(0)  << "|" ;
+			iItem++;
+            q.nextRow();
+        }
+		q.finalize();
+	}
+    catch (CppSQLite3Exception& e)
+    {
+        cerr << e.errorCode() << ":" << e.errorMessage() << endl;
+    }
+
+
+
+
+
+
+
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }

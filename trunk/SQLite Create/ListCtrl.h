@@ -41,6 +41,7 @@ class CListCtrlApp : public CWinApp
 public:
 	CListCtrlApp();
 
+	CString GetAppPath();				//返回应用程序所在路径
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CListCtrlApp)
@@ -57,6 +58,7 @@ public:
 	DECLARE_MESSAGE_MAP()
 };
 
+extern CListCtrlApp theApp;
 
 /////////////////////////////////////////////////////////////////////////////
 

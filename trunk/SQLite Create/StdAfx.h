@@ -74,6 +74,13 @@
 #include <XTToolkitPro.h>   // Codejock Software Components
 #include <AboutDlg.h>       // Sample About Dialog
 
+#include "CppSQLite3.h"
+#include <ctime>
+#include <iostream>
+
+using namespace std;
+
+
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
