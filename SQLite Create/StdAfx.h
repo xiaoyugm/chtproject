@@ -59,6 +59,7 @@
 #include <afxwin.h>         // MFC core and standard components
 #include <afxext.h>         // MFC extensions
 #include <afxdisp.h>        // MFC Automation classes
+#include <afxdtctl.h>		// MFC support for Internet Explorer 4 Common Controls
 #ifndef _AFX_NO_AFXCMN_SUPPORT
 #include <afxcmn.h>         // MFC support for Windows Common Controls
 #endif // _AFX_NO_AFXCMN_SUPPORT
@@ -75,10 +76,22 @@
 #include <AboutDlg.h>       // Sample About Dialog
 
 #include "CppSQLite3.h"
-#include <ctime>
-#include <iostream>
 
+#include <atlbase.h>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+//#include <ctime>
+//#include <iostream>
 using namespace std;
+
+#include "CGridListCtrlEx\CGridColumnManagerProfile.h"
+#include "CGridListCtrlEx\CGridColumnTraitEdit.h"
+#include "CGridListCtrlEx\CGridColumnTraitCombo.h"
+#include "CGridListCtrlEx\CGridRowTraitXP.h"
+#include "CGridListCtrlEx\CGridListCtrlGroups.h"
+
 
 
 //{{AFX_INSERT_LOCATION}}

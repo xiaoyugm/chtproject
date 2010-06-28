@@ -63,7 +63,7 @@ public:
 	BOOL    m_bRowColor;
 	BOOL    m_bEnableList;
 	//}}AFX_DATA
-	CXTListCtrl         m_listCtrl;
+	CGridListCtrlGroups         m_listCtrl;
 	COLORREF            m_crSortText;
 	COLORREF            m_crSortBack;
 	COLORREF            m_crListText;
@@ -78,6 +78,9 @@ public:
 	CXTColorPicker      m_cpRowBack;
 	CXTResizeGroupBox   m_gboxList;
 	CXTResizeGroupBox   m_gboxHeader;
+
+	CString     m_strtable;
+
 
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CListCtrlDlg)
@@ -137,6 +140,11 @@ protected:
 	afx_msg void OnSelEndOkRowBackColor();
 	afx_msg void OnSelEndOkRowTextColor();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnBnClickedOk();
+	afx_msg void OnBnClickedButAdd();
+	afx_msg void OnBnClickedButMod();
+	afx_msg void OnBnClickedButDel();
 };
 
 //{{AFX_INSERT_LOCATION}}
