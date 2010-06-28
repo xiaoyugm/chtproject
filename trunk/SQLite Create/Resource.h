@@ -1,25 +1,7 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by ListCtrl.rc
 //
-// This file is a part of the XTREME TOOLKIT PRO MFC class library.
-// (c)1998-2009 Codejock Software, All Rights Reserved.
-//
-// THIS SOURCE FILE IS THE PROPERTY OF CODEJOCK SOFTWARE AND IS NOT TO BE
-// RE-DISTRIBUTED BY ANY MEANS WHATSOEVER WITHOUT THE EXPRESSED WRITTEN
-// CONSENT OF CODEJOCK SOFTWARE.
-//
-// THIS SOURCE CODE CAN ONLY BE USED UNDER THE TERMS AND CONDITIONS OUTLINED
-// IN THE XTREME TOOLKIT PRO LICENSE AGREEMENT. CODEJOCK SOFTWARE GRANTS TO
-// YOU (ONE SOFTWARE DEVELOPER) THE LIMITED RIGHT TO USE THIS SOFTWARE ON A
-// SINGLE COMPUTER.
-//
-// CONTACT INFORMATION:
-// support@codejock.com
-// http://www.codejock.com
-//
-/////////////////////////////////////////////////////////////////////////////
-
 #define IDR_MANIFEST                    1
 #define IDM_ABOUTBOX                    0x0010
 #define IDS_ABOUTBOX                    101
@@ -27,6 +9,7 @@
 #define IDS_CLEARSEL                    102
 #define IDR_MAINFRAME                   128
 #define IDB_COLUMN_2                    130
+#define IDD_DIALOG1                     130
 #define IDB_COLUMN_0                    131
 #define IDB_COLUMN_1                    132
 #define IDC_LIST_CTRL                   1004
@@ -45,6 +28,8 @@
 #define IDC_CHK_MINIMUMSIZE             1019
 #define IDC_CHK_DISABLESIZING           1020
 #define IDC_BTN_RESET                   1021
+#define IDC_BUT_ADD                     1022
+#define IDC_BUT_MOD                     1023
 #define IDC_GBOX_LIST                   1024
 #define IDC_CHK_SORTCOLOR               1025
 #define IDC_CLR_SORTBACK                1026
@@ -61,14 +46,15 @@
 #define IDC_CLR_ROWTEXT                 1037
 #define IDC_BTN_SIZETOFIT               1038
 #define IDC_CHK_ENABLE                  1039
+#define IDC_BUT_DEL                     1040
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        130
+#define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1022
+#define _APS_NEXT_CONTROL_VALUE         1023
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

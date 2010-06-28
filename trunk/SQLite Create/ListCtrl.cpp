@@ -58,8 +58,15 @@ CListCtrlApp theApp;
 
 BOOL CListCtrlApp::InitInstance()
 {
+	// InitCommonControls() is required on Windows XP if an application
+	// manifest specifies use of ComCtl32.dll version 6 or later to enable
+	// visual styles.  Otherwise, any window creation will fail.
+	InitCommonControls();
+
 	AfxEnableControlContainer();
 	CXTPWinDwmWrapper().SetProcessDPIAware();
+
+	AfxOleInit();
 
 	// Standard initialization
 	// If you are not using these features and wish to reduce the size
@@ -82,6 +89,7 @@ BOOL CListCtrlApp::InitInstance()
 	LoadStdProfileSettings();  // Load standard INI file options (including MRU)
 
 	CListCtrlDlg dlg;
+	dlg.m_strtable =  _T("table");   
 	m_pMainWnd = &dlg;
 	int nResponse = (int)dlg.DoModal();
 	if (nResponse == IDOK)

@@ -435,7 +435,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zm200 "
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../Source,../../AboutDlg"
+				AdditionalIncludeDirectories="AboutDlg"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				RuntimeLibrary="3"
 				TreatWChar_tAsBuiltInType="true"
@@ -457,14 +457,15 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="../../../Source;../../AboutDlg"
+				AdditionalIncludeDirectories="AboutDlg"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="../../../bin/vc90/ListCtrlD.exe"
+				AdditionalDependencies="sqlite3.lib"
+				OutputFile="bin/vc90/sqlitecreateD.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../../../lib/vc90"
@@ -799,6 +800,14 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="ListCtrl.cpp"
@@ -947,7 +956,115 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="CGridListCtrlEx"
+			>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnManagerProfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnManagerProfile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnTrait.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnTraitCombo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnTraitCombo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnTraitDateTime.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnTraitDateTime.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnTraitEdit.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnTraitEdit.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnTraitImage.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnTraitImage.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnTraitText.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnTraitText.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridColumnTraitVisitor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridListCtrlEx.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridListCtrlEx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridListCtrlGroups.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridListCtrlGroups.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridRowTrait.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridRowTraitText.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridRowTraitText.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridRowTraitVisitor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridRowTraitXP.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CGridListCtrlEx\CGridRowTraitXP.h"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="ListCtrl.rc"
+		/>
 	</Globals>
 </VisualStudioProject>

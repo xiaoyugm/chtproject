@@ -23,10 +23,10 @@
 #include "ListCtrlDlg.h"
 #include "AboutDlg.h"
 
-#include "CppSQLite3.h"
-#include <ctime>
-#include <iostream>
-using namespace std;
+//#include "CppSQLite3.h"
+//#include <ctime>
+//#include <iostream>
+//using namespace std;
 
 
 #ifdef _DEBUG
@@ -74,6 +74,8 @@ CListCtrlDlg::CListCtrlDlg(CWnd* pParent /*=NULL*/)
 
 	CXTPWinThemeWrapper themeWrapper;
 	m_bWinTheme  = themeWrapper.IsThemeActive();
+
+	m_strtable = "";
 }
 
 void CListCtrlDlg::DoDataExchange(CDataExchange* pDX)
@@ -159,6 +161,10 @@ BEGIN_MESSAGE_MAP(CListCtrlDlg, CXTResizeDialog)
 	ON_CPN_XT_SELENDOK(IDC_CLR_LISTTEXT, OnSelEndOkListTextColor)
 	ON_CPN_XT_SELENDOK(IDC_CLR_ROWBACK, OnSelEndOkRowBackColor)
 	ON_CPN_XT_SELENDOK(IDC_CLR_ROWTEXT, OnSelEndOkRowTextColor)
+	ON_BN_CLICKED(IDOK, &CListCtrlDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_BUT_ADD, &CListCtrlDlg::OnBnClickedButAdd)
+	ON_BN_CLICKED(IDC_BUT_MOD, &CListCtrlDlg::OnBnClickedButMod)
+	ON_BN_CLICKED(IDC_BUT_DEL, &CListCtrlDlg::OnBnClickedButDel)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -244,11 +250,26 @@ BOOL CListCtrlDlg::OnInitDialog()
 	XTThemeManager()->SetTheme(xtThemeOfficeXP);
 
 	// Load window placement
-	LoadPlacement(_T("CListCtrlDlg"));
+	//LoadPlacement(_T("CListCtrlDlg"));
+
+	// Give better margin to editors
+	//m_listCtrl.SetCellMargin(1.2);
+	//CGridRowTraitXP* pRowTrait = new CGridRowTraitXP;
+	//m_listCtrl.SetDefaultRowTrait(pRowTrait);
+
+	// Create Columns
+	//m_listCtrl.InsertHiddenLabelColumn();	// Requires one never uses column 0
+
+	CGridColumnTrait* pTrait = NULL;
+	CGridColumnTrait* pTrait1 = NULL;
+	pTrait = new CGridColumnTraitEdit;
+	pTrait1 = new CGridColumnTraitEdit;
+	m_listCtrl.InsertColumnTrait(1, _T("表名"), LVCFMT_LEFT, 125, 0, pTrait);
+	m_listCtrl.InsertColumnTrait(2, _T(""), LVCFMT_LEFT, 125, 1, pTrait1);
 
 	// TODO: Add extra initialization here
-	m_listCtrl.InsertColumn(0, _T("表名"),   LVCFMT_LEFT, 125);
-	//m_listCtrl.InsertColumn(1, _T("Column Two"),   LVCFMT_LEFT, 125);
+	//m_listCtrl.InsertColumn(0, _T("表名"),   LVCFMT_LEFT, 125);
+	//m_listCtrl.InsertColumn(1, _T(""),   LVCFMT_LEFT, 125);
 	//m_listCtrl.InsertColumn(2, _T("Column Three"), LVCFMT_LEFT, 125);
 
 	int iItem;
@@ -275,41 +296,41 @@ BOOL CListCtrlDlg::OnInitDialog()
 	// add bitmap images.
 	m_header.SetBitmap(0, IDB_COLUMN_0, FALSE, RGB(0,255,0));
 	m_header.SetBitmap(1, IDB_COLUMN_1, FALSE, RGB(0,255,0));
-	m_header.SetBitmap(2, IDB_COLUMN_2, FALSE, RGB(0,255,0));
+	//m_header.SetBitmap(2, IDB_COLUMN_2, FALSE, RGB(0,255,0));
 
 	// enable auto sizing.
 	m_header.EnableAutoSize(TRUE);
 	m_header.ResizeColumnsToFit();
-	SortColumn(m_nSortedCol, m_bAscending);
+	//SortColumn(m_nSortedCol, m_bAscending);
 
 	m_cpSortBack.ShowText(TRUE);
-	m_cpSortBack.SetColor(m_listCtrl.GetSortBackColor());
-	m_cpSortBack.SetDefaultColor(m_listCtrl.GetSortBackColor());
+//	m_cpSortBack.SetColor(m_listCtrl.GetSortBackColor());
+//	m_cpSortBack.SetDefaultColor(m_listCtrl.GetSortBackColor());
 
 	m_cpSortText.ShowText(TRUE);
-	m_cpSortText.SetColor(m_listCtrl.GetSortTextColor());
-	m_cpSortText.SetDefaultColor(m_listCtrl.GetSortTextColor());
+//	m_cpSortText.SetColor(m_listCtrl.GetSortTextColor());
+//	m_cpSortText.SetDefaultColor(m_listCtrl.GetSortTextColor());
 
 	m_cpListBack.ShowText(TRUE);
-	m_cpListBack.SetColor(m_listCtrl.GetListBackColor());
-	m_cpListBack.SetDefaultColor(m_listCtrl.GetListBackColor());
+//	m_cpListBack.SetColor(m_listCtrl.GetListBackColor());
+//	m_cpListBack.SetDefaultColor(m_listCtrl.GetListBackColor());
 
 	m_cpListText.ShowText(TRUE);
-	m_cpListText.SetColor(m_listCtrl.GetListTextColor());
-	m_cpListText.SetDefaultColor(m_listCtrl.GetListTextColor());
+//	m_cpListText.SetColor(m_listCtrl.GetListTextColor());
+//	m_cpListText.SetDefaultColor(m_listCtrl.GetListTextColor());
 
 	m_cpRowBack.ShowText(TRUE);
-	m_cpRowText.SetColor(m_listCtrl.GetListTextColor());
-	m_cpRowBack.SetDefaultColor(m_listCtrl.GetListBackColor());
+//	m_cpRowText.SetColor(m_listCtrl.GetListTextColor());
+//	m_cpRowBack.SetDefaultColor(m_listCtrl.GetListBackColor());
 
 	m_cpRowText.ShowText(TRUE);
-	m_cpRowBack.SetColor(m_listCtrl.GetListBackColor());
-	m_cpRowText.SetDefaultColor(m_listCtrl.GetListTextColor());
+//	m_cpRowBack.SetColor(m_listCtrl.GetListBackColor());
+//	m_cpRowText.SetDefaultColor(m_listCtrl.GetListTextColor());
 
-	m_listCtrl.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_EX_FULLROWSELECT);
-	m_listCtrl.EnableUserSortColor(BoolType(m_bSortColor));
-	m_listCtrl.EnableUserListColor(BoolType(m_bListColor));
-	m_listCtrl.EnableUserRowColor(BoolType(m_bRowColor));
+//	m_listCtrl.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_EX_FULLROWSELECT);
+//	m_listCtrl.EnableUserSortColor(BoolType(m_bSortColor));
+//	m_listCtrl.EnableUserListColor(BoolType(m_bListColor));
+//	m_listCtrl.EnableUserRowColor(BoolType(m_bRowColor));
 
 	OnSelendokComboThemes();
 
@@ -317,6 +338,8 @@ BOOL CListCtrlDlg::OnInitDialog()
 	OnChkGridLines();
 	OnChkWintheme();
 	//OnChkCheckBoxes();
+
+
 
 	
 	CString strAppPath = theApp.GetAppPath();
@@ -329,28 +352,36 @@ BOOL CListCtrlDlg::OnInitDialog()
 		int row;
         CppSQLite3DB db;
 		db.SQLiteVersion();
-        remove(strAppPath);
+//        remove(strAppPath);
         db.open(strAppPath);
 
-        db.execDML("create table parts(no int, name char(20), qty int, cost number);");
-        db.execDML("insert into parts values(1, 'part1', 100, 1.11);");
-        db.execDML("insert into parts values(2, null, 200, 2.22);");
-        db.execDML("insert into parts values(3, 'part3', null, 3.33);");
-        db.execDML("insert into parts values(4, 'part4', 400, null);");
+//        db.execDML("create table parts(no int, name char(20), qty int, cost number);");
+//        db.execDML("update parts set name = 'part1' where no = 1;");
+        //db.execDML("insert into parts values(1, 'part1', 100, 1.11);");
+        //db.execDML("insert into parts values(2, null, 200, 2.22);");
+        //db.execDML("insert into parts values(3, 'part3', null, 3.33);");
+        //db.execDML("insert into parts values(4, 'part4', 400, null);");
 
-        CppSQLite3Query q = db.execQuery("select name from sqlite_master where type='table';");
-        while (!q.eof())
-        {
-	    	m_listCtrl.InsertItem(iItem, q.getStringField(0), 0);
-            cout << q.getStringField(0)  << "|" ;
-			iItem++;
-            q.nextRow();
-        }
-		q.finalize();
+		iItem = 0;
+		if(m_strtable == "table")
+		{
+			CppSQLite3Query q = db.execQuery("select name from sqlite_master where type='table';");
+			while (!q.eof())
+			{
+	    		m_listCtrl.InsertItem(iItem, q.getStringField(0));
+	    		m_listCtrl.SetItemText(iItem, 1, "");
+	    		//m_listCtrl.SetItemText(iItem, 2, q.getStringField(0));
+				//cout << q.getStringField(0)  << "|" ;
+				iItem++;
+				q.nextRow();
+			}
+			q.finalize();
+		}
 	}
     catch (CppSQLite3Exception& e)
     {
-        cerr << e.errorCode() << ":" << e.errorMessage() << endl;
+        //cerr << e.errorCode() << ":" << e.errorMessage() << endl;
+		e.errorCode();
     }
 
 
@@ -366,7 +397,7 @@ BOOL CListCtrlDlg::OnInitDialog()
 void CListCtrlDlg::OnDestroy()
 {
 	// Save window placement
-	SavePlacement(_T("CListCtrlDlg"));
+//	SavePlacement(_T("CListCtrlDlg"));
 
 	CXTResizeDialog::OnDestroy();
 }
@@ -426,7 +457,7 @@ void CListCtrlDlg::SortColumn(int iCol, bool bAsc)
 	m_nSortedCol = iCol;
 
 	// set sort image for header and sort column.
-	m_listCtrl.SetSortImage(m_nSortedCol, m_bAscending);
+//	m_listCtrl.SetSortImage(m_nSortedCol, m_bAscending);
 
 	CXTSortClass csc(&m_listCtrl, m_nSortedCol);
 	csc.Sort(m_bAscending, xtSortString);
@@ -635,7 +666,7 @@ void CListCtrlDlg::OnChkSortcolor()
 	UpdateData();
 	EnableControls(FALSE);
 
-	m_listCtrl.EnableUserSortColor(BoolType(m_bSortColor));
+//	m_listCtrl.EnableUserSortColor(BoolType(m_bSortColor));
 	m_listCtrl.RedrawWindow();
 }
 
@@ -654,7 +685,7 @@ void CListCtrlDlg::OnChkListcolor()
 	UpdateData();
 	EnableControls(FALSE);
 
-	m_listCtrl.EnableUserListColor(BoolType(m_bListColor));
+//	m_listCtrl.EnableUserListColor(BoolType(m_bListColor));
 	m_listCtrl.RedrawWindow();
 }
 
@@ -673,7 +704,7 @@ void CListCtrlDlg::OnChkRowcolor()
 	UpdateData();
 	EnableControls(FALSE);
 
-	m_listCtrl.EnableUserRowColor(BoolType(m_bRowColor));
+//	m_listCtrl.EnableUserRowColor(BoolType(m_bRowColor));
 	m_listCtrl.RedrawWindow();
 }
 
@@ -691,32 +722,32 @@ void CListCtrlDlg::OnChkFullRowSelect()
 {
 	UpdateData();
 
-	m_listCtrl.ModifyExtendedStyle( m_bFullRowSel ? 0 : LVS_EX_FULLROWSELECT,
-		m_bFullRowSel ? LVS_EX_FULLROWSELECT : 0 );
+//	m_listCtrl.ModifyExtendedStyle( m_bFullRowSel ? 0 : LVS_EX_FULLROWSELECT,
+//		m_bFullRowSel ? LVS_EX_FULLROWSELECT : 0 );
 }
 
 void CListCtrlDlg::OnChkGridLines()
 {
 	UpdateData();
 
-	m_listCtrl.ModifyExtendedStyle( m_bGridLines ? 0 : LVS_EX_GRIDLINES,
-		m_bGridLines ? LVS_EX_GRIDLINES : 0 );
+//	m_listCtrl.ModifyExtendedStyle( m_bGridLines ? 0 : LVS_EX_GRIDLINES,
+//		m_bGridLines ? LVS_EX_GRIDLINES : 0 );
 }
 
 void CListCtrlDlg::OnChkCheckBoxes()
 {
 	UpdateData();
 
-	m_listCtrl.ModifyExtendedStyle( m_bCheckBoxes ? 0 : LVS_EX_CHECKBOXES,
-		m_bCheckBoxes ? LVS_EX_CHECKBOXES : 0 );
+//	m_listCtrl.ModifyExtendedStyle( m_bCheckBoxes ? 0 : LVS_EX_CHECKBOXES,
+//		m_bCheckBoxes ? LVS_EX_CHECKBOXES : 0 );
 }
 
 void CListCtrlDlg::OnChkHeaderDragDrop()
 {
 	UpdateData();
 
-	m_listCtrl.ModifyExtendedStyle( m_bDragDrop ? 0 : LVS_EX_HEADERDRAGDROP,
-		m_bDragDrop ? LVS_EX_HEADERDRAGDROP : 0 );
+//	m_listCtrl.ModifyExtendedStyle( m_bDragDrop ? 0 : LVS_EX_HEADERDRAGDROP,
+//		m_bDragDrop ? LVS_EX_HEADERDRAGDROP : 0 );
 }
 
 void CListCtrlDlg::OnBtnSizeToFit()
@@ -742,8 +773,8 @@ void CListCtrlDlg::OnBtnUpdate()
 {
 	if (m_bListColor)
 	{
-		m_listCtrl.SetListTextColor(m_crListText);
-		m_listCtrl.SetListBackColor(m_crListBack);
+//		m_listCtrl.SetListTextColor(m_crListText);
+//		m_listCtrl.SetListBackColor(m_crListBack);
 	}
 
 	if (m_bRowColor)
@@ -751,7 +782,7 @@ void CListCtrlDlg::OnBtnUpdate()
 		for (POSITION pos = m_listCtrl.GetFirstSelectedItemPosition(); pos;)
 		{
 			int iItem = m_listCtrl.GetNextSelectedItem(pos);
-			m_listCtrl.SetRowColor(iItem, m_crRowText, m_crRowBack);
+//			m_listCtrl.SetRowColor(iItem, m_crRowText, m_crRowBack);
 		}
 
 		ClearSelection();
@@ -759,8 +790,8 @@ void CListCtrlDlg::OnBtnUpdate()
 
 	if (m_bSortColor)
 	{
-		m_listCtrl.SetSortBackColor(m_cpSortBack.GetColor());
-		m_listCtrl.SetSortTextColor(m_cpSortText.GetColor());
+//		m_listCtrl.SetSortBackColor(m_cpSortBack.GetColor());
+//		m_listCtrl.SetSortTextColor(m_cpSortText.GetColor());
 	}
 
 	m_listCtrl.RedrawWindow();
@@ -778,12 +809,60 @@ void CListCtrlDlg::OnBtnReset()
 	m_crListBack = GetXtremeColor(COLOR_WINDOW);
 	m_crSortBack = crSortBack;
 
-	m_listCtrl.SetListTextColor(m_crListText);
-	m_listCtrl.SetListBackColor(m_crListBack);
-	m_listCtrl.SetSortTextColor(m_crSortText);
-	m_listCtrl.SetSortBackColor(m_crSortBack);
-	m_listCtrl.RemoveRowColors();
+//	m_listCtrl.SetListTextColor(m_crListText);
+//	m_listCtrl.SetListBackColor(m_crListBack);
+//	m_listCtrl.SetSortTextColor(m_crSortText);
+//	m_listCtrl.SetSortBackColor(m_crSortBack);
+//	m_listCtrl.RemoveRowColors();
 
 	UpdateData(FALSE);
 	m_listCtrl.RedrawWindow();
+}
+
+void CListCtrlDlg::OnBnClickedOk()
+{
+	// TODO: Add your control notification handler code here
+}
+
+
+void CListCtrlDlg::OnBnClickedButAdd()
+{
+	// TODO: Add your control notification handler code here
+}
+
+void CListCtrlDlg::OnBnClickedButMod()
+{
+	if(m_strtable == "table")
+	{
+    	int nItemCount=m_listCtrl.GetItemCount();
+        for(int nItem=0;nItem<nItemCount;nItem++)
+		{
+    		CString strPointNo=m_listCtrl.GetItemText(nItem,0);
+	    	int nItemCount1=m_listCtrl.GetItemCount();
+	    	BOOL bExist=FALSE;
+    		for(int j=0; j<nItemCount1; j++)
+			{
+		    	if(strPointNo==m_listCtrl.GetItemText(j,0))
+				{
+		    		bExist=TRUE;
+		    		break;
+				}
+			}
+	    	if(!bExist)
+	    		m_listCtrl.InsertItem(nItemCount1, strPointNo, 0);
+		}
+
+
+
+	}
+
+		
+		
+		
+		
+}
+
+void CListCtrlDlg::OnBnClickedButDel()
+{
+	// TODO: Add your control notification handler code here
 }
