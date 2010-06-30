@@ -35,6 +35,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+DBSetting    m_DBSetting[100];
 #define BoolType(b) b?true:false
 
 /////////////////////////////////////////////////////////////////////////////
@@ -345,17 +346,17 @@ BOOL CListCtrlDlg::OnInitDialog()
 	CString strAppPath = theApp.GetAppPath();
 	CString strxmlFile ;
 //	strxmlFile.Format("%d",GetSystemMetrics(SM_CXSCREEN));
-	strAppPath = strAppPath + "\\setting.db";
+	strAppPath = strAppPath + "\\setting.db3";
 
     try
     {
 		int row;
-        CppSQLite3DB db;
+        //CppSQLite3DB db;
 		db.SQLiteVersion();
 //        remove(strAppPath);
         db.open(strAppPath);
 
-//        db.execDML("create table parts(no int, name char(20), qty int, cost number);");
+        //db.execDML("create table parts(no int, name char(20), qty int, cost number);");
 //        db.execDML("update parts set name = 'part1' where no = 1;");
         //db.execDML("insert into parts values(1, 'part1', 100, 1.11);");
         //db.execDML("insert into parts values(2, null, 200, 2.22);");
@@ -368,6 +369,7 @@ BOOL CListCtrlDlg::OnInitDialog()
 			CppSQLite3Query q = db.execQuery("select name from sqlite_master where type='table';");
 			while (!q.eof())
 			{
+				m_DBSetting[iItem].tablename = q.getStringField(0);
 	    		m_listCtrl.InsertItem(iItem, q.getStringField(0));
 	    		m_listCtrl.SetItemText(iItem, 1, "");
 	    		//m_listCtrl.SetItemText(iItem, 2, q.getStringField(0));
@@ -398,6 +400,7 @@ void CListCtrlDlg::OnDestroy()
 {
 	// Save window placement
 //	SavePlacement(_T("CListCtrlDlg"));
+	db.close();
 
 	CXTResizeDialog::OnDestroy();
 }
@@ -827,33 +830,30 @@ void CListCtrlDlg::OnBnClickedOk()
 
 void CListCtrlDlg::OnBnClickedButAdd()
 {
-	// TODO: Add your control notification handler code here
+	if(m_strtable == "table")
+	{
+    	m_strtable = "addtable";
+
+
+
+	}
 }
 
 void CListCtrlDlg::OnBnClickedButMod()
 {
+	CString strdbset;
 	if(m_strtable == "table")
 	{
     	int nItemCount=m_listCtrl.GetItemCount();
         for(int nItem=0;nItem<nItemCount;nItem++)
 		{
     		CString strPointNo=m_listCtrl.GetItemText(nItem,0);
-	    	int nItemCount1=m_listCtrl.GetItemCount();
-	    	BOOL bExist=FALSE;
-    		for(int j=0; j<nItemCount1; j++)
+			if(!db.tableExists(strPointNo))
 			{
-		    	if(strPointNo==m_listCtrl.GetItemText(j,0))
-				{
-		    		bExist=TRUE;
-		    		break;
-				}
+				strdbset = "ALTER TABLE "+ m_DBSetting[nItem].tablename +" RENAME TO " + m_listCtrl.GetItemText(nItem,0);
+				db.execDML(strdbset);
 			}
-	    	if(!bExist)
-	    		m_listCtrl.InsertItem(nItemCount1, strPointNo, 0);
 		}
-
-
-
 	}
 
 		
@@ -864,5 +864,20 @@ void CListCtrlDlg::OnBnClickedButMod()
 
 void CListCtrlDlg::OnBnClickedButDel()
 {
-	// TODO: Add your control notification handler code here
+	if(m_strtable == "table")
+	{
+		int nItemCount=m_listCtrl.GetItemCount();
+		for(int nItem=0;nItem<nItemCount;nItem++)
+		{
+			if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
+			{
+        		CString strPointNo="drop table '" + m_listCtrl.GetItemText(nItem,0) + "'";
+				db.execDML(strPointNo);
+				m_listCtrl.DeleteItem(nItem);
+				break;
+			}
+		}
+	}
+
+
 }

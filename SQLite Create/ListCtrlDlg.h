@@ -25,6 +25,10 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+struct DBSetting {
+	CString   tablename;	                        //数据表名称   
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // CListCtrlDlg dialog
 
@@ -80,6 +84,7 @@ public:
 	CXTResizeGroupBox   m_gboxHeader;
 
 	CString     m_strtable;
+	CppSQLite3DB db;
 
 
 	// ClassWizard generated virtual function overrides
