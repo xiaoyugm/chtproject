@@ -75,20 +75,20 @@ void CMQClient::OnMessage(CNDKMessage& message)
 {
 	switch(message.GetId())
 	{
-	case SENDSQL:
+//	case SENDSQL:
 ///		WriteSQL(message);
-		break;
+//		break;
 	case SENDSTARTTIME:
 		InitPointDate(message);
 		break;
-	case WARNCAUSERECORD:
+//	case WARNCAUSERECORD:
 ///		DiaplayWarnTableC(message);
-		break;
-	case KEEPTIMESTR:
-		break;
-	case ALLDATA:
-    	CollectDate(message);
-		break;
+//		break;
+//	case KEEPTIMESTR:
+//		break;
+//	case ALLDATA:
+//    	CollectDate(message);
+//		break;
 	default:
 		break;
 	}
@@ -226,9 +226,9 @@ void CMQClient::CollectDate(CNDKMessage& message)
 
 void CMQClient::InitPointDate(CNDKMessage& message)
 {
-	CNDKMessage syncdata(ALLDATA);
-	syncdata.Add(1);
-	SendMessage(syncdata);
+//	CNDKMessage syncdata(ALLDATA);
+//	syncdata.Add(1);
+//	SendMessage(syncdata);
 }
 
 //更新报警表

@@ -2,10 +2,12 @@
 
 enum CommandType
 {
-	SENDSQL,
-	SENDSTARTTIME,
-	WARNCAUSERECORD,
-	KEEPTIMESTR,
-	ALLDATA,
-	SYNC
+	SENDSTARTTIME,             //服务器启动时间
+	REALTIMEDATA,              //采集实时数据
+	VERIFYTIMER,               //校时操作
+	MANUALCONTROL,             //手动控制操作
+	SENDCONFIG,                //配置操作
+	TESTCOMMUNICATION,         //通讯测试
+	WINDGASATRESIA,            //风电瓦斯闭锁
+	FAULTATRESIA               //故障闭锁
 };
