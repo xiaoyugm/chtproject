@@ -78,9 +78,9 @@ void CMQServer::OnMessage(long lUserId, CNDKMessage& message)
 	case uWarnCauseRecord:
 //		SyncTableuWarnCauseRecord();
 		break;
-*/	case SYNC:
-		Sync(message);
-		break;
+*///	case SYNC:
+//		Sync(message);
+//		break;
 
 	default:
 		break;
@@ -105,9 +105,9 @@ BOOL CMQServer::SendSQL(CString strSql)
 {
 	if(bIsConnect)
 	{
-		CNDKMessage message(SENDSQL);
-		message.Add(strSql);
-		if(SendMessageToAllUsers(message))
+//		CNDKMessage message(SENDSQL);
+//		message.Add(strSql);
+//		if(SendMessageToAllUsers(message))
 			return TRUE;
 	}
 	return FALSE;
