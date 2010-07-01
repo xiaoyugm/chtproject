@@ -936,3 +936,20 @@ void CGUI_VisualStudioApp::OnWindowCloseAll()
 	CloseAllDocuments(FALSE);
 
 }
+
+//发送数据包
+void CGUI_VisualStudioApp::SendMessage(CNDKMessage& message)
+{
+	SocketServer.SendMessage(message);
+}
+
+//向主机发送信息
+void CGUI_VisualStudioApp::Sync(CNDKMessage& message)
+{
+//	if(bIsClient)
+	{
+		socketClient.SendMessage(message);
+	}
+
+}
+
