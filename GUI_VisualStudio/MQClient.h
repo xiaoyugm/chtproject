@@ -21,6 +21,7 @@ public:
 	virtual ~CMQClient();
 public:
 
+	void GetHostStartTime(CNDKMessage& message);
 ///	CDrawDoc* GetDocument();
 	BOOL SendMessage(CNDKMessage& message);
 	BOOL ConnectServer(CString strIp,long lPort);

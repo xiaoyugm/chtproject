@@ -31,6 +31,7 @@
 
 #include "resource.h"       // main symbols
 
+#include "MQServer.h"
 #include "MQClient.h"
 #include "drawview.h"
 //#include <SqlDirect.h>
@@ -52,7 +53,11 @@ public:
 	CGUI_VisualStudioApp();
 
 	BOOL   ProcessShellCommand(CCommandLineInfo& rCmdInfo);
+    CMQServer  SocketServer;
+    CMQClient socketClient;
 	BOOL   StartClient();
+	void   SendMessage(CNDKMessage& message);     //211
+	void   Sync(CNDKMessage& message);
 
 	CString GetAppPath();				//返回应用程序所在路径
 	ULONG_PTR           gdiplusToken;
@@ -77,7 +82,6 @@ public:
 	int DocNum ,idis;
 	CString curuser; //,IPPort
 
-	CMQClient socketClient;
 ///	CPointInfo      *pPointInfo;
 	CMultiDocTemplate* pDocTemplate;
 	CMultiDocTemplate* pNewDocTemplate;

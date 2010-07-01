@@ -79,16 +79,16 @@ void CMQClient::OnMessage(CNDKMessage& message)
 ///		WriteSQL(message);
 //		break;
 	case SENDSTARTTIME:
-		InitPointDate(message);
+		GetHostStartTime(message);
 		break;
 //	case WARNCAUSERECORD:
 ///		DiaplayWarnTableC(message);
 //		break;
 //	case KEEPTIMESTR:
 //		break;
-//	case ALLDATA:
-//    	CollectDate(message);
-//		break;
+	case REALTIMEDATA:
+    	CollectDate(message);
+		break;
 	default:
 		break;
 	}
@@ -145,19 +145,103 @@ void CMQClient::Close()
 	CloseConnection();
 }
 
+//获得主机的启动时间
+void CMQClient::GetHostStartTime(CNDKMessage& message)
+{
+	message.GetAt(0,nYear);
+	message.GetAt(1,nMonth);
+	message.GetAt(2,nDay);
+	message.GetAt(3,nHour);
+	message.GetAt(4,nMinute);
+	message.GetAt(5,nSecond);
+	CTime time(nYear, nMonth, nDay, nHour, nMinute, nSecond);
+	StartTime = time;
+
+	CNDKMessage message1(REALTIMEDATA);
+					message1.Add(0x7E);
+					message1.Add(0x01);
+	 				message1.Add(0x44);
+					message1.Add(0x21);
+					theApp.Sync(message1);
+
+
+	//if(ConnectTime != StartTime)   
+///	SyncHostAndClient();
+}
+
 void CMQClient::CollectDate(CNDKMessage& message)
 {
-	double dfValue , fMin ,fMax ; 
-	unsigned short nPointNo,ufData;
-	unsigned char Warn_state ,state ,lWarn_state;
+//	double dfValue , fMin ,fMax ; 
+	unsigned char  nPointNo;
+//	unsigned char Warn_state ,state ,lWarn_state;
+    unsigned char  usPrecision ;
+	CString ggggg,strtemp;
+    unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
 
-	message.GetAt(0, state);
-	message.GetAt(1, nPointNo);
-	message.GetAt(2, Warn_state);
+	message.GetAt(0, nbegin);
+	strtemp.Format("@@%d$$",nbegin);
+	ggggg += strtemp;
+	message.GetAt(1, nstation);
+	strtemp.Format("@@%d$$",nstation);
+	ggggg += strtemp;
+	message.GetAt(2, ncommand);
+	strtemp.Format("@@%d$$",ncommand);
+	ggggg += strtemp;
+
 	message.GetAt(3, ufData);
-	message.GetAt(4, dfValue);
+	strtemp.Format("@@%d$$",ufData);
+	ggggg += strtemp;
+	message.GetAt(4, ufData);       //1
+	strtemp.Format("@@%d$$",ufData);
+	ggggg += strtemp;
+	message.GetAt(5, ufData);
+	strtemp.Format("@@%d$$",ufData);
+	ggggg += strtemp;
+	message.GetAt(6, ufData);       //2
+	strtemp.Format("@@%d$$",ufData);
+	ggggg += strtemp;
+	message.GetAt(7, ufData);
+	message.GetAt(8, ufData);       //3
+	message.GetAt(9, ufData);
+	message.GetAt(10, ufData);      //4
+	message.GetAt(11, ufData);
+	message.GetAt(12, ufData);      //5
+	message.GetAt(13, ufData);
+	message.GetAt(14, ufData);      //6
+	message.GetAt(15, ufData);
+	message.GetAt(16, ufData);      //7
+	strtemp.Format("@@%d$$",ufData);
+	ggggg += strtemp;
 
-	if(state == 1)
+	message.GetAt(17, ufData);
+	strtemp.Format("@@%d$$",ufData);
+	ggggg += strtemp;
+
+	message.GetAt(18, ufData);
+	strtemp.Format("@@%d$$",ufData);
+	ggggg += strtemp;
+	message.GetAt(19, ufData);
+	strtemp.Format("@@%d$$",ufData);
+	ggggg += strtemp;
+	message.GetAt(20, ufData);
+	strtemp.Format("@@%d$$",ufData);
+	ggggg += strtemp;
+	message.GetAt(21, ufData);
+	strtemp.Format("@@%d$$",ufData);
+	ggggg += strtemp;
+	message.GetAt(22, ufData);
+	strtemp.Format("@@%d$$",ufData);
+	ggggg += strtemp;
+	message.GetAt(23, ufData);
+	strtemp.Format("@@%d$$",ufData);
+	ggggg += strtemp;
+
+	message.GetAt(24, nend);
+	strtemp.Format("@@%d$$",nend);
+	ggggg += strtemp;
+
+    AfxMessageBox(ggggg);
+/*	if(state == 1)
 	{
         lWarn_state = m_CPointInfo[nPointNo].lWarn_state ;
 		m_CPointInfo[nPointNo].lufdata = ufData;
@@ -201,8 +285,8 @@ void CMQClient::CollectDate(CNDKMessage& message)
 	         	DiaplayWarnTableC(nPointNo);
 			}
 	}
-
-    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+*/
+//    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 	
 		CString strItem;
 		CString strSubA;
