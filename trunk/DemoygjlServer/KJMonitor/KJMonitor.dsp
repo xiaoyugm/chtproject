@@ -213,10 +213,6 @@ InputName=KJMonitor
 # End Source File
 # Begin Source File
 
-SOURCE=.\KJMonitor.odl
-# End Source File
-# Begin Source File
-
 SOURCE=.\KJMonitor.rc
 # End Source File
 # Begin Source File
