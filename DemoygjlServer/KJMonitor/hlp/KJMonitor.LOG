@@ -2,91 +2,91 @@ Microsoft (R) Help Compiler
 HCRTF 4.03.0002
 Copyright (c) Microsoft Corp 1990 - 1995. All rights reserved.
 kjmonitor.hpj
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_START" is the same as the map value for "HIDM_REG35".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_ABORT" is the same as the map value for "HIDM_REG36".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_NUMBER" is the same as the map value for "HIDM_REG37".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ1" is the same as the map value for "HIDM_REG39".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ2" is the same as the map value for "HIDM_REG40".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ3" is the same as the map value for "HIDM_REG41".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ4" is the same as the map value for "HIDM_REG42".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ5" is the same as the map value for "HIDM_REG43".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ6" is the same as the map value for "HIDM_REG44".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ7" is the same as the map value for "HIDM_REG45".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ8" is the same as the map value for "HIDM_REG46".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ9" is the same as the map value for "HIDM_REG47".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ10" is the same as the map value for "HIDM_REG48".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ11" is the same as the map value for "HIDM_REG49".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ12" is the same as the map value for "HIDM_REG50".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ13" is the same as the map value for "HIDM_REG51".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ14" is the same as the map value for "HIDM_REG52".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ15" is the same as the map value for "HIDM_REG53".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDM_SA_SQ16" is the same as the map value for "HIDM_REG54".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MEPOINT_LOADPARADATA" is the same as the map value for "HID_MEPOINT_INSTALLDATABASE".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_COMM_TRANSFERTABLE" is the same as the map value for "HID_COMM_TRANSFERTABLE".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_COMM_EDITPARAMENTS" is the same as the map value for "HID_COMM_EDITPARAMENTS".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_TABLE_CURRENTSTATUS" is the same as the map value for "HID_TABLE_CURRENTSTATUS".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_TABLE_CURRENTALARM" is the same as the map value for "HID_TABLE_CURRENTALARM".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_TABLE_CURRENTCOMMFAILURE" is the same as the map value for "HID_TABLE_CURRENTCOMMFAILURE".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_TABLE_MEPOINT_DESCRIPTION" is the same as the map value for "HID_TABLE_MEPOINT_DESCRIPTION".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_TABLE_MEPOINT_ANALOGPARAMENTS" is the same as the map value for "HID_TABLE_MEPOINT_ANALOGPARAMENTS".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_TABLE_SEQUTRIGGER" is the same as the map value for "HID_TABLE_SEQUTRIGGER".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_TABLE_SEQUCONTENT" is the same as the map value for "HID_TABLE_SEQUCONTENT".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_TABLE_TIMETRIGGER" is the same as the map value for "HID_TABLE_TIMETRIGGER".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_TABLE_ALARMREASON" is the same as the map value for "HID_TABLE_ALARMREASON".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_TABLE_ALARMPOINT" is the same as the map value for "HID_TABLE_ALARMREASON".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_TABLE_ANALOG" is the same as the map value for "HID_TABLE_ANALOG".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_SQUENCE_START" is the same as the map value for "HID_MENU_SQUENCESTUMONITOR".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_SQUENCE_END" is the same as the map value for "HID_MENU_SQUENCE_CTRLEDIT".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HID_MENU_SQUENCE_EDIT" is the same as the map value for "HID_MENU_SQUENCE_TIGGETTIMEEDIT".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDW_WARNING1" is the same as the map value for "HIDW_OUTPUTBAR".
-    HC3037: Warning: F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
+    HC3037: Warning: E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.hm : 
 	The map value for "HIDW_WARNING2" is the same as the map value for "HIDW_WARNINGBAR1".
-    HC1012: Note: topic #2 of F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\.\afxcore.rtf : 
+    HC1012: Note: topic #2 of E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\.\afxcore.rtf : 
 	Table cell borders are not supported.
-    HC1012: Note: topic #3 of F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\.\afxcore.rtf : 
+    HC1012: Note: topic #3 of E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\.\afxcore.rtf : 
 	Table cell borders are not supported.
-    HC1012: Note: topic #4 of F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\.\afxcore.rtf : 
+    HC1012: Note: topic #4 of E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\.\afxcore.rtf : 
 	Table cell borders are not supported.
-    HC1012: Note: topic #5 of F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\.\afxcore.rtf : 
+    HC1012: Note: topic #5 of E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\.\afxcore.rtf : 
 	Table cell borders are not supported.
-    HC1012: Note: topic #6 of F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\.\afxcore.rtf : 
+    HC1012: Note: topic #6 of E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\.\afxcore.rtf : 
 	Table cell borders are not supported.
     HC1010: Note: 
 	The following mapped Topic IDs were not used in any topic:
@@ -352,8 +352,8 @@ kjmonitor.hpj
 21	Bitmaps
 
 
-Created F:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.HLP, 46,230 bytes
+Created E:\chtproject\trunk\DemoygjlServer\KJMonitor\hlp\KJMonitor.HLP, 46,230 bytes
 Bitmaps: 8,428 bytes
 Hall+Zeck compression decreased help file by 12,916 bytes.
-Compile time: 0 minutes, 0 seconds
+Compile time: 0 minutes, 1 second
 6 notes, 38 warnings
