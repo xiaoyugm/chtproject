@@ -141,6 +141,7 @@ GO
 
 CREATE TABLE [BJygjl].[dbo].[specialcontrol] (
 	[SID] [int]  ,
-	[SpeCtrol] [bit] 
+	[SpeCtrol] [bit] ,
+	[IsScan] [bit] 
 ) ON [PRIMARY] 
 GO

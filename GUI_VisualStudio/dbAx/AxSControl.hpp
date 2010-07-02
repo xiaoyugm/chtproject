@@ -30,13 +30,13 @@ public:
   CAxSControl() { _SetDefaultValues(); }
   ~CAxSControl() { }
 
-  bool     m_szSpeCtrol;
+  bool     m_szSpeCtrol,m_szIsScan;
   int  m_szSID ;
 
   //Set default values of class members
   void _SetDefaultValues()
   {
-    m_szSID =m_szSpeCtrol = 0;
+    m_szSID =m_szSpeCtrol = m_szIsScan = 0;
   };
 
   //Exchange field values with data provider
@@ -44,5 +44,6 @@ public:
   {
     FX_Integer           (bSave, _T("SID"),        m_szSID);
     FX_Bool           (bSave, _T("SpeCtrol"),       m_szSpeCtrol);
+    FX_Bool           (bSave, _T("IsScan"),       m_szIsScan);
   };
 };
