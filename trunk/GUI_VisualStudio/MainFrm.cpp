@@ -56,6 +56,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_BROWSERMOD, OnPBrowser)
 	ON_COMMAND(ID_CONTROLTABLE, OnControlT)
 	ON_COMMAND(ID_CONTROLS, OnControlS)
+	ON_COMMAND(ID_CONTROLF, OnControlF)
 //	ON_MESSAGE(WM_XTP_PRETRANSLATEMOUSEMSG, OnTabbarMouseMsg)  
 //    ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_INFO, OnSelchangeTabInfo)
 	//}}AFX_MSG_MAP
@@ -1246,6 +1247,14 @@ void CMainFrame::OnControlS()
 {
 	CSettingHostDlg dlg;
 	dlg.m_strtable =  _T("specialcontrol");
+	dlg.DoModal();
+}
+
+void CMainFrame::OnControlF() 
+{
+	CSettingHostDlg dlg;
+	dlg.m_strtable =  _T("specialcontrol");
+	dlg.m_bADD = true;
 	dlg.DoModal();
 }
 

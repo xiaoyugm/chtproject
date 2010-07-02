@@ -203,7 +203,8 @@ BOOL CSettingHostDlg::OnInitDialog()
 		CString strItem;
 		strItem.Format(_T("%d"), i);
     	m_wndComboSize3.AddString(strItem);
-    	m_wndComboSize4.AddString(strItem);
+		if(i<17)
+        	m_wndComboSize4.AddString(strItem);
 	}
 		m_wndComboSize3.SetCurSel(0);
 		m_wndComboSize4.SetCurSel(0);
@@ -299,11 +300,17 @@ BOOL CSettingHostDlg::OnInitDialog()
          InsC();
 	if(m_strtable == "AddControl")
          InsAddC();
-	if(m_ADTypeTable[6].TableName ==  m_strtable)
+	if((m_ADTypeTable[6].TableName ==  m_strtable)&& !m_bADD)
 	{
      	 m_listCtrl.ModifyExtendedStyle(0, LVS_EX_CHECKBOXES);
          InsS();
 	}
+	if((m_ADTypeTable[6].TableName ==  m_strtable)&& m_bADD)
+	{
+     	 m_listCtrl.ModifyExtendedStyle(0, LVS_EX_CHECKBOXES);
+         InsF();
+	}
+
     BuildAccountList();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control 
@@ -702,7 +709,7 @@ void CSettingHostDlg::BuildAccountList()
 		}
         m_PointDes.MoveFirst();
 	  }
-	  else if(m_ADTypeTable[6].TableName ==  m_strtable)
+	  else if((m_ADTypeTable[6].TableName ==  m_strtable)&& !m_bADD)
 	  {
 		if ( m_SControl._IsEmpty() )
 		  return;
@@ -723,7 +730,25 @@ void CSettingHostDlg::BuildAccountList()
 		}
         m_SControl.MoveFirst();
 	  }
-
+	  else if((m_ADTypeTable[6].TableName ==  m_strtable)&& m_bADD)
+	  {
+		if ( m_SControl._IsEmpty() )
+		  return;
+		m_listCtrl.SetItemCount(m_SControl.RecordCount());
+		int iItem = 0;
+		m_SControl.MoveFirst();
+		while ( !m_SControl.IsEOF() )
+		{
+				  CString dddd;
+				  dddd.Format("%d",m_SControl.m_szSID);
+    		m_listCtrl.InsertItem(iItem, dddd);
+			if(m_SControl.m_szIsScan)
+         		m_listCtrl.SetCheck(iItem, true);
+			iItem++;
+			m_SControl.MoveNext();
+		}
+        m_SControl.MoveFirst();
+	  }
 
 
        	// Insert data into list-control by copying from datamodel
@@ -1075,7 +1100,7 @@ void CSettingHostDlg::OnBtnADD()
 		OnClose();
         OnInitDialog();
 	}
-	else if(m_ADTypeTable[6].TableName ==  m_strtable )
+	else if((m_ADTypeTable[6].TableName ==  m_strtable )&& !m_bADD)
 	{
       CString str;
       for(int i=0; i<m_listCtrl.GetItemCount(); i++)
@@ -1123,8 +1148,60 @@ void CSettingHostDlg::OnBtnADD()
 			delete e;
 		}
       }
-        MessageBeep(MB_OK);
-        EndDialog(IDOK);
+		  AfxMessageBox("特殊控制分站已保存", MB_OK);
+//        MessageBeep(MB_OK);
+//        EndDialog(IDOK);
+	}
+	else if((m_ADTypeTable[6].TableName ==  m_strtable )&& m_bADD)
+	{
+      CString str;
+      for(int i=0; i<m_listCtrl.GetItemCount(); i++)
+      {
+		try
+		{
+					if ( m_SControl._IsOpen() )
+						   m_SControl.Close();
+					m_SControl.Create();
+					m_SControl.CursorType(adOpenDynamic);
+					m_SControl.CacheSize(50);
+					m_SControl._SetRecordsetEvents(new CAccountSetEvents);
+					CString strPointNo; 
+					strPointNo.Format(_T("SELECT * From specialcontrol WHERE SID = %d"),i+1);
+					m_SControl.Open(strPointNo, &m_Cn);
+					m_SControl.MarshalOptions(adMarshalModifiedOnly);
+			   if( m_listCtrl.GetItemState(i, LVIS_SELECTED) == LVIS_SELECTED || m_listCtrl.GetCheck(i))
+			   {
+//            	UpdateData(TRUE);           //Exchange dialog data
+					if(m_listCtrl.GetCheck(i))
+			    	{
+              		m_SControl.m_szSID = i+1;
+            		m_SControl.m_szIsScan = true;
+            		m_SControl.Update();    //Update the recordset
+	//                str.Format(_T("第%d行的checkbox为选中状态"), i);
+	//                AfxMessageBox(str);
+				    }
+				    else
+				    {
+              		m_SControl.m_szSID = i+1;
+            		m_SControl.m_szIsScan = false;
+            		m_SControl.Update();    //Update the recordset
+				    }
+			   }
+			   else
+			   {
+              		m_SControl.m_szSID = i+1;
+            		m_SControl.m_szIsScan = false;
+            		m_SControl.Update();    //Update the recordset
+			   }
+	   	}
+		catch (CAxException *e)
+		{
+			AfxMessageBox(e->m_szErrorDesc, MB_OK);
+			delete e;
+		}
+      }
+		  AfxMessageBox("巡检分站已保存", MB_OK);
+//        EndDialog(IDOK);
 	}
 	else
 	{
@@ -1198,8 +1275,19 @@ void CSettingHostDlg::OnBtnOK()
 			szFind.TrimRight();
 		if(szFind == m_PointDesNew->m_szpointnum)
 		{
-			fff = 100;
-				break;
+			fff = 100;		break;
+		}
+
+		dddd = m_PointDesNew->m_szpointnum;
+		int m =dddd.Find("D");
+		int o =dddd.Find("A");
+		if(m != -1)
+			dddd.Replace("D","A");
+ 		if(o != -1)
+			dddd.Replace("A","D");
+		if(szFind == dddd)
+		{
+			fff = 100;		break;
 		}
 	}
 	if(m_bADD)
@@ -1448,6 +1536,18 @@ void CSettingHostDlg::InsS()
     	GetDlgItem(IDC_BUT_ADD)->SetWindowText(_T("保存"));;
     	GetDlgItem(IDC_BUT_MOD)->SetWindowText(_T("发送"));;
 		SetWindowText(_T(m_ADTypeTable[6].NameD));
+//    	MoveWindow(CRect(50,100,960,700));
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[6].m_DTypeTFD.Name,LVCFMT_LEFT,200);
+		GetDlgItem(IDC_BUT_DEL)->ShowWindow(SW_HIDE);
+}
+
+void CSettingHostDlg::InsF()
+{
+	    HideDISPLAY();
+		HideControls();
+    	GetDlgItem(IDC_BUT_ADD)->SetWindowText(_T("保存"));;
+    	GetDlgItem(IDC_BUT_MOD)->SetWindowText(_T("发送"));;
+		SetWindowText(_T("增减分站"));
 //    	MoveWindow(CRect(50,100,960,700));
 		m_listCtrl.InsertColumn(0,m_ADTypeTable[6].m_DTypeTFD.Name,LVCFMT_LEFT,200);
 		GetDlgItem(IDC_BUT_DEL)->ShowWindow(SW_HIDE);

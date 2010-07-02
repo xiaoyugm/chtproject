@@ -179,26 +179,26 @@ void CMQClient::CollectDate(CNDKMessage& message)
     unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
 
 	message.GetAt(0, nbegin);
-	strtemp.Format("@@%d$$",nbegin);
+	strtemp.Format("[%d]",nbegin);
 	ggggg += strtemp;
 	message.GetAt(1, nstation);
-	strtemp.Format("@@%d$$",nstation);
+	strtemp.Format("[%d]",nstation);
 	ggggg += strtemp;
 	message.GetAt(2, ncommand);
-	strtemp.Format("@@%d$$",ncommand);
+	strtemp.Format("[%d]",ncommand);
 	ggggg += strtemp;
 
 	message.GetAt(3, ufData);
-	strtemp.Format("@@%d$$",ufData);
+	strtemp.Format("[%d]",ufData);
 	ggggg += strtemp;
 	message.GetAt(4, ufData);       //1
-	strtemp.Format("@@%d$$",ufData);
+	strtemp.Format("[%d]",ufData);
 	ggggg += strtemp;
 	message.GetAt(5, ufData);
-	strtemp.Format("@@%d$$",ufData);
+	strtemp.Format("[%d]",ufData);
 	ggggg += strtemp;
 	message.GetAt(6, ufData);       //2
-	strtemp.Format("@@%d$$",ufData);
+	strtemp.Format("[%d]",ufData);
 	ggggg += strtemp;
 	message.GetAt(7, ufData);
 	message.GetAt(8, ufData);       //3
@@ -210,34 +210,34 @@ void CMQClient::CollectDate(CNDKMessage& message)
 	message.GetAt(14, ufData);      //6
 	message.GetAt(15, ufData);
 	message.GetAt(16, ufData);      //7
-	strtemp.Format("@@%d$$",ufData);
+	strtemp.Format("[%d]",ufData);
 	ggggg += strtemp;
 
 	message.GetAt(17, ufData);
-	strtemp.Format("@@%d$$",ufData);
+	strtemp.Format("[%d]",ufData);
 	ggggg += strtemp;
 
 	message.GetAt(18, ufData);
-	strtemp.Format("@@%d$$",ufData);
+	strtemp.Format("[%d]",ufData);
 	ggggg += strtemp;
 	message.GetAt(19, ufData);
-	strtemp.Format("@@%d$$",ufData);
+	strtemp.Format("[%d]",ufData);
 	ggggg += strtemp;
 	message.GetAt(20, ufData);
-	strtemp.Format("@@%d$$",ufData);
+	strtemp.Format("[%d]",ufData);
 	ggggg += strtemp;
 	message.GetAt(21, ufData);
-	strtemp.Format("@@%d$$",ufData);
+	strtemp.Format("[%d]",ufData);
 	ggggg += strtemp;
 	message.GetAt(22, ufData);
-	strtemp.Format("@@%d$$",ufData);
+	strtemp.Format("[%d]",ufData);
 	ggggg += strtemp;
 	message.GetAt(23, ufData);
-	strtemp.Format("@@%d$$",ufData);
+	strtemp.Format("[%d]",ufData);
 	ggggg += strtemp;
 
 	message.GetAt(24, nend);
-	strtemp.Format("@@%d$$",nend);
+	strtemp.Format("[%d]",nend);
 	ggggg += strtemp;
 
     AfxMessageBox(ggggg);

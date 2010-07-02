@@ -104,6 +104,7 @@ public:
   void   InsP();
   void   InsC();
   void   InsS();
+  void   InsF();
   void   InsAddC();
   void   InsDIS();
   void   pushDIS(CString  str1,CString  str2,CString  str3);
