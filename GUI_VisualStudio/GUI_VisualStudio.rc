@@ -297,6 +297,15 @@ BEGIN
         MENUITEM "增减巡检分站",                ID_CONTROLF
         MENUITEM "报警音乐",                    ID_MANIPULATE
     END
+    POPUP "通讯设置"
+    BEGIN
+        MENUITEM "校时",                        ID_VERIFY_TIMER
+        MENUITEM "手动控制",                    ID_MANUAL_CONTROL
+        MENUITEM "分站配置",                    ID_FDS_CONFIG
+        MENUITEM "通讯测试",                    ID_TEST_COMMUNICATION
+        MENUITEM "风电瓦斯闭锁",                ID_WINDGAS_ATRESIA
+        MENUITEM "故障闭锁",                    ID_FAILURE_ATRESIA
+    END
 END
 
 
@@ -338,7 +347,7 @@ END
 IDD_DIALOG_HOST_SETTING DIALOGEX 0, 0, 310, 219
 STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "设置主机信息"
-FONT 9, "宋体"
+FONT 9, "宋体", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "确定(&O)",IDOKADM,56,197,50,14
     PUSHBUTTON      "取消(&C)",IDCANCELADM,175,197,50,14
@@ -385,20 +394,24 @@ END
 
 IDD_DIALOG_SET_TIMER DIALOG DISCARDABLE  0, 0, 260, 226
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "设置"
+CAPTION "校时操作"
 FONT 9, "宋体"
 BEGIN
-    DEFPUSHBUTTON   "确定(&O)",IDOK,43,205,50,14
+    DEFPUSHBUTTON   "发送校时命令",IDOK_SEND,35,205,58,14
     PUSHBUTTON      "取消(&C)",IDCANCEL,157,205,50,14
-    GROUPBOX        "窗口交替显示的时间(单位：秒)",IDC_STATIC,33,135,190,67,
+    GROUPBOX        "窗口交替显示的时间(单位：秒)",IDC_STATIC,30,155,190,11,
                     NOT WS_VISIBLE
-    LTEXT           "时间：",IDC_STATIC,9,38,25,8,NOT WS_VISIBLE
-    EDITTEXT        IDC_EDIT_SECOND,52,32,109,14,ES_AUTOHSCROLL | ES_NUMBER | 
+    LTEXT           "分站：",IDC_STATICV,46,18,25,8
+    EDITTEXT        IDC_EDIT_SECOND,78,177,109,14,ES_AUTOHSCROLL | ES_NUMBER | 
                     NOT WS_VISIBLE
-    CONTROL         "List1",IDC_LISTALLPOINT,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,7,15,91,182
-    CONTROL         "List1",IDC_LISTDISPLAY,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,181,7,72,182
+    COMBOBOX        IDC_COMBO_VERIFYT,83,16,87,78,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "控制端口：",IDC_STATICV1,30,37,41,8
+    COMBOBOX        IDC_COMBO_PORT,83,35,87,78,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "功能：",IDC_STATICV2,45,56,25,8
+    COMBOBOX        IDC_COMBO_FUNCTION,83,54,87,78,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
 END
 
 IDD_FORMVIEW DIALOG DISCARDABLE  0, 0, 187, 94
@@ -781,6 +794,8 @@ BEGIN
     ID_INDICATOR_LOGO       "Application Logo"
     ID_INDICATOR_PROG       "Progress Bar"
     ID_INDICATOR_VIEW       "View Shortcuts"
+    ID_INDICATOR_USER       "current  user"
+    ID_INDICATOR_MESSAGE    "add message"
 END
 
 STRINGTABLE DISCARDABLE 

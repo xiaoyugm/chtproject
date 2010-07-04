@@ -217,6 +217,13 @@
 #define IDC_COMBO_D                     1035
 #define IDC_BUT_MUSIC                   1036
 #define IDC_CHECKISALM                  1037
+#define IDOK_SEND                       1038
+#define IDC_COMBO_VERIFYT               1039
+#define IDC_COMBO_PORT                  1040
+#define IDC_COMBO_FUNCTION              1041
+#define IDC_STATICV                     1042
+#define IDC_STATICV1                    1043
+#define IDC_STATICV2                    1044
 #define IDC_EDIT_HOST_IP                1065
 #define IDC_EDIT_SECOND                 1065
 #define IDC_EDIT_PORT                   1066
@@ -235,7 +242,9 @@
 #define ID_INDICATOR_PROG               8150
 #define ID_INDICATOR_VIEW               8151
 #define ID_INDICATOR_ZOOM               8152
+#define ID_INDICATOR_USER               8152
 #define ID_INDICATOR_ZOOMSLIDER         8153
+#define ID_INDICATOR_MESSAGE            8153
 #define ID_PANEPROPERTIES_CATEGORIZED   32771
 #define ID_PANEPROPERTIES_ALPHABETIC    32772
 #define ID_PANEPROPERTIES_PAGES         32773
@@ -271,6 +280,12 @@
 #define ID_CONTROLTABLE                 32799
 #define ID_CONTROLS                     32800
 #define ID_CONTROLF                     32801
+#define ID_VERIFY_TIMER                 32802
+#define ID_MANUAL_CONTROL               32803
+#define ID_FDS_CONFIG                   32804
+#define ID_TEST_COMMUNICATION           32805
+#define ID_WINDGAS_ATRESIA              32806
+#define ID_FAILURE_ATRESIA              32807
 #define ID_EDIT_STATE                   32815
 #define ID_EDIT_FIND_EX                 32816
 #define ID_GOTO_URL                     32817
@@ -291,8 +306,8 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        161
-#define _APS_NEXT_COMMAND_VALUE         32802
-#define _APS_NEXT_CONTROL_VALUE         1038
+#define _APS_NEXT_COMMAND_VALUE         32808
+#define _APS_NEXT_CONTROL_VALUE         1045
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

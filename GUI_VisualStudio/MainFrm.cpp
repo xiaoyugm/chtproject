@@ -28,6 +28,7 @@
 #include "FlatTabViewDoc.h"
 #include "ChildFrm.h"
 #include "SettingHostDlg.h"
+#include "SetTimeDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -57,6 +58,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_CONTROLTABLE, OnControlT)
 	ON_COMMAND(ID_CONTROLS, OnControlS)
 	ON_COMMAND(ID_CONTROLF, OnControlF)
+	ON_COMMAND(ID_VERIFY_TIMER, OnVerifyT)
+	ON_COMMAND(ID_MANUAL_CONTROL, OnManualC)
 //	ON_MESSAGE(WM_XTP_PRETRANSLATEMOUSEMSG, OnTabbarMouseMsg)  
 //    ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_INFO, OnSelchangeTabInfo)
 	//}}AFX_MSG_MAP
@@ -318,6 +321,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	AddLogo();
 	m_wndStatusBar.SetRibbonDividerIndex(m_wndStatusBar.GetPaneCount() - 1);
 	AddEdit();
+	AddUser();
+	AddMessage("");
 //	AddProgress();
 //	AddAnimation();
 //	AddSwitchButtons();
@@ -1258,6 +1263,34 @@ void CMainFrame::OnControlF()
 	dlg.DoModal();
 }
 
+//通讯命令
+void CMainFrame::OnVerifyT() 
+{
+	CSetTimeDlg dlg;
+	dlg.chcommand =  0x54;
+	dlg.DoModal();
+}
+
+void CMainFrame::OnManualC() 
+{
+	CSetTimeDlg dlg;
+	dlg.chcommand =  0x4B;
+	dlg.DoModal();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void CMainFrame::OnSimulation() 
 {
 //	m_ontime = 0;
@@ -1532,6 +1565,40 @@ void CMainFrame::AddEdit()
 	m_wndStatusBar.SetPaneStyle(nIndex, m_wndStatusBar.GetPaneStyle(nIndex) | SBPS_NOBORDERS);
 //	m_wndStatusBar.AddControl(&m_wndEditCtrl, ID_INDICATOR_EDIT, FALSE);
 	m_wndStatusBar.SetPaneText(m_wndStatusBar.CommandToIndex(ID_INDICATOR_EDIT),s); //显示时钟
+
+//	pPane->SetCustomizationVisible(TRUE);
+}
+
+void CMainFrame::AddUser()
+{
+	// add the indicator to the status bar.   ID_INDICATOR_EDIT
+	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_USER,3);
+
+	// Initialize the pane info and add the control.
+	int nIndex = m_wndStatusBar.CommandToIndex(ID_INDICATOR_USER);
+	ASSERT (nIndex != -1);
+
+	m_wndStatusBar.SetPaneWidth(nIndex, 30);
+	m_wndStatusBar.SetPaneStyle(nIndex, m_wndStatusBar.GetPaneStyle(nIndex) | SBPS_NOBORDERS);
+//	m_wndStatusBar.AddControl(&m_wndEditCtrl, ID_INDICATOR_EDIT, FALSE);
+	m_wndStatusBar.SetPaneText(m_wndStatusBar.CommandToIndex(ID_INDICATOR_USER),theApp.curuser); //显示用户
+
+//	pPane->SetCustomizationVisible(TRUE);
+}
+
+void CMainFrame::AddMessage(CString strMessage)
+{
+	// add the indicator to the status bar.   ID_INDICATOR_EDIT
+	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_MESSAGE,1);
+
+	// Initialize the pane info and add the control.
+	int nIndex = m_wndStatusBar.CommandToIndex(ID_INDICATOR_MESSAGE);
+	ASSERT (nIndex != -1);
+
+	m_wndStatusBar.SetPaneWidth(nIndex, 300);
+	m_wndStatusBar.SetPaneStyle(nIndex, m_wndStatusBar.GetPaneStyle(nIndex) | SBPS_NOBORDERS);
+//	m_wndStatusBar.AddControl(&m_wndEditCtrl, ID_INDICATOR_EDIT, FALSE);
+	m_wndStatusBar.SetPaneText(m_wndStatusBar.CommandToIndex(ID_INDICATOR_MESSAGE),strMessage); //显示操作信息
 
 //	pPane->SetCustomizationVisible(TRUE);
 }

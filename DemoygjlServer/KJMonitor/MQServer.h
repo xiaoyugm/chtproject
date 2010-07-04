@@ -49,6 +49,8 @@ protected:
 	void SyncTableuWarnCauseRecord();
 
 	void ManageClientm(CNDKMessage& message);
+	void ManageClientT(CNDKMessage& message);
+	void ManageClientK(CNDKMessage& message);
 
 	void Sync(CNDKMessage& message);
 	void SendAllData(CNDKMessage& message);
