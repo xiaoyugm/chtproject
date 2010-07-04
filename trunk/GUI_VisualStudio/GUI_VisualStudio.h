@@ -58,13 +58,16 @@ public:
 	BOOL   StartClient();
 	void   SendMessage(CNDKMessage& message);     //211
 	void   Sync(CNDKMessage& message);
+	CNDKMessage m_sendmessage;
 
 	CString GetAppPath();				//返回应用程序所在路径
 	ULONG_PTR           gdiplusToken;
 	CString2DataType m_Str2Data;
+
+	BOOL   InitUIInfo();
+	BOOL   InitData();
 	
 	void   OnCloseDB();
-	BOOL   InitUIInfo();
 	BOOL   ConnectDB();
 	BOOL   InitPointInfo();
 	BOOL   InitDisplay();
@@ -72,15 +75,17 @@ public:
 	void   BuildDIS(CString  strItem);
 
     CCardFileEvents *pCnEvents;
-  CAxConnection   m_Cn;
-  CAxPointDescription  m_PointDes;
-  CAxAccountSet   m_AccountSet;
-  CAxContactSet   m_ContactSet;
-  CAxDisPoint      m_DisPoint;
+    CAxConnection   m_Cn;
+    CAxPointDescription  m_PointDes;
+    CAxAccountSet   m_AccountSet;
+    CAxContactSet   m_ContactSet;
+    CAxDisPoint      m_DisPoint;
 	//	CSQLDirect		m_sqlD;		//数据库
 	CString2DataType m_String2DataType;
 	int DocNum ,idis;
 	CString curuser; //,IPPort
+
+	bool m_senddata , m_sendcom;
 
 ///	CPointInfo      *pPointInfo;
 	CMultiDocTemplate* pDocTemplate;

@@ -42,6 +42,9 @@ protected:
 
 	CTime StartTime, ConnectTime;
 	
+	void ManageServerT(CNDKMessage& message);
+	void ManageServerK(CNDKMessage& message);
+
 	void DiaplayWarnTableC(unsigned short nPointNo);
 	void CollectDate(CNDKMessage& message);
 	void InitPointDate(CNDKMessage& message);

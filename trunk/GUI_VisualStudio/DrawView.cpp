@@ -519,7 +519,7 @@ void CDrawView::OnInitialUpdate()
 							{
 	SetTimer(CHART,1000,NULL);
 ///	SetTimer(VIEW,1317,NULL);
-//	SetTimer(DRAWTASK,30,NULL);
+	SetTimer(DRAWTASK,900,NULL);
 	SetTimer(ACTION,30,NULL);
 							}
 ///							else{
@@ -839,6 +839,13 @@ void CDrawView::OnTimer(UINT nIDEvent)
 	{
     	case DRAWTASK:                                     
 			{
+				if(theApp.m_sendcom)
+				{
+					theApp.m_sendcom =false;
+                	CNDKMessage message1;
+		    		theApp.Sync(message1);
+				}
+
 			}
 			break ;
     	case CHART: 
@@ -912,7 +919,7 @@ void CDrawView::OnTimer(UINT nIDEvent)
 					}
 				}*/
 
-//				pFWnd->AddEdit();
+				pFWnd->AddEdit();
 			}
 			break ;
     	case ACTION:                                     //连续动作

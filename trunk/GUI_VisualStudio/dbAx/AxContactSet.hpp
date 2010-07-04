@@ -50,9 +50,9 @@ public:
     FX_Integer           (bSave, _T("AID"),  m_szAID);
     FX_VarChar           (bSave, _T("Name"),  m_szName);
     FX_Real           (bSave, _T("ltop"),       m_szltop);
-    FX_Real           (bSave, _T("lbom"),    m_szlbom);
+//    FX_Real           (bSave, _T("lbom"),    m_szlbom);
     FX_Real           (bSave, _T("palmu"),     m_szpalmu);
-    FX_Real           (bSave, _T("palmd"),     m_szpalmd);
+//    FX_Real           (bSave, _T("palmd"),     m_szpalmd);
     FX_VarChar           (bSave, _T("punit"),      m_szpunit);
     FX_VarChar              (bSave, _T("falm"),       m_szfalm);
     FX_Bool              (bSave, _T("fdel"),  m_szfdel);

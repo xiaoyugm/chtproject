@@ -81,11 +81,13 @@ void CMQClient::OnMessage(CNDKMessage& message)
 	case SENDSTARTTIME:
 		GetHostStartTime(message);
 		break;
-//	case WARNCAUSERECORD:
-///		DiaplayWarnTableC(message);
-//		break;
-//	case KEEPTIMESTR:
-//		break;
+	case MANUALCONTROL:
+//		DiaplayWarnTableC(message);
+		ManageServerK(message);
+		break;
+	case VERIFYTIMER:
+		ManageServerT(message);
+		break;
 	case REALTIMEDATA:
     	CollectDate(message);
 		break;
@@ -157,16 +159,78 @@ void CMQClient::GetHostStartTime(CNDKMessage& message)
 	CTime time(nYear, nMonth, nDay, nHour, nMinute, nSecond);
 	StartTime = time;
 
-	CNDKMessage message1(REALTIMEDATA);
-					message1.Add(0x7E);
-					message1.Add(0x01);
-	 				message1.Add(0x44);
-					message1.Add(0x21);
-					theApp.Sync(message1);
+	theApp.m_senddata = true;
+//	CNDKMessage message1(REALTIMEDATA);
+//					message1.Add(0x7E);
+//					message1.Add(0x01);
+//	 				message1.Add(0x44);
+//					message1.Add(0x21);
+//					theApp.Sync(message1);
 
 
 	//if(ConnectTime != StartTime)   
 ///	SyncHostAndClient();
+}
+
+void CMQClient::ManageServerT(CNDKMessage& message)
+{
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	CString ggggg,strtemp,strbegin;
+    unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
+	int  ntimer;
+	message.GetAt(0,nbegin);
+    	strtemp.Format("[%d年]",nbegin);
+    	ggggg += strtemp;
+	message.GetAt(1,nstation);
+    	strtemp.Format("[%d号分站]",nstation);
+    	ggggg += strtemp;
+	message.GetAt(2,ncommand);
+    	strtemp.Format("[%d月]",ncommand);
+    	ggggg += strtemp;
+	message.GetAt(3,ntimer);
+	if(ntimer == 0x01)
+	{
+//	strtemp.Format("[%d]",ntimer);
+	ggggg += "：校时成功";
+	}
+	else
+    	ggggg += "：校时失败";
+	message.GetAt(4,nend);
+    	strtemp.Format("[%d日]",nend);
+    	ggggg += strtemp;
+	pFWnd->AddMessage(ggggg);
+}
+
+void CMQClient::ManageServerK(CNDKMessage& message)
+{
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	CString ggggg,strtemp,strbegin;
+    unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
+	int  ntimer;
+	message.GetAt(0,nbegin);
+	message.GetAt(1,nstation);
+    	strtemp.Format("[%d号分站]",nstation);
+    	ggggg += strtemp;
+	message.GetAt(2,ncommand);
+    	strtemp.Format("[%d通道]",ncommand);
+    	ggggg += strtemp;
+	message.GetAt(3,ntimer);
+	if(ntimer == 0x01)
+	{
+//	strtemp.Format("[%d]",ntimer);
+	ggggg += "：手动控制成功";
+	}
+	else
+    	ggggg += "：手动控制失败";
+	message.GetAt(4,nend);
+	if(nend == 0x01)
+	{
+//	strtemp.Format("[%d]",ntimer);
+	ggggg += "：关闭";
+	}
+	else
+    	ggggg += "：打开";
+	pFWnd->AddMessage(ggggg);
 }
 
 void CMQClient::CollectDate(CNDKMessage& message)

@@ -66,6 +66,8 @@ public:
 
 	CTabbedViewView*        m_pTabbedViewView;
 
+	void AddMessage(CString strMessage);
+	void AddUser();
 	void AddEdit();
 	void AddLogo();
 	void AddAnimation();
@@ -150,6 +152,8 @@ protected:
 	afx_msg void OnSkinFramework(UINT nID);
 
 ///	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
+	afx_msg void OnManualC();
+	afx_msg void OnVerifyT();
 	afx_msg void OnControlF();
 	afx_msg void OnControlS();
 	afx_msg void OnControlT();

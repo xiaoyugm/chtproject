@@ -369,6 +369,8 @@ void CSettingHostDlg::BuildAccountList()
 					  dddd = "控制开关量";
 				  else if(m_AccountSet.m_szptype == 3)
 					  dddd = "三态开关量";
+				  else if(m_AccountSet.m_szptype == 4)
+					  dddd = "通断量";
 				  m_listCtrl.SetItemText(iItem, 8, dddd);
 			iItem++;
 			sqlid = m_AccountSet.m_szDID +1;
@@ -392,22 +394,22 @@ void CSettingHostDlg::BuildAccountList()
 				  m_listCtrl.InsertItem(iItem, m_ContactSet.m_szName);
 				  dddd.Format("%.4f",m_ContactSet.m_szltop);
 				  m_listCtrl.SetItemText(iItem, 1, dddd);
-				  dddd.Format("%.4f",m_ContactSet.m_szlbom);
-				  m_listCtrl.SetItemText(iItem, 2, dddd);
+//				  dddd.Format("%.4f",m_ContactSet.m_szlbom);
+//				  m_listCtrl.SetItemText(iItem, 2, dddd);
 				  dddd.Format("%.4f",m_ContactSet.m_szpalmu);
-				  m_listCtrl.SetItemText(iItem, 3, dddd);
-				  dddd.Format("%.4f",m_ContactSet.m_szpalmd);
-				  m_listCtrl.SetItemText(iItem, 4, dddd);
+				  m_listCtrl.SetItemText(iItem, 2, dddd);
+//				  dddd.Format("%.4f",m_ContactSet.m_szpalmd);
+//				  m_listCtrl.SetItemText(iItem, 4, dddd);
 				  dddd.Format("%.4f",m_ContactSet.m_szpbrk);
-				  m_listCtrl.SetItemText(iItem, 5, dddd);
+				  m_listCtrl.SetItemText(iItem, 3, dddd);
 				  dddd.Format("%.4f",m_ContactSet.m_szprtn);
-				  m_listCtrl.SetItemText(iItem, 6, dddd);
-				  m_listCtrl.SetItemText(iItem, 7, m_ContactSet.m_szfalm);
-				  m_listCtrl.SetItemText(iItem, 8, m_ContactSet.m_szpunit);
+				  m_listCtrl.SetItemText(iItem, 4, dddd);
+				  m_listCtrl.SetItemText(iItem, 5, m_ContactSet.m_szfalm);
+				  m_listCtrl.SetItemText(iItem, 6, m_ContactSet.m_szpunit);
 				  COleDateTime oleDateTime=m_ContactSet.m_szrecdate;
 				  dddd   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-				  m_listCtrl.SetItemText(iItem, 9, dddd);
-				  m_listCtrl.SetItemText(iItem, 10, m_ContactSet.m_szUseridadd);
+				  m_listCtrl.SetItemText(iItem, 7, dddd);
+				  m_listCtrl.SetItemText(iItem, 8, m_ContactSet.m_szUseridadd);
 			iItem++;
 			sqlid = m_ContactSet.m_szAID +1;
 			m_ContactSet.MoveNext();
@@ -1259,7 +1261,7 @@ void CSettingHostDlg::OnBtnOK()
 		dddd ="0" + dddd;
 	if(m_bSwitch)
 	{
-		if(m_AccountSet.m_szptype == 0  || m_AccountSet.m_szptype == 3)
+		if(m_AccountSet.m_szptype == 0  || m_AccountSet.m_szptype == 3 || m_AccountSet.m_szptype == 4)
         	m_PointDesNew->m_szpointnum = m_strsel +"D"+dddd;
 		if(m_AccountSet.m_szptype == 1 )
         	m_PointDesNew->m_szpointnum = m_strsel +"F"+"00";
@@ -1311,6 +1313,8 @@ void CSettingHostDlg::OnBtnOK()
 					  dddd = "控制开关量";
 				  else if(m_AccountSet.m_szptype == 3)
 					  dddd = "三态开关量";
+				  else if(m_AccountSet.m_szptype == 4)
+					  dddd = "通断量";
 		m_PointDesNew->m_szutype = dddd;
     	m_PointDesNew->m_szptype = 10+m_AccountSet.m_szptype;     //开关量
     	m_PointDesNew->m_sztypeID = m_AccountSet.m_szDID;
@@ -1319,9 +1323,9 @@ void CSettingHostDlg::OnBtnOK()
 	{
     	m_PointDesNew->m_szutype = m_strsel;
 		if(s == 0)
-        	m_PointDesNew->m_szptype = 0;     //模拟量
+        	m_PointDesNew->m_szptype = 0;     //电流电压
 		if(s == 1)
-        	m_PointDesNew->m_szptype = 1;     //模拟量
+        	m_PointDesNew->m_szptype = 1;     //频率
     	m_PointDesNew->m_sztypeID = m_ContactSet.m_szAID;
 	}
 	if(m_ctrlCheckAlm.GetCheck())
@@ -1455,15 +1459,15 @@ void CSettingHostDlg::InsA()
 		SetWindowText(_T(m_ADTypeTable[0].NameD));
 		m_listCtrl.InsertColumn(0,m_ADTypeTable[0].m_DTypeTFD.Name,LVCFMT_LEFT,100);
 		m_listCtrl.InsertColumn(1,m_ADTypeTable[0].m_DTypeTFD.ltop,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(2,m_ADTypeTable[0].m_DTypeTFD.lbom,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(3,m_ADTypeTable[0].m_DTypeTFD.palmu,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(4,m_ADTypeTable[0].m_DTypeTFD.palmd,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(5,m_ADTypeTable[0].m_DTypeTFD.pbrk,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(6,m_ADTypeTable[0].m_DTypeTFD.prtn,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(7,m_ADTypeTable[0].m_DTypeTFD.falm,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(8,m_ADTypeTable[0].m_DTypeTFD.punit,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(9,m_ADTypeTable[0].m_DTypeTFD.recdate,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(10,m_ADTypeTable[0].m_DTypeTFD.Useridadd,LVCFMT_LEFT,100);
+//		m_listCtrl.InsertColumn(2,m_ADTypeTable[0].m_DTypeTFD.lbom,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(2,m_ADTypeTable[0].m_DTypeTFD.palmu,LVCFMT_LEFT,100);
+//		m_listCtrl.InsertColumn(4,m_ADTypeTable[0].m_DTypeTFD.palmd,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(3,m_ADTypeTable[0].m_DTypeTFD.pbrk,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(4,m_ADTypeTable[0].m_DTypeTFD.prtn,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(5,m_ADTypeTable[0].m_DTypeTFD.falm,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(6,m_ADTypeTable[0].m_DTypeTFD.punit,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(7,m_ADTypeTable[0].m_DTypeTFD.recdate,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(8,m_ADTypeTable[0].m_DTypeTFD.Useridadd,LVCFMT_LEFT,100);
 }
 
 void CSettingHostDlg::InsD()

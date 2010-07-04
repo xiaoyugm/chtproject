@@ -20,7 +20,11 @@ public:
 	//{{AFX_DATA(CSetTimeDlg)
 	enum { IDD = IDD_DIALOG_SET_TIMER };
 	UINT	m_nSecond;
+	CXTFlatComboBox	    m_VERIFYT;
+	CXTFlatComboBox	    m_PORT;
+	CXTFlatComboBox	    m_FUNCTION;
 	//}}AFX_DATA
+	unsigned char  chcommand;
 
 
 // Overrides
@@ -28,6 +32,7 @@ public:
 	//{{AFX_VIRTUAL(CSetTimeDlg)
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+    virtual BOOL OnInitDialog();
 	//}}AFX_VIRTUAL
 
 // Implementation
@@ -35,6 +40,7 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CSetTimeDlg)
+	afx_msg void OnButSend();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

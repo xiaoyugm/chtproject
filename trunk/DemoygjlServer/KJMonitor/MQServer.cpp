@@ -70,12 +70,13 @@ void CMQServer::OnMessage(long lUserId, CNDKMessage& message)
 {
 	switch(message.GetId())
 	{
-//	case COLLECTDATA:       //uCollectData:
+	case VERIFYTIMER:       //:
+		ManageClientT(message);
+		break;
+	case MANUALCONTROL:       //
 //		SyncTableCollectData();
-//		break;
-//	case COLLECTDATAD:       //
-//		SyncTableCollectData();
-//		break;
+		ManageClientK(message);
+		break;
 	case SENDSTARTTIME:
 		break;
 	case REALTIMEDATA:    //uWarnCauseRecord:
@@ -258,6 +259,8 @@ void CMQServer::ManageClientm(CNDKMessage& message)
 	}
 	if(ncommand == 0x54)//T
 	{
+
+
 	}
 	if(ncommand == 0x4B)//K
 	{
@@ -285,6 +288,58 @@ void CMQServer::ManageClientm(CNDKMessage& message)
     AfxMessageBox(ggggg);
 }
 
+void CMQServer::ManageClientT(CNDKMessage& message)
+{
+	CString ggggg,strtemp,strbegin;
+    unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
+	int  ntimer;
+	message.GetAt(0,nbegin);
+	message.GetAt(1,nstation);
+//	if(nstation == 0x02)
+	{
+    	strtemp.Format("[%d]",nstation);
+    	ggggg += strtemp;
+	}
+	message.GetAt(2,ncommand);
+	message.GetAt(3,ntimer);
+	message.GetAt(4,nbegin);
+	message.GetAt(5,ncommand);
+	message.GetAt(6,nend);
+	message.GetAt(7,nend);
+	message.GetAt(8,nend);
+	message.GetAt(9,nend);
+	message.GetAt(10,nend);
+//    AfxMessageBox(ggggg);
+
+    	CNDKMessage message1(VERIFYTIMER);
+					message1.Add(ntimer);
+					message1.Add(nstation);
+	 				message1.Add(nbegin);
+    				message1.Add(1);
+					message1.Add(ncommand);
+					theApp.SendMessage(message1);
+}
+
+void CMQServer::ManageClientK(CNDKMessage& message)
+{
+	CString ggggg,strtemp,strbegin;
+    unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
+	int  ntimer;
+	message.GetAt(0,nbegin);
+	message.GetAt(1,nstation);
+	message.GetAt(2,ncommand);
+	message.GetAt(3,ntimer);
+	message.GetAt(4,nbegin);
+	message.GetAt(5,nend);
+
+    	CNDKMessage message1(MANUALCONTROL);
+					message1.Add(nbegin);
+					message1.Add(nstation);
+	 				message1.Add(ntimer);
+    				message1.Add(1);
+					message1.Add(nbegin);
+					theApp.SendMessage(message1);
+}
 
 void CMQServer::SyncTableuWarnCauseRecord()
 {

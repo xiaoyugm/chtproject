@@ -83,9 +83,10 @@ BOOL CAccountDlg::OnInitDialog()
   CDialog::OnInitDialog();
 
         m_ComBoxD.AddString("二态开关量");     //0
-        m_ComBoxD.AddString("分站");       //1
+        m_ComBoxD.AddString("分站");           //1
         m_ComBoxD.AddString("控制开关量");     //2
         m_ComBoxD.AddString("三态开关量");     //3
+        m_ComBoxD.AddString("通断量");         //4
 		m_ComBoxD.SetCurSel(0);
 
   //If we are editing the record, disable the AccountID edit box
@@ -112,7 +113,7 @@ BOOL CAccountDlg::OnInitDialog()
 			szFind.TrimRight();
 		  GetDlgItem(IDC_EDIT4)->SetWindowText(szFind);
 
-		  if(m_ComBoxD.GetCurSel() < 3)
+		  if(m_ComBoxD.GetCurSel() != 3)
 		  {
     		  GetDlgItem(IDC_EDIT4)->ShowWindow(SW_HIDE);
 	    	  GetDlgItem(IDC_STATIC4)->ShowWindow(SW_HIDE);
@@ -121,6 +122,9 @@ BOOL CAccountDlg::OnInitDialog()
 		  {
         		m_ISAlm.SetCheck(0);
         		GetDlgItem(IDC_CHECKDALM)->ShowWindow(SW_HIDE);;
+        		GetDlgItem(IDC_EDIT_PATH)->ShowWindow(SW_HIDE);;
+        		GetDlgItem(IDC_STATIC7)->ShowWindow(SW_HIDE);;
+        		GetDlgItem(IDC_BUT_MUSIC)->ShowWindow(SW_HIDE);;
 		  }
 		  else
 		  {
@@ -149,12 +153,12 @@ BOOL CAccountDlg::OnInitDialog()
    		  GetDlgItem(IDC_EDIT1)->SetWindowText(szFind);
 				  szFind.Format("%.4f",m_pContactSet->m_szltop);
    		  GetDlgItem(IDC_EDIT2)->SetWindowText(szFind);
-				  szFind.Format("%.4f",m_pContactSet->m_szlbom);
-   		  GetDlgItem(IDC_EDIT3)->SetWindowText(szFind);
+//				  szFind.Format("%.4f",m_pContactSet->m_szlbom);
+//   		  GetDlgItem(IDC_EDIT3)->SetWindowText(szFind);
 				  szFind.Format("%.4f",m_pContactSet->m_szpalmu);
    		  GetDlgItem(IDC_EDIT4)->SetWindowText(szFind);
-				  szFind.Format("%.4f",m_pContactSet->m_szpalmd);
-   		  GetDlgItem(IDC_EDIT5)->SetWindowText(szFind);
+//				  szFind.Format("%.4f",m_pContactSet->m_szpalmd);
+//   		  GetDlgItem(IDC_EDIT5)->SetWindowText(szFind);
 				  szFind.Format("%.4f",m_pContactSet->m_szpbrk);
    		  GetDlgItem(IDC_EDIT6)->SetWindowText(szFind);
 				  szFind.Format("%.4f",m_pContactSet->m_szprtn);
@@ -166,14 +170,18 @@ BOOL CAccountDlg::OnInitDialog()
 		  szFind.TrimRight();
    		  GetDlgItem(IDC_EDIT_PATH)->SetWindowText(szFind);
 		  GetDlgItem(IDC_STATIC2)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.ltop);
-		  GetDlgItem(IDC_STATIC3)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.lbom);
+//		  GetDlgItem(IDC_STATIC3)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.lbom);
 		  GetDlgItem(IDC_STATIC4)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.palmu);
-		  GetDlgItem(IDC_STATIC5)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.palmd);
+//		  GetDlgItem(IDC_STATIC5)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.palmd);
 		  GetDlgItem(IDC_STATIC6)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.pbrk);
 		  GetDlgItem(IDC_COMBO_D)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_STATIC10)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_CHECKDALM)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_CHECKISALM)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC3)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC5)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT3)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT5)->ShowWindow(SW_HIDE);;
 	}
     else if(m_ADTypeTable[2].TableName ==  strtable)
 	{
@@ -229,18 +237,22 @@ BOOL CAccountDlg::OnInitDialog()
 		  GetDlgItem(IDC_EDIT9)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_STATIC9)->ShowWindow(SW_HIDE);;
 	}
-	else if(m_ADTypeTable[0].TableName ==  strtable)
+	else if(m_ADTypeTable[0].TableName ==  strtable)     //模拟量
 	{
     	SetWindowText(_T(m_ADTypeTable[0].NameD));
 		  GetDlgItem(IDC_STATIC2)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.ltop);
-		  GetDlgItem(IDC_STATIC3)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.lbom);
+//		  GetDlgItem(IDC_STATIC3)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.lbom);
 		  GetDlgItem(IDC_STATIC4)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.palmu);
-		  GetDlgItem(IDC_STATIC5)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.palmd);
+//		  GetDlgItem(IDC_STATIC5)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.palmd);
 		  GetDlgItem(IDC_STATIC6)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.pbrk);
 		  GetDlgItem(IDC_COMBO_D)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_STATIC10)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_CHECKDALM)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_CHECKISALM)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC3)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC5)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT3)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT5)->ShowWindow(SW_HIDE);;
 	}
     else if(m_ADTypeTable[2].TableName ==  strtable)
 	{
@@ -358,7 +370,10 @@ void CAccountDlg::OnBnClickedOk()
 			  }
 		  }
 		  else
+		  {
     		  m_pAccountSet->m_szpalms = 3;
+    		  m_pAccountSet->m_szfalm = "";
+		  }
 		  m_pAccountSet->m_szptype = m_ComBoxD.GetCurSel();
 		  m_pAccountSet->m_szrecdate = CTime.GetCurrentTime();
 		  m_pAccountSet->m_szUseridadd = theApp.curuser;
@@ -385,9 +400,9 @@ void CAccountDlg::OnBnClickedOk()
 			  return;
 		  }
 		  m_pContactSet->m_szltop = m_Str2Data.String2Double(str2);
-		  m_pContactSet->m_szlbom = m_Str2Data.String2Double(str3);
+//		  m_pContactSet->m_szlbom = 0;
 		  m_pContactSet->m_szpalmu = m_Str2Data.String2Double(str4);
-		  m_pContactSet->m_szpalmd = m_Str2Data.String2Double(str5);
+//		  m_pContactSet->m_szpalmd = 0;
 		  m_pContactSet->m_szpbrk = m_Str2Data.String2Double(str6);
 		  m_pContactSet->m_szprtn = m_Str2Data.String2Double(str9);
 		  m_pContactSet->m_szrecdate = CTime.GetCurrentTime();
@@ -452,9 +467,19 @@ void CAccountDlg::OnBnClickedCancel()
 void CAccountDlg::OnchangeISALM() 
 {
 	if(m_ISAlm.GetCheck())
-		  GetDlgItem(IDC_CHECKDALM)->ShowWindow(SW_SHOW);
+	{
+		GetDlgItem(IDC_CHECKDALM)->ShowWindow(SW_SHOW);
+        GetDlgItem(IDC_EDIT_PATH)->ShowWindow(SW_SHOW);;
+        		GetDlgItem(IDC_STATIC7)->ShowWindow(SW_SHOW);;
+        		GetDlgItem(IDC_BUT_MUSIC)->ShowWindow(SW_SHOW);;
+	}
 	else
-		  GetDlgItem(IDC_CHECKDALM)->ShowWindow(SW_HIDE);
+	{
+		GetDlgItem(IDC_CHECKDALM)->ShowWindow(SW_HIDE);
+        GetDlgItem(IDC_EDIT_PATH)->ShowWindow(SW_HIDE);;
+        		GetDlgItem(IDC_STATIC7)->ShowWindow(SW_HIDE);;
+        		GetDlgItem(IDC_BUT_MUSIC)->ShowWindow(SW_HIDE);;
+	}
 }
 
 void CAccountDlg::OnchangeComboD() 

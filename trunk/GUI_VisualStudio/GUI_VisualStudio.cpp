@@ -83,6 +83,9 @@ CGUI_VisualStudioApp::CGUI_VisualStudioApp()
 	pDocTemplate = NULL ;
 	pNewDocTemplate = NULL ;
 	DocNum = idis = 0;
+	m_senddata = false;
+	m_sendcom = false;
+	curuser ="cht";
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -251,18 +254,22 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 		return FALSE;
 	}
 
-    if ( !ConnectDB() )
-       return (FALSE);
-	if(!InitPointInfo())
+	if(!InitData())
+	{
+		AfxMessageBox("初始化数据库失败！");
 		return FALSE;
-	if(!InitDisplay())
-		return FALSE;
+	}
 
 	CSettingHostDlg dlg;
 //	dlg.m_strtable =  _T("specialcontrol");   
 //	dlg.PointDesid = 1;
 //	if(dlg.DoModal() != IDOK)
 //		return FALSE;
+
+	CString ddd= "7E";
+	unsigned char eee = m_Str2Data.Str2HEX(ddd);
+	ddd= "S";
+	eee = m_Str2Data.Str2HEX(ddd);
 
 	gstrTimeOut = GetAppPath();
 
@@ -310,7 +317,7 @@ int CGUI_VisualStudioApp::ExitInstance()
 	GdiplusShutdown(gdiplusToken);	
 
 //	m_sql.Close();
-	OnCloseDB();
+//	OnCloseDB();
 		
 	socketClient.Close();
 	return CWinApp::ExitInstance();
@@ -496,6 +503,18 @@ BOOL CGUI_VisualStudioApp::InitUIInfo()
     return controlXml.ParseXml(strxmlFile);
 }
 
+BOOL CGUI_VisualStudioApp::InitData()
+{
+    if ( !ConnectDB() )
+       return (FALSE);
+	if(!InitPointInfo())
+		return FALSE;
+	if(!InitDisplay())
+		return FALSE;
+	OnCloseDB();
+    return true;
+}
+
 void  CGUI_VisualStudioApp::pushDIS(CString  str1,CString  str2,CString  str3)
 {
         			BuildDIS(str1);
@@ -604,9 +623,9 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 				}
   				m_SlaveStation[nfds][nchan].m_Atype.WatchName = m_PointDes.m_szName;
     			m_SlaveStation[nfds][nchan].m_Atype.m_RangeH = m_ContactSet.m_szltop;
-    			m_SlaveStation[nfds][nchan].m_Atype.m_RangeL = m_ContactSet.m_szlbom;
+//    			m_SlaveStation[nfds][nchan].m_Atype.m_RangeL = m_ContactSet.m_szlbom;
     			m_SlaveStation[nfds][nchan].m_Atype.AlarmValueH = m_ContactSet.m_szpalmu;
-    			m_SlaveStation[nfds][nchan].m_Atype.AlarmValueL = m_ContactSet.m_szpalmd;
+//    			m_SlaveStation[nfds][nchan].m_Atype.AlarmValueL = m_ContactSet.m_szpalmd;
     			m_SlaveStation[nfds][nchan].m_Atype.Apbrk = m_ContactSet.m_szpbrk;
     			m_SlaveStation[nfds][nchan].m_Atype.Aprtn =m_ContactSet.m_szprtn;
     			m_SlaveStation[nfds][nchan].m_Atype.utype = m_PointDes.m_szutype;
@@ -624,7 +643,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 				}
 //            m_AccountSet.MoveFirst();
 			int nptype = m_PointDes.m_szptype;
-			if( nptype == 13)
+			if( nptype == 13 || nptype == 14)
 				nptype =10;
 			if(nptype == 11)
 				nchan =0;
@@ -946,9 +965,9 @@ void CGUI_VisualStudioApp::SendMessage(CNDKMessage& message)
 //向主机发送信息
 void CGUI_VisualStudioApp::Sync(CNDKMessage& message)
 {
-//	if(bIsClient)
+	if(m_senddata)
 	{
-		socketClient.SendMessage(message);
+		socketClient.SendMessage(m_sendmessage);
 	}
 
 }

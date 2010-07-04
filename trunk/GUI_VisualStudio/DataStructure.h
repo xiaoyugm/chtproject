@@ -170,7 +170,7 @@ struct AType	 {
 struct DType	 {
 	CString falmd;                  //报警音乐
 	CString WatchName;              //测点安装地点名称   
-	CString DValue;	                    //开关量当前值  
+	bool    DValue;	                    //开关量当前值  
 	int AlarmState;	            //报警状态  
 	CString ZeroState;          //0态   开关量
 	CString OneState;           //1态   开关量
@@ -179,10 +179,10 @@ struct DType	 {
 };
 
 //通道号
-struct NumChannel {
-	int EFeed;                  	//馈电状态
-	int EquipmentState;             //设备状态
-};
+//struct NumChannel {
+//	int EFeed;                  	//馈电状态
+//	int EquipmentState;             //设备状态
+//};
 //分站
 struct SlaveStation {
 	int FStyle;	                        //分站类型  
