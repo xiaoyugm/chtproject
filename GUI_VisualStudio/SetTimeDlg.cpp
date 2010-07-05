@@ -11,6 +11,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+extern SlaveStation             m_SlaveStation[64][24];
 /////////////////////////////////////////////////////////////////////////////
 // CSetTimeDlg dialog
 
@@ -137,7 +138,7 @@ BOOL CSetTimeDlg::OnInitDialog()
 		if (col==1)	// City
 		{
 			kkk = 80;
-			title ="逻辑关系";
+			title ="关联控制量";
 			pTrait = new CGridColumnTraitEdit;
 		}
 		if (col==2)	// Year won
@@ -210,11 +211,13 @@ BOOL CSetTimeDlg::OnInitDialog()
 
 void CSetTimeDlg::OnButSend() 
 {
+	CString strPointNo;
+	unsigned char nfds;
 	if(chcommand == 0x54)
 	{
     	CNDKMessage message1(VERIFYTIMER);
 					message1.Add(0x7E);
-		unsigned char nfds = m_VERIFYT.GetCurSel()+1;
+		     nfds = m_VERIFYT.GetCurSel()+1;
 					message1.Add(nfds);
 	 				message1.Add(chcommand);
 
@@ -237,7 +240,7 @@ void CSetTimeDlg::OnButSend()
 	{
     	CNDKMessage message1(MANUALCONTROL);
 					message1.Add(0x7E);
-		unsigned char nfds = m_VERIFYT.GetCurSel()+1;
+		     nfds = m_VERIFYT.GetCurSel()+1;
 					message1.Add(nfds);
 	 				message1.Add(chcommand);
 
@@ -255,9 +258,33 @@ void CSetTimeDlg::OnButSend()
 	{
     	CNDKMessage message1(SENDCONFIG);
 					message1.Add(0x7E);
-		unsigned char nfds = m_VERIFYT.GetCurSel()+1;
+		     nfds = m_VERIFYT.GetCurSel()+1;
 					message1.Add(nfds);
 	 				message1.Add(chcommand);
+
+    	int nItemCount=m_listC.GetItemCount();
+        for(int nItem=0;nItem<nItemCount;nItem++)
+		{
+//			m_SlaveStation[nfds][nItem+1].
+	 				message1.Add(chcommand);
+//	 				message1.Add(m_Str2Data.String2Int(strPointNo));
+    		strPointNo=m_listC.GetItemText(nItem,2);
+    		strPointNo=m_listC.GetItemText(nItem,3);
+    		strPointNo=m_listC.GetItemText(nItem,4);
+		}
+    	nItemCount=m_listC2.GetItemCount();
+        for(nItem=0;nItem<nItemCount;nItem++)
+		{
+    		strPointNo=m_listC2.GetItemText(nItem,1);
+    		strPointNo=m_listC2.GetItemText(nItem,2);
+		}
+
+
+
+
+
+
+
 
 					nfds = m_PORT.GetCurSel()+1;
 					message1.Add(nfds);

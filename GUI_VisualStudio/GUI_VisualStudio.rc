@@ -297,7 +297,7 @@ BEGIN
         MENUITEM "增减巡检分站",                ID_CONTROLF
         MENUITEM "报警音乐",                    ID_MANIPULATE
     END
-    POPUP "通讯设置"
+    POPUP "分站通讯"
     BEGIN
         MENUITEM "校时",                        ID_VERIFY_TIMER
         MENUITEM "手动控制",                    ID_MANUAL_CONTROL
@@ -395,7 +395,7 @@ END
 IDD_DIALOG_SET_TIMER DIALOGEX 0, 0, 446, 261
 STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "校时操作"
-FONT 9, "宋体"
+FONT 9, "宋体", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "发送命令",IDOK_SEND,35,240,58,14
     PUSHBUTTON      "取消(&C)",IDCANCEL,157,240,50,14

@@ -185,10 +185,27 @@ struct DType	 {
 //};
 //分站
 struct SlaveStation {
-	int FStyle;	                        //分站类型  
-	int IsScan;	                        //是否巡检   
-	AType        m_Atype;               //模拟量 类型结构
-	DType        m_Dtype[3];            //开关量 类型结构
+//	int FStyle;	                        //分站类型  
+//	int IsScan;	                        //是否巡检 
+	int     ptype;                   //传感器类型
+	CString falma;                  //报警音乐
+	CString WatchName;              //测点安装地点名称   
+	CString         utype;           //开关量/模拟量类型名称
+
+	float AValue;	                //模拟量当前值
+	float m_RangeH;	        	//高量程
+//	float m_RangeL;	        	//低量程
+	float AlarmValueH;	        //高报警值
+//	float AlarmValueL;	        //低报警值
+	float Apbrk;	                 //模拟量类型断电值
+	float Aprtn;	                 //模拟量类型复电值
+	CString m_Unit;		        // (计量)单位
+
+	bool    DValue;	                    //开关量当前值  
+	int AlarmState;	            //报警状态  
+	CString ZeroState;          //0态   开关量
+	CString OneState;           //1态   开关量
+	CString TwoState;           //2态   开关量
 };
 
 //IP

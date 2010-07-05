@@ -30,6 +30,7 @@ public:
 	//}}AFX_DATA
 	unsigned char  chcommand;
 	CListCtrl_DataModel m_DataModel;
+	CString2DataType    m_Str2Data;
 
 
 // Overrides

@@ -14,7 +14,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern  SlaveStation             m_SlaveStation[64][64];
+extern  SlaveStation             m_SlaveStation[64][24];
 extern  FormView  m_FormView[20];
 extern  DisplayPoint  m_DisplayPoint[32][64];
 /////////////////////////////////////////////////////////////////////////////
@@ -623,9 +623,9 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  m_List1.SetItemText(i, 1, dddd);
 				  int nptype = m_DisplayPoint[ilist][i].ptype;
 				  if( nptype== 0)
-					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].m_Atype.AValue);
+					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
 				  else
-					  dddd = m_SlaveStation[nfds][nchan].m_Dtype[nptype-1].DValue;
+					  dddd = m_SlaveStation[nfds][nchan].DValue;
     			  m_List1.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();
@@ -649,9 +649,10 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  m_List2.SetItemText(i, 1, dddd);
 				  int nptype = m_DisplayPoint[ilist][i].ptype;
 				  if( nptype== 0)
-					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].m_Atype.AValue);
+					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
 				  else
-					  dddd = m_SlaveStation[nfds][nchan].m_Dtype[nptype-1].DValue;
+					  hhhh
+					  dddd = m_SlaveStation[nfds][nchan].DValue;
     			  m_List2.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();
@@ -675,9 +676,9 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  m_List3.SetItemText(i, 1, dddd);
 				  int nptype = m_DisplayPoint[ilist][i].ptype;
 				  if( nptype== 0 )
-					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].m_Atype.AValue);
+					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
 				  else
-					  dddd = m_SlaveStation[nfds][nchan].m_Dtype[nptype-1].DValue;
+					  dddd = m_SlaveStation[nfds][nchan].DValue;
     			  m_List3.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();

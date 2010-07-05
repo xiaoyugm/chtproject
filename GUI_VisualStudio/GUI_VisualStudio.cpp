@@ -48,7 +48,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 DisplayPoint  m_DisplayPoint[32][64];
-SlaveStation             m_SlaveStation[64][64];
+SlaveStation             m_SlaveStation[64][24];
 extern  OthersSetting    m_OthersSetting;
 extern  DrawView         m_DrawView[20];
 extern  FormView  m_FormView[20];
@@ -533,68 +533,23 @@ void  CGUI_VisualStudioApp::pushDIS(CString  str1,CString  str2,CString  str3)
 
 void  CGUI_VisualStudioApp::BuildDIS(CString  strItem)
 {
-	bool m_bSwitch;
 	CString  strf,strc;
-		int n =strItem.Find("A");
-		if(n != -1)
-		{
-			m_bSwitch = false;
-    		strf = strItem.Mid(0,n);
-    		strc = strItem.Mid(n+1);
-		}
-		int m =strItem.Find("D");
-		int o =strItem.Find("F");
 		int p =strItem.Find("C");
 
-		if(m != -1)
-		{
-			m_bSwitch = true;
-    		strf = strItem.Mid(0,m);
-    		strc = strItem.Mid(m+1);
-		}
-		if(o != -1)
-		{
-			m_bSwitch = true;
-    		strf = strItem.Mid(0,o);
-    		strc = strItem.Mid(o+1);
-		}
-		if(p != -1)
-		{
-			m_bSwitch = true;
-    		strf = strItem.Mid(0,p);
-    		strc = strItem.Mid(p+1);
-		}
+    		strf = strItem.Mid(0,2);
+    		strc = strItem.Mid(3);
 
 		int nlist = m_DisPoint.m_szDISID;
 		int nfds = m_Str2Data.String2Int(strf);
 		int nchan = m_Str2Data.String2Int(strc);
 		  m_DisplayPoint[nlist][idis].fds = nfds;
 		  m_DisplayPoint[nlist][idis].chan = nchan;
-		  if(m_bSwitch)
-		  {
-			  if(m != -1)
-			  {
-    			  m_DisplayPoint[nlist][idis].ptype = 1;
-				  strf = m_SlaveStation[nfds][nchan].m_Dtype[0].WatchName;
-			  }
-			  if(o != -1)
-			  {
-    			  m_DisplayPoint[nlist][idis].ptype = 2;
-				  strf = m_SlaveStation[nfds][nchan].m_Dtype[1].WatchName;
-			  }
+
 			  if(p != -1)
-			  {
-    			  m_DisplayPoint[nlist][idis].ptype = 3;
-				  strf = m_SlaveStation[nfds][nchan].m_Dtype[2].WatchName;
-			  }
-       		  m_DisplayPoint[nlist][idis].CPName = strf;
-		  }
-		  else
-		  {
-			  m_DisplayPoint[nlist][idis].ptype = 0;
-    		  m_DisplayPoint[nlist][idis].CPName = m_SlaveStation[nfds][nchan].m_Atype.WatchName;
-		  }
-      	  m_DisplayPoint[nlist][idis].CPpointnum = strItem;
+				  nchan = nchan+15;
+    		  m_DisplayPoint[nlist][idis].ptype = m_SlaveStation[nfds][nchan].ptype;
+       		  m_DisplayPoint[nlist][idis].CPName = m_SlaveStation[nfds][nchan].WatchName;
+         	  m_DisplayPoint[nlist][idis].CPpointnum = strItem;
 
 		  m_DisplayPoint[nlist][60].fds = idis;
 		  idis++;
@@ -612,7 +567,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 	    	int nptype = m_PointDes.m_szptype;
     		int nfds = m_PointDes.m_szfds;
     		int nchan = m_PointDes.m_szchan;
-			if(nptype == 0  || nptype == 1)
+			if(nptype == 0  || nptype == 1 || nptype == 2)
 			{
         		m_ContactSet.MoveFirst();
         		while ( !m_ContactSet.IsEOF() )
@@ -621,16 +576,17 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 					break;
     			m_ContactSet.MoveNext();
 				}
-  				m_SlaveStation[nfds][nchan].m_Atype.WatchName = m_PointDes.m_szName;
-    			m_SlaveStation[nfds][nchan].m_Atype.m_RangeH = m_ContactSet.m_szltop;
+  				m_SlaveStation[nfds][nchan].ptype = nptype;
+  				m_SlaveStation[nfds][nchan].WatchName = m_PointDes.m_szName;
+    			m_SlaveStation[nfds][nchan].m_RangeH = m_ContactSet.m_szltop;
 //    			m_SlaveStation[nfds][nchan].m_Atype.m_RangeL = m_ContactSet.m_szlbom;
-    			m_SlaveStation[nfds][nchan].m_Atype.AlarmValueH = m_ContactSet.m_szpalmu;
+    			m_SlaveStation[nfds][nchan].AlarmValueH = m_ContactSet.m_szpalmu;
 //    			m_SlaveStation[nfds][nchan].m_Atype.AlarmValueL = m_ContactSet.m_szpalmd;
-    			m_SlaveStation[nfds][nchan].m_Atype.Apbrk = m_ContactSet.m_szpbrk;
-    			m_SlaveStation[nfds][nchan].m_Atype.Aprtn =m_ContactSet.m_szprtn;
-    			m_SlaveStation[nfds][nchan].m_Atype.utype = m_PointDes.m_szutype;
-    			m_SlaveStation[nfds][nchan].m_Atype.m_Unit = m_ContactSet.m_szpunit;
-    			m_SlaveStation[nfds][nchan].m_Atype.falma = m_ContactSet.m_szfalm;
+    			m_SlaveStation[nfds][nchan].Apbrk = m_ContactSet.m_szpbrk;
+    			m_SlaveStation[nfds][nchan].Aprtn =m_ContactSet.m_szprtn;
+    			m_SlaveStation[nfds][nchan].utype = m_PointDes.m_szutype;
+    			m_SlaveStation[nfds][nchan].m_Unit = m_ContactSet.m_szpunit;
+    			m_SlaveStation[nfds][nchan].falma = m_ContactSet.m_szfalm;
 			}
 			else
 			{
@@ -643,17 +599,18 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 				}
 //            m_AccountSet.MoveFirst();
 			int nptype = m_PointDes.m_szptype;
-			if( nptype == 13 || nptype == 14)
-				nptype =10;
-			if(nptype == 11)
-				nchan =0;
-    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].WatchName = m_PointDes.m_szName;
-    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].AlarmState = m_AccountSet.m_szpalms;
-    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].ZeroState = m_AccountSet.m_szname0;
-    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].OneState = m_AccountSet.m_szname1;
-    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].TwoState = m_AccountSet.m_szname2;
-    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].utype = m_PointDes.m_szutype;
-    			m_SlaveStation[nfds][nchan].m_Dtype[nptype-10].falmd = m_AccountSet.m_szfalm;
+					if(nptype == 12)
+						nchan = nchan+15;
+					if(nptype == 11)
+						nchan = 0;
+  				m_SlaveStation[nfds][nchan].ptype = nptype;
+    			m_SlaveStation[nfds][nchan].WatchName = m_PointDes.m_szName;
+    			m_SlaveStation[nfds][nchan].AlarmState = m_AccountSet.m_szpalms;
+    			m_SlaveStation[nfds][nchan].ZeroState = m_AccountSet.m_szname0;
+    			m_SlaveStation[nfds][nchan].OneState = m_AccountSet.m_szname1;
+    			m_SlaveStation[nfds][nchan].TwoState = m_AccountSet.m_szname2;
+    			m_SlaveStation[nfds][nchan].utype = m_PointDes.m_szutype;
+    			m_SlaveStation[nfds][nchan].falma = m_AccountSet.m_szfalm;
 			}
     		m_PointDes.MoveNext();
 		}
