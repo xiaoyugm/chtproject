@@ -60,6 +60,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_CONTROLF, OnControlF)
 	ON_COMMAND(ID_VERIFY_TIMER, OnVerifyT)
 	ON_COMMAND(ID_MANUAL_CONTROL, OnManualC)
+	ON_COMMAND(ID_FDS_CONFIG, OnFDSC)
+	ON_COMMAND(ID_TEST_COMMUNICATION, OnTESTC)
+	ON_COMMAND(ID_WINDGAS_ATRESIA, OnWINDGASA)
+	ON_COMMAND(ID_FAILURE_ATRESIA, OnFAILUREA)
 //	ON_MESSAGE(WM_XTP_PRETRANSLATEMOUSEMSG, OnTabbarMouseMsg)  
 //    ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_INFO, OnSelchangeTabInfo)
 	//}}AFX_MSG_MAP
@@ -1263,7 +1267,7 @@ void CMainFrame::OnControlF()
 	dlg.DoModal();
 }
 
-//通讯命令
+//////////////////////////////////////////////////通讯命令
 void CMainFrame::OnVerifyT() 
 {
 	CSetTimeDlg dlg;
@@ -1278,18 +1282,34 @@ void CMainFrame::OnManualC()
 	dlg.DoModal();
 }
 
+void CMainFrame::OnFDSC() 
+{
+	CSetTimeDlg dlg;
+	dlg.chcommand =  0x43;
+	dlg.DoModal();
+}
 
+void CMainFrame::OnTESTC() 
+{
+	CSetTimeDlg dlg;
+	dlg.chcommand =  0x47;
+	dlg.DoModal();
+}
 
+void CMainFrame::OnWINDGASA() 
+{
+	CSetTimeDlg dlg;
+	dlg.chcommand =  0x46;
+	dlg.DoModal();
+}
 
-
-
-
-
-
-
-
-
-
+void CMainFrame::OnFAILUREA() 
+{
+	CSetTimeDlg dlg;
+	dlg.chcommand =  0x5A;
+	dlg.DoModal();
+}
+////////////////////////////////////////////////////////通讯命令
 
 void CMainFrame::OnSimulation() 
 {

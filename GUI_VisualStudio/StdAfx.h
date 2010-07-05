@@ -114,6 +114,7 @@ using namespace Gdiplus;
 using namespace std;
 
 #include "CGridListCtrlEx\CGridColumnManagerProfile.h"
+#include "..\CGridListCtrlEx\CGridColumnTraitDateTime.h"
 #include "CGridListCtrlEx\CGridColumnTraitEdit.h"
 #include "CGridListCtrlEx\CGridColumnTraitCombo.h"
 #include "CGridListCtrlEx\CGridRowTraitXP.h"

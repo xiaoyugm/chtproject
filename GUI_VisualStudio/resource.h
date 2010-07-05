@@ -224,6 +224,8 @@
 #define IDC_STATICV                     1042
 #define IDC_STATICV1                    1043
 #define IDC_STATICV2                    1044
+#define IDC_LIST_C                      1045
+#define IDC_LIST_C2                     1046
 #define IDC_EDIT_HOST_IP                1065
 #define IDC_EDIT_SECOND                 1065
 #define IDC_EDIT_PORT                   1066
@@ -307,7 +309,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        161
 #define _APS_NEXT_COMMAND_VALUE         32808
-#define _APS_NEXT_CONTROL_VALUE         1045
+#define _APS_NEXT_CONTROL_VALUE         1046
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

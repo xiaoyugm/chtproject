@@ -152,6 +152,10 @@ protected:
 	afx_msg void OnSkinFramework(UINT nID);
 
 ///	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
+	afx_msg void OnFAILUREA();
+	afx_msg void OnWINDGASA();
+	afx_msg void OnTESTC();
+	afx_msg void OnFDSC();
 	afx_msg void OnManualC();
 	afx_msg void OnVerifyT();
 	afx_msg void OnControlF();
