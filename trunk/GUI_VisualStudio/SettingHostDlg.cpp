@@ -49,7 +49,7 @@ static char THIS_FILE[] = __FILE__;
 
 using namespace dbAx;
 
-extern SlaveStation             m_SlaveStation[64][64];
+extern SlaveStation             m_SlaveStation[64][24];
 extern DisplayPoint  m_DisplayPoint[32][64];
 extern  OthersSetting    m_OthersSetting;
 extern  ADTypeTable	     m_ADTypeTable[9];
@@ -211,6 +211,7 @@ BOOL CSettingHostDlg::OnInitDialog()
 
     	m_wndComboSize2.AddString(_T("电流电压型"));
     	m_wndComboSize2.AddString(_T("频率型"));
+    	m_wndComboSize2.AddString(_T("频率型(累计)"));
 		m_wndComboSize2.SetCurSel(0);
 
 		m_MAlocation.MoveFirst();
@@ -1317,6 +1318,8 @@ void CSettingHostDlg::OnBtnOK()
         	m_PointDesNew->m_szptype = 0;     //电流电压
 		if(s == 1)
         	m_PointDesNew->m_szptype = 1;     //频率
+		if(s == 2)
+        	m_PointDesNew->m_szptype = 2;     //频率(累计)
     	m_PointDesNew->m_sztypeID = m_ContactSet.m_szAID;
 	}
 	if(m_ctrlCheckAlm.GetCheck())
@@ -2083,51 +2086,19 @@ void CSettingHostDlg::OnButtonSave()
 	  {
           m_DisplayPoint[PointDesid][i].CPpointnum = m_listDis.GetItemText(i,0);
 		  strItem = m_listDis.GetItemText(i,0);
-		int n =strItem.Find("A");
-		if(n != -1)
-		{
-			m_bSwitch = false;
-    		strf = strItem.Mid(0,n);
-    		strc = strItem.Mid(n+1);
-		}
-		int m =strItem.Find("D");
-		int o =strItem.Find("F");
-		int p =strItem.Find("C");
 
-		if(m != -1)
-		{
-			m_bSwitch = true;
-    		strf = strItem.Mid(0,m);
-    		strc = strItem.Mid(m+1);
-		}
-		if(o != -1)
-		{
-			m_bSwitch = true;
-    		strf = strItem.Mid(0,o);
-    		strc = strItem.Mid(o+1);
-		}
-		if(p != -1)
-		{
-			m_bSwitch = true;
-    		strf = strItem.Mid(0,p);
-    		strc = strItem.Mid(p+1);
-		}
+		  int p =strItem.Find("C");
+    		strf = strItem.Mid(0,2);
+    		strc = strItem.Mid(3);
 
 		int nfds = m_Str2Data.String2Int(strf);
 		int nchan = m_Str2Data.String2Int(strc);
 		  m_DisplayPoint[PointDesid][i].fds = nfds;
 		  m_DisplayPoint[PointDesid][i].chan = nchan;
-		  if(m_bSwitch)
-		  {
-			  if(m != -1)
-        		  m_DisplayPoint[PointDesid][i].CPName = m_SlaveStation[nfds][nchan].m_Dtype[0].WatchName;
-			  if(o != -1)
-        		  m_DisplayPoint[PointDesid][i].CPName = m_SlaveStation[nfds][nchan].m_Dtype[1].WatchName;
-			  if(p != -1)
-        		  m_DisplayPoint[PointDesid][i].CPName = m_SlaveStation[nfds][nchan].m_Dtype[2].WatchName;
-		  }
-		  else
-    		  m_DisplayPoint[PointDesid][i].CPName = m_SlaveStation[nfds][nchan].m_Atype.WatchName;
+
+		if(p != -1)
+			nchan = nchan+15;
+        m_DisplayPoint[PointDesid][i].CPName = m_SlaveStation[nfds][nchan].WatchName;
     	m_DisplayPoint[PointDesid][i].CPpointnum = strItem;
 
 		  m_DisplayPoint[PointDesid][60].fds = i;
