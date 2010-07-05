@@ -755,16 +755,7 @@ void CSettingHostDlg::BuildAccountList()
 
        	// Insert data into list-control by copying from datamodel
 //    	int nItem = 0;
-/*    	for(size_t rowId = 0; rowId < m_DataModel.GetRowIds() ; ++rowId)
-		{
-		nItem = m_listCtrl.InsertItem(++nItem, CString(m_DataModel.GetCellText(rowId, 0).c_str()));
-		m_listCtrl.SetItemData(nItem, rowId);
-    		for(int col = 0; col < m_DataModel.GetColCount() ; ++col)
-			{
-			m_listCtrl.SetItemText(nItem, col+1, CString(m_DataModel.GetCellText(rowId, col).c_str()));
-			}
-		}
-*/
+
 
     //Highlight the first item
 /*    LV_ITEM lvi;

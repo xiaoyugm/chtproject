@@ -207,7 +207,7 @@ void CMQClient::ManageServerK(CNDKMessage& message)
 	CString ggggg,strtemp,strbegin;
     unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
 	int  ntimer;
-	message.GetAt(0,nbegin);
+//	message.GetAt(0,nbegin);
 	message.GetAt(1,nstation);
     	strtemp.Format("[%d∫≈∑÷’æ]",nstation);
     	ggggg += strtemp;

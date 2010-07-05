@@ -7,10 +7,11 @@
 // SetTimeDlg.h : header file
 //
 
+#include "CListCtrl_DataModel.h"
 /////////////////////////////////////////////////////////////////////////////
 // CSetTimeDlg dialog
 
-class CSetTimeDlg : public CDialog
+class CSetTimeDlg : public CXTResizeDialog
 {
 // Construction
 public:
@@ -23,8 +24,12 @@ public:
 	CXTFlatComboBox	    m_VERIFYT;
 	CXTFlatComboBox	    m_PORT;
 	CXTFlatComboBox	    m_FUNCTION;
+	CGridListCtrlGroups         m_listC;
+	CGridListCtrlGroups         m_listC2;
+	CXTHeaderCtrl       m_header;
 	//}}AFX_DATA
 	unsigned char  chcommand;
+	CListCtrl_DataModel m_DataModel;
 
 
 // Overrides
