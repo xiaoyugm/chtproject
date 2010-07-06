@@ -49,7 +49,7 @@ static char THIS_FILE[] = __FILE__;
 
 using namespace dbAx;
 
-extern SlaveStation             m_SlaveStation[64][24];
+extern SlaveStation             m_SlaveStation[65][25];
 extern DisplayPoint  m_DisplayPoint[32][64];
 extern  OthersSetting    m_OthersSetting;
 extern  ADTypeTable	     m_ADTypeTable[9];
@@ -2097,7 +2097,7 @@ void CSettingHostDlg::OnButtonSave()
 		  m_DisplayPoint[PointDesid][i].chan = nchan;
 
 		if(p != -1)
-			nchan = nchan+15;
+			nchan = nchan+16;
         m_DisplayPoint[PointDesid][i].CPName = m_SlaveStation[nfds][nchan].WatchName;
     	m_DisplayPoint[PointDesid][i].CPpointnum = strItem;
 

@@ -14,7 +14,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern  SlaveStation             m_SlaveStation[64][24];
+extern  SlaveStation             m_SlaveStation[65][25];
 extern  FormView  m_FormView[20];
 extern  DisplayPoint  m_DisplayPoint[32][64];
 /////////////////////////////////////////////////////////////////////////////
@@ -604,6 +604,33 @@ void CSampleFormView::OpenAddDel(int nlist ,int ilist)
 		BuildList(nlist, ilist);
 }
 
+void CSampleFormView::DisList123() 
+{
+	int ilist ,nlist;
+	CString pString ;
+	m_List1.GetWindowText(pString);
+	ilist = m_Str2Data.String2Int(pString);
+	nlist =  ilist%3;
+	if(nlist == 0)
+		nlist =3;
+	BuildList(nlist, ilist);
+
+	m_List2.GetWindowText(pString);
+	ilist = m_Str2Data.String2Int(pString);
+	nlist =  ilist%3;
+	if(nlist == 0)
+		nlist =3;
+	BuildList(nlist, ilist);
+
+	m_List3.GetWindowText(pString);
+	ilist = m_Str2Data.String2Int(pString);
+	nlist =  ilist%3;
+	if(nlist == 0)
+		nlist =3;
+	BuildList(nlist, ilist);
+}
+
+//nlist 列表控件 ilist  控件序号
 void CSampleFormView::BuildList(int nlist ,int ilist) 
 {
 		if(nlist == 1)
@@ -625,7 +652,7 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  if( nptype== 0)
 					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
 				  else
-					  dddd = m_SlaveStation[nfds][nchan].DValue;
+					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
     			  m_List1.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();
@@ -651,8 +678,7 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  if( nptype== 0)
 					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
 				  else
-					  hhhh
-					  dddd = m_SlaveStation[nfds][nchan].DValue;
+					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
     			  m_List2.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();
@@ -678,7 +704,7 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  if( nptype== 0 )
 					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
 				  else
-					  dddd = m_SlaveStation[nfds][nchan].DValue;
+					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
     			  m_List3.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();

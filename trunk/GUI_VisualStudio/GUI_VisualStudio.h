@@ -36,6 +36,7 @@
 #include "drawview.h"
 //#include <SqlDirect.h>
 #include <String2DataType.h>
+#include "dbAx\AxSControl.hpp"
 #include "dbAx\AxPointDescription.hpp"
 #include "dbAx\AxAccountSet.hpp"
 #include "dbAx\AxContactSet.hpp"
@@ -57,7 +58,7 @@ public:
     CMQClient socketClient;
 	BOOL   StartClient();
 	void   SendMessage(CNDKMessage& message);     //211
-	void   Sync(CNDKMessage& message);
+	void   Sync();
 	CNDKMessage m_sendmessage;
 
 	CString GetAppPath();				//返回应用程序所在路径
@@ -77,9 +78,11 @@ public:
     CCardFileEvents *pCnEvents;
     CAxConnection   m_Cn;
     CAxPointDescription  m_PointDes;
-    CAxAccountSet   m_AccountSet;
-    CAxContactSet   m_ContactSet;
+    CAxAccountSet    m_AccountSet;
+    CAxContactSet    m_ContactSet;
     CAxDisPoint      m_DisPoint;
+    CAxSControl      m_SControl;
+
 	//	CSQLDirect		m_sqlD;		//数据库
 	CString2DataType m_String2DataType;
 	int DocNum ,idis;

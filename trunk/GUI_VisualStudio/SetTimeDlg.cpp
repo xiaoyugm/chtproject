@@ -11,7 +11,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern SlaveStation             m_SlaveStation[64][24];
+extern SlaveStation             m_SlaveStation[65][25];
 /////////////////////////////////////////////////////////////////////////////
 // CSetTimeDlg dialog
 
@@ -156,7 +156,7 @@ BOOL CSetTimeDlg::OnInitDialog()
     			pComboTrait->AddItem(7, "开关量（通断量）");
 			pTrait = pComboTrait;
 			CGridColumnTraitCombo* pComboTrait1 = new CGridColumnTraitCombo;
-    			pComboTrait1->AddItem(0, "");
+    			pComboTrait1->AddItem(0, "无配置");
     			pComboTrait1->AddItem(1, "常开");
     			pComboTrait1->AddItem(2, "常闭");
     			pComboTrait1->AddItem(3, "电平");

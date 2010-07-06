@@ -87,6 +87,7 @@ public:
 	POSITION	m_ViewPos ;
 	UINT        CountView;
 	UINT    	m_Second;
+	UINT    	m_FdsScan;
 
 	virtual BOOL IsSelected(const CObject* pDocItem) const;// Container support
 // Implementation
