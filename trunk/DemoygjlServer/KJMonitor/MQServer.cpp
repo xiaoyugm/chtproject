@@ -81,7 +81,7 @@ void CMQServer::OnMessage(long lUserId, CNDKMessage& message)
 		break;
 	case REALTIMEDATA:    //uWarnCauseRecord:
 //		SyncTableuWarnCauseRecord();
-		ManageClientm(message);
+		ManageClientD(message);
 		break;
 //	case SYNC:
 //		Sync(message);
@@ -205,22 +205,23 @@ void CMQServer::SyncTableCollectData()
 	}
 }
 
-void CMQServer::ManageClientm(CNDKMessage& message)
+void CMQServer::ManageClientD(CNDKMessage& message)
 {
 	CString ggggg,strtemp,strbegin;
     unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
-	message.GetAt(0,nbegin);
+//	message.GetAt(0,nbegin);
 	message.GetAt(1,nstation);
 	message.GetAt(2,ncommand);
-	message.GetAt(3,nend);
+//	message.GetAt(3,nend);
 
 	srand( (unsigned)time( NULL ) );//srand()函数产生一个以当前时间开始的随机种子.应该放在for等循环语句前面 不然要很长时间等待
 	unsigned char N100 = rand() % 101;
 	unsigned char N8 = rand() % 9;
+	unsigned char N2 = rand() % 3;
 	unsigned char N255 = rand() % 255;
 	CTime t = CTime::GetCurrentTime();
 
-	if(ncommand == 0x44)   //D
+//	if(ncommand == 0x44)   //D
 	{
     	CNDKMessage message1(REALTIMEDATA);
 
@@ -229,29 +230,59 @@ void CMQServer::ManageClientm(CNDKMessage& message)
 	 				message1.Add(ncommand);
 
 					message1.Add(N8);
-	 				message1.Add(N100);             //1通道
+					if(N2 == 2)
+	 				    message1.Add(1);             //1通道
+					else 
+	 				    message1.Add(0);             //1通道
 					message1.Add(N8);
-	 				message1.Add(N100*2);          //2
+					if(N2 == 1)
+	 		    		message1.Add(1);          //2
+					else
+	 		    		message1.Add(0);          //2
 					message1.Add(N8);
-	 				message1.Add(N100+10);         //3
+	 				message1.Add(N2);         //3
 					message1.Add(N8);
-	 				message1.Add(N8);               //4
-					message1.Add(N8);
-	 				message1.Add(N8*10);            //5
-					message1.Add(N8);
-	 				message1.Add(N8*20);           //6
-					message1.Add(N8);
-	 				message1.Add(N8*30);            //7
+					if(N2 == 0)
+    	 				message1.Add(2);               //4
+					else
+    	 				message1.Add(1);               //4
 
+					message1.Add(N8);
+	 				message1.Add(N100*10);            //5
+					message1.Add(N8);
+	 				message1.Add(N8*160);           //6
+					message1.Add(N8);
+	 				message1.Add(N255*4);            //7
+					message1.Add(N8);
+	 				message1.Add(N100*14);            //8
+
+					message1.Add(N8);
+	 				message1.Add(N100*10);            //5
+					message1.Add(N8);
+	 				message1.Add(N8*160);           //6
+					message1.Add(N8);
+	 				message1.Add(N255*4);            //7
+					message1.Add(N8);
+	 				message1.Add(N100*14);            //8
+					message1.Add(N8);
+	 				message1.Add(N100*10);            //5
+					message1.Add(N8);
+	 				message1.Add(N8*160);           //6
+					message1.Add(N8);
+	 				message1.Add(N255*4);            //7
+					message1.Add(N8);
+	 				message1.Add(N100*14);            //8
+					
 					message1.Add(N255);
 
-//				    strtemp=t.Format("%Y-%m-%d %H:%M:%S");     //BCD转为标准日期格式，作为字符串发送
-					message1.Add(10);
-					message1.Add(07);
-					message1.Add(01);
-					message1.Add(17);
-					message1.Add(8);
-					message1.Add(9);
+    	CTime t=CTime::GetCurrentTime();
+					message1.Add(t.GetYear()-2000);
+					message1.Add(t.GetMonth());
+					message1.Add(t.GetDay());
+//					message1.Add(t.GetDayOfWeek());
+					message1.Add(t.GetHour());
+					message1.Add(t.GetMinute());
+					message1.Add(t.GetSecond());
 
 					message1.Add(nend);
 					theApp.SendMessage(message1);
@@ -259,8 +290,6 @@ void CMQServer::ManageClientm(CNDKMessage& message)
 	}
 	if(ncommand == 0x54)//T
 	{
-
-
 	}
 	if(ncommand == 0x4B)//K
 	{
@@ -277,15 +306,10 @@ void CMQServer::ManageClientm(CNDKMessage& message)
 	if(ncommand == 0x5A)//Z
 	{
 	}
-
-
-
-
-
 	strbegin.Format("[%d][%d][%d][%d]",nbegin,nstation,ncommand,nend);
 	ggggg = ggggg + strbegin;
 
-    AfxMessageBox(ggggg);
+//    AfxMessageBox(ggggg);
 }
 
 void CMQServer::ManageClientT(CNDKMessage& message)
