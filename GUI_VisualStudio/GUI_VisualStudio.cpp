@@ -47,8 +47,9 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+FDSscan               m_FDSscan[65];
 DisplayPoint  m_DisplayPoint[32][64];
-SlaveStation             m_SlaveStation[64][24];
+SlaveStation             m_SlaveStation[65][25];
 extern  OthersSetting    m_OthersSetting;
 extern  DrawView         m_DrawView[20];
 extern  FormView  m_FormView[20];
@@ -482,6 +483,13 @@ BOOL CGUI_VisualStudioApp::ConnectDB()
 		m_DisPoint._SetRecordsetEvents(new CAccountSetEvents);
 		m_DisPoint.Open(_T("Select * From dispoint"), &m_Cn);
 		m_DisPoint.MarshalOptions(adMarshalModifiedOnly);
+
+		m_SControl.Create();
+		m_SControl.CursorType(adOpenDynamic);
+		m_SControl.CacheSize(50);
+		m_SControl._SetRecordsetEvents(new CAccountSetEvents);
+		m_SControl.Open(_T("Select * From specialcontrol"), &m_Cn);
+		m_SControl.MarshalOptions(adMarshalModifiedOnly);
   }
   catch ( dbAx::CAxException *e )
   {
@@ -557,6 +565,7 @@ void  CGUI_VisualStudioApp::BuildDIS(CString  strItem)
 
 BOOL CGUI_VisualStudioApp::InitPointInfo()
 {
+	//初始化点
 		if ( m_PointDes._IsEmpty() )
 		  return TRUE;
 		int xxx = m_PointDes.RecordCount();
@@ -615,6 +624,25 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
     		m_PointDes.MoveNext();
 		}
         m_PointDes.MoveFirst();
+
+		//需要巡检分站
+		iItem = 0;
+		m_SControl.MoveFirst();
+		while ( !m_SControl.IsEOF() )
+		{
+			if(m_SControl.m_szIsScan)
+			{
+				m_FDSscan[iItem].scanfds = m_SControl.m_szSID;
+			    iItem++;
+			}
+			m_SControl.MoveNext();
+		}
+		m_FDSscan[64].scanfds = iItem;
+
+
+
+
+
 
 		return TRUE;
 
@@ -882,6 +910,8 @@ void CGUI_VisualStudioApp::OnCloseDB()
       m_PointDes.Close();
     if ( m_DisPoint._IsOpen() )
       m_DisPoint.Close();
+    if ( m_SControl._IsOpen() )
+      m_SControl.Close();
 
     m_Cn.Close();
 
@@ -920,7 +950,7 @@ void CGUI_VisualStudioApp::SendMessage(CNDKMessage& message)
 }
 
 //向主机发送信息
-void CGUI_VisualStudioApp::Sync(CNDKMessage& message)
+void CGUI_VisualStudioApp::Sync()
 {
 	if(m_senddata)
 	{

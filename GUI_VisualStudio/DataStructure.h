@@ -166,16 +166,10 @@ struct AType	 {
 	CString m_Unit;		        // (计量)单位
 	CString         utype;           //模拟量类型名称
 };
-//开关量 类型结构
-struct DType	 {
-	CString falmd;                  //报警音乐
-	CString WatchName;              //测点安装地点名称   
-	bool    DValue;	                    //开关量当前值  
-	int AlarmState;	            //报警状态  
-	CString ZeroState;          //0态   开关量
-	CString OneState;           //1态   开关量
-	CString TwoState;           //2态   开关量
-	CString       utype;           //开关量类型名称
+
+//巡检分站结构
+struct FDSscan	 {
+	int scanfds;	            //需要巡检分站
 };
 
 //通道号
@@ -191,6 +185,7 @@ struct SlaveStation {
 	CString falma;                  //报警音乐
 	CString WatchName;              //测点安装地点名称   
 	CString         utype;           //开关量/模拟量类型名称
+    unsigned char   Channel_state;
 
 	float AValue;	                //模拟量当前值
 	float m_RangeH;	        	//高量程
@@ -201,7 +196,7 @@ struct SlaveStation {
 	float Aprtn;	                 //模拟量类型复电值
 	CString m_Unit;		        // (计量)单位
 
-	bool    DValue;	                    //开关量当前值  
+	int    CValue;	                    //开关量/频率/数字（模拟） 当前值  
 	int AlarmState;	            //报警状态  
 	CString ZeroState;          //0态   开关量
 	CString OneState;           //1态   开关量

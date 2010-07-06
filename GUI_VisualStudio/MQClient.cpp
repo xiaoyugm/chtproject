@@ -24,6 +24,7 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
+extern SlaveStation             m_SlaveStation[65][25];
 static int nYear, nMonth, nDay, nHour, nMinute, nSecond;
 extern  CPointInfo m_CPointInfo[MAX_POINT_NUMBER];
 CWarnPoint  m_CWarnPoint[MAX_POINT_NUMBER];
@@ -158,15 +159,7 @@ void CMQClient::GetHostStartTime(CNDKMessage& message)
 	message.GetAt(5,nSecond);
 	CTime time(nYear, nMonth, nDay, nHour, nMinute, nSecond);
 	StartTime = time;
-
 	theApp.m_senddata = true;
-//	CNDKMessage message1(REALTIMEDATA);
-//					message1.Add(0x7E);
-//					message1.Add(0x01);
-//	 				message1.Add(0x44);
-//					message1.Add(0x21);
-//					theApp.Sync(message1);
-
 
 	//if(ConnectTime != StartTime)   
 ///	SyncHostAndClient();
@@ -241,70 +234,43 @@ void CMQClient::CollectDate(CNDKMessage& message)
     unsigned char  usPrecision ;
 	CString ggggg,strtemp;
     unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
+	int n_cdata;
 
-	message.GetAt(0, nbegin);
-	strtemp.Format("[%d]",nbegin);
-	ggggg += strtemp;
+//	message.GetAt(0, nbegin);
+//	strtemp.Format("[%d]",nbegin);
+//	ggggg += strtemp;
 	message.GetAt(1, nstation);
-	strtemp.Format("[%d]",nstation);
-	ggggg += strtemp;
-	message.GetAt(2, ncommand);
-	strtemp.Format("[%d]",ncommand);
-	ggggg += strtemp;
+//	message.GetAt(2, ncommand);
 
-	message.GetAt(3, ufData);
-	strtemp.Format("[%d]",ufData);
-	ggggg += strtemp;
-	message.GetAt(4, ufData);       //1
-	strtemp.Format("[%d]",ufData);
-	ggggg += strtemp;
-	message.GetAt(5, ufData);
-	strtemp.Format("[%d]",ufData);
-	ggggg += strtemp;
-	message.GetAt(6, ufData);       //2
-	strtemp.Format("[%d]",ufData);
-	ggggg += strtemp;
-	message.GetAt(7, ufData);
-	message.GetAt(8, ufData);       //3
-	message.GetAt(9, ufData);
-	message.GetAt(10, ufData);      //4
-	message.GetAt(11, ufData);
-	message.GetAt(12, ufData);      //5
-	message.GetAt(13, ufData);
-	message.GetAt(14, ufData);      //6
-	message.GetAt(15, ufData);
-	message.GetAt(16, ufData);      //7
-	strtemp.Format("[%d]",ufData);
-	ggggg += strtemp;
+	int nItem =1;
+	for(int i=3 ; i< 34 ;i=i+2)     //3,4 1     33,34 16
+	{
+		if(m_SlaveStation[nstation][nItem].WatchName != "")
+		{
+    	    message.GetAt(i, ufData);
+		    m_SlaveStation[nstation][nItem].Channel_state = ufData;
+    	    message.GetAt(i+1, n_cdata);
+		    m_SlaveStation[nstation][nItem].CValue = n_cdata;
+	    	ufData = m_SlaveStation[nstation][nItem].ptype;
+	    	if(ufData == 0)
+	    		m_SlaveStation[nstation][nItem].AValue = m_SlaveStation[nstation][nItem].m_RangeH*n_cdata/1500;
+		}
+		nItem++;
+	}
+	message.GetAt(35, ufData);    //控制量状态
+	message.GetAt(36, ufData);
+	message.GetAt(37, ufData);    //AC/DC+电池电压
 
-	message.GetAt(17, ufData);
-	strtemp.Format("[%d]",ufData);
-	ggggg += strtemp;
+	message.GetAt(38, ufData);
+	message.GetAt(39, ufData);
+	message.GetAt(40, ufData);
+	message.GetAt(41, ufData);
+	message.GetAt(42, ufData);
+	message.GetAt(43, ufData);
 
-	message.GetAt(18, ufData);
-	strtemp.Format("[%d]",ufData);
-	ggggg += strtemp;
-	message.GetAt(19, ufData);
-	strtemp.Format("[%d]",ufData);
-	ggggg += strtemp;
-	message.GetAt(20, ufData);
-	strtemp.Format("[%d]",ufData);
-	ggggg += strtemp;
-	message.GetAt(21, ufData);
-	strtemp.Format("[%d]",ufData);
-	ggggg += strtemp;
-	message.GetAt(22, ufData);
-	strtemp.Format("[%d]",ufData);
-	ggggg += strtemp;
-	message.GetAt(23, ufData);
-	strtemp.Format("[%d]",ufData);
-	ggggg += strtemp;
+	message.GetAt(44, nend);
 
-	message.GetAt(24, nend);
-	strtemp.Format("[%d]",nend);
-	ggggg += strtemp;
-
-    AfxMessageBox(ggggg);
+//    AfxMessageBox(ggggg);
 /*	if(state == 1)
 	{
         lWarn_state = m_CPointInfo[nPointNo].lWarn_state ;

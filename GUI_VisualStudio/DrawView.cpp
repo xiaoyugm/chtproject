@@ -41,6 +41,7 @@ enum
 	ACTION
 };
 
+extern FDSscan               m_FDSscan[65];
 extern CStrWarn m_CStrWarn[MAX_ROW];
 extern CPointInfo m_CPointInfo[MAX_POINT_NUMBER];
 extern CWarnPoint m_CWarnPoint[MAX_POINT_NUMBER];
@@ -80,6 +81,7 @@ CDrawView::CDrawView()
 
 	m_bDragDataAcceptable = FALSE;
 	m_Second =0 ;
+	m_FdsScan = 0;
     CountView = 0;
 	BOOL m_bCount = FALSE;
 	m_bGrid = FALSE;
@@ -842,8 +844,24 @@ void CDrawView::OnTimer(UINT nIDEvent)
 				if(theApp.m_sendcom)
 				{
 					theApp.m_sendcom =false;
-                	CNDKMessage message1;
-		    		theApp.Sync(message1);
+		    		theApp.Sync();
+				}
+				else
+				{
+					if(m_FDSscan[64].scanfds)
+					{
+       	            CNDKMessage message1(REALTIMEDATA);
+					message1.Add(0x7E);
+					message1.Add(m_FDSscan[m_FdsScan].scanfds);
+	 				message1.Add(0x44);
+					message1.Add(0x21);
+					theApp.m_sendmessage =NULL;
+					theApp.m_sendmessage = message1;
+		    		theApp.Sync();
+					m_FdsScan++;
+					if(m_FdsScan == m_FDSscan[64].scanfds)
+						m_FdsScan= 0;
+					}
 				}
 
 			}
@@ -884,7 +902,9 @@ void CDrawView::OnTimer(UINT nIDEvent)
             	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
               	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
                	CSampleFormView *pFView = (CSampleFormView*)pChild->GetActiveView();	
-//    			if(pFView->IsKindOf(RUNTIME_CLASS(CSampleFormView)))
+    			if(pFView->IsKindOf(RUNTIME_CLASS(CSampleFormView)))
+				  	pFView->DisList123();
+
 //    				pFView->OpenAddDel(7);
 ///			}
 ///			break ;

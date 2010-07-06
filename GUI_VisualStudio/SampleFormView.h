@@ -54,6 +54,7 @@ public:
 	CImageList m_SampleFormImageList;
 // Operations
 public:
+	void DisList123();
 	void BuildList(int nlist ,int ilist);
 	void OpenAddDel(int nlist ,int ilist);
 	void SetInfo(int m_List,int iItem,CString strSubA,CString strSubB,CString strSubC);
