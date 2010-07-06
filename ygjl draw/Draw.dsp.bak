@@ -212,6 +212,63 @@ SOURCE=.\Draw.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\hlp\Draw.hpj
+
+!IF  "$(CFG)" == "Draw - Win32 Release"
+
+# PROP Ignore_Default_Tool 1
+USERDEP__DRAW_="hlp\AfxCore.rtf"	"hlp\AfxPrint.rtf"	"hlp\$(TargetName).hm"	
+# Begin Custom Build - Making help file...
+OutDir=.\Release
+TargetName=YDraw
+InputPath=.\hlp\Draw.hpj
+InputName=Draw
+
+"$(OutDir)\$(InputName).hlp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	start /wait hcw /C /E /M "hlp\$(InputName).hpj" 
+	if errorlevel 1 goto :Error 
+	if not exist "hlp\$(InputName).hlp" goto :Error 
+	copy "hlp\$(InputName).hlp" $(OutDir) 
+	goto :done 
+	:Error 
+	echo hlp\$(InputName).hpj(1) : error: 
+	type "hlp\$(InputName).log" 
+	:done 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Draw - Win32 Debug"
+
+# PROP Ignore_Default_Tool 1
+USERDEP__DRAW_="hlp\AfxCore.rtf"	"hlp\AfxPrint.rtf"	"hlp\$(TargetName).hm"	
+# Begin Custom Build - Making help file...
+OutDir=.\Debug
+TargetName=Draw
+InputPath=.\hlp\Draw.hpj
+InputName=Draw
+
+"$(OutDir)\$(InputName).hlp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	start /wait hcw /C /E /M "hlp\$(InputName).hpj" 
+	if errorlevel 1 goto :Error 
+	if not exist "hlp\$(InputName).hlp" goto :Error 
+	copy "hlp\$(InputName).hlp" $(OutDir) 
+	goto :done 
+	:Error 
+	echo hlp\$(InputName).hpj(1) : error: 
+	type "hlp\$(InputName).log" 
+	:done 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Draw.odl
+# End Source File
+# Begin Source File
+
 SOURCE=.\Draw.rc
 # End Source File
 # Begin Source File

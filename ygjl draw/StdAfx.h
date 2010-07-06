@@ -49,7 +49,7 @@
 
 #include <GdiPlus.h>		//GDI+
 #pragma comment(lib,"gdiplus.lib")
-#pragma message("Automatically linking with gdiplus.lib")
+//#pragma message("Automatically linking with gdiplus.lib")
 using namespace Gdiplus;
 
 #import "Dll\\MSADO15.DLL" rename_namespace("ADOCust") rename("EOF","EndOfFile") 
