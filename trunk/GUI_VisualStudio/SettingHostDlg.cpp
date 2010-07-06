@@ -293,7 +293,7 @@ BOOL CSettingHostDlg::OnInitDialog()
     	MoveWindow(CRect(300,300,460,700));
 		m_listCtrl.InsertColumn(0,m_ADTypeTable[2].m_DTypeTFD.Name,LVCFMT_LEFT,300);
 	}
-	if(m_ADTypeTable[3].TableName ==  m_strtable)
+	if(m_ADTypeTable[3].TableName ==  m_strtable)     //pointdescription
          InsP();
 	if(m_ADTypeTable[4].TableName ==  m_strtable)
          InsDIS();
@@ -452,6 +452,9 @@ void CSettingHostDlg::BuildAccountList()
     		m_listCtrl.InsertItem(iItem, m_PointDes.m_szName);
     		m_listCtrl.SetItemText(iItem, 1, m_PointDes.m_szpointnum);
 			m_listCtrl.SetItemText(iItem, 2, m_PointDes.m_szutype);
+				  CString dddd;
+				  dddd.Format("%d",m_PointDes.m_szPID);
+			m_listCtrl.SetItemText(iItem, 3, dddd);
 			iItem++;
 			PointDesid = m_PointDes.m_szPID +1;
 			m_Records.push_back(m_PointDes.m_szpointnum );
@@ -1489,9 +1492,10 @@ void CSettingHostDlg::InsP()
     	GetDlgItem(IDC_BUT_ADD)->SetWindowText(_T("增加模拟量"));;
 		SetWindowText(_T(m_ADTypeTable[3].NameD));
     	MoveWindow(CRect(50,100,960,700));
-		m_listCtrl.InsertColumn(0,m_ADTypeTable[3].m_DTypeTFD.Name,LVCFMT_LEFT,200);
-		m_listCtrl.InsertColumn(1,m_ADTypeTable[3].m_DTypeTFD.pointnum,LVCFMT_LEFT,200);
-		m_listCtrl.InsertColumn(2,m_ADTypeTable[3].m_DTypeTFD.utype,LVCFMT_LEFT,200);
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[3].m_DTypeTFD.Name,LVCFMT_LEFT,150);
+		m_listCtrl.InsertColumn(1,m_ADTypeTable[3].m_DTypeTFD.pointnum,LVCFMT_LEFT,150);
+		m_listCtrl.InsertColumn(2,m_ADTypeTable[3].m_DTypeTFD.utype,LVCFMT_LEFT,150);
+		m_listCtrl.InsertColumn(3,m_ADTypeTable[3].m_DTypeTFD.pointnum,LVCFMT_LEFT,150);
 }
 
 void CSettingHostDlg::InsC()
