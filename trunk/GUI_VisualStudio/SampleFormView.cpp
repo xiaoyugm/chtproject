@@ -601,7 +601,10 @@ void CSampleFormView::OpenAddDel(int nlist ,int ilist)
 	dlg.m_strtable =  _T("dispoint");
 	dlg.PointDesid = ilist;
 	if(dlg.DoModal() == IDOK)
+	{
+		theApp.InitData();
 		BuildList(nlist, ilist);
+	}
 }
 
 void CSampleFormView::DisList123() 
@@ -639,11 +642,11 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  dddd.TrimRight();
 				  m_List1.InsertItem(i, "");
 				  m_List1.SetItemText(i, 1, dddd);
-//				  int nptype = m_DisplayPoint[ilist][i].ptype;
-//				  if( nptype== 0)
+				  int nptype = m_DisplayPoint[ilist][i].ptype;
+				  if( nptype== 0 || nptype== 1 || nptype== 2)
 					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
-//				  else
-//					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
+				  else
+					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
     			  m_List1.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();
@@ -665,11 +668,11 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  dddd.TrimRight();
 				  m_List2.InsertItem(i, "");
 				  m_List2.SetItemText(i, 1, dddd);
-//				  int nptype = m_DisplayPoint[ilist][i].ptype;
-//				  if( nptype== 0)
+				  int nptype = m_DisplayPoint[ilist][i].ptype;
+				  if( nptype== 0 || nptype== 1 || nptype== 2)
 					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
-//				  else
-//					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
+				  else
+					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
     			  m_List2.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();
@@ -691,11 +694,11 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  dddd.TrimRight();
 				  m_List3.InsertItem(i, "");
 				  m_List3.SetItemText(i, 1, dddd);
-//				  int nptype = m_DisplayPoint[ilist][i].ptype;
-//				  if( nptype== 0 )
+				  int nptype = m_DisplayPoint[ilist][i].ptype;
+				  if( nptype== 0 || nptype== 1 || nptype== 2)
 					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
-//				  else
-//					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
+				  else
+					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
     			  m_List3.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();

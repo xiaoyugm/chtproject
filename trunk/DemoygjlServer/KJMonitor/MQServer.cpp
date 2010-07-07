@@ -215,7 +215,7 @@ void CMQServer::ManageClientD(CNDKMessage& message)
 //	message.GetAt(3,nend);
 
 	srand( (unsigned)time( NULL ) );//srand()函数产生一个以当前时间开始的随机种子.应该放在for等循环语句前面 不然要很长时间等待
-	unsigned char N100 = rand() % 81+20;
+	unsigned char N100 = rand() % 101;
 	unsigned char N8 = rand() % 9;
 	unsigned char N2 = rand() % 3;
 	unsigned char N255 = rand() % 255;
@@ -248,13 +248,13 @@ void CMQServer::ManageClientD(CNDKMessage& message)
     	 				message1.Add(1);               //4
 
 					message1.Add(N8);
-	 				message1.Add(N100*11);            //5
+	 				message1.Add(N100*10+500);            //5
 					message1.Add(N8);
-	 				message1.Add(N100*12);           //6
+	 				message1.Add(N100*10+300);             //6
 					message1.Add(N8);
-	 				message1.Add(N100*11);            //7
+	 				message1.Add(N100*8 +200);            //7
 					message1.Add(N8);
-	 				message1.Add(N100*10);            //8
+	 				message1.Add(N100*5+400);            //8
 
 					message1.Add(N8);
 	 				message1.Add(N100*10);            //5
