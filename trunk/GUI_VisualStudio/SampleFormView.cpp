@@ -606,28 +606,19 @@ void CSampleFormView::OpenAddDel(int nlist ,int ilist)
 
 void CSampleFormView::DisList123() 
 {
-	int ilist ,nlist;
+	int ilist ;
 	CString pString ;
 	m_List1.GetWindowText(pString);
 	ilist = m_Str2Data.String2Int(pString);
-	nlist =  ilist%3;
-	if(nlist == 0)
-		nlist =3;
-	BuildList(nlist, ilist);
+	BuildList(1, ilist);
 
 	m_List2.GetWindowText(pString);
 	ilist = m_Str2Data.String2Int(pString);
-	nlist =  ilist%3;
-	if(nlist == 0)
-		nlist =3;
-	BuildList(nlist, ilist);
+	BuildList(2, ilist);
 
 	m_List3.GetWindowText(pString);
 	ilist = m_Str2Data.String2Int(pString);
-	nlist =  ilist%3;
-	if(nlist == 0)
-		nlist =3;
-	BuildList(nlist, ilist);
+	BuildList(3, ilist);
 }
 
 //nlist 列表控件 ilist  控件序号
@@ -648,11 +639,11 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  dddd.TrimRight();
 				  m_List1.InsertItem(i, "");
 				  m_List1.SetItemText(i, 1, dddd);
-				  int nptype = m_DisplayPoint[ilist][i].ptype;
-				  if( nptype== 0)
+//				  int nptype = m_DisplayPoint[ilist][i].ptype;
+//				  if( nptype== 0)
 					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
-				  else
-					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
+//				  else
+//					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
     			  m_List1.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();
@@ -674,11 +665,11 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  dddd.TrimRight();
 				  m_List2.InsertItem(i, "");
 				  m_List2.SetItemText(i, 1, dddd);
-				  int nptype = m_DisplayPoint[ilist][i].ptype;
-				  if( nptype== 0)
+//				  int nptype = m_DisplayPoint[ilist][i].ptype;
+//				  if( nptype== 0)
 					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
-				  else
-					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
+//				  else
+//					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
     			  m_List2.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();
@@ -700,11 +691,11 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  dddd.TrimRight();
 				  m_List3.InsertItem(i, "");
 				  m_List3.SetItemText(i, 1, dddd);
-				  int nptype = m_DisplayPoint[ilist][i].ptype;
-				  if( nptype== 0 )
+//				  int nptype = m_DisplayPoint[ilist][i].ptype;
+//				  if( nptype== 0 )
 					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
-				  else
-					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
+//				  else
+//					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
     			  m_List3.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
 				  dddd.TrimRight();

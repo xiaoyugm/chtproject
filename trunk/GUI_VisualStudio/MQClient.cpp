@@ -253,7 +253,15 @@ void CMQClient::CollectDate(CNDKMessage& message)
 		    m_SlaveStation[nstation][nItem].CValue = n_cdata;
 	    	ufData = m_SlaveStation[nstation][nItem].ptype;
 	    	if(ufData == 0)
-	    		m_SlaveStation[nstation][nItem].AValue = m_SlaveStation[nstation][nItem].m_RangeH*n_cdata/1500;
+			{
+	    		m_SlaveStation[nstation][nItem].AValue = m_SlaveStation[nstation][nItem].m_RangeH*(n_cdata-300)/1200;
+	    		m_SlaveStation[nstation][nItem].pnValue = (n_cdata-300)/12;
+			}
+			else if(ufData == 1 || ufData == 2)
+			{
+	    		m_SlaveStation[nstation][nItem].pnValue = (n_cdata-200)/8;
+				m_SlaveStation[nstation][nItem].AValue = m_SlaveStation[nstation][nItem].m_RangeH*(n_cdata-200)/800;
+			}
 		}
 		nItem++;
 	}

@@ -15,8 +15,8 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-extern CPointInfo m_CPointInfo[MAX_POINT_NUMBER];
-
+extern SlaveStation             m_SlaveStation[65][25];
+extern DisplayDraw    m_DisplayDraw[MAX_POINT_NUMBER];
 IMPLEMENT_SERIAL(CDrawChart, CDrawObj, 0)
 ///////////////////////////////////////////////////////////////////////////////////////
 CDrawChart::CDrawChart()
@@ -89,10 +89,19 @@ void CDrawChart::Init()
         	   nPointNo = m_nPoint3 ;
 			if(i == 3)
         	   nPointNo = m_nPoint4 ;
-			m_Graph.m_LineArray[i].m_dScaleHigh = m_CPointInfo[nPointNo].fMax;
-			m_Graph.m_LineArray[i].m_dScaleLow = m_CPointInfo[nPointNo].fMin;
-			m_Graph.m_LineArray[i].m_dMax = m_CPointInfo[nPointNo].unWarnMax;
-			m_Graph.m_LineArray[i].m_dMin = m_CPointInfo[nPointNo].unWarnMin;
+
+			double fScaleHigh,fScaleLow,fMax,fMin;
+//    		if(m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].ptype == 0)
+			{
+				fScaleHigh = m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].m_RangeH;
+				fScaleLow = 0;
+				fMax = m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].Apbrk;
+				fMin = m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].AlarmValueH;
+			}
+			m_Graph.m_LineArray[i].m_dScaleHigh = fScaleHigh;
+			m_Graph.m_LineArray[i].m_dScaleLow = fScaleLow;
+			m_Graph.m_LineArray[i].m_dMax = fMax;
+			m_Graph.m_LineArray[i].m_dMin = fMin;
 		}
 
 }
@@ -138,14 +147,28 @@ void CDrawChart::Draw(CDC* pDC)
 
 	if(m_nPoint1 > 0 || m_nPoint2 > 0 || m_nPoint3 > 0 || m_nPoint4 > 0)
 	{
-		str[0].Format("%d : %.2f %s",m_nPoint1,m_CPointInfo[m_nPoint1].ldfValue,m_CPointInfo[m_nPoint1].usUnit);
-		str[1].Format("%d : %.2f %s",m_nPoint2,m_CPointInfo[m_nPoint2].ldfValue,m_CPointInfo[m_nPoint2].usUnit);
-		str[2].Format("%d : %.2f %s",m_nPoint3,m_CPointInfo[m_nPoint3].ldfValue,m_CPointInfo[m_nPoint3].usUnit);
-		str[3].Format("%d : %.2f %s",m_nPoint4,m_CPointInfo[m_nPoint4].ldfValue,m_CPointInfo[m_nPoint4].usUnit);
-		
+		int nn_point ;
+	    CString strv[4];
 		for(int i=0; i< 4; i++)
 		{
-			m_Graph.m_LineArray[i].m_sName = str[i];
+			if(i == 0)
+				nn_point = m_nPoint1;
+			else if(i == 1)
+				nn_point = m_nPoint2;
+			else if(i == 2)
+				nn_point = m_nPoint3;
+			else if(i == 3)
+				nn_point = m_nPoint4;
+//    		if(m_SlaveStation[m_DisplayDraw[nn_point].fds][m_DisplayDraw[nn_point].chan].ptype == 0)
+		    	strv[i].Format("%.2f %s",m_SlaveStation[m_DisplayDraw[nn_point].fds][m_DisplayDraw[nn_point].chan].AValue,m_SlaveStation[m_DisplayDraw[nn_point].fds][m_DisplayDraw[nn_point].chan].m_Unit);
+//	    	else
+//	    		strv[i].Format("%d %s",m_SlaveStation[m_DisplayDraw[nn_point].fds][m_DisplayDraw[nn_point].chan].CValue,m_SlaveStation[m_DisplayDraw[nn_point].fds][m_DisplayDraw[nn_point].chan].m_Unit);
+			str[i].Format("%d : ",nn_point);
+		}
+		
+		for( i=0; i< 4; i++)
+		{
+			m_Graph.m_LineArray[i].m_sName = str[i] +strv[i];
 		}
 	}
 	
@@ -231,7 +254,10 @@ void CDrawChart::OnTimer()
 			if(i == 3)
         	   nPointNo = m_nPoint4 ;
 
-   			m_Graph.AddYValue(i, m_CPointInfo[nPointNo].pnValue * 100 );
+			unsigned char fvalue = m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].pnValue;
+//   			m_Graph.AddYValue(i, m_CPointInfo[nPointNo].pnValue * 100 );
+			//占值域百分比*100
+   			m_Graph.AddYValue(i, fvalue );
 		}
 
 		m_Graph.UpdateTimeRange(mSec);
