@@ -195,6 +195,7 @@ struct SlaveStation {
 	float Apbrk;	                 //模拟量类型断电值
 	float Aprtn;	                 //模拟量类型复电值
 	CString m_Unit;		        // (计量)单位
+    unsigned char       pnValue;        //模拟量百分比值
 
 	int    CValue;	                    //开关量/频率/数字（模拟） 当前值  
 	int AlarmState;	            //报警状态  
@@ -253,13 +254,20 @@ struct FormView {
 	ListCtrl  m_ListCtrl[3];         //FormView的ListCtrl数据结构
 };
 
-//DisplayPoint
+//DisplayPoint 列表显示
 struct DisplayPoint {
 	CString     CPName;                    //模拟量开关量类型名称描述   
 	CString     CPpointnum;                       //点号
 	int         fds;             //分站
 	int         chan;            // 通道
 	int         ptype;           //模拟量开关量类型
+};
+
+//动态图显示
+struct DisplayDraw {
+	int         fds;             //分站
+	int         chan;            // 通道
+//	int         ptype;           //模拟量开关量类型
 };
 
 #endif // !defined(AFX_JEINWEB_H__5D9516BA_00A4_4D7D_B08A_9EAA563AB7A7__INCLUDED_)

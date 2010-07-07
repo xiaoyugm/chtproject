@@ -14,7 +14,8 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-extern CPointInfo m_CPointInfo[MAX_POINT_NUMBER];
+extern SlaveStation             m_SlaveStation[65][25];
+extern DisplayDraw    m_DisplayDraw[MAX_POINT_NUMBER];
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -295,7 +296,10 @@ void CDrawCar::StartAction()
 	if(nSize < 1)
 		return;
 
-	int pnValue = m_CPointInfo[m_CarStruct.nPoint].pnValue *100 ;
+	unsigned char fvalue = m_SlaveStation[m_DisplayDraw[m_CarStruct.nPoint].fds][m_DisplayDraw[m_CarStruct.nPoint].chan].pnValue;
+
+	int pnValue = fvalue ;
+//	int pnValue = m_CPointInfo[m_CarStruct.nPoint].pnValue *100 ;
 	if( pnValue == 0 )				//确定目标原始位置中心点为记录点的第一个点
 	{
 		m_nCarPaths = 0;
@@ -317,7 +321,7 @@ void CDrawCar::StartAction()
 	      nYlen = (ptStart.y - ptEnd.y);	//每个路径运行Y坐标长
 	     nMoveLenL += sqrt(nXlen*nXlen + nYlen*nYlen) ;	
 	}
-	     nMoveLenV = nMoveLenL * m_CPointInfo[m_CarStruct.nPoint].pnValue ;		//模拟量
+	     nMoveLenV = nMoveLenL * fvalue/100 ;		//模拟量
 	for(int k=0; k< (nSize-1);k++)
 	{
        	ptStart = m_RectPath.GetAt(k).CenterPoint();

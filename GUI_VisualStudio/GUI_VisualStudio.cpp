@@ -47,8 +47,9 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+DisplayDraw    m_DisplayDraw[MAX_POINT_NUMBER];
 FDSscan               m_FDSscan[65];
-DisplayPoint  m_DisplayPoint[32][64];
+DisplayPoint   m_DisplayPoint[32][64];
 SlaveStation             m_SlaveStation[65][25];
 extern  OthersSetting    m_OthersSetting;
 extern  DrawView         m_DrawView[20];
@@ -596,6 +597,9 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
     			m_SlaveStation[nfds][nchan].utype = m_PointDes.m_szutype;
     			m_SlaveStation[nfds][nchan].m_Unit = m_ContactSet.m_szpunit;
     			m_SlaveStation[nfds][nchan].falma = m_ContactSet.m_szfalm;
+
+				m_DisplayDraw[m_PointDes.m_szPID].fds = nfds;
+				m_DisplayDraw[m_PointDes.m_szPID].chan = nchan;
 			}
 			else
 			{
@@ -609,7 +613,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 //            m_AccountSet.MoveFirst();
 			int nptype = m_PointDes.m_szptype;
 					if(nptype == 12)
-						nchan = nchan+15;
+						nchan = nchan+16;
 					if(nptype == 11)
 						nchan = 0;
   				m_SlaveStation[nfds][nchan].ptype = nptype;
@@ -620,7 +624,13 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
     			m_SlaveStation[nfds][nchan].TwoState = m_AccountSet.m_szname2;
     			m_SlaveStation[nfds][nchan].utype = m_PointDes.m_szutype;
     			m_SlaveStation[nfds][nchan].falma = m_AccountSet.m_szfalm;
+
+				m_DisplayDraw[m_PointDes.m_szPID].fds = nfds;
+				m_DisplayDraw[m_PointDes.m_szPID].chan = nchan;
 			}
+
+
+
     		m_PointDes.MoveNext();
 		}
         m_PointDes.MoveFirst();
