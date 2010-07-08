@@ -211,6 +211,8 @@ BEGIN
         MENUITEM "P&lay Animation",             ID_STATUSBAR_PLAYANIMATION
         MENUITEM "&Test Progress Bar",          ID_STATUSBAR_TESTPROGRESS
     END
+    MENUITEM "查询",                        65535
+    MENUITEM "帮助",                        65535
 END
 
 IDR_DRAWTYPE_CNTR_IP MENU DISCARDABLE 
@@ -286,26 +288,31 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "退出(&X)",                    ID_APP_EXIT
     END
-    POPUP "定义"
+    POPUP "参数设置"
     BEGIN
-        MENUITEM "模拟量类型",                  ID_A_D
-        MENUITEM "开关量类型",                  ID_D_D
-        MENUITEM "安装地点",                    ID_LOCALTION
-        MENUITEM "测点浏览",                    ID_BROWSERMOD
-        MENUITEM "控制规则",                    ID_CONTROLTABLE
-        MENUITEM "特殊控制",                    ID_CONTROLS
+        MENUITEM "模拟量类型定义",              ID_A_D
+        MENUITEM "开关量类型定义",              ID_D_D
+        MENUITEM "安装地点定义",                ID_LOCALTION
+        MENUITEM "测点定义",                    ID_BROWSERMOD
+        MENUITEM "控制规则定义",                ID_CONTROLTABLE
+        MENUITEM "特殊控制定义",                ID_CONTROLS
         MENUITEM "增减巡检分站",                ID_CONTROLF
         MENUITEM "报警音乐",                    ID_MANIPULATE
     END
-    POPUP "分站通讯"
+    POPUP "控制"
     BEGIN
-        MENUITEM "校时",                        ID_VERIFY_TIMER
+        MENUITEM "校时通讯",                    ID_VERIFY_TIMER
         MENUITEM "手动控制",                    ID_MANUAL_CONTROL
-        MENUITEM "分站配置",                    ID_FDS_CONFIG
+        MENUITEM "分站配置通讯",                ID_FDS_CONFIG
         MENUITEM "通讯测试",                    ID_TEST_COMMUNICATION
         MENUITEM "风电瓦斯闭锁",                ID_WINDGAS_ATRESIA
         MENUITEM "故障闭锁",                    ID_FAILURE_ATRESIA
     END
+    POPUP "列表显示"
+    BEGIN
+        MENUITEM "调用显示",                    ID_SELECT_DIS
+    END
+    MENUITEM "打印",                        65535
 END
 
 
@@ -681,7 +688,7 @@ END
 STRINGTABLE DISCARDABLE 
 BEGIN
     ID_VIEW_SOLUTIONEXPLORER "断电控制\n断电控制"
-    ID_VIEW_RESOURCEVIEW    "报警显示\n报警显示"
+    ID_VIEW_RESOURCEVIEW    "报警、馈电异常、断电控制显示\n报警、馈电异常、断电控制显示"
     ID_VIEW_PROPERTIESWINDOW "Properties\nProperties"
     ID_VIEW_TOOLBOX         "Toolbox\nToolbox"
     ID_VIEW_CLASSVIEW       "馈电异常\n馈电异常"

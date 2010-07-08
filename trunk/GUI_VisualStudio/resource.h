@@ -288,6 +288,7 @@
 #define ID_TEST_COMMUNICATION           32805
 #define ID_WINDGAS_ATRESIA              32806
 #define ID_FAILURE_ATRESIA              32807
+#define ID_SELECT_DIS                   32808
 #define ID_EDIT_STATE                   32815
 #define ID_EDIT_FIND_EX                 32816
 #define ID_GOTO_URL                     32817
@@ -308,7 +309,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        161
-#define _APS_NEXT_COMMAND_VALUE         32808
+#define _APS_NEXT_COMMAND_VALUE         32809
 #define _APS_NEXT_CONTROL_VALUE         1046
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
