@@ -268,10 +268,15 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 //	if(dlg.DoModal() != IDOK)
 //		return FALSE;
 
-	CString ddd= "7E";
-	unsigned char eee = m_Str2Data.Str2HEX(ddd);
-	ddd= "S";
-	eee = m_Str2Data.Str2HEX(ddd);
+//	ShellExecute(NULL, "open", "F:\\窗口_3.rsy", NULL, NULL, SW_SHOWNORMAL); 
+
+      PROCESS_INFORMATION pi; //启动窗口的信息
+           STARTUPINFO si; //进程的信息
+           memset(&si,0,sizeof(si));
+           si.cb=sizeof(si);
+           si.wShowWindow=SW_SHOW;
+           si.dwFlags=STARTF_USESHOWWINDOW;
+           bool fRet=CreateProcess("F:\\YDraw.exe","进程的信息",NULL,FALSE,NULL,NULL,NULL,NULL,&si,&pi);
 
 	gstrTimeOut = GetAppPath();
 

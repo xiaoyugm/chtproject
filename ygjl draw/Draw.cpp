@@ -153,6 +153,13 @@ BOOL CDrawApp::InitInstance()
 	GdiplusStartupInput gdiplusStartupInput;
 	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
+	CString strparameter;
+	 if(__argc >= 1)
+	 {
+		 strparameter.Format("ggg   %s  hhhhh  ",__argv[1]);
+		AfxMessageBox(strparameter);
+	 }
+
 	return TRUE;
 }
 
