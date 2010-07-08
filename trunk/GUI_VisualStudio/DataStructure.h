@@ -185,16 +185,17 @@ struct SlaveStation {
 	CString falma;                  //报警音乐
 	CString WatchName;              //测点安装地点名称   
 	CString         utype;           //开关量/模拟量类型名称
-    unsigned char   Channel_state;
+    unsigned char   Channel_state;        //通道状态
+    unsigned char   Control_state;        //控制量状态
 
-	float AValue;	                //模拟量当前值
-	float m_RangeH;	        	//高量程
-//	float m_RangeL;	        	//低量程
-	float AlarmValueH;	        //高报警值
-//	float AlarmValueL;	        //低报警值
+	float AValue;	                 //模拟量当前值
+	float m_RangeH;	        	     //高量程
+//	float m_RangeL;	        	     //低量程
+	float AlarmValueH;	             //高报警值
+//	float AlarmValueL;	             //低报警值
 	float Apbrk;	                 //模拟量类型断电值
 	float Aprtn;	                 //模拟量类型复电值
-	CString m_Unit;		        // (计量)单位
+	CString m_Unit;		             // (计量)单位
     unsigned char       pnValue;        //模拟量百分比值
 
 	int    CValue;	                    //开关量/频率/数字（模拟） 当前值  

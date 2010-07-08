@@ -644,7 +644,7 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  m_List1.SetItemText(i, 1, dddd);
 				  int nptype = m_DisplayPoint[ilist][i].ptype;
 				  if( nptype== 0 || nptype== 1 || nptype== 2)
-					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
+					  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
 				  else
 					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
     			  m_List1.SetItemText(i, 2, dddd);
@@ -670,7 +670,7 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  m_List2.SetItemText(i, 1, dddd);
 				  int nptype = m_DisplayPoint[ilist][i].ptype;
 				  if( nptype== 0 || nptype== 1 || nptype== 2)
-					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
+					  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
 				  else
 					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
     			  m_List2.SetItemText(i, 2, dddd);
@@ -696,7 +696,7 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 				  m_List3.SetItemText(i, 1, dddd);
 				  int nptype = m_DisplayPoint[ilist][i].ptype;
 				  if( nptype== 0 || nptype== 1 || nptype== 2)
-					  dddd.Format("%.4f",m_SlaveStation[nfds][nchan].AValue);
+					  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
 				  else
 					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
     			  m_List3.SetItemText(i, 2, dddd);

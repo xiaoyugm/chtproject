@@ -36,6 +36,7 @@
 #include "drawview.h"
 //#include <SqlDirect.h>
 #include <String2DataType.h>
+#include "dbAx\AxControl.hpp"
 #include "dbAx\AxSControl.hpp"
 #include "dbAx\AxPointDescription.hpp"
 #include "dbAx\AxAccountSet.hpp"
@@ -82,6 +83,7 @@ public:
     CAxContactSet    m_ContactSet;
     CAxDisPoint      m_DisPoint;
     CAxSControl      m_SControl;
+    CAxControl       m_Control;
 
 	//	CSQLDirect		m_sqlD;		//Êý¾Ý¿â
 	CString2DataType m_String2DataType;
