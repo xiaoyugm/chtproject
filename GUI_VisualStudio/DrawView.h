@@ -10,6 +10,7 @@
 #endif // _MSC_VER > 1000
 
 #include "DrawDoc.h"
+#include <String2DataType.h>
 
 // Hints for UpdateAllViews/OnUpdate
 #define HINT_UPDATE_WINDOW      0
@@ -44,6 +45,7 @@ public:
 ///	CDrawItem* m_pSelection;
 	BOOL  m_bIsDraw;
 
+	CString2DataType m_Str2Data;
 ///    void   ConnectDB();
 
 	void SetPageSize(CSize size);
@@ -88,6 +90,7 @@ public:
 	UINT        CountView;
 	UINT    	m_Second;
 	UINT    	m_FdsScan;
+
 
 	virtual BOOL IsSelected(const CObject* pDocItem) const;// Container support
 // Implementation
@@ -142,6 +145,7 @@ protected:
 	afx_msg void OnDestroy();
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnRButtonDblClk(UINT nFlags, CPoint point);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

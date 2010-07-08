@@ -279,6 +279,35 @@ BOOL CAccountDlg::OnInitDialog()
 		  GetDlgItem(IDC_EDIT9)->ShowWindow(SW_HIDE);;
 		  GetDlgItem(IDC_STATIC9)->ShowWindow(SW_HIDE);;
 	}
+    else if("changepoint" ==  strtable)
+	{
+    	  SetWindowText(_T("改变曲线点号"));
+		  GetDlgItem(IDC_STATIC1)->SetWindowText("点号1");
+		  GetDlgItem(IDC_STATIC2)->SetWindowText("点号2");
+		  GetDlgItem(IDC_STATIC3)->SetWindowText("点号3");
+		  GetDlgItem(IDC_STATIC4)->SetWindowText("点号4");
+   		  GetDlgItem(IDC_EDIT1)->SetWindowText(str1);
+   		  GetDlgItem(IDC_EDIT2)->SetWindowText(str2);
+   		  GetDlgItem(IDC_EDIT3)->SetWindowText(str3);
+   		  GetDlgItem(IDC_EDIT4)->SetWindowText(str4);
+//		  GetDlgItem(IDC_STATIC5)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.palmd);
+//		  GetDlgItem(IDC_STATIC6)->SetWindowText(m_ADTypeTable[0].m_DTypeTFD.pbrk);
+		  GetDlgItem(IDC_COMBO_D)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC10)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_CHECKDALM)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_CHECKISALM)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC6)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC5)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT6)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT5)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT8)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC8)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT_PATH)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC7)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_BUT_MUSIC)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_EDIT9)->ShowWindow(SW_HIDE);;
+		  GetDlgItem(IDC_STATIC9)->ShowWindow(SW_HIDE);;
+	}
   }
 
   return TRUE;  // return TRUE unless you set the focus to a control
@@ -447,7 +476,10 @@ void CAccountDlg::OnBnClickedOk()
 		if ( !m_bEditMode )
 		  m_pMAlocation->Requery();
 	}
-
+    else if("changepoint" ==  strtable)
+	{
+		UpdateData(TRUE);           //Exchange dialog data
+	}
   }
   catch (CAxException *e)
   {

@@ -24,8 +24,8 @@
 #include "DrawPoly.h"
 
 //#include <SqlDirect.h>
-#include <String2DataType.h>
 #include "SampleFormView.h"
+#include "AddSQLDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -62,6 +62,7 @@ BEGIN_MESSAGE_MAP(CDrawView, CScrollView)
 	ON_WM_DESTROY()
 	ON_WM_TIMER()
 	ON_WM_LBUTTONDOWN()
+//	ON_WM_RBUTTONDBLCLK()
 //	ON_COMMAND(ID_TIME_VIEW, OnTimeView)
 	ON_WM_SETFOCUS()
 	ON_WM_SIZE()
@@ -1222,7 +1223,6 @@ void CDrawView::OnLButtonDown(UINT nFlags, CPoint point)
 	POSITION pos = ObjectAll->GetHeadPosition();
 	while(pos != NULL)
 	{
-
 		CDrawObj* Obj = ObjectAll->GetNext(pos);
 		CRect rect = Obj->m_position;
 		DocToClient(rect);
@@ -1251,6 +1251,46 @@ void CDrawView::OnLButtonDown(UINT nFlags, CPoint point)
 	CScrollView::OnLButtonDown(nFlags, point);
 }
 
+void CDrawView::OnRButtonDblClk(UINT nFlags, CPoint point) 
+{
+	CDrawObjList *ObjectAll =GetDocument()->GetObjects();
+	POSITION pos = ObjectAll->GetHeadPosition();
+	while(pos != NULL)
+	{
+		CDrawObj* Obj = ObjectAll->GetNext(pos);
+		CRect rect = Obj->m_position;
+		DocToClient(rect);
+		rect.NormalizeRect();
+		
+		if(rect.PtInRect(point))
+		{
+		    if(Obj->IsKindOf(RUNTIME_CLASS(CDrawChart)))			//更改实时曲线点号
+			{
+				CString str ;
+				CDrawChart *pChart = (CDrawChart*)Obj;
+
+        		  CAccountDlg dlg(this);
+	        	  dlg.strtable= "changepoint";
+                  str.Format("%d", pChart->m_nPoint1);		
+				  dlg.str1 = str;
+                  str.Format("%d", pChart->m_nPoint2);		
+				  dlg.str2 = str;
+                  str.Format("%d", pChart->m_nPoint3);		
+				  dlg.str3 = str;
+                  str.Format("%d", pChart->m_nPoint4);		
+				  dlg.str4 = str;
+	        	  if ( dlg.DoModal() == IDOK )
+				  {
+					  pChart->m_nPoint1 = m_Str2Data.String2Int(dlg.str1);
+					  pChart->m_nPoint2 = m_Str2Data.String2Int(dlg.str2);
+					  pChart->m_nPoint3 = m_Str2Data.String2Int(dlg.str3);
+					  pChart->m_nPoint4 = m_Str2Data.String2Int(dlg.str4);
+				  }
+			}
+		}
+	}
+	CScrollView::OnRButtonDblClk(nFlags, point);
+}
 
 /*
 //画实时曲线

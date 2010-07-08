@@ -275,6 +275,9 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 
 	gstrTimeOut = GetAppPath();
 
+	CString strrsy ;
+	strrsy.Format("%d",GetSystemMetrics(SM_CXSCREEN));
+
 	for(int i = 0; i < 4;i++ )
 	{
 		if(m_ViewWindows[i].VWName == _T("FormView"))
@@ -289,7 +292,7 @@ BOOL CGUI_VisualStudioApp::InitInstance()
           	DocNum =9;
           	for(int k =0; k < m_ViewWindows[i].numDrawView ; k++)
 			{
-                pDocTemplate->OpenDocumentFile(gstrTimeOut + "\\rsy\\" + m_DrawView[k].DrawViewName) ;
+                pDocTemplate->OpenDocumentFile(gstrTimeOut + "\\" + strrsy+ "rsy\\" + m_DrawView[k].DrawViewName) ;
 			}
 		}
 	}
@@ -491,6 +494,14 @@ BOOL CGUI_VisualStudioApp::ConnectDB()
 		m_SControl._SetRecordsetEvents(new CAccountSetEvents);
 		m_SControl.Open(_T("Select * From specialcontrol"), &m_Cn);
 		m_SControl.MarshalOptions(adMarshalModifiedOnly);
+
+		m_Control.Create();
+		m_Control.CursorType(adOpenDynamic);
+		m_Control.CacheSize(50);
+		m_Control._SetRecordsetEvents(new CAccountSetEvents);
+		m_Control.Open(_T("Select * From control WHERE fdel=0"), &m_Cn);
+		m_Control.MarshalOptions(adMarshalModifiedOnly);
+
   }
   catch ( dbAx::CAxException *e )
   {
@@ -628,9 +639,6 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 				m_DisplayDraw[m_PointDes.m_szPID].fds = nfds;
 				m_DisplayDraw[m_PointDes.m_szPID].chan = nchan;
 			}
-
-
-
     		m_PointDes.MoveNext();
 		}
         m_PointDes.MoveFirst();
@@ -649,6 +657,38 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 		}
 		m_FDSscan[64].scanfds = iItem;
 
+		//Í¨µÀ¿ØÖÆ×´Ì¬
+		if ( m_Control._IsEmpty() )
+		  return TRUE;
+		m_Control.MoveFirst();
+		while ( !m_Control.IsEOF() )
+		{
+        	CString  strf,strc,strItem;
+			strItem = m_Control.m_szpointnum;
+    		strf = strItem.Mid(0,2);
+    		strc = strItem.Mid(3);
+	    	int nfds = m_Str2Data.String2Int(strf);
+	    	int nchan = m_Str2Data.String2Int(strc);
+			strItem = m_Control.m_szcpointnum;
+    		strf = strItem.Mid(0,2);
+    		strc = strItem.Mid(3);
+	    	int cnfds = m_Str2Data.String2Int(strf);
+	    	int cnchan = m_Str2Data.String2Int(strc);
+			unsigned char charc;
+			if(nfds == cnfds)
+			{
+				if(cnchan == 1)					charc = 0x01;
+				else if(cnchan == 2)					charc = 0x02;
+				else if(cnchan == 3)					charc = 0x04;
+				else if(cnchan == 4)					charc = 0x08;
+				else if(cnchan == 5)					charc = 0x10;
+				else if(cnchan == 6)					charc = 0x20;
+				else if(cnchan == 7)					charc = 0x40;
+				else if(cnchan == 8)					charc = 0x80;
+				m_SlaveStation[nfds][nchan].Control_state |= charc;
+			}
+			m_Control.MoveNext();
+		}
 
 
 
@@ -922,6 +962,8 @@ void CGUI_VisualStudioApp::OnCloseDB()
       m_DisPoint.Close();
     if ( m_SControl._IsOpen() )
       m_SControl.Close();
+    if ( m_Control._IsOpen() )
+      m_Control.Close();
 
     m_Cn.Close();
 
