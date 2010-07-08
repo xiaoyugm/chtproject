@@ -156,7 +156,7 @@ BOOL CDrawApp::InitInstance()
 	CString strparameter;
 	 if(__argc >= 1)
 	 {
-		 strparameter.Format("ggg   %s  hhhhh  ",__argv[1]);
+		 strparameter.Format("ggg   %s  hhhhh  ",__argv[0]);
 		AfxMessageBox(strparameter);
 	 }
 
