@@ -97,13 +97,17 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "退出",                        ID_APP_EXIT
     END
+    POPUP "帮助"
+    BEGIN
+        MENUITEM "关于历史曲线",                ID_APP_ABOUT
+    END
+END
+
+IDR_MENU1 MENU DISCARDABLE 
+BEGIN
     POPUP "报表"
     BEGIN
         MENUITEM "报表编辑、输出",              ID_MENU_EDIT_REPORT
-    END
-    POPUP "帮助"
-    BEGIN
-        MENUITEM "关于历史曲线和报表",          ID_APP_ABOUT
     END
 END
 
@@ -386,9 +390,9 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "Curve 基础类应用程序\0"
-            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "FileVersion", "2, 0, 0, 1\0"
             VALUE "InternalName", "Curve\0"
-            VALUE "LegalCopyright", "版权所有 (C)  2004\0"
+            VALUE "LegalCopyright", "版权所有 (C)  2003 - 2010\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "Curve.EXE\0"
             VALUE "PrivateBuild", "\0"
@@ -413,12 +417,12 @@ END
 
 STRINGTABLE PRELOAD DISCARDABLE 
 BEGIN
-    IDR_MAINFRAME           "历史曲线和报表\nCurve\nCurve\nCurve文件(*.cur)\n.cur\nCurve.Document\nCurve Document"
+    IDR_MAINFRAME           "历史曲线\nCurve\nCurve\nCurve文件(*.cur)\n.cur\nCurve.Document\nCurve Document"
 END
 
 STRINGTABLE PRELOAD DISCARDABLE 
 BEGIN
-    AFX_IDS_APP_TITLE       "历史曲线和报表"
+    AFX_IDS_APP_TITLE       "历史曲线"
     AFX_IDS_IDLEMESSAGE     "准备好"
 END
 
