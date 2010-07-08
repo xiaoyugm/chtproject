@@ -276,7 +276,7 @@ BOOL CGUI_VisualStudioApp::InitInstance()
            si.cb=sizeof(si);
            si.wShowWindow=SW_SHOW;
            si.dwFlags=STARTF_USESHOWWINDOW;
-           bool fRet=CreateProcess("F:\\YDraw.exe","进程的信息",NULL,FALSE,NULL,NULL,NULL,NULL,&si,&pi);
+//           bool fRet=CreateProcess("F:\\YDraw.exe","进程的信息",NULL,FALSE,NULL,NULL,NULL,NULL,&si,&pi);
 
 	gstrTimeOut = GetAppPath();
 
