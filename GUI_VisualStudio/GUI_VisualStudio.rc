@@ -279,14 +279,9 @@ END
 
 IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
 BEGIN
-    POPUP "文件(&F)"
+    POPUP "登录"
     BEGIN
-        MENUITEM "打开(&O)...\tCtrl+O",         ID_FILE_OPEN
-        MENUITEM "关闭(&C)",                    ID_FILE_CLOSE
-        MENUITEM SEPARATOR
-        MENUITEM "最近文件",                    ID_FILE_MRU_FILE1, GRAYED
-        MENUITEM SEPARATOR
-        MENUITEM "退出(&X)",                    ID_APP_EXIT
+        MENUITEM "登录",                        ID_LOGIN
     END
     POPUP "参数设置"
     BEGIN
@@ -474,6 +469,20 @@ BEGIN
     EDITTEXT        IDC_EDIT9,71,154,111,14,ES_AUTOHSCROLL
 END
 
+IDD_DLG_LOGIN DIALOG DISCARDABLE  0, 0, 215, 156
+STYLE WS_POPUP
+FONT 10, "System"
+BEGIN
+    EDITTEXT        IDC_EDT_PWD,116,49,43,16,ES_PASSWORD | ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDT_USER,116,25,43,16,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "确定",IDOK,64,116,34,26
+    PUSHBUTTON      "取消",IDCANCEL,120,116,34,26
+    LTEXT           "用户名",IDC_STATIC,83,27,24,16
+    LTEXT           "密  码",IDC_STATIC,83,51,26,16
+    ICON            "IDI_ICON_LOGIN",IDC_STATIC,56,25,20,20
+    ICON            "IDI_ICON_KEY",IDC_STATIC,56,47,20,20
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -521,6 +530,14 @@ BEGIN
         RIGHTMARGIN, 200
         TOPMARGIN, 7
         BOTTOMMARGIN, 256
+    END
+
+    IDD_DLG_LOGIN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 208
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 149
     END
 END
 #endif    // APSTUDIO_INVOKED

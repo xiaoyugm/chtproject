@@ -151,7 +151,9 @@ protected:
 	afx_msg void OnUpdateTheme(CCmdUI* pCmdUI);
 	afx_msg void OnSkinFramework(UINT nID);
 
+	afx_msg void OnUpdateDis(CCmdUI* pCmdUI);
 ///	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
+	afx_msg void OnLOGIN();
 	afx_msg void OnFAILUREA();
 	afx_msg void OnWINDGASA();
 	afx_msg void OnTESTC();
