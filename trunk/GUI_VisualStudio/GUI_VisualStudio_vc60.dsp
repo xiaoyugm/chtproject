@@ -182,6 +182,10 @@ SOURCE=.\GUI_VisualStudioView.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\LoginDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MainFrm.cpp
 # End Source File
 # Begin Source File
@@ -236,6 +240,10 @@ SOURCE=.\GUI_VisualStudioDoc.h
 # Begin Source File
 
 SOURCE=.\GUI_VisualStudioView.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LoginDlg.h
 # End Source File
 # Begin Source File
 
@@ -1182,6 +1190,10 @@ SOURCE=.\dbAx\AxException.cpp
 # Begin Source File
 
 SOURCE=.\dbAx\AxLib.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbAx\AxLogin.hpp
 # End Source File
 # Begin Source File
 

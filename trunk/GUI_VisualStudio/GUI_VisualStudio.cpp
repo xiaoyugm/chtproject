@@ -40,6 +40,7 @@
 
 #include "SettingHostDlg.h"
 #include "SetTimeDlg.h"
+#include "LoginDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -87,7 +88,8 @@ CGUI_VisualStudioApp::CGUI_VisualStudioApp()
 	DocNum = idis = 0;
 	m_senddata = false;
 	m_sendcom = false;
-	curuser ="cht";
+	curuser ="";
+	m_bLogIn = false;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -289,7 +291,7 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 		{
           	for(DocNum =0; DocNum < m_ViewWindows[i].numFormView ;DocNum++)
 			{
-                pNewDocTemplate->OpenDocumentFile(gstrTimeOut + "\\rsy\\" + m_FormView[DocNum].FormViewName) ;
+                pNewDocTemplate->OpenDocumentFile(gstrTimeOut + "\\" + strrsy+ "rsy\\" + m_FormView[DocNum].FormViewName) ;
 			}
 		}
 		else if(m_ViewWindows[i].VWName == _T("DrawView"))
@@ -316,9 +318,9 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 	if(!StartClient())
 		return FALSE;
 
-
-
-
+	CLoginDlg dlglogin;
+	if(dlglogin.DoModal()==IDOK) 
+		m_bLogIn=true;
 	return TRUE;
 }
 

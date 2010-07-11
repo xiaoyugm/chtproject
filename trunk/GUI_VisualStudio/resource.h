@@ -50,6 +50,7 @@
 #define ID_BUILD_BUILDSOLUTION          160
 #define IDC_POPLISTCONTROL              160
 #define ID_BUILD_REBUILDSOLUTION        161
+#define IDD_DLG_LOGIN                   161
 #define ID_BUILD_CLEANSOLUTION          162
 #define IDB_FILETREE                    162
 #define ID_BUILD_COMPILE                163
@@ -163,7 +164,9 @@
 #define IDC_LIST_CTRL                   1000
 #define IDC_BUT_ADD                     1001
 #define IDC_BUT_DEL                     1002
+#define IDC_EDT_USER                    1002
 #define IDC_BUT_MOD                     1003
+#define IDC_EDT_PWD                     1003
 #define IDC_CLR_SORTBACK                1004
 #define IDC_EDIT1                       1005
 #define IDC_BUT_ADD2                    1005
@@ -289,6 +292,7 @@
 #define ID_WINDGAS_ATRESIA              32806
 #define ID_FAILURE_ATRESIA              32807
 #define ID_SELECT_DIS                   32808
+#define ID_LOGIN                        32809
 #define ID_EDIT_STATE                   32815
 #define ID_EDIT_FIND_EX                 32816
 #define ID_GOTO_URL                     32817
@@ -308,8 +312,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        161
-#define _APS_NEXT_COMMAND_VALUE         32809
+#define _APS_NEXT_RESOURCE_VALUE        162
+#define _APS_NEXT_COMMAND_VALUE         32810
 #define _APS_NEXT_CONTROL_VALUE         1046
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

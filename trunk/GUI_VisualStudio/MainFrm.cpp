@@ -29,6 +29,7 @@
 #include "ChildFrm.h"
 #include "SettingHostDlg.h"
 #include "SetTimeDlg.h"
+#include "LoginDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -49,6 +50,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_WM_CLOSE()
 	ON_COMMAND(ID_OnSimulation, OnSimulation)
 	ON_COMMAND(ID_OnGenus, OnGenus)
+
 	ON_COMMAND(ID_MANIPULATE, OnSoundPath)
 	ON_UPDATE_COMMAND_UI(ID_MANIPULATE, OnUpdateOnSoundPath)
 	ON_COMMAND(ID_D_D, OnDigital)
@@ -64,6 +66,21 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_TEST_COMMUNICATION, OnTESTC)
 	ON_COMMAND(ID_WINDGAS_ATRESIA, OnWINDGASA)
 	ON_COMMAND(ID_FAILURE_ATRESIA, OnFAILUREA)
+	ON_COMMAND(ID_LOGIN, OnLOGIN)
+
+	ON_UPDATE_COMMAND_UI(ID_D_D, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_A_D, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_LOCALTION, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_BROWSERMOD, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_CONTROLTABLE, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_CONTROLS, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_CONTROLF, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_VERIFY_TIMER, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_MANUAL_CONTROL, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_FDS_CONFIG, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_TEST_COMMUNICATION, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_WINDGAS_ATRESIA, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_FAILURE_ATRESIA, OnUpdateDis)
 //	ON_MESSAGE(WM_XTP_PRETRANSLATEMOUSEMSG, OnTabbarMouseMsg)  
 //    ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_INFO, OnSelchangeTabInfo)
 	//}}AFX_MSG_MAP
@@ -1311,6 +1328,12 @@ void CMainFrame::OnFAILUREA()
 }
 ////////////////////////////////////////////////////////Í¨Ñ¶ÃüÁî
 
+void CMainFrame::OnLOGIN() 
+{
+	CLoginDlg dlg;
+	dlg.DoModal();
+}
+
 void CMainFrame::OnSimulation() 
 {
 //	m_ontime = 0;
@@ -1780,5 +1803,10 @@ void CMainFrame::OnSoundPath()
 void CMainFrame::OnUpdateOnSoundPath(CCmdUI* pCmdUI)
 {
 	pCmdUI->SetCheck(m_bSoundPath);
+	pCmdUI->Enable(theApp.m_bLogIn);
+}
 
+void CMainFrame::OnUpdateDis(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(theApp.m_bLogIn);
 }

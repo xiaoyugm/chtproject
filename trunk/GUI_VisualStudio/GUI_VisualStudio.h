@@ -90,7 +90,7 @@ public:
 	int DocNum ,idis;
 	CString curuser; //,IPPort
 
-	bool m_senddata , m_sendcom;
+	bool m_senddata , m_sendcom,m_bLogIn;
 
 ///	CPointInfo      *pPointInfo;
 	CMultiDocTemplate* pDocTemplate;
