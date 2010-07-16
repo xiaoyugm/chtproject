@@ -83,7 +83,7 @@ CREATE TABLE [BJygjl].[dbo].[control] (
 ) ON [PRIMARY] 
 GO
 
-CREATE TABLE [BJygjl].[dbo].[user] (
+CREATE TABLE [BJygjl].[dbo].[ygjluser] (
 	[UID] [int]  NOT NULL PRIMARY KEY IDENTITY(1,1),
 	[Name] [char] (20) ,
 	[upwd] [char] (20) ,
