@@ -35,6 +35,7 @@ protected:
 	void ConnectDB();
 	void WriteSQL(CNDKMessage& message);
 	CSQLDirect m_SQLDirect;
+	CString2DataType    m_Str2Data;
 
 	CTime StartTime, ConnectTime;
 	

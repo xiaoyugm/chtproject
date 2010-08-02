@@ -14,6 +14,7 @@
 #include "MainFrm.h"
 
 #include "CtrlCmdDlg.h"
+#include "MQServer.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -22,7 +23,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 volatile BOOL gbScanTimeDelayThreadCtrl;
-
+extern CMQServer  SocketServer;
 //static int bdispafx=0;
 
 
@@ -261,7 +262,7 @@ BOOL CCommStatusFM::StartScan()
     
 //	m_bFirstRefreshProgress=TRUE; //用于在初次显示百分比时设置显示
 	KillTimer(100);
-	SetTimer(100,gunScantimeDelay+OFFSETWINPATCH,NULL);
+	SetTimer(100,1000,NULL);
 
 	m_bCycleScan=FALSE;
 ///	Scan();
@@ -418,6 +419,8 @@ void CCommStatusFM::OnTimer(UINT nIDEvent)
 {
 	// TODO: Add your message handler code here and/or call default
 	CKJMonitorApp* pApp=(CKJMonitorApp* )AfxGetApp();
+
+	SocketServer.ManageClientD();
 
 	unsigned char ucSuccessProcent=0;
 	unsigned char m_ucRXData ;
