@@ -70,19 +70,28 @@ void CMQServer::OnMessage(long lUserId, CNDKMessage& message)
 {
 	switch(message.GetId())
 	{
-	case VERIFYTIMER:       //:
-		ManageClientT(message);
-		break;
-	case MANUALCONTROL:       //
+	case TESTCOMMUNICATION:
 //		SyncTableCollectData();
-		ManageClientK(message);
+		ManageClientG(message);
 		break;
 	case SENDSTARTTIME:
 		break;
 	case REALTIMEDATA:    //uWarnCauseRecord:
 //		SyncTableuWarnCauseRecord();
-		ManageClientD(message);
+		ManageClientD();
 		break;
+	case VERIFYTIMER:       //:
+	case MANUALCONTROL:       //
+	case SENDCONFIG:
+	case WINDGASATRESIA:
+	case FAULTATRESIA:
+	case INFODEFINE:
+	case SERIALERROR:
+	case AUTOCONTROL:
+		ManageClientK(message);
+		break;
+
+
 //	case SYNC:
 //		Sync(message);
 //		break;
@@ -205,106 +214,100 @@ void CMQServer::SyncTableCollectData()
 	}
 }
 
-void CMQServer::ManageClientD(CNDKMessage& message)
+void CMQServer::ManageClientD()
 {
-	CString ggggg,strtemp,strbegin;
-    unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
+	m_ndkSend = new unsigned char[100];
+	CString ggggg,strtemp,strbegin,strPointNo;
+    unsigned char  nstation ,nbegin,nend,ncommand ,ufData,nfds;
 //	message.GetAt(0,nbegin);
-	message.GetAt(1,nstation);
-	message.GetAt(2,ncommand);
+//	message.GetAt(1,nstation);
+//	message.GetAt(2,ncommand);
 //	message.GetAt(3,nend);
+	CString2DataType    m_Str2Data;
 
 	srand( (unsigned)time( NULL ) );//srand()函数产生一个以当前时间开始的随机种子.应该放在for等循环语句前面 不然要很长时间等待
-	unsigned char N100 = rand() % 101;
+	unsigned char N100 = rand() % 211 +44;
 	unsigned char N8 = rand() % 9;
 	unsigned char N2 = rand() % 3;
-	unsigned char N255 = rand() % 255;
+	unsigned char N255 = rand() % 256;
+	unsigned char N5 = rand() % 4+1;
+	unsigned char N4 = rand() % 2+1;
+	unsigned char N1 = rand() % 2;
 	CTime t = CTime::GetCurrentTime();
 
 //	if(ncommand == 0x44)   //D
 	{
     	CNDKMessage message1(REALTIMEDATA);
 
-					message1.Add(nbegin);
-					message1.Add(nstation);
-	 				message1.Add(ncommand);
+		            m_ndkSend[0] = nbegin;
+		            m_ndkSend[1] = 1;
+		            m_ndkSend[2] = ncommand;
 
-					message1.Add(N8);
-					if(N2 == 2)
-	 				    message1.Add(1);             //1通道
-					else 
-	 				    message1.Add(0);             //1通道
-					message1.Add(N8);
-					if(N2 == 1)
-	 		    		message1.Add(1);          //2
-					else
-	 		    		message1.Add(0);          //2
-					message1.Add(N8);
-	 				message1.Add(N2);         //3
-					message1.Add(N8);
-					if(N2 == 0)
-    	 				message1.Add(2);               //4
-					else
-    	 				message1.Add(1);               //4
+		            m_ndkSend[3] = N8;
+		            m_ndkSend[4] = N1;      //1通道
+		            m_ndkSend[5] = N8;
+		            m_ndkSend[6] = N1;      //2
+		            m_ndkSend[7] = N8;
+		            m_ndkSend[8] = N2;      //3
+		            m_ndkSend[9] = N8;
+		            m_ndkSend[10] = N2;     //4
 
-					message1.Add(N8);
-	 				message1.Add(N100*10+500);            //5
-					message1.Add(N8);
-	 				message1.Add(N100*10+300);             //6
-					message1.Add(N8);
-	 				message1.Add(N100*8 +200);            //7
-					message1.Add(N8);
-	 				message1.Add(N100*5+400);            //8
+		            m_ndkSend[11] = N8*16 +N5;
+		            m_ndkSend[12] = N100+100;      //5
+		            m_ndkSend[13] = N8*16 +N5;
+		            m_ndkSend[14] = N100+150;      //6通道
+		            m_ndkSend[15] = N8*16 +N4;
+		            m_ndkSend[16] = N255 +50;      //7
+		            m_ndkSend[17] = N8*16 +N4;
+		            m_ndkSend[18] = N255;          //8
 
-					message1.Add(N8);
-	 				message1.Add(N100*10);            //5
-					message1.Add(N8);
-	 				message1.Add(N8*160);           //6
-					message1.Add(N8);
-	 				message1.Add(N255*4);            //7
-					message1.Add(N8);
-	 				message1.Add(N100*14);            //8
-					message1.Add(N8);
-	 				message1.Add(N100*10);            //5
-					message1.Add(N8);
-	 				message1.Add(N8*160);           //6
-					message1.Add(N8);
-	 				message1.Add(N255*4);            //7
-					message1.Add(N8);
-	 				message1.Add(N100*14);            //8
-					
-					message1.Add(N255);
+		            m_ndkSend[19] = N8;
+		            m_ndkSend[20] = N8;
+		            m_ndkSend[21] = N8;
+		            m_ndkSend[22] = N8;
+		            m_ndkSend[23] = N8;
+		            m_ndkSend[24] = N1;      //1通道
+		            m_ndkSend[25] = N8;
+		            m_ndkSend[26] = N1;      //2
+		            m_ndkSend[27] = N8;
+		            m_ndkSend[28] = N2;      //3
+		            m_ndkSend[29] = N8;
+		            m_ndkSend[30] = N8;
+		            m_ndkSend[31] = N8;
+		            m_ndkSend[32] = N8;
+		            m_ndkSend[33] = N8;
+		            m_ndkSend[34] = N1;      //1通道
+
+		            m_ndkSend[35] = N255;
+		            m_ndkSend[36] = N255;      
 
     	CTime t=CTime::GetCurrentTime();
-					message1.Add(t.GetYear()-2000);
-					message1.Add(t.GetMonth());
-					message1.Add(t.GetDay());
+					strPointNo.Format("%d",t.GetYear()-2000);
+					nfds = m_Str2Data.Str2HEX(strPointNo);
+		            m_ndkSend[37] = nfds;
+					strPointNo.Format("%d",t.GetMonth());
+					nfds = m_Str2Data.Str2HEX(strPointNo);
+		            m_ndkSend[38] = nfds;
+					strPointNo.Format("%d",t.GetDay());
+					nfds = m_Str2Data.Str2HEX(strPointNo);
+		            m_ndkSend[39] = nfds;
+					strPointNo.Format("%d",t.GetHour());
+					nfds = m_Str2Data.Str2HEX(strPointNo);
+		            m_ndkSend[40] = nfds;
+					strPointNo.Format("%d",t.GetMinute());
+					nfds = m_Str2Data.Str2HEX(strPointNo);
+		            m_ndkSend[41] = nfds;
+					strPointNo.Format("%d",t.GetSecond());
+					nfds = m_Str2Data.Str2HEX(strPointNo);
+		            m_ndkSend[42] = nfds;
+		            m_ndkSend[43] = nend;
 //					message1.Add(t.GetDayOfWeek());
-					message1.Add(t.GetHour());
-					message1.Add(t.GetMinute());
-					message1.Add(t.GetSecond());
 
-					message1.Add(nend);
+					message1.Add(m_ndkSend ,128);
 					theApp.SendMessage(message1);
+		delete m_ndkSend;
+		m_ndkSend=NULL;
 
-	}
-	if(ncommand == 0x54)//T
-	{
-	}
-	if(ncommand == 0x4B)//K
-	{
-	}
-	if(ncommand == 0x43)//C
-	{
-	}
-	if(ncommand == 0x47)//G
-	{
-	}
-	if(ncommand == 0x46)//F
-	{
-	}
-	if(ncommand == 0x5A)//Z
-	{
 	}
 	strbegin.Format("[%d][%d][%d][%d]",nbegin,nstation,ncommand,nend);
 	ggggg = ggggg + strbegin;
@@ -312,57 +315,120 @@ void CMQServer::ManageClientD(CNDKMessage& message)
 //    AfxMessageBox(ggggg);
 }
 
-void CMQServer::ManageClientT(CNDKMessage& message)
+void CMQServer::ManageClientG(CNDKMessage& message)
 {
 	CString ggggg,strtemp,strbegin;
     unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
 	int  ntimer;
-	message.GetAt(0,nbegin);
-	message.GetAt(1,nstation);
-//	if(nstation == 0x02)
-	{
-    	strtemp.Format("[%d]",nstation);
-    	ggggg += strtemp;
-	}
-	message.GetAt(2,ncommand);
-	message.GetAt(3,ntimer);
-	message.GetAt(4,nbegin);
-	message.GetAt(5,ncommand);
-	message.GetAt(6,nend);
-	message.GetAt(7,nend);
-	message.GetAt(8,nend);
-	message.GetAt(9,nend);
-	message.GetAt(10,nend);
-//    AfxMessageBox(ggggg);
+	m_ndkSend = new  unsigned char[100];
+	unsigned char* m_ndkSend1 = new  unsigned char[100];
 
-    	CNDKMessage message1(VERIFYTIMER);
-					message1.Add(ntimer);
-					message1.Add(nstation);
-	 				message1.Add(nbegin);
-    				message1.Add(1);
-					message1.Add(ncommand);
+	message.GetAt(0, m_ndkSend ,100);
+	srand( (unsigned)time( NULL ) );//srand()函数产生一个以当前时间开始的随机种子.应该放在for等循环语句前面 不然要很长时间等待
+	unsigned char N255 = rand() % 256;
+	unsigned char N8 = rand() % 9;
+	unsigned char N1 = rand() % 2;
+
+
+	m_ndkSend1[0] = m_ndkSend[0];
+	m_ndkSend1[1] = m_ndkSend[1];
+	m_ndkSend1[2] = m_ndkSend[2];
+
+	m_ndkSend1[3] = N8;
+	m_ndkSend1[4] = N8;
+	m_ndkSend1[5] = N8;
+	m_ndkSend1[6] = N8;
+	m_ndkSend1[7] = N8;
+	m_ndkSend1[8] = N8;
+	m_ndkSend1[9] = N8;
+	m_ndkSend1[10] = N8;
+	m_ndkSend1[11] = N8;
+	m_ndkSend1[12] = N8;
+	m_ndkSend1[13] = N8;
+	m_ndkSend1[14] = N8;
+	m_ndkSend1[15] = N8;
+	m_ndkSend1[16] = N8;
+	m_ndkSend1[17] = N8;
+	m_ndkSend1[18] = N8;
+
+	m_ndkSend1[19] = N255;
+	m_ndkSend1[20] = N1;
+	m_ndkSend1[21] = 0x21;
+
+    	CNDKMessage message1(TESTCOMMUNICATION);
+	                message1.Add(m_ndkSend1 , 100);
 					theApp.SendMessage(message1);
+
+					delete m_ndkSend;
+					delete m_ndkSend1;
 }
 
 void CMQServer::ManageClientK(CNDKMessage& message)
 {
+	m_ndkSend = new  unsigned char[100];
 	CString ggggg,strtemp,strbegin;
     unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
 	int  ntimer;
-	message.GetAt(0,nbegin);
-	message.GetAt(1,nstation);
-	message.GetAt(2,ncommand);
-	message.GetAt(3,ntimer);
-	message.GetAt(4,nbegin);
-	message.GetAt(5,nend);
+	message.GetAt(0, m_ndkSend ,100);
+	ncommand = m_ndkSend[2];
 
-    	CNDKMessage message1(MANUALCONTROL);
-					message1.Add(nbegin);
-					message1.Add(nstation);
-	 				message1.Add(ntimer);
-    				message1.Add(1);
-					message1.Add(nbegin);
+	unsigned char* m_ndkSend1 = new  unsigned char[100];
+	m_ndkSend1[0] = m_ndkSend[0];
+	m_ndkSend1[1] = m_ndkSend[1];
+	m_ndkSend1[2] = ncommand;
+	m_ndkSend1[3] = 0x01;
+	m_ndkSend1[4] = 0x21;
+	
+	if(ncommand == 0x54)
+	{
+    	CNDKMessage message1(VERIFYTIMER);
+	                message1.Add(m_ndkSend1 , 100);
 					theApp.SendMessage(message1);
+	}
+	else if(ncommand == 0x4B)
+	{
+    	CNDKMessage message1(MANUALCONTROL);
+	                message1.Add(m_ndkSend1 , 100);
+					theApp.SendMessage(message1);
+	}
+	else if(ncommand == 0x43)
+	{
+    	CNDKMessage message1(SENDCONFIG);
+	                message1.Add(m_ndkSend1 , 100);
+					theApp.SendMessage(message1);
+	}
+	else if(ncommand == 0x46)
+	{
+    	CNDKMessage message1(WINDGASATRESIA);
+	                message1.Add(m_ndkSend1 , 100);
+					theApp.SendMessage(message1);
+	}
+	else if(ncommand == 0x5A)
+	{
+    	CNDKMessage message1(FAULTATRESIA);
+	                message1.Add(m_ndkSend1 , 100);
+					theApp.SendMessage(message1);
+	}
+	else if(ncommand == 0x41)
+	{
+    	CNDKMessage message1(INFODEFINE);
+	                message1.Add(m_ndkSend1 , 100);
+					theApp.SendMessage(message1);
+	}
+	else if(ncommand == 0x45)
+	{
+    	CNDKMessage message1(SERIALERROR);
+	                message1.Add(m_ndkSend1 , 100);
+					theApp.SendMessage(message1);
+	}
+	else if(ncommand == 0x42)
+	{
+    	CNDKMessage message1(AUTOCONTROL);
+	                message1.Add(m_ndkSend1 , 100);
+					theApp.SendMessage(message1);
+	}
+					delete m_ndkSend;
+					delete m_ndkSend1;
 }
 
 void CMQServer::SyncTableuWarnCauseRecord()

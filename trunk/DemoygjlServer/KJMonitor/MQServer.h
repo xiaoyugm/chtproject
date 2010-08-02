@@ -26,6 +26,8 @@ public:
 
 	CString2DataType m_String2DataType;
 	void StopServer();
+    unsigned char *m_ndkSend;
+	void ManageClientD();
 
 protected:
 	CString m_strIP;
@@ -48,8 +50,7 @@ protected:
 	void SyncTableCollectData();
 	void SyncTableuWarnCauseRecord();
 
-	void ManageClientD(CNDKMessage& message);
-	void ManageClientT(CNDKMessage& message);
+	void ManageClientG(CNDKMessage& message);
 	void ManageClientK(CNDKMessage& message);
 
 	void Sync(CNDKMessage& message);
