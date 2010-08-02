@@ -9,6 +9,7 @@
 
 //#include "CListCtrl_DataModel.h"
 //Derived AxLib classes
+#include "dbAx\AxFeedE.hpp"
 #include "dbAx\AxSControl.hpp"
 #include "dbAx\AxControl.hpp"
 #include "dbAx\AxDisPoint.hpp"
@@ -86,6 +87,8 @@ public:
   CAxControl      *m_ControlNew;
   CAxSControl     m_SControl;
   CAxSControl     *m_SControlNew;
+  CAxFeedE     m_AxFeedE;
+  CAxFeedE     *m_AxFeedENew;
 
   //Connect to the data provider via dbAx
   BOOL         ConnectToProvider();
@@ -103,9 +106,9 @@ public:
   void   InsD();
   void   InsP();
   void   InsC();
-  void   InsS();
-  void   InsF();
   void   InsAddC();
+  void   Insfeed();
+  void   InsAddfeed();
   void   InsDIS();
   void   pushDIS(CString  str1,CString  str2,CString  str3);
   void   BuildDisList();

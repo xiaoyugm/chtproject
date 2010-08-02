@@ -74,6 +74,7 @@ CSettingHostDlg::CSettingHostDlg(CWnd* pParent /*=NULL*/)
 	m_DisPointNew = &m_DisPoint;
 	m_ControlNew = &m_Control;
 	m_SControlNew = &m_SControl;
+	m_AxFeedENew = &m_AxFeedE;
 	m_bADD = false;
 	m_bSwitch = false;
 
@@ -146,11 +147,11 @@ BOOL CSettingHostDlg::OnInitDialog()
     GetClientRect(&rectDialog);  
     int   nWidth   =   rectDialog.right   -   rectDialog.left;  
     int   nHeight   =   rectDialog.bottom   -   rectDialog.top;  
-	if(m_ADTypeTable[4].TableName == m_strtable || m_strtable == "AddControl")
+	if(m_ADTypeTable[4].TableName == m_strtable || m_strtable == "AddControl" || m_strtable == "AddFeedE")
 	{
 		GetDlgItem(IDC_LIST_CTRL)->MoveWindow(CRect(8,5,nWidth/2+10 ,nHeight-10));
     	SetResize(IDC_LIST_CTRL,         SZ_TOP_LEFT,    SZ_BOTTOM_CENTER);
-		if(m_strtable == "AddControl")
+		if(m_strtable == "AddControl"  || m_strtable == "AddFeedE")  //加控制策略
 		{
         	GetDlgItem(IDC_LIST_DISPLAY)->MoveWindow(nWidth/2+150,5,nWidth/2-168  ,nHeight-15);
         	GetDlgItem(IDC_COMBO3)->MoveWindow(nWidth/2 + 50,nHeight-60,40 ,20);
@@ -179,7 +180,7 @@ BOOL CSettingHostDlg::OnInitDialog()
 	SetResize(IDC_STATIC2,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 	SetResize(IDC_STATIC4,      SZ_BOTTOM_LEFT, SZ_BOTTOM_LEFT);
 
-		if(m_strtable == "AddControl")
+		if(m_strtable == "AddControl" ||m_strtable == "AddFeedE")  //加控制策略
 		{
 	SetResize(IDC_STATIC3,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
 	SetResize(IDC_COMBO3,      SZ_MIDDLE_CENTER, SZ_MIDDLE_CENTER);
@@ -281,11 +282,11 @@ BOOL CSettingHostDlg::OnInitDialog()
 	m_listDis.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_SHOWSELALWAYS | LVS_EX_GRIDLINES);
 
 
-	if(m_ADTypeTable[0].TableName ==  m_strtable)
+	if(m_ADTypeTable[0].TableName ==  m_strtable)   //模拟量
          InsA();
-	if(m_ADTypeTable[1].TableName ==  m_strtable)
+	if(m_ADTypeTable[1].TableName ==  m_strtable)//开关量
          InsD();
-	if(m_ADTypeTable[2].TableName ==  m_strtable)
+	if(m_ADTypeTable[2].TableName ==  m_strtable)  //安装地点
 	{
     	HideDISPLAY();
 		HideControls();
@@ -295,22 +296,16 @@ BOOL CSettingHostDlg::OnInitDialog()
 	}
 	if(m_ADTypeTable[3].TableName ==  m_strtable)     //pointdescription
          InsP();
-	if(m_ADTypeTable[4].TableName ==  m_strtable)
+	if(m_ADTypeTable[4].TableName ==  m_strtable)    //选择测点显示
          InsDIS();
-	if(m_ADTypeTable[5].TableName ==  m_strtable)
+	if(m_ADTypeTable[5].TableName ==  m_strtable)   //控制策略显示
          InsC();
-	if(m_strtable == "AddControl")
+	if(m_strtable == "AddControl")    //加控制策略
          InsAddC();
-	if((m_ADTypeTable[6].TableName ==  m_strtable)&& !m_bADD)
-	{
-     	 m_listCtrl.ModifyExtendedStyle(0, LVS_EX_CHECKBOXES);
-         InsS();
-	}
-	if((m_ADTypeTable[6].TableName ==  m_strtable)&& m_bADD)
-	{
-     	 m_listCtrl.ModifyExtendedStyle(0, LVS_EX_CHECKBOXES);
-         InsF();
-	}
+	if("feedelectricity" ==  m_strtable)   //馈电策略显示
+         Insfeed();
+	if(m_strtable == "AddFeedE")    //加馈电策略
+         InsAddfeed();
 
     BuildAccountList();
 
@@ -327,40 +322,65 @@ void CSettingHostDlg::BuildAccountList()
 
   try
   {
-	  if(m_ADTypeTable[1].TableName ==  m_strtable)
+	  if(m_ADTypeTable[1].TableName ==  m_strtable)//开关量
 	  {
 		if ( m_AccountSet._IsEmpty() )
-		{
-		  m_listCtrl.InsertItem(0, _T("<< >>"));
 		  return;
-		}
 		m_listCtrl.SetItemCount(m_AccountSet.RecordCount());
 		int iItem = 0;
 		m_AccountSet.MoveFirst();
 		while ( !m_AccountSet.IsEOF() )
 		{
 				  CString dddd;
-				  m_listCtrl.InsertItem(iItem, m_AccountSet.m_szName);
+				  dddd = m_AccountSet.m_szName;
+				  dddd.TrimRight();
+				  m_listCtrl.InsertItem(iItem, dddd);
 			//		dddd = m_AccountSet.m_szptype;
 			//		bool xxx = m_AccountSet.m_szfdel;
-				  m_listCtrl.SetItemText(iItem, 1, m_AccountSet.m_szname0);
-				  m_listCtrl.SetItemText(iItem, 2, m_AccountSet.m_szname1);
-				  m_listCtrl.SetItemText(iItem, 3, m_AccountSet.m_szname2);
-				  if(m_AccountSet.m_szpalms == 0)
-					  dddd = m_AccountSet.m_szname0;
-				  else if(m_AccountSet.m_szpalms == 1)
-					  dddd = m_AccountSet.m_szname1;
-				  else if(m_AccountSet.m_szpalms == 3)
+				  dddd = m_AccountSet.m_szname0;
+				  dddd.TrimRight();
+				  m_listCtrl.SetItemText(iItem, 1, dddd);
+				  dddd = m_AccountSet.m_szname1;
+				  dddd.TrimRight();
+				  m_listCtrl.SetItemText(iItem, 2, dddd);
+				  dddd = m_AccountSet.m_szname2;
+				  dddd.TrimRight();
+				  m_listCtrl.SetItemText(iItem, 3, dddd);
+				  if(m_AccountSet.m_szptype != 1)
+				  {
+				  int xxx = m_AccountSet.m_szpalms;
+				  if(xxx == 0)
 					  dddd = "不报警";
+				  else if(xxx == 1)
+					  dddd = "0态报警";
+				  else if(xxx == 2)
+					  dddd = "1态报警";
+				  else if(xxx == 3)
+					  dddd = "0态断电";
+				  else if(xxx == 4)
+					  dddd = "1态断电";
+				  else if(xxx == 5)
+					  dddd = "常开";
+				  else if(xxx == 6)
+					  dddd = "常闭";
+				  else if(xxx == 7)
+					  dddd = "电平";
+				  }
+				  else
+					  dddd = "";
 				  m_listCtrl.SetItemText(iItem, 4, dddd);
 
-				  m_listCtrl.SetItemText(iItem, 5, m_AccountSet.m_szfalm);
+				  dddd = m_AccountSet.m_szfalm;
+				  dddd.TrimRight();
+				  m_listCtrl.SetItemText(iItem, 5, dddd);
 				  COleDateTime oleDateTime=m_AccountSet.m_szrecdate;
 			//	  CString   str   =   oleDateTime.Format(_T("%A, %B %d, %Y")); 
 				  CString   str   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
 			//	  oleDateTime = m_AccountSet.m_szdeldate;
 				  m_listCtrl.SetItemText(iItem, 6, str);
-				  m_listCtrl.SetItemText(iItem, 7, m_AccountSet.m_szUseridadd);
+				  dddd = m_AccountSet.m_szUseridadd;
+				  dddd.TrimRight();
+				  m_listCtrl.SetItemText(iItem, 7, dddd);
 
 				  if(m_AccountSet.m_szptype == 0)
 					  dddd = "二态开关量";
@@ -379,13 +399,10 @@ void CSettingHostDlg::BuildAccountList()
 		}
         m_AccountSet.MoveFirst();
 	  }
-	  else if(m_ADTypeTable[0].TableName ==  m_strtable)
+	  else if(m_ADTypeTable[0].TableName ==  m_strtable)   //模拟量
 	  {
 		if ( m_ContactSet._IsEmpty() )
-		{
-//		  m_listCtrl.InsertItem(0, _T("<< >>"));
 		  return;
-		}
 		m_listCtrl.SetItemCount(m_ContactSet.RecordCount());
 		int iItem = 0;
 		m_ContactSet.MoveFirst();
@@ -395,35 +412,32 @@ void CSettingHostDlg::BuildAccountList()
 				  m_listCtrl.InsertItem(iItem, m_ContactSet.m_szName);
 				  dddd.Format("%.4f",m_ContactSet.m_szltop);
 				  m_listCtrl.SetItemText(iItem, 1, dddd);
-//				  dddd.Format("%.4f",m_ContactSet.m_szlbom);
-//				  m_listCtrl.SetItemText(iItem, 2, dddd);
-				  dddd.Format("%.4f",m_ContactSet.m_szpalmu);
+				  dddd.Format("%.4f",m_ContactSet.m_szlbom);
 				  m_listCtrl.SetItemText(iItem, 2, dddd);
-//				  dddd.Format("%.4f",m_ContactSet.m_szpalmd);
-//				  m_listCtrl.SetItemText(iItem, 4, dddd);
-				  dddd.Format("%.4f",m_ContactSet.m_szpbrk);
+				  dddd.Format("%.4f",m_ContactSet.m_szpalmu);
 				  m_listCtrl.SetItemText(iItem, 3, dddd);
-				  dddd.Format("%.4f",m_ContactSet.m_szprtn);
+				  dddd.Format("%.4f",m_ContactSet.m_szpalmd);
 				  m_listCtrl.SetItemText(iItem, 4, dddd);
-				  m_listCtrl.SetItemText(iItem, 5, m_ContactSet.m_szfalm);
-				  m_listCtrl.SetItemText(iItem, 6, m_ContactSet.m_szpunit);
+				  dddd.Format("%.4f",m_ContactSet.m_szpbrk);
+				  m_listCtrl.SetItemText(iItem, 5, dddd);
+				  dddd.Format("%.4f",m_ContactSet.m_szprtn);
+				  m_listCtrl.SetItemText(iItem, 6, dddd);
+				  m_listCtrl.SetItemText(iItem, 7, m_ContactSet.m_szfalm);
+				  m_listCtrl.SetItemText(iItem, 8, m_ContactSet.m_szpunit);
 				  COleDateTime oleDateTime=m_ContactSet.m_szrecdate;
 				  dddd   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-				  m_listCtrl.SetItemText(iItem, 7, dddd);
-				  m_listCtrl.SetItemText(iItem, 8, m_ContactSet.m_szUseridadd);
+				  m_listCtrl.SetItemText(iItem, 9, dddd);
+				  m_listCtrl.SetItemText(iItem, 10, m_ContactSet.m_szUseridadd);
 			iItem++;
 			sqlid = m_ContactSet.m_szAID +1;
 			m_ContactSet.MoveNext();
 		}
         m_ContactSet.MoveFirst();
 	  }
-	  else if(m_ADTypeTable[2].TableName ==  m_strtable)
+	  else if(m_ADTypeTable[2].TableName ==  m_strtable)    //安装地点
 	  {
 		if ( m_MAlocation._IsEmpty() )
-		{
-//		  m_listCtrl.InsertItem(0, _T("<< >>"));
 		  return;
-		}
 		m_listCtrl.SetItemCount(m_MAlocation.RecordCount());
 		int iItem = 0;
 		m_MAlocation.MoveFirst();
@@ -436,13 +450,10 @@ void CSettingHostDlg::BuildAccountList()
 		}
         m_MAlocation.MoveFirst();
 	  }
-	  else if(m_ADTypeTable[3].TableName ==  m_strtable)
+	  else if(m_ADTypeTable[3].TableName ==  m_strtable)   //pointdescription
 	  {
 		if ( m_PointDes._IsEmpty() )
-		{
-//		  m_listCtrl.InsertItem(0, _T("<< >>"));
 		  return;
-		}
 		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
 		int iItem = 0;
         m_Records.clear();
@@ -462,13 +473,10 @@ void CSettingHostDlg::BuildAccountList()
 		}
         m_PointDes.MoveFirst();
 	  }
-	  else if(m_ADTypeTable[4].TableName ==  m_strtable)
+	  else if(m_ADTypeTable[4].TableName ==  m_strtable)    //选择测点显示
 	  {
 		if ( m_PointDes._IsEmpty() )
-		{
-//		  m_listCtrl.InsertItem(0, _T("<< >>"));
 		  return;
-		}
 		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
 		int iItem = 0;
 //        m_Records.clear();
@@ -654,7 +662,7 @@ void CSettingHostDlg::BuildAccountList()
 		for ( int i = 0 ; i < m_Records.size() ; i++ )
             	m_listDis.InsertItem(i, m_Records[i]);
 	  }
-	  else if(m_ADTypeTable[5].TableName ==  m_strtable)
+	  else if(m_ADTypeTable[5].TableName ==  m_strtable)  //控制策略显示
 	  {
 		if ( m_Control._IsEmpty() )
 		  return;
@@ -682,7 +690,7 @@ void CSettingHostDlg::BuildAccountList()
 		}
         m_Control.MoveFirst();
 	  }
-	  else if(m_strtable == "AddControl")
+	  else if(m_strtable == "AddControl")   //加控制策略
 	  {
 		if ( m_PointDes._IsEmpty() )
 		  return;
@@ -715,47 +723,62 @@ void CSettingHostDlg::BuildAccountList()
 		}
         m_PointDes.MoveFirst();
 	  }
-	  else if((m_ADTypeTable[6].TableName ==  m_strtable)&& !m_bADD)
+	  else if("feedelectricity" ==  m_strtable)     //馈电规则显示
 	  {
-		if ( m_SControl._IsEmpty() )
+		if ( m_AxFeedE._IsEmpty() )
 		  return;
 //     	m_listCtrl.DeleteAllItems();
-		m_listCtrl.SetItemCount(m_SControl.RecordCount());
+		m_listCtrl.SetItemCount(m_AxFeedE.RecordCount());
 		int iItem = 0;
-		m_SControl.MoveFirst();
-		while ( !m_SControl.IsEOF() )
+		m_AxFeedE.MoveFirst();
+		while ( !m_AxFeedE.IsEOF() )
 		{
-				  CString dddd;
-				  dddd.Format("%d",m_SControl.m_szSID);
-    		m_listCtrl.InsertItem(iItem, dddd);
-			if(m_SControl.m_szSpeCtrol)
-         		m_listCtrl.SetCheck(iItem, true);
-//    		m_listCtrl.SetItemText(iItem, 1, m_Control.m_szpointnum);  
+    		m_listCtrl.InsertItem(iItem, m_AxFeedE.m_szName);
+    		m_listCtrl.SetItemText(iItem, 1, m_AxFeedE.m_szcpointnum);
+			m_listCtrl.SetItemText(iItem, 2, m_AxFeedE.m_szepointnum);
+				  COleDateTime oleDateTime=m_AxFeedE.m_szrecdate;
+				  CString dddd   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+			m_listCtrl.SetItemText(iItem, 3, dddd);
+			m_listCtrl.SetItemText(iItem, 4, m_AxFeedE.m_szUseridadd);
+			m_Records.push_back(m_AxFeedE.m_szecpointnum);
 			iItem++;
-			m_SControl.MoveNext();
+			PointDesid = m_AxFeedE.m_szEID +1;
+			m_AxFeedE.MoveNext();
 		}
-        m_SControl.MoveFirst();
 	  }
-	  else if((m_ADTypeTable[6].TableName ==  m_strtable)&& m_bADD)
+	  else if(m_strtable == "AddFeedE")   //加馈电规则
 	  {
-		if ( m_SControl._IsEmpty() )
+		if ( m_PointDes._IsEmpty() )
 		  return;
-		m_listCtrl.SetItemCount(m_SControl.RecordCount());
+//		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
+     	m_listCtrl.DeleteAllItems();
+     	m_listDis.DeleteAllItems();
+		CString dddd,cccc;
 		int iItem = 0;
-		m_SControl.MoveFirst();
-		while ( !m_SControl.IsEOF() )
+		int iItem1 = 0;
+		int nfds = m_wndComboSize3.GetCurSel();
+		m_PointDes.MoveFirst();
+		while ( !m_PointDes.IsEOF() )
 		{
-				  CString dddd;
-				  dddd.Format("%d",m_SControl.m_szSID);
-    		m_listCtrl.InsertItem(iItem, dddd);
-			if(m_SControl.m_szIsScan)
-         		m_listCtrl.SetCheck(iItem, true);
-			iItem++;
-			m_SControl.MoveNext();
+    		dddd = m_PointDes.m_szpointnum;
+			cccc.Format("%d", m_PointDes.m_szPID);
+			if(m_PointDes.m_szfds == nfds+1  && dddd.Find("C") != -1)
+			{
+         		m_listCtrl.InsertItem(iItem, m_PointDes.m_szName);
+        		m_listCtrl.SetItemText(iItem, 1, m_PointDes.m_szpointnum);
+        		m_listCtrl.SetItemText(iItem, 2, cccc);
+    			iItem++;
+			}
+			if(dddd.Find("D") != -1)
+			{
+         		m_listDis.InsertItem(iItem1, m_PointDes.m_szpointnum);
+        		m_listDis.SetItemText(iItem1, 1, cccc);
+    			iItem1++;
+			}
+			m_PointDes.MoveNext();
 		}
-        m_SControl.MoveFirst();
+        m_PointDes.MoveFirst();
 	  }
-
 
        	// Insert data into list-control by copying from datamodel
 //    	int nItem = 0;
@@ -874,7 +897,7 @@ BOOL CSettingHostDlg::ConnectToProvider()
     //to worry with deleting the Events object since this is handled
     //internally by its Release function. When no longer needed, the
     //Events object deletes itself.
-    m_Cn._SetConnectionEvents(new CCardFileEvents);
+//    m_Cn._SetConnectionEvents(new CCardFileEvents);
 
     //Set the cursor location and open the database connection
     m_Cn.CursorLocation(adUseClient);
@@ -961,6 +984,13 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_SControl._SetRecordsetEvents(new CAccountSetEvents);
 		m_SControl.Open(_T("Select * From specialcontrol"), &m_Cn);
 		m_SControl.MarshalOptions(adMarshalModifiedOnly);
+
+		m_AxFeedE.Create();
+		m_AxFeedE.CursorType(adOpenDynamic);
+		m_AxFeedE.CacheSize(50);
+		m_AxFeedE._SetRecordsetEvents(new CAccountSetEvents);
+		m_AxFeedE.Open(_T("Select * From feedelectricity WHERE fdel=0"), &m_Cn);
+		m_AxFeedE.MarshalOptions(adMarshalModifiedOnly);
   }
   catch ( dbAx::CAxException *e )
   {
@@ -1005,18 +1035,20 @@ void CSettingHostDlg::OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult)
 
   if ( pNMLV->uNewState == 3 )
   {
-	  if(m_ADTypeTable[1].TableName ==  m_strtable && !m_AccountSet._IsEmpty() ) 
+	  if(m_ADTypeTable[1].TableName ==  m_strtable && !m_AccountSet._IsEmpty() ) //开关量
            m_AccountSet.AbsolutePosition(pNMLV->iItem + 1);
-	  else if(m_ADTypeTable[0].TableName ==  m_strtable && !m_ContactSet._IsEmpty() )
+	  else if(m_ADTypeTable[0].TableName ==  m_strtable && !m_ContactSet._IsEmpty() )//模拟量
            m_ContactSet.AbsolutePosition(pNMLV->iItem + 1);
-	  else if(m_ADTypeTable[2].TableName ==  m_strtable && !m_MAlocation._IsEmpty() )
+	  else if(m_ADTypeTable[2].TableName ==  m_strtable && !m_MAlocation._IsEmpty() )//安装地点
            m_MAlocation.AbsolutePosition(pNMLV->iItem + 1);
-	  else if(m_ADTypeTable[3].TableName ==  m_strtable && !m_PointDes._IsEmpty() )
+	  else if(m_ADTypeTable[3].TableName ==  m_strtable && !m_PointDes._IsEmpty() ) //pointdescription
            m_PointDes.AbsolutePosition(pNMLV->iItem + 1);
-	  else if(m_ADTypeTable[5].TableName ==  m_strtable && !m_Control._IsEmpty() )
+	  else if(m_ADTypeTable[5].TableName ==  m_strtable && !m_Control._IsEmpty() )  //控制策略显示
            m_Control.AbsolutePosition(pNMLV->iItem + 1);
 	  else if(m_ADTypeTable[6].TableName ==  m_strtable && !m_SControl._IsEmpty() )
            m_SControl.AbsolutePosition(pNMLV->iItem + 1);
+	  else if("feedelectricity" ==  m_strtable && !m_AxFeedE._IsEmpty() )  //馈电规则显示
+           m_AxFeedE.AbsolutePosition(pNMLV->iItem + 1);
   }
 }
 
@@ -1041,6 +1073,8 @@ void CSettingHostDlg::OnClose()
       m_Control.Close();
     if ( m_SControl._IsOpen() )
       m_SControl.Close();
+    if ( m_AxFeedE._IsOpen() )
+      m_AxFeedE.Close();
 
     m_Cn.Close();
 
@@ -1070,7 +1104,7 @@ void CSettingHostDlg::SortColumn(int iCol, bool bAsc)
 
 void CSettingHostDlg::OnBtnADD()
 {
-	if(m_ADTypeTable[3].TableName ==  m_strtable )
+	if(m_ADTypeTable[3].TableName ==  m_strtable ) //pointdescription
 	{
 		m_bADD = true;
 		m_bSwitch = false;
@@ -1079,25 +1113,37 @@ void CSettingHostDlg::OnBtnADD()
           m_listCtrl.DeleteColumn(0);
 		  HideAMD();
 		  InsA();
-		  m_strtable = m_ADTypeTable[0].TableName;  
+		  m_strtable = m_ADTypeTable[0].TableName;  //模拟量
 		  BuildAccountList();
 		  ShowControls();
            GetDlgItem(IDC_STATIC2)->ShowWindow(SW_SHOW);
            GetDlgItem(IDC_COMBO2)->ShowWindow(SW_SHOW);
 		   TrueFC();
 	}
-	else if(m_ADTypeTable[5].TableName ==  m_strtable )
+	else if(m_ADTypeTable[5].TableName ==  m_strtable )  //控制策略显示
 	{
-		m_bADD = true;
+		m_bADD = true;    
 //		m_bSwitch = false;
     	for (int iItem = 5; iItem >= 0; iItem--)
     		m_listCtrl.DeleteColumn(iItem);
 
-		m_strtable = "AddControl";
+		m_strtable = "AddControl";   //加控制策略
 		OnClose();
         OnInitDialog();
 	}
-	else if((m_ADTypeTable[6].TableName ==  m_strtable )&& !m_bADD)
+	else if("feedelectricity" ==  m_strtable )  //馈电规则显示
+	{
+		m_bADD = true;
+//		m_bSwitch = false;
+    	for (int iItem = 4; iItem >= 0; iItem--)
+    		m_listCtrl.DeleteColumn(iItem);
+
+		m_strtable = "AddFeedE";   //加馈电规则
+		OnClose();
+        OnInitDialog();
+	}
+
+/*	else if((m_ADTypeTable[6].TableName ==  m_strtable )&& !m_bADD)
 	{
       CString str;
       for(int i=0; i<m_listCtrl.GetItemCount(); i++)
@@ -1172,7 +1218,7 @@ void CSettingHostDlg::OnBtnADD()
 					if(m_listCtrl.GetCheck(i))
 			    	{
               		m_SControl.m_szSID = i+1;
-            		m_SControl.m_szIsScan = true;
+//            		m_SControl.m_szSerialnum = true;
             		m_SControl.Update();    //Update the recordset
 	//                str.Format(_T("第%d行的checkbox为选中状态"), i);
 	//                AfxMessageBox(str);
@@ -1180,14 +1226,14 @@ void CSettingHostDlg::OnBtnADD()
 				    else
 				    {
               		m_SControl.m_szSID = i+1;
-            		m_SControl.m_szIsScan = false;
+//            		m_SControl.m_szSerialnum = false;
             		m_SControl.Update();    //Update the recordset
 				    }
 			   }
 			   else
 			   {
               		m_SControl.m_szSID = i+1;
-            		m_SControl.m_szIsScan = false;
+//            		m_SControl.m_szSerialnum = false;
             		m_SControl.Update();    //Update the recordset
 			   }
 	   	}
@@ -1199,7 +1245,7 @@ void CSettingHostDlg::OnBtnADD()
       }
 		  AfxMessageBox("巡检分站已保存", MB_OK);
 //        EndDialog(IDOK);
-	}
+	}*/
 	else
 	{
 		  CAccountDlg dlg(this);
@@ -1208,6 +1254,7 @@ void CSettingHostDlg::OnBtnADD()
 		  if ( dlg.DoModal() == IDOK )
 			BuildAccountList();
 	}
+		theApp.InitData();
 }
 
 void CSettingHostDlg::OnBtnADD2()
@@ -1219,7 +1266,7 @@ void CSettingHostDlg::OnBtnADD2()
           m_listCtrl.DeleteColumn(0);
 		  HideAMD();
 		  InsD();
-		  m_strtable = m_ADTypeTable[1].TableName;  
+		  m_strtable = m_ADTypeTable[1].TableName;  //开关量
 		  BuildAccountList();
 		  ShowControls();
         GetDlgItem(IDC_STATIC2)->ShowWindow(SW_HIDE);
@@ -1352,6 +1399,8 @@ void CSettingHostDlg::OnBtnOK()
 		  ShowAMD();
 		  m_strtable = m_ADTypeTable[3].TableName;  
 		  BuildAccountList();
+
+		theApp.InitData();
 }
 //回到浏览测点状态
 void CSettingHostDlg::OnBtnCANCEL()
@@ -1448,7 +1497,7 @@ void CSettingHostDlg::ShowAMD()
     	GetDlgItem(IDC_BUT_DEL)->ShowWindow(SW_SHOW);;
     	GetDlgItem(IDC_BUT_MOD)->ShowWindow(SW_SHOW);;
 }
-void CSettingHostDlg::InsA()
+void CSettingHostDlg::InsA()  //模拟量类型
 {
 	HideDISPLAY();
 		HideControls();
@@ -1456,15 +1505,15 @@ void CSettingHostDlg::InsA()
 		SetWindowText(_T(m_ADTypeTable[0].NameD));
 		m_listCtrl.InsertColumn(0,m_ADTypeTable[0].m_DTypeTFD.Name,LVCFMT_LEFT,100);
 		m_listCtrl.InsertColumn(1,m_ADTypeTable[0].m_DTypeTFD.ltop,LVCFMT_LEFT,100);
-//		m_listCtrl.InsertColumn(2,m_ADTypeTable[0].m_DTypeTFD.lbom,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(2,m_ADTypeTable[0].m_DTypeTFD.palmu,LVCFMT_LEFT,100);
-//		m_listCtrl.InsertColumn(4,m_ADTypeTable[0].m_DTypeTFD.palmd,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(3,m_ADTypeTable[0].m_DTypeTFD.pbrk,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(4,m_ADTypeTable[0].m_DTypeTFD.prtn,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(5,m_ADTypeTable[0].m_DTypeTFD.falm,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(6,m_ADTypeTable[0].m_DTypeTFD.punit,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(7,m_ADTypeTable[0].m_DTypeTFD.recdate,LVCFMT_LEFT,100);
-		m_listCtrl.InsertColumn(8,m_ADTypeTable[0].m_DTypeTFD.Useridadd,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(2,m_ADTypeTable[0].m_DTypeTFD.lbom,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(3,m_ADTypeTable[0].m_DTypeTFD.palmu,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(4,m_ADTypeTable[0].m_DTypeTFD.palmd,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(5,m_ADTypeTable[0].m_DTypeTFD.pbrk,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(6,m_ADTypeTable[0].m_DTypeTFD.prtn,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(7,m_ADTypeTable[0].m_DTypeTFD.falm,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(8,m_ADTypeTable[0].m_DTypeTFD.punit,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(9,m_ADTypeTable[0].m_DTypeTFD.recdate,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(10,m_ADTypeTable[0].m_DTypeTFD.Useridadd,LVCFMT_LEFT,100);
 }
 
 void CSettingHostDlg::InsD()
@@ -1531,28 +1580,34 @@ void CSettingHostDlg::InsAddC()
 		m_listDis.InsertColumn(1,_T("CID"),LVCFMT_LEFT,100);
 }
 
-void CSettingHostDlg::InsS()
+void CSettingHostDlg::Insfeed()
 {
-	    HideDISPLAY();
+	HideDISPLAY();
 		HideControls();
-    	GetDlgItem(IDC_BUT_ADD)->SetWindowText(_T("保存"));;
-    	GetDlgItem(IDC_BUT_MOD)->SetWindowText(_T("发送"));;
-		SetWindowText(_T(m_ADTypeTable[6].NameD));
-//    	MoveWindow(CRect(50,100,960,700));
-		m_listCtrl.InsertColumn(0,m_ADTypeTable[6].m_DTypeTFD.Name,LVCFMT_LEFT,200);
-		GetDlgItem(IDC_BUT_DEL)->ShowWindow(SW_HIDE);
+		SetWindowText(_T("馈电规则定义"));
+    	MoveWindow(CRect(50,100,960,700));
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[5].m_DTypeTFD.Name,LVCFMT_LEFT,200);
+		m_listCtrl.InsertColumn(1,"控制量",LVCFMT_LEFT,80);
+		m_listCtrl.InsertColumn(2,"馈电量",LVCFMT_LEFT,80);
+		m_listCtrl.InsertColumn(3,m_ADTypeTable[5].m_DTypeTFD.recdate,LVCFMT_LEFT,200);
+		m_listCtrl.InsertColumn(4,m_ADTypeTable[5].m_DTypeTFD.Useridadd,LVCFMT_LEFT,200);
+		GetDlgItem(IDC_BUT_MOD)->ShowWindow(SW_HIDE);
 }
 
-void CSettingHostDlg::InsF()
+void CSettingHostDlg::InsAddfeed()
 {
-	    HideDISPLAY();
-		HideControls();
-    	GetDlgItem(IDC_BUT_ADD)->SetWindowText(_T("保存"));;
-    	GetDlgItem(IDC_BUT_MOD)->SetWindowText(_T("发送"));;
-		SetWindowText(_T("增减分站"));
-//    	MoveWindow(CRect(50,100,960,700));
-		m_listCtrl.InsertColumn(0,m_ADTypeTable[6].m_DTypeTFD.Name,LVCFMT_LEFT,200);
-		GetDlgItem(IDC_BUT_DEL)->ShowWindow(SW_HIDE);
+        	HideAMD();
+    		HideControls();
+    		SetWindowText(_T("增加馈电策略"));
+        	GetDlgItem(IDC_BUTTONDIS2)->SetWindowText(_T("增加"));;
+        	GetDlgItem(IDC_BUTTONDIS4)->SetWindowText(_T("取消"));;
+   		    ShowDISPLAY();
+		m_listCtrl.InsertColumn(0,m_ADTypeTable[5].m_DTypeTFD.Name,LVCFMT_LEFT,100);
+		m_listCtrl.InsertColumn(1,m_ADTypeTable[5].m_DTypeTFD.pointnum,LVCFMT_LEFT,75);
+		m_listCtrl.InsertColumn(2,_T("PID"),LVCFMT_LEFT,60);
+
+		m_listDis.InsertColumn(0,"馈电测点",LVCFMT_LEFT,100);
+		m_listDis.InsertColumn(1,_T("PID"),LVCFMT_LEFT,100);
 }
 
 void CSettingHostDlg::InsDIS()
@@ -1580,16 +1635,18 @@ void CSettingHostDlg::InsDIS()
 void CSettingHostDlg::OnBtnDEL()
 {
   CString szMsg;
-	  if(m_ADTypeTable[1].TableName ==  m_strtable ) 
+	  if(m_ADTypeTable[1].TableName ==  m_strtable ) //开关量
          szMsg.Format(_T("Delete %s?"), m_AccountSet.m_szName);
-	  else if(m_ADTypeTable[0].TableName ==  m_strtable )
+	  else if(m_ADTypeTable[0].TableName ==  m_strtable )//模拟量
          szMsg.Format(_T("Delete %s?"), m_ContactSet.m_szName);
-	  else if(m_ADTypeTable[2].TableName ==  m_strtable )
+	  else if(m_ADTypeTable[2].TableName ==  m_strtable )//安装地点
          szMsg.Format(_T("Delete %s?"), m_MAlocation.m_szName);
-	  else if(m_ADTypeTable[3].TableName ==  m_strtable )
+	  else if(m_ADTypeTable[3].TableName ==  m_strtable ) //pointdescription
          szMsg.Format(_T("Delete %s?"), m_PointDes.m_szName);
-	  else if(m_ADTypeTable[5].TableName ==  m_strtable )
+	  else if(m_ADTypeTable[5].TableName ==  m_strtable )  //控制策略显示
          szMsg.Format(_T("Delete %s?"), m_Control.m_szName);
+	  else if("feedelectricity" ==  m_strtable )  //控制策略显示
+         szMsg.Format(_T("Delete %s?"), m_AxFeedE.m_szName);
 
   MessageBeep(MB_ICONEXCLAMATION);
   int Reply = AfxMessageBox(szMsg, MB_YESNO);
@@ -1614,24 +1671,23 @@ void CSettingHostDlg::OnBtnDEL()
 			break;
 		}
 	}
-			  if(m_ADTypeTable[1].TableName ==  m_strtable ) 
+			  if(m_ADTypeTable[1].TableName ==  m_strtable ) //开关量
 			  {
                 	m_AccountSet.m_szUseriddel = theApp.curuser;
         			m_AccountSet.m_szfdel = true;
         			m_AccountSet.m_szdeldate = CTime.GetCurrentTime();
 				   m_AccountSet.Update();    //Update the recordset
-		//         m_AccountSet.Delete();
 			  }
-			  else if(m_ADTypeTable[0].TableName ==  m_strtable )
+			  else if(m_ADTypeTable[0].TableName ==  m_strtable )//模拟量
 			  {
                 	m_ContactSet.m_szUseriddel = theApp.curuser;
         			m_ContactSet.m_szfdel = true;
         			m_ContactSet.m_szdeldate = CTime.GetCurrentTime();
 				   m_ContactSet.Update();    //Update the recordset
 			  }
-			  else if(m_ADTypeTable[2].TableName ==  m_strtable )
+			  else if(m_ADTypeTable[2].TableName ==  m_strtable )//安装地点
 				 m_MAlocation.Delete();
-			  else if(m_ADTypeTable[3].TableName ==  m_strtable )
+			  else if(m_ADTypeTable[3].TableName ==  m_strtable )  //pointdescription
 			  {
                 	m_PointDes.m_szUseriddel = theApp.curuser;
         			m_PointDes.m_szfdel = true;
@@ -1639,13 +1695,19 @@ void CSettingHostDlg::OnBtnDEL()
 				   m_PointDes.Update();    //Update the recordset
 //				 m_PointDes.Delete();
 			  }
-			  else if(m_ADTypeTable[5].TableName ==  m_strtable )
+			  else if(m_ADTypeTable[5].TableName ==  m_strtable )  //控制策略显示
 			  {
                 	m_Control.m_szUseriddel = theApp.curuser;
         			m_Control.m_szfdel = true;
         			m_Control.m_szdeldate = CTime.GetCurrentTime();
 				   m_Control.Update();    //Update the recordset
-//				 m_PointDes.Delete();
+			  }
+			  else if("feedelectricity" ==  m_strtable )  //控制策略显示
+			  {
+                	m_AxFeedE.m_szUseriddel = theApp.curuser;
+        			m_AxFeedE.m_szfdel = true;
+        			m_AxFeedE.m_szdeldate = CTime.GetCurrentTime();
+				   m_AxFeedE.Update();    //Update the recordset
 			  }
 		//      m_Cn.Execute(szExecStr);
 			  OnClose();
@@ -1664,7 +1726,7 @@ void CSettingHostDlg::OnBtnMOD()
 {
 	LPCTSTR str1 = "",str2 = "",str3 = "";
 	CString strItem, strf,strc;
-	if(m_ADTypeTable[3].TableName ==  m_strtable )
+	if(m_ADTypeTable[3].TableName ==  m_strtable ) //pointdescription
 	{
 		m_bADD = false;
       	m_Str2Data.SplittoCString(m_PointDesNew->m_szName,str1,str2,str3);
@@ -1715,12 +1777,12 @@ void CSettingHostDlg::OnBtnMOD()
     	if(m_bSwitch)
 		{
 		  InsD();
-		  m_strtable = m_ADTypeTable[1].TableName;  
+		  m_strtable = m_ADTypeTable[1].TableName;  //开关量
 		}
 		else
 		{
 		  InsA();
-		  m_strtable = m_ADTypeTable[0].TableName;  
+		  m_strtable = m_ADTypeTable[0].TableName;  //模拟量
 		}
 		  BuildAccountList();
 		  ShowControls();
@@ -1749,6 +1811,7 @@ void CSettingHostDlg::OnBtnMOD()
 		  if ( dlg.DoModal() == IDOK )
 			BuildAccountList();
 	}
+		theApp.InitData();
 }
 
 void CSettingHostDlg::OnButtonSelect() 
@@ -1774,11 +1837,12 @@ void CSettingHostDlg::OnButtonSelect()
 				m_listDis.InsertItem(nItemCount1, strPointNo, 0);
 		}
 	}
+		theApp.InitData();
 }
 
 void CSettingHostDlg::OnButtonDeselect() 
 {
-	if(m_strtable == "AddControl")
+	if(m_strtable == "AddControl")   //加控制策略
 	{
 //		UpdateData(TRUE);           //Exchange dialog data
     	vector<CString>::iterator  iter;
@@ -1833,7 +1897,7 @@ void CSettingHostDlg::OnButtonDeselect()
 			return;
 		if(nlistCount>1 && ndisCount >1)
 		{
-			AfxMessageBox("多对多，请重新选择", MB_OK);
+			AfxMessageBox("不可以多对多选择，请重新选择", MB_OK);
 			return;
 		}
 		if(nlistCount ==0  || ndisCount == 0)
@@ -1904,7 +1968,127 @@ void CSettingHostDlg::OnButtonDeselect()
     		m_listCtrl.DeleteColumn(iItem);
 			m_listDis.DeleteColumn(iItem);
 		}
-   	    m_strtable = m_ADTypeTable[5].TableName;  
+   	    m_strtable = m_ADTypeTable[5].TableName;  //控制策略显示
+		OnClose();
+        OnInitDialog();
+		ShowAMD();
+		GetDlgItem(IDC_BUT_ADD2)->ShowWindow(SW_HIDE);;
+		GetDlgItem(IDC_BUT_MOD)->ShowWindow(SW_HIDE);;
+
+	}
+	else if(m_strtable == "AddFeedE")   //加馈电策略
+	{
+//		UpdateData(TRUE);           //Exchange dialog data
+    	vector<CString>::iterator  iter;
+		int fff = 0;
+//        BOOL bExist=TRUE;
+    	int nlistCount=0;
+    	int ndisCount=0;
+    	int nItemlist=m_listCtrl.GetItemCount();
+    	int nItemdis=m_listDis.GetItemCount();
+		CString strP1,strP2,strP3,szFind;
+        for(int nItem=0;nItem<nItemlist;nItem++)
+		{
+     		if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
+			{
+	        	 nlistCount++;
+				 strP1 = m_listCtrl.GetItemText(nItem,1);
+				for(int ndisItem=0;ndisItem<nItemdis;ndisItem++)
+				{
+     				if(m_listDis.GetItemState(ndisItem,LVIS_SELECTED) & LVIS_SELECTED)
+					{
+         				 strP2 = m_listDis.GetItemText(ndisItem,0);
+						for(iter = m_Records.begin(); iter != m_Records.end(); ++iter)
+						{
+								szFind = *iter;
+								szFind.TrimRight();
+								strP1.TrimRight();
+								strP2.TrimRight();
+							if(szFind == (strP1 +strP2))
+							{
+								fff = 100;
+								break;
+							}
+						}
+						if(fff == 100)
+						{
+							strP3.Format("%s关联%s已存在，重新选择",strP1,strP2);
+								AfxMessageBox(strP3, MB_OK);
+								break;
+						}
+					}
+				}
+				if(fff == 100)
+					break;
+			}//if
+		}
+		for(int ndisItem=0;ndisItem<nItemdis;ndisItem++)
+		{
+     			if(m_listDis.GetItemState(ndisItem,LVIS_SELECTED) & LVIS_SELECTED)
+         			 ndisCount++;
+		}
+		if(fff == 100)
+			return;
+		if(nlistCount>1 && ndisCount >1)
+		{
+			AfxMessageBox("多对多，请重新选择", MB_OK);
+			return;
+		}
+		if(nlistCount ==0  || ndisCount == 0)
+		{
+			AfxMessageBox("列表未选择，请重新选择", MB_OK);
+			return;
+		}
+
+        for( nItem=0;nItem<nItemlist;nItem++)
+		{
+     		if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
+			{
+				CString strPoint1=m_listCtrl.GetItemText(nItem,0);
+				CString strPoint2=m_listCtrl.GetItemText(nItem,1);
+				strPoint1.TrimRight();
+				strPoint2.TrimRight();
+//					int fff = 0;
+					COleDateTime CTime;
+
+					m_AxFeedENew->m_szName = strPoint1;
+					m_AxFeedENew->m_szcpointnum = strPoint2;
+					for(int ndis=0;ndis<nItemdis;ndis++)
+					{
+     					if(m_listDis.GetItemState(ndis,LVIS_SELECTED) & LVIS_SELECTED)
+						{
+            				try
+							{
+	         				 m_AxFeedENew->m_szEID  = PointDesid;
+				             strP1=m_listDis.GetItemText(ndis,0);
+			             	 strP1.TrimRight();
+		      			     m_AxFeedENew->m_szepointnum = strP1;
+		    			     m_AxFeedENew->m_szecpointnum = strPoint2 +strP1;
+    						 m_AxFeedENew->m_szrecdate = CTime.GetCurrentTime();
+     						 m_AxFeedENew->m_szUseridadd = theApp.curuser;
+      						m_AxFeedENew->AddNew();  //Add a new, blank record
+					   	    m_AxFeedENew->Update();    //Update the recordset
+							//If this is a new record, requery the database table
+							//otherwise we may out-of-sync
+						    m_AxFeedENew->Requery();
+							PointDesid++;
+							}
+		     			    catch (CAxException *e)
+							{
+					        	AfxMessageBox(e->m_szErrorDesc, MB_OK);
+				        		delete e;
+							}
+						}//if
+					}//for
+            }//if
+		}//for
+
+    	for (int iItem = 2; iItem >= 0; iItem--)
+		{
+    		m_listCtrl.DeleteColumn(iItem);
+			m_listDis.DeleteColumn(iItem);
+		}
+   	    m_strtable = "feedelectricity";  //控制策略显示
 		OnClose();
         OnInitDialog();
 		ShowAMD();
@@ -1923,6 +2107,7 @@ void CSettingHostDlg::OnButtonDeselect()
 		}
 	}
 	}
+		theApp.InitData();
 }
 
 void CSettingHostDlg::OnButtonSelectall() 
@@ -1944,18 +2129,33 @@ void CSettingHostDlg::OnButtonSelectall()
 	    	if(!bExist)
 	    		m_listDis.InsertItem(nItemCount1, strPointNo, 0);
 		}
+		theApp.InitData();
 }
 
 void CSettingHostDlg::OnButtonDeselectall() 
 {
-	if(m_strtable == "AddControl")
+	if(m_strtable == "AddControl")    //加控制策略   取消时回到控制策略显示
 	{
     	for (int iItem = 2; iItem >= 0; iItem--)
 		{
     		m_listCtrl.DeleteColumn(iItem);
 			m_listDis.DeleteColumn(iItem);
 		}
-   	    m_strtable = m_ADTypeTable[5].TableName;  
+   	    m_strtable = m_ADTypeTable[5].TableName;  //控制策略显示
+		OnClose();
+        OnInitDialog();
+		ShowAMD();
+		GetDlgItem(IDC_BUT_ADD2)->ShowWindow(SW_HIDE);;
+		GetDlgItem(IDC_BUT_MOD)->ShowWindow(SW_HIDE);;
+	}
+	else if(m_strtable == "AddFeedE")    //加馈电策略   取消时回到馈电策略显示
+	{
+    	for (int iItem = 2; iItem >= 0; iItem--)
+		{
+    		m_listCtrl.DeleteColumn(iItem);
+			m_listDis.DeleteColumn(iItem);
+		}
+   	    m_strtable = "feedelectricity";  //馈电策略显示
 		OnClose();
         OnInitDialog();
 		ShowAMD();
@@ -1964,6 +2164,7 @@ void CSettingHostDlg::OnButtonDeselectall()
 	}
 	else
     	m_listDis.DeleteAllItems();
+	theApp.InitData();
 }
 
 void CSettingHostDlg::OnButtonSave() 
@@ -2112,6 +2313,7 @@ void CSettingHostDlg::OnButtonSave()
 		  break;
   }
 
+		theApp.InitData();
   MessageBeep(MB_OK);
   EndDialog(IDOK);
 
@@ -2119,6 +2321,8 @@ void CSettingHostDlg::OnButtonSave()
 
 void CSettingHostDlg::OnchangeComboF() 
 {
+	if("AddControl" ==  m_strtable)   //加控制策略
+	{
 		if ( m_PointDes._IsEmpty() )
 		  return;
      	m_listCtrl.DeleteAllItems();
@@ -2141,6 +2345,32 @@ void CSettingHostDlg::OnchangeComboF()
 			m_PointDes.MoveNext();
 		}
         m_PointDes.MoveFirst();
+	}
+	else if("AddFeedE" ==  m_strtable)   //加馈电策略
+	{
+		if ( m_PointDes._IsEmpty() )
+		  return;
+     	m_listCtrl.DeleteAllItems();
+		CString dddd,cccc;
+		int iItem = 0;
+		int iItem1 = 0;
+		int nfds = m_wndComboSize3.GetCurSel();
+		m_PointDes.MoveFirst();
+		while ( !m_PointDes.IsEOF() )
+		{
+    		dddd = m_PointDes.m_szpointnum;
+			cccc.Format("%d", m_PointDes.m_szPID);
+			if(m_PointDes.m_szfds == nfds+1  && dddd.Find("C") != -1)
+			{
+         		m_listCtrl.InsertItem(iItem, m_PointDes.m_szName);
+        		m_listCtrl.SetItemText(iItem, 1, m_PointDes.m_szpointnum);
+        		m_listCtrl.SetItemText(iItem, 2, cccc);
+    			iItem++;
+			}
+			m_PointDes.MoveNext();
+		}
+        m_PointDes.MoveFirst();
+	}
 }
 
 //void CSettingHostDlg::OnButtonCANCEL() 

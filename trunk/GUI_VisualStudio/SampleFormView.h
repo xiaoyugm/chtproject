@@ -7,6 +7,7 @@
 // SampleFormView.h : header file
 //
 
+#include "MQClient.h"
 #include "CListCtrl_DataModel.h"
 /////////////////////////////////////////////////////////////////////////////
 // CSampleFormView form view
@@ -33,6 +34,10 @@ public:
 	CListCtrl_DataModel m_DataModel;
 	CImageList m_ImageList;
 
+	CString    strItem;
+	int        m_Itemnum;
+	int        nlistaj;
+	int        ilistaj;
 	int                 m_iTheme;
 	BOOL                m_bHotTracking;
 	BOOL                m_bWinTheme;
@@ -40,6 +45,8 @@ public:
 	int             m_nSortedCol;
 	bool            m_bAscending;
 	HICON           m_hIcon;
+
+	CMQClient socketClient;
 
 // Attributes
 public:
@@ -55,8 +62,14 @@ public:
 // Operations
 public:
 	void DisList123();
+	void DisList(int m_listnum ,int m_liststr);
 	void BuildList(int nlist ,int ilist);
-	void OpenAddDel(int nlist ,int ilist);
+	void OpenAddDel();
+	void Openadjust();
+	void Deladjust();
+    void AdjustAll() ;
+    void DelAllAdjust() ;
+
 	void SetInfo(int m_List,int iItem,CString strSubA,CString strSubB,CString strSubC);
 	void SetMonitorListHead(void);
 

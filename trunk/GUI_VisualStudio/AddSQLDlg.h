@@ -23,6 +23,9 @@ public:
 	CButton	            m_DAlm;
 	CButton	            m_ctlMusic;
 	CXTFlatComboBox     m_ComBoxD;
+	CXTFlatComboBox     m_ComBoxD9;
+	CXTFlatComboBox     m_ComBoxD5;
+	CXTFlatComboBox     m_ComBoxD6;
 
     CString strtable,str1,str2,str3,str4,str5,str6,str7,str8,str9;
     int    acdid;
@@ -47,8 +50,9 @@ public:
   afx_msg void OnBnClickedOk();
   afx_msg void OnBnClickedCancel();
 
-	afx_msg void OnchangeISALM();
 	afx_msg void OnMusicPath();
 	afx_msg void OnchangeComboD();
+	afx_msg void OnchangeComboD5();
+	afx_msg void OnchangeComboD6();
   afx_msg void OnKillFocusAccntId();
 };

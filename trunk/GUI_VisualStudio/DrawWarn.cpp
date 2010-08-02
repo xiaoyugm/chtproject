@@ -170,7 +170,7 @@ void CDrawWarn::Draw(CDC* pDC)
 				stringFormat.SetLineAlignment(StringAlignmentNear);
 
             	CString  strWarn;
-				if(i == 1)
+/*				if(i == 1)
 					strWarn = m_CStrWarn[j].strPoint;
 				if(i == 2)
 					strWarn = m_CStrWarn[j].strDate;
@@ -180,7 +180,7 @@ void CDrawWarn::Draw(CDC* pDC)
 					strWarn = m_CStrWarn[j].strText;
 				if(i == 5)
 					strWarn = m_CStrWarn[j].strWarn;
-
+*/
 				strWarn.TrimRight();
         		bstr = strWarn.AllocSysString();
 ///				bstr = _com_util::ConvertStringToBSTR(strWarn);

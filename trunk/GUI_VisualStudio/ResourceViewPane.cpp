@@ -55,10 +55,11 @@ END_MESSAGE_MAP()
 static int arColWidths[] = {
 	160,
 	50,
-	100,
 	120,
 	120,
 	120,
+//	60,
+	160,
 	360
 };
 
@@ -68,7 +69,8 @@ static CString arColLabels[] = {
 	_T("报警时刻"),
 	_T("断电时刻"),
 	_T("复电时刻"),
-	_T("馈电状态及时刻"),
+//	_T("馈电状态"),
+	_T("馈电状态/时刻"),
 	_T("安全措施")
 };
 /*
@@ -263,7 +265,6 @@ void CResourceViewPane::InitListControl()
 {
 	// Insert the columns.
 	m_listCtrl.BuildColumns(_countof(arColWidths), arColWidths, arColLabels);
-
 	// Subclass the flat header control.
 	m_listCtrl.SubclassHeader();
 
@@ -275,11 +276,9 @@ void CResourceViewPane::InitListControl()
 //		pHeaderCtrl->FreezeColumn(1);
 //		pHeaderCtrl->FreezeColumn(2);
 		// enable autosizing for columns.
-		pHeaderCtrl->EnableAutoSize();
-
+//		pHeaderCtrl->EnableAutoSize();
 //		pHeaderCtrl->SetBitmap(2, IDB_HEADER, HDF_STRING);
 	}
-
 	ListView_SetExtendedListViewStyle(
 		m_listCtrl.m_hWnd, LVS_EX_GRIDLINES|LVS_EX_FULLROWSELECT );
 
@@ -299,11 +298,14 @@ void CResourceViewPane::InitLC()
 {
 	for(int i =0; i<MAX_ROW; i++)
 	{
-		m_listCtrl.SetItemText(i, 0,  m_CStrWarn[i+1].strPoint);
-		m_listCtrl.SetItemText(i, 1,  m_CStrWarn[i+1].strDate);
-		m_listCtrl.SetItemText(i, 2,  m_CStrWarn[i+1].strText);
-		m_listCtrl.SetItemText(i, 3,  m_CStrWarn[i+1].strWarn);
-		m_listCtrl.SetItemText(i, 4,  m_CStrWarn[i+1].strTime);
+		m_listCtrl.SetItemText(i, 0,  m_CStrWarn[i+1].locationname);
+		m_listCtrl.SetItemText(i, 1,  m_CStrWarn[i+1].strValue);
+		m_listCtrl.SetItemText(i, 2,  m_CStrWarn[i+1].warnTime);
+		m_listCtrl.SetItemText(i, 3,  m_CStrWarn[i+1].breakTime);
+		m_listCtrl.SetItemText(i, 4,  m_CStrWarn[i+1].restoreTime);
+//		m_listCtrl.SetItemText(i, 5,  m_CStrWarn[i+1].feedStatus);
+		m_listCtrl.SetItemText(i, 5,  m_CStrWarn[i+1].feedTime);
+		m_listCtrl.SetItemText(i, 6,  m_CStrWarn[i+1].safetyprecautions);
 	}
 	PostMessage(WM_VSCROLL,SB_LINEDOWN,0);
 }
