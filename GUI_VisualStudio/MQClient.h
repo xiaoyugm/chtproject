@@ -14,40 +14,64 @@
 #include "MQCommandType.h"
 #include "drawobj.h"
 
+#include "dbAx\AxSControl.hpp"
+//#include "dbAx\AxControl.hpp"
+//#include "dbAx\AxAccountSet.hpp"
+#include "dbAx\AxContactCmd.hpp"
+//#include "dbAx\AxContactSet.hpp"
+#include "dbAx\CardFileEvents.hpp"
+#include "dbAx\AccountSetEvents.hpp"
+
 class CMQClient :public CNDKClient
 {
 public:
 	CMQClient();
 	virtual ~CMQClient();
 public:
-
 	void GetHostStartTime(CNDKMessage& message);
 ///	CDrawDoc* GetDocument();
 	BOOL SendMessage(CNDKMessage& message);
 	BOOL ConnectServer(CString strIp,long lPort);
 	BOOL Ping();
 	void Close();
-    void AddWarn( CString strPoint, CString strDate, CString strTime, CString strText, CString strWarn);
-
+    void AddWarn(CString strtemp, CString strtemp1, CString strtemp2, CString strtemp3, CString strtemp4, CString strtemp5, CString strtemp6, CString strtemp7);
 	void HostStateCheck();
+
+	CString strstatus(unsigned char  ustatus);
+	void handbr(unsigned char  hfds, unsigned char  hchan, unsigned char hbr);
+	void SaveAdjust(unsigned char  afds, unsigned char  achan);
+	void SaveRtdata(unsigned char  afds, unsigned char  achan);
+    unsigned char *m_ndkSend;
+    unsigned char *m_ndkSend1;
+	BOOL m_nodialog;
+	long m_adjustnum; 
+	
+
+    CAxConnection   m_Cn;
+    CAxContactCmd   m_ContactCmd;
+    CAdjustdata     m_Adjustdata;
+    CAdjustdata     *m_AdjustdataNew;
+	CRealtimedata   m_Realtimedata;
+	CRealtimedata   *m_RealtimedataNew;
+
+	void ConnectDB();
+
 protected:
 
 	void OnMessage(CNDKMessage& message);	
 	void OnDisconnect(NDKClientDisconnection disconnectionType);
 	void OnPing(long lNbMilliseconds);
 
-	void ConnectDB();
 	void WriteSQL(CNDKMessage& message);
 	CSQLDirect m_SQLDirect;
 
 	CTime StartTime, ConnectTime;
 	
-	void ManageServerT(CNDKMessage& message);
-	void ManageServerK(CNDKMessage& message);
+	void ManageServer(CNDKMessage& message);
+	void ManageServerG(CNDKMessage& message);
 
 	void DiaplayWarnTableC(unsigned short nPointNo);
 	void CollectDate(CNDKMessage& message);
-	void InitPointDate(CNDKMessage& message);
 	
 };
 

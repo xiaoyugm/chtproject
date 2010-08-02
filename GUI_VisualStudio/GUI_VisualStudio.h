@@ -36,6 +36,7 @@
 #include "drawview.h"
 //#include <SqlDirect.h>
 #include <String2DataType.h>
+#include "dbAx\AxFeedE.hpp"
 #include "dbAx\AxControl.hpp"
 #include "dbAx\AxSControl.hpp"
 #include "dbAx\AxPointDescription.hpp"
@@ -43,6 +44,7 @@
 #include "dbAx\AxContactSet.hpp"
 #include "dbAx\AxDisPoint.hpp"
 #include "dbAx\CardFileEvents.hpp"
+#include "dbAx\AxColorset.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 // CGUI_VisualStudioApp:
@@ -59,12 +61,12 @@ public:
     CMQClient socketClient;
 	BOOL   StartClient();
 	void   SendMessage(CNDKMessage& message);     //211
-	void   Sync();
+	void   Sync(CNDKMessage& message);
 	CNDKMessage m_sendmessage;
 
 	CString GetAppPath();				//返回应用程序所在路径
 	ULONG_PTR           gdiplusToken;
-	CString2DataType m_Str2Data;
+	CString2DataType    m_Str2Data;
 
 	BOOL   InitUIInfo();
 	BOOL   InitData();
@@ -84,18 +86,20 @@ public:
     CAxDisPoint      m_DisPoint;
     CAxSControl      m_SControl;
     CAxControl       m_Control;
+    CAxColorset      m_Colorset;
+    CAxFeedE         m_AxFeedE;
 
 	//	CSQLDirect		m_sqlD;		//数据库
-	CString2DataType m_String2DataType;
-	int DocNum ,idis;
-	CString curuser; //,IPPort
+	int DocNum ,idis,internet30s;
+	CString curuser,strargc;
+	BOOL m_bsuper;
 
 	bool m_senddata , m_sendcom,m_bLogIn;
 
 ///	CPointInfo      *pPointInfo;
 	CMultiDocTemplate* pDocTemplate;
 	CMultiDocTemplate* pNewDocTemplate;
-	CMultiDocTemplate* pTabViewDocTemplate;
+//	CMultiDocTemplate* pTabViewDocTemplate;
 
 	CTypedPtrMap<CMapStringToOb,CString,CDrawView *> m_map;
 

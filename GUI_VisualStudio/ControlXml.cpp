@@ -205,11 +205,11 @@ bool CControlXml::ParsePS(CMarkup& xml)
 {
 	LPCTSTR str1 = "",str2 = "",str3 = "";
     // Look for <Controls> element.
-    if (xml.FindElem(_T("Analogtype")) )
+    if (xml.FindElem(_T("Analogtype")) )    //模拟量
 	{
 		// Extract the group name.
         CString strnumForm = xml.GetAttrib(_T("TABLE"));
-    	m_ADTypeTable[0].TableName = strnumForm;
+    	m_ADTypeTable[0].TableName = strnumForm;    
         CString groupName = xml.GetAttrib(_T("Name"));
     	m_ADTypeTable[0].NameD = groupName;
 
@@ -254,7 +254,7 @@ bool CControlXml::ParsePS(CMarkup& xml)
         m_ADTypeTable[0].m_DTypeTFD.Useridadd = str3;
         return true;
 	}
-    else if (xml.FindElem(_T("Digitaltype")) )
+    else if (xml.FindElem(_T("Digitaltype")) )//开关量
 	{
         // Extract the group name.
         CString strnumForm = xml.GetAttrib(_T("TABLE"));
@@ -338,7 +338,7 @@ bool CControlXml::ParsePS(CMarkup& xml)
         m_ADTypeTable[3].m_DTypeTFD.pointnum = str2;
         return true;
 	}
-    else if (xml.FindElem(_T("Fixlocation")) )
+    else if (xml.FindElem(_T("Fixlocation")) )  //安装地点
 	{
         // Extract the group name.
         CString strnumForm = xml.GetAttrib(_T("TABLE"));

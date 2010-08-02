@@ -34,6 +34,8 @@
 
 #include "SampleFormView.h"
 #include "TabbedViewView.h"
+#include "SetTimeDlg.h"
+#include "ChildFrm.h"
 
 class CMainFrame : public CXTPMDIFrameWnd
 {
@@ -43,6 +45,8 @@ public:
 
 // Attributes
 public:
+	CChildFrame    *m_pMade;
+
 	CXTPDockingPaneManager m_paneManager;
 	CXTPTabClientWnd m_MTIClientWnd;
 
@@ -52,19 +56,13 @@ public:
 	COutputPane m_wndOutput;
 
 	CResourceViewPane       m_wndResourceView;
-	CResourceViewPane       m_wndResourceView1;
-	CResourceViewPane       m_wndResourceView2;
-	CResourceViewPane       m_wndResourceView3;
-	CResourceViewPane       m_wndResourceView4;
-	CResourceViewPane       m_wndResourceView5;
-	CResourceViewPane       m_wndResourceView6;
-	CResourceViewPane       m_wndResourceView7;
-	CResourceViewPane       m_wndResourceView8;
 
 	int m_ontime ;
 	CSampleFormView*		m_pSampleFormView;
 
 	CTabbedViewView*        m_pTabbedViewView;
+
+	CSetTimeDlg*		m_pSetTimeDlg;
 
 	void AddMessage(CString strMessage);
 	void AddUser();
@@ -151,17 +149,34 @@ protected:
 	afx_msg void OnUpdateTheme(CCmdUI* pCmdUI);
 	afx_msg void OnSkinFramework(UINT nID);
 
+	afx_msg void OnUpdateLog(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateDis(CCmdUI* pCmdUI);
 ///	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
+	afx_msg void OnMadeMade();
+
+	afx_msg void OnSDisA();
+	afx_msg void OnSDisD();
+	afx_msg void OnDisAAR();
+	afx_msg void OnDisABR();
+	afx_msg void OnDisAFER();
+	afx_msg void OnDisASR();
+	afx_msg void OnDisDABR();
+	afx_msg void OnDisDSC();
+	afx_msg void OnDisDFER();
+	
+	afx_msg void OnAdjustdis();
+	afx_msg void OnSafeMethod();
+	afx_msg void OnLOGOUT();
 	afx_msg void OnLOGIN();
+	afx_msg void OnFDSconfig();
 	afx_msg void OnFAILUREA();
 	afx_msg void OnWINDGASA();
 	afx_msg void OnTESTC();
 	afx_msg void OnFDSC();
 	afx_msg void OnManualC();
 	afx_msg void OnVerifyT();
-	afx_msg void OnControlF();
-	afx_msg void OnControlS();
+	afx_msg void OnColorS();
+	afx_msg void OnFeedE();
 	afx_msg void OnControlT();
 	afx_msg void OnPBrowser();
 	afx_msg void OnLocation();

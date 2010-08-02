@@ -1,6 +1,6 @@
 /**************************************************************************
-    File: AxContactSet.hpp
-    Date: 10/21/2007
+    File: AxFeedE.hpp
+    Date: 11/22/2007
       By: Data Management Systems (www.dmsic.com)
 
     DESCRIPTION
@@ -9,7 +9,7 @@
     facilitates the exchange of data with the ADO data source from which
     it was derived.
 
-    Table: (local)\CardFile\Contact
+    Table: (local)\CardFile\ACCOUNT
 
     Include this file in your project.
 
@@ -23,45 +23,38 @@
 
 using namespace dbAx;
 
-class CAxContactSet :
+class CAxFeedE :
     public CAxRecordset
 {
 public:
-  CAxContactSet() { _SetDefaultValues(); }
-  ~CAxContactSet() { }
+  CAxFeedE() { _SetDefaultValues(); }
+  ~CAxFeedE() { }
 
-  CString     m_szName,m_szfalm,m_szUseridadd,m_szUseriddel,m_szpunit;
+  CString     m_szName,m_szecpointnum,m_szepointnum,m_szcpointnum,m_szUseridadd,m_szUseriddel;
+  int  m_szEID;
   COleDateTime   m_szrecdate,m_szdeldate;
-  bool m_szfdel;
-  int m_szAID,m_szpico;
-  REAL m_szltop,m_szlbom,m_szpalmu,m_szpalmd,m_szpbrk,m_szprtn;
+  bool m_szfdel ;
 
   //Set default values of class members
   void _SetDefaultValues()
   {
-    m_szName =m_szpunit =m_szfalm=m_szUseridadd=m_szUseriddel= _T("");
-    m_szAID =m_szpico =m_szltop= m_szlbom= m_szpalmu=m_szpalmd=m_szpbrk= m_szprtn = 0;
-	m_szfdel = 0;
+    m_szName = m_szecpointnum =m_szcpointnum= m_szepointnum =m_szUseridadd =m_szUseriddel = _T("");
+    m_szEID = 0;
+	m_szfdel =false;
   };
 
   //Exchange field values with data provider
   void DoFieldExchange(bool bSave = FALSE)
   {
-    FX_Integer           (bSave, _T("AID"),  m_szAID);
-    FX_VarChar           (bSave, _T("Name"),  m_szName);
-    FX_Real           (bSave, _T("ltop"),       m_szltop);
-    FX_Real           (bSave, _T("lbom"),    m_szlbom);
-    FX_Real           (bSave, _T("palmu"),     m_szpalmu);
-    FX_Real           (bSave, _T("palmd"),     m_szpalmd);
-    FX_VarChar           (bSave, _T("punit"),      m_szpunit);
-    FX_VarChar              (bSave, _T("falm"),       m_szfalm);
-    FX_Bool              (bSave, _T("fdel"),  m_szfdel);
+    FX_Integer           (bSave, _T("EID"),        m_szEID);
+    FX_VarChar           (bSave, _T("Name"),       m_szName);
+    FX_VarChar           (bSave, _T("cpointnum"),       m_szcpointnum);
+    FX_VarChar           (bSave, _T("epointnum"),           m_szepointnum);
+    FX_VarChar           (bSave, _T("ecpointnum"),           m_szecpointnum);
+    FX_Bool              (bSave, _T("fdel"),        m_szfdel);
     FX_DateTime           (bSave, _T("recdate"),       m_szrecdate);
     FX_DateTime              (bSave, _T("deldate"),    m_szdeldate);
     FX_VarChar           (bSave, _T("Useridadd"),     m_szUseridadd);
     FX_VarChar           (bSave, _T("Useriddel"),     m_szUseriddel);
-    FX_Real           (bSave, _T("pbrk"),     m_szpbrk);
-    FX_Real           (bSave, _T("prtn"),     m_szprtn);
-    FX_Integer           (bSave, _T("pico"),  m_szpico);
   };
 };

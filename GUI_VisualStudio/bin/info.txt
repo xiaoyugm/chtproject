@@ -22,66 +22,98 @@
 9、	模拟量统计查询
 10、	运行报告查询
 
+
+1001    串口故障
+1010    以太网故障
+
+
+
+INSERT INTO specialcontrol VALUES(1,1,1)
+
+
 位置
 
+INSERT INTO specialcontrol VALUES(1,0,1);
+INSERT INTO specialcontrol VALUES(2,0,1);
+INSERT INTO specialcontrol VALUES(3,0,1);
+INSERT INTO specialcontrol VALUES(4,0,1);
+INSERT INTO specialcontrol VALUES(5,0,1);
+INSERT INTO specialcontrol VALUES(6,0,1);
+INSERT INTO specialcontrol VALUES(7,0,1);
+INSERT INTO specialcontrol VALUES(8,0,1);
+INSERT INTO specialcontrol VALUES(9,0,1);
+INSERT INTO specialcontrol VALUES(10,0,1);
+INSERT INTO specialcontrol VALUES(11,0,1);
+INSERT INTO specialcontrol VALUES(12,0,1);
+INSERT INTO specialcontrol VALUES(13,0,1);
+INSERT INTO specialcontrol VALUES(14,0,1);
+INSERT INTO specialcontrol VALUES(15,0,1);
+INSERT INTO specialcontrol VALUES(16,0,1);
+INSERT INTO specialcontrol VALUES(17,0,1);
+INSERT INTO specialcontrol VALUES(18,0,1);
+INSERT INTO specialcontrol VALUES(19,0,1);
+INSERT INTO specialcontrol VALUES(20,0,1);
+INSERT INTO specialcontrol VALUES(21,0,1);
+INSERT INTO specialcontrol VALUES(22,0,1);
+INSERT INTO specialcontrol VALUES(23,0,1);
+INSERT INTO specialcontrol VALUES(24,0,1);
+INSERT INTO specialcontrol VALUES(25,0,1);
+INSERT INTO specialcontrol VALUES(26,0,1);
+INSERT INTO specialcontrol VALUES(27,0,1);
+INSERT INTO specialcontrol VALUES(28,0,1);
+INSERT INTO specialcontrol VALUES(29,0,1);
+INSERT INTO specialcontrol VALUES(30,0,1);
+INSERT INTO specialcontrol VALUES(31,0,1);
+INSERT INTO specialcontrol VALUES(32,0,1);
+INSERT INTO specialcontrol VALUES(33,0,1);
+INSERT INTO specialcontrol VALUES(34,0,1);
+INSERT INTO specialcontrol VALUES(35,0,1);
+INSERT INTO specialcontrol VALUES(36,0,1);
+INSERT INTO specialcontrol VALUES(37,0,1);
+INSERT INTO specialcontrol VALUES(38,0,1);
+INSERT INTO specialcontrol VALUES(39,0,1);
+INSERT INTO specialcontrol VALUES(40,0,1);
+INSERT INTO specialcontrol VALUES(41,0,1);
+INSERT INTO specialcontrol VALUES(42,0,1);
+INSERT INTO specialcontrol VALUES(43,0,1);
+INSERT INTO specialcontrol VALUES(44,0,1);
+INSERT INTO specialcontrol VALUES(45,0,1);
+INSERT INTO specialcontrol VALUES(46,0,1);
+INSERT INTO specialcontrol VALUES(47,0,1);
+INSERT INTO specialcontrol VALUES(48,0,1);
+INSERT INTO specialcontrol VALUES(49,0,1);
+INSERT INTO specialcontrol VALUES(50,0,1);
+INSERT INTO specialcontrol VALUES(51,0,1);
+INSERT INTO specialcontrol VALUES(52,0,1);
+INSERT INTO specialcontrol VALUES(53,0,1);
+INSERT INTO specialcontrol VALUES(54,0,1);
+INSERT INTO specialcontrol VALUES(55,0,1);
+INSERT INTO specialcontrol VALUES(56,0,1);
+INSERT INTO specialcontrol VALUES(57,0,1);
+INSERT INTO specialcontrol VALUES(58,0,1);
+INSERT INTO specialcontrol VALUES(59,0,1);
+INSERT INTO specialcontrol VALUES(60,0,1);
+INSERT INTO specialcontrol VALUES(61,0,1);
+INSERT INTO specialcontrol VALUES(62,0,1);
+INSERT INTO specialcontrol VALUES(63,0,1);
+INSERT INTO specialcontrol VALUES(64,0,1);
 
-	[LP20] [char] (100) ,
-	[LP21] [char] (100) ,
-	[LP22] [char] (100) ,
-	[LP23] [char] (100) ,
-	[LP24] [char] (100) ,
-	[LP25] [char] (100) ,
-	[LP26] [char] (100) ,
-	[LP27] [char] (100) ,
-	[LP28] [char] (100) ,
-	[LP29] [char] (100) ,
-	[LP30] [char] (100) ,
-	[LP31] [char] (100) ,
-	[LP32] [char] (100) ,
-	[LP33] [char] (100) ,
-	[LP34] [char] (100) ,
-	[LP35] [char] (100) ,
-	[LP36] [char] (100) ,
-	[LP37] [char] (100) ,
-	[LP38] [char] (100) ,
-	[LP39] [char] (100) ,
-	[LP40] [char] (100) ,
-	[LP41] [char] (100) ,
-	[LP42] [char] (100) ,
-	[LP43] [char] (100) ,
-	[LP44] [char] (100) ,
-	[LP45] [char] (100) ,
-	[LP46] [char] (100) ,
-	[LP47] [char] (100) ,
-	[LP48] [char] (100) ,
-	[LP49] [char] (100) ,
-	[LP50] [char] (100) ,
-	[LP51] [char] (100) ,
-	[LP52] [char] (100) ,
-	[LP53] [char] (100) ,
-	[LP54] [char] (100) ,
-	[LP55] [char] (100) ,
-	[LP56] [char] (100) ,
-	[LP57] [char] (100) ,
-	[LP58] [char] (100) ,
-	[LP59] [char] (100) ,
-	[LP60] [char] (100) ,
-	[LP61] [char] (100) ,
-	[LP62] [char] (100) ,
-	[LP63] [char] (100) ,
-	[LP64] [char] (100) ,
-	[LP65] [char] (100) ,
-	[LP66] [char] (100) ,
-	[LP67] [char] (100) ,
-	[LP68] [char] (100) ,
-	[LP69] [char] (100) ,
-	[LP70] [char] (100) ,
-	[LP71] [char] (100) ,
-	[LP72] [char] (100) ,
-	[LP73] [char] (100) ,
-	[LP74] [char] (100) ,
-	[LP75] [char] (100) ,
-	[LP76] [char] (100) ,
-	[LP77] [char] (100) ,
-	[LP78] [char] (100) ,
-	[LP79] [char] (100) 
+
+INSERT INTO colorset VALUES(0,65280);
+INSERT INTO colorset VALUES(16,255);
+INSERT INTO colorset VALUES(32,255);
+INSERT INTO colorset VALUES(48,255);
+INSERT INTO colorset VALUES(64,255);
+INSERT INTO colorset VALUES(80,255);
+INSERT INTO colorset VALUES(96,255);
+INSERT INTO colorset VALUES(112,255);
+INSERT INTO colorset VALUES(128,16711680);
+INSERT INTO colorset VALUES(144,65535);
+INSERT INTO colorset VALUES(160,65535);
+INSERT INTO colorset VALUES(176,255);
+INSERT INTO colorset VALUES(192,0);
+
+
+
+
+

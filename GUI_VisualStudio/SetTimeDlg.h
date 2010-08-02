@@ -7,6 +7,16 @@
 // SetTimeDlg.h : header file
 //
 
+#include "dbAx\AxSControl.hpp"
+#include "dbAx\AxControl.hpp"
+//#include "dbAx\AxDisPoint.hpp"
+//#include "dbAx\AxPointDescription.hpp"
+//#include "dbAx\AxMAlocationSet.hpp"
+//#include "dbAx\AxAccountSet.hpp"
+#include "dbAx\AxContactCmd.hpp"
+//#include "dbAx\AxContactSet.hpp"
+#include "dbAx\CardFileEvents.hpp"
+#include "dbAx\AccountSetEvents.hpp"
 #include "CListCtrl_DataModel.h"
 /////////////////////////////////////////////////////////////////////////////
 // CSetTimeDlg dialog
@@ -31,7 +41,16 @@ public:
 	unsigned char  chcommand;
 	CListCtrl_DataModel m_DataModel;
 	CString2DataType    m_Str2Data;
+	UINT	m_nchangev;
+    unsigned char *m_ndkSend;
 
+	void ComDisMes(CString strmes);
+	void OnButRESre();
+
+  CAxConnection   m_Cn;
+  CAxContactCmd   m_ContactCmd;
+  CAxSControl     m_SControl;
+  CAxSControl     *m_SControlNew;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -47,6 +66,10 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(CSetTimeDlg)
 	afx_msg void OnButSend();
+	afx_msg void OnchangeComboD();
+    afx_msg void OnClose();
+	afx_msg void OnButCancel();
+	afx_msg void OnButRES();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

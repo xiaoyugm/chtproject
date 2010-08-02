@@ -17,15 +17,16 @@
 #include "dbAx\AxLogin.hpp"
 #include "dbAx\AccountSetEvents.hpp"
 
-class CLoginDlg : public CDialog
+class CLoginDlg : public CXTResizeDialog
 {
 // Construction
 public:
-	void DispLatestUser(void);
-	BOOL m_bLogInOut;   //0:in 1:out
+	int nrecord;
+	BOOL m_bAddUser;   //0:del 1:add
 	void ConnectDB(void);
 	CLoginDlg(CWnd* pParent = NULL);   // standard constructor
 
+    CCardFileEvents *pCnEvents;
     CAxConnection   m_Cn;
     CAxLogin        m_SLogin;
     CAxLogin        *m_SLoginNew;
@@ -38,11 +39,13 @@ public:
 	CEdit	m_ctrlEditPWD;
 	CButton m_btnOK;
 //	CXPStyleButtonST m_btnOK;
-	CButton m_btnCANCEL;
+//	CButton m_btnCANCEL;
+	CXTListCtrl         m_listUser;
 	CButton	m_ctrlIDOK;
 	CString	m_strPasswd;
 	CString	m_strUser;
-	CString	m_strEditStatus;
+	CString	m_strdism;
+//	CString	m_strEditStatus;
 	//}}AFX_DATA
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -56,7 +59,11 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CLoginDlg)
+    afx_msg void OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void DelUser();
+	afx_msg void AddODUser();
 	virtual void OnOK();
+	virtual void OnCancel();
 	virtual BOOL OnInitDialog();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

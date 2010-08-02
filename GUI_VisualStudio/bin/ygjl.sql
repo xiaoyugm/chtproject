@@ -93,13 +93,15 @@ GO
 
 CREATE TABLE [BJygjl].[dbo].[feedelectricity] (
 	[EID] [int]  NOT NULL  PRIMARY KEY IDENTITY(1,1),
-	[kdid] [int]  NOT NULL,
-	[ddid] [int]  NOT NULL,
-	[dflag] [bit]  NOT NULL ,
+	[Name] [char] (50) NOT NULL ,
+	[cpointnum] [char] (5),
+	[epointnum] [char] (5),
+	[ecpointnum] [char] (10),
+	[fdel] [bit]  ,
 	[recdate] [datetime] ,
 	[deldate] [datetime] ,
-	[Useridadd] [char] (10) NOT NULL ,
-	[Useriddel] [char] (10) NOT NULL 
+	[Useridadd] [char] (10) ,
+	[Useriddel] [char] (10) 
 ) ON [PRIMARY] 
 GO
 
@@ -142,6 +144,42 @@ GO
 CREATE TABLE [BJygjl].[dbo].[specialcontrol] (
 	[SID] [int]  ,
 	[SpeCtrol] [bit] ,
-	[IsScan] [bit] 
+	[Serialnum] [int] 
+) ON [PRIMARY] 
+GO
+
+CREATE TABLE [BJygjl].[dbo].[colorset] (
+	[ColorID] [int]  ,
+	[Colorrefset] [int] 
+) ON [PRIMARY] 
+GO
+
+CREATE TABLE [BJygjl].[dbo].[adjustdata] (
+	[ADID] [int] NOT NULL PRIMARY KEY IDENTITY(1,1),
+	[Name] [char] (50) NOT NULL ,
+	[ptype] [int] ,
+	[fds] [int]   ,
+	[chan] [int]   ,
+	[CDValue] [int] ,
+	[AValue] [float] (8) ,
+	[ADStatus] [int] ,
+	[recdate] [datetime] ,
+	[Useridadd] [char] (20)
+) ON [PRIMARY] 
+GO
+
+CREATE TABLE [BJygjl].[dbo].[realtimedata] (
+	[RTID] [int] NOT NULL PRIMARY KEY IDENTITY(1,1),
+	[Name] [char] (50) NOT NULL ,
+	[ptype] [int] ,
+	[fds] [int]   ,
+	[chan] [int]   ,
+	[CDValue] [int] ,
+	[AValue] [float] (8) ,
+	[ADStatus] [int] ,
+	[recdate] [datetime] ,
+	[Useridadd] [char] (20),
+	[safemdate] [datetime] ,
+	[safemtext] [char] (50)
 ) ON [PRIMARY] 
 GO

@@ -130,7 +130,7 @@ using namespace std;
 	#pragma comment(lib,"winmm.lib") 
 	#pragma message("Automatically linking with winmm.lib")
 #pragma warning (default : 4201)
-
+/*
 struct CCharFormat : public WPD_CHARFORMAT
 {
 	CCharFormat() {cbSize = sizeof(WPD_CHARFORMAT);}
@@ -141,7 +141,7 @@ typedef struct {
     COLORREF crColour;
     TCHAR    *szName;
 } ColourTableEntry;
- 
+ */
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

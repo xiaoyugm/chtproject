@@ -41,9 +41,9 @@ enum
 	ACTION
 };
 
+extern SerialF                  m_Colorref[200];
 extern SlaveStation             m_SlaveStation[65][25];
 extern DisplayDraw    m_DisplayDraw[MAX_POINT_NUMBER];
-extern FDSscan               m_FDSscan[65];
 extern CStrWarn m_CStrWarn[MAX_ROW];
 extern CPointInfo m_CPointInfo[MAX_POINT_NUMBER];
 extern CWarnPoint m_CWarnPoint[MAX_POINT_NUMBER];
@@ -844,32 +844,54 @@ void CDrawView::OnTimer(UINT nIDEvent)
 	{
     	case DRAWTASK:                                     
 			{
-				if(theApp.m_sendcom)
+/*				if(theApp.m_sendcom)
 				{
-					theApp.m_sendcom =false;
-		    		theApp.Sync();
+//		    		theApp.Sync();
+//					theApp.m_sendcom =false;
 				}
 				else
-				{
-					if(m_FDSscan[64].scanfds)
+				{*/
+//					if(m_FDSscan[64].scanfds)
 					{
        	            CNDKMessage message1(REALTIMEDATA);
 					message1.Add(0x7E);
-					message1.Add(m_FDSscan[m_FdsScan].scanfds);
+					message1.Add(1);
+//					message1.Add(m_FDSscan[m_FdsScan].scanfds);
 	 				message1.Add(0x44);
 					message1.Add(0x21);
-					theApp.m_sendmessage =NULL;
-					theApp.m_sendmessage = message1;
-		    		theApp.Sync();
+//					theApp.m_sendmessage =NULL;
+//					theApp.m_sendmessage = message1;
+		    		theApp.Sync(message1);
 					m_FdsScan++;
-					if(m_FdsScan == m_FDSscan[64].scanfds)
+//					if(m_FdsScan == m_FDSscan[64].scanfds)
 						m_FdsScan= 0;
 					}
-				}
+//				}
 			}
 			break ;
     	case CHART: 
 			{
+				theApp.internet30s++;
+				if(31 > theApp.internet30s >27) 
+				{
+       	            CNDKMessage message1(SENDSTARTTIME);
+					message1.Add(0x7E);
+		    		theApp.Sync(message1);
+				}
+				else if(theApp.internet30s >31)
+				{
+			    		    Warn_state = m_SlaveStation[1][0].Channel_state;
+				       	    if(Warn_state != 0xa0)
+							{
+			CTime t=CTime::GetCurrentTime();
+			CString strCTime;
+			strCTime.Format("%d-%d-%d %d:%d:%d",t.GetYear(),t.GetMonth(),t.GetDay(),t.GetHour(),t.GetMinute(),t.GetSecond());
+    	                 socketClient.AddWarn( "以太网通讯错误", strCTime, "", "", "", "", "", "");
+		    		    	 m_SlaveStation[1][0].Channel_state = 0xa0;
+							}
+					theApp.internet30s = 0;
+				}
+
 	    		pFWnd->AddEdit();       //显示时间
 		    	CDrawObjList *ObjectAll =GetDocument()->GetObjects();
 		    	POSITION pos = ObjectAll->GetHeadPosition();
@@ -971,12 +993,13 @@ void CDrawView::OnTimer(UINT nIDEvent)
 		            		if(LineWarn_state != Warn_state)
 							{
 								Obj->m_ActionStruct.stcLineChange.LineWarn_state = Warn_state ;
-				    	    	if(Warn_state == 0x00 )
-	                        		pPoly->m_clrLineColor = Obj->m_ActionStruct.stcLineChange.clrInLineColor;
-			                	else if(Warn_state  == 0x01 )
-	                        		pPoly->m_clrLineColor = Obj->m_ActionStruct.stcLineChange.clrOutLineColor;
-			                	else if(Warn_state == 0x02 )
-	                        		pPoly->m_clrLineColor = Obj->m_ActionStruct.stcLineChange.clrCommErrorLineColor;
+								pPoly->m_clrLineColor = m_Colorref[Warn_state].SFSd;
+//				    	    	if(Warn_state == 0x00 )
+//	                        		pPoly->m_clrLineColor = Obj->m_ActionStruct.stcLineChange.clrInLineColor;
+//			                	else if(Warn_state  == 0x10 )
+//	                        		pPoly->m_clrLineColor = Obj->m_ActionStruct.stcLineChange.clrOutLineColor;
+//			                	else if(Warn_state == 0x20 )
+//	                        		pPoly->m_clrLineColor = Obj->m_ActionStruct.stcLineChange.clrCommErrorLineColor;
             					pPoly->Invalidate();    //0413
 							}
 						}
@@ -991,12 +1014,13 @@ void CDrawView::OnTimer(UINT nIDEvent)
 		            		if(FillWarn_state != Warn_state)
 							{
 								Obj->m_ActionStruct.stcFillChange.FillWarn_state = Warn_state ;
-				    	    	if(Warn_state == 0x00 )
-	                        		pPoly->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrInFillColor;
-			                	else if(Warn_state  == 0x01 )
-	                        		pPoly->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrOutFillColor;
-			                	else if(Warn_state == 0x02 )
-	                        		pPoly->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrCommErrorFillColor;
+								pPoly->m_clrFillColor = m_Colorref[Warn_state].SFSd;
+//				    	    	if(Warn_state == 0x00 )
+//	                        		pPoly->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrInFillColor;
+//			                	else if(Warn_state  == 0x10 )
+//	                        		pPoly->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrOutFillColor;
+//			                	else if(Warn_state == 0x20 )
+//	                        		pPoly->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrCommErrorFillColor;
             					pPoly->Invalidate();    //0413
 							}
 						}
@@ -1017,12 +1041,13 @@ void CDrawView::OnTimer(UINT nIDEvent)
 		            		if(LineWarn_state != Warn_state)
 							{
 								Obj->m_ActionStruct.stcLineChange.LineWarn_state = Warn_state ;
-				    	    	if(Warn_state == 0x00 )
-	                        		pRect->m_clrLineColor = Obj->m_ActionStruct.stcLineChange.clrInLineColor;
-			                	else if(Warn_state  == 0x01 )
-	                        		pRect->m_clrLineColor = Obj->m_ActionStruct.stcLineChange.clrOutLineColor;
-			                	else if(Warn_state == 0x02 )
-	                        		pRect->m_clrLineColor = Obj->m_ActionStruct.stcLineChange.clrCommErrorLineColor;
+								pRect->m_clrLineColor = m_Colorref[Warn_state].SFSd;
+//				    	    	if(Warn_state == 0x00 )
+//	                        		pRect->m_clrLineColor = Obj->m_ActionStruct.stcLineChange.clrInLineColor;
+//			                	else if(Warn_state  == 0x10 )
+//	                        		pRect->m_clrLineColor = Obj->m_ActionStruct.stcLineChange.clrOutLineColor;
+//			                	else if(Warn_state == 0x20 )
+//	                        		pRect->m_clrLineColor = Obj->m_ActionStruct.stcLineChange.clrCommErrorLineColor;
             					pRect->Invalidate();    //0413
 							}
 						}
@@ -1037,12 +1062,13 @@ void CDrawView::OnTimer(UINT nIDEvent)
 		            		if(FillWarn_state != Warn_state)
 							{
 								Obj->m_ActionStruct.stcFillChange.FillWarn_state = Warn_state ;
-				    	    	if(Warn_state == 0x00 )
-	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrInFillColor;
-			                	else if(Warn_state  == 0x01 )
-	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrOutFillColor;
-			                	else if(Warn_state == 0x02 )
-	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrCommErrorFillColor;
+								pRect->m_clrFillColor = m_Colorref[Warn_state].SFSd;
+//				    	    	if(Warn_state == 0x00 )
+//	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrInFillColor;
+//			                	else if(Warn_state  == 0x10 )
+//	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrOutFillColor;
+//			                	else if(Warn_state == 0x20 )
+//	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrCommErrorFillColor;
             					pRect->Invalidate();    //0413
 							}
 						}
@@ -1057,12 +1083,13 @@ void CDrawView::OnTimer(UINT nIDEvent)
 								pufdata = Obj->m_ActionStruct.stcPHChange.pufdata ;
 		            		if(ufData != pufdata)
 							{
-				    	    	if(Warn_state == 0x00 )
-	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrInFillColor;
-			                	else if(Warn_state  == 0x01 )
-	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrOutFillColor;
-			                	else if(Warn_state == 0x02 )
-	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrCommErrorFillColor;
+								pRect->m_clrFillColor = m_Colorref[Warn_state].SFSd;
+//				    	    	if(Warn_state == 0x00 )
+//	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrInFillColor;
+//			                	else if(Warn_state  == 0x10 )
+//	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrOutFillColor;
+//			                	else if(Warn_state == 0x20 )
+//	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrCommErrorFillColor;
 				    			Obj->m_ActionStruct.stcPHChange.pufdata = ufData ;
 		                    	pRect->m_nPercentFill = m_SlaveStation[m_DisplayDraw[nPoint].fds][m_DisplayDraw[nPoint].chan].pnValue;
 		                    	pRect->m_RefPoint = Obj->m_ActionStruct.stcPHChange.ReferencePoint;
@@ -1080,12 +1107,13 @@ void CDrawView::OnTimer(UINT nIDEvent)
 								pufdata = Obj->m_ActionStruct.stcPVChange.pufdata ;
 		            		if(ufData != pufdata)
 							{
-				    	    	if(Warn_state == 0x00 )
-	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrInFillColor;
-			                	else if(Warn_state  == 0x01 )
-	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrOutFillColor;
-			                	else if(Warn_state == 0x02 )
-	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrCommErrorFillColor;
+								pRect->m_clrFillColor = m_Colorref[Warn_state].SFSd;
+//				    	    	if(Warn_state == 0x00 )
+//	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrInFillColor;
+//			                	else if(Warn_state  == 0x10 )
+//	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrOutFillColor;
+//			                	else if(Warn_state == 0x20 )
+//	                        		pRect->m_clrFillColor = Obj->m_ActionStruct.stcFillChange.clrCommErrorFillColor;
 
 								Obj->m_ActionStruct.stcPVChange.pufdata = ufData ;
 		                    	pRect->m_nPercentFill = m_SlaveStation[m_DisplayDraw[nPoint].fds][m_DisplayDraw[nPoint].chan].pnValue ;
@@ -1112,51 +1140,37 @@ void CDrawView::OnTimer(UINT nIDEvent)
 							{
                                 usUnit  = m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].m_Unit ;
 		            			ufData = m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].CValue ;
-//								if(m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].ptype == 0)
+								int nptype = m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].ptype;
+								if((nptype == 0) ||(nptype == 1)||(nptype == 2))
                              		str.Format("%.4f%s", dfValue,usUnit);		
-//								else
-//                            		str.Format("%d%s", ufData , usUnit);	
+								else
+                            		str.Format("%d%s", ufData , usUnit);	
 //				    	    	if(Warn_state == 0x03 )
 //									pText ->m_fontColor.SetFromCOLORREF(pText->m_TrueColor);
-			                	if(Warn_state  == 0x04 )
-									str = "断线";
-			                	else if(Warn_state == 0x05 )
-									str = "溢出";
-			                	else if(Warn_state  == 0x06 )
-									str = "负漂";
-			                	else if(Warn_state == 0x07 )
-									str = "故障";
-			                	else if(Warn_state == 0x08 )
-									str = "标校";
 
                                 pText ->m_strButton = str ;
 
-				    	    	if(Warn_state == 0x00 )
-									pText ->m_fontColor.SetFromCOLORREF(pText->m_TrueColor);
-			                	else if(Warn_state  == 0x01 )
-									pText ->m_fontColor.SetFromCOLORREF(pText->m_ErrorColor);
-			                	else if(Warn_state == 0x02 )
-									pText ->m_fontColor.SetFromCOLORREF(pText->m_FalseColor);
+								pText->m_fontColor.SetFromCOLORREF(m_Colorref[Warn_state].SFSd);
+//				    	    	if(Warn_state == 0x00 )
+//									pText ->m_fontColor.SetFromCOLORREF(pText->m_TrueColor);
+//			                	else if(Warn_state  == 0x01 )
+//									pText ->m_fontColor.SetFromCOLORREF(pText->m_ErrorColor);
+//			                	else if(Warn_state == 0x02 )
+//									pText ->m_fontColor.SetFromCOLORREF(pText->m_FalseColor);
 							}
 					    	else
 							{
-				    	    	if(Warn_state == 0x00 )
-									pText ->m_fontColor.SetFromCOLORREF(pText->m_TrueColor);
-			                	else if(Warn_state  == 0x01 )
-									pText ->m_fontColor.SetFromCOLORREF(pText->m_ErrorColor);
-			                	else if(Warn_state == 0x02 )
-									pText ->m_fontColor.SetFromCOLORREF(pText->m_FalseColor);
+								pText->m_fontColor.SetFromCOLORREF(m_Colorref[Warn_state].SFSd);
+//				    	    	if(Warn_state == 0x00 )
+//									pText ->m_fontColor.SetFromCOLORREF(pText->m_TrueColor);
+//			                	else if(Warn_state  == 0x10 )
+//									pText ->m_fontColor.SetFromCOLORREF(pText->m_ErrorColor);
+//			                	else if(Warn_state == 0x20 )
+//									pText ->m_fontColor.SetFromCOLORREF(pText->m_FalseColor);
 //				    		    	if( pText ->m_blsDispTrue)      RGB(0,0,0);
-			                	if(Warn_state  == 0x04 )
-									str = "断线";
-			                	else if(Warn_state == 0x05 )
-									str = "溢出";
-			                	else if(Warn_state  == 0x06 )
-									str = "负漂";
-			                	else if(Warn_state == 0x07 )
-									str = "故障";
-			                	else if(Warn_state == 0x08 )
-									str = "标校";
+
+								str = socketClient.strstatus(Warn_state);
+                                pText ->m_strButton = str ;
 							}
 						}
 						else

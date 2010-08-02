@@ -150,7 +150,7 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\AddSQLDlg.cpp
+SOURCE=.\AdjustDlg.cpp
 # End Source File
 # Begin Source File
 
@@ -163,6 +163,10 @@ SOURCE=.\ClassViewPane.cpp
 # Begin Source File
 
 SOURCE=.\DynamicHelpView.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\excel.cpp
 # End Source File
 # Begin Source File
 
@@ -182,7 +186,7 @@ SOURCE=.\GUI_VisualStudioView.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\LoginDlg.cpp
+SOURCE=.\MadeCertView.cpp
 # End Source File
 # Begin Source File
 
@@ -198,7 +202,7 @@ SOURCE=.\PropertiesPane.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ResourceViewPane.cpp
+SOURCE=.\SafeMethod.cpp
 # End Source File
 # Begin Source File
 
@@ -215,7 +219,7 @@ SOURCE=.\StdAfx.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\AddSQLDlg.h
+SOURCE=.\AdjustDlg.h
 # End Source File
 # Begin Source File
 
@@ -231,6 +235,10 @@ SOURCE=.\DynamicHelpView.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\excel.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\GUI_VisualStudio.h
 # End Source File
 # Begin Source File
@@ -243,7 +251,7 @@ SOURCE=.\GUI_VisualStudioView.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\LoginDlg.h
+SOURCE=.\MadeCertView.h
 # End Source File
 # Begin Source File
 
@@ -263,7 +271,7 @@ SOURCE=.\Resource.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ResourceViewPane.h
+SOURCE=.\SafeMethod.h
 # End Source File
 # Begin Source File
 
@@ -1061,30 +1069,6 @@ SOURCE=.\MQServer.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\SampleFormView.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SampleFormView.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SetTimeDlg.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SetTimeDlg.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SettingHostDlg.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SettingHostDlg.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\SrvrItem.cpp
 # End Source File
 # Begin Source File
@@ -1161,6 +1145,10 @@ SOURCE=.\dbAx\AxAccountSet.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dbAx\AxColorset.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dbAx\AxCommand.cpp
 # End Source File
 # Begin Source File
@@ -1186,6 +1174,10 @@ SOURCE=.\dbAx\AxDispoint.hpp
 # Begin Source File
 
 SOURCE=.\dbAx\AxException.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbAx\AxFeedE.hpp
 # End Source File
 # Begin Source File
 
@@ -1372,6 +1364,66 @@ SOURCE=.\CGridListCtrlEx\CGridRowTraitXP.cpp
 # Begin Source File
 
 SOURCE=.\CGridListCtrlEx\CGridRowTraitXP.h
+# End Source File
+# End Group
+# Begin Group "Dialog"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\AddSQLDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\AddSQLDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ColorSetDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ColorSetDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LoginDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\LoginDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ResourceViewPane.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ResourceViewPane.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SampleFormView.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SampleFormView.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SetTimeDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SetTimeDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingHostDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingHostDlg.h
 # End Source File
 # End Group
 # Begin Source File

@@ -28,8 +28,11 @@
 #include "FlatTabViewDoc.h"
 #include "ChildFrm.h"
 #include "SettingHostDlg.h"
-#include "SetTimeDlg.h"
 #include "LoginDlg.h"
+#include "ColorSetDlg.h"
+#include "AdjustDlg.h"
+#include "SafeMethod.h"
+#include "MadeCertView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -58,15 +61,32 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_LOCALTION, OnLocation)
 	ON_COMMAND(ID_BROWSERMOD, OnPBrowser)
 	ON_COMMAND(ID_CONTROLTABLE, OnControlT)
-	ON_COMMAND(ID_CONTROLS, OnControlS)
-	ON_COMMAND(ID_CONTROLF, OnControlF)
+	ON_COMMAND(ID_CONTROLS, OnFeedE)
+	ON_COMMAND(ID_CONTROLF, OnColorS)
 	ON_COMMAND(ID_VERIFY_TIMER, OnVerifyT)
 	ON_COMMAND(ID_MANUAL_CONTROL, OnManualC)
 	ON_COMMAND(ID_FDS_CONFIG, OnFDSC)
 	ON_COMMAND(ID_TEST_COMMUNICATION, OnTESTC)
 	ON_COMMAND(ID_WINDGAS_ATRESIA, OnWINDGASA)
 	ON_COMMAND(ID_FAILURE_ATRESIA, OnFAILUREA)
+	ON_COMMAND(ID_FDS_CONFIGop, OnFDSconfig)
 	ON_COMMAND(ID_LOGIN, OnLOGIN)
+	ON_COMMAND(ID_LOGOUT, OnLOGOUT)
+
+	ON_COMMAND(ID_ADJUST_DIS, OnAdjustdis)
+	ON_COMMAND(ID_SAFEMETHOD, OnSafeMethod)
+
+	ON_COMMAND(ID_SELECT_DISA, OnSDisA)
+	ON_COMMAND(ID_SELECT_DISD, OnSDisD)
+	ON_COMMAND(ID_DIS_AAR, OnDisAAR)
+	ON_COMMAND(ID_DIS_ABR, OnDisABR)
+	ON_COMMAND(ID_DIS_AFER, OnDisAFER)
+	ON_COMMAND(ID_DIS_ASR, OnDisASR)
+	ON_COMMAND(ID_DIS_DABR, OnDisDABR)
+	ON_COMMAND(ID_DIS_DSC, OnDisDSC)
+	ON_COMMAND(ID_DIS_DFER, OnDisDFER)
+
+	ON_COMMAND(ID_MADE_MADE, OnMadeMade)
 
 	ON_UPDATE_COMMAND_UI(ID_D_D, OnUpdateDis)
 	ON_UPDATE_COMMAND_UI(ID_A_D, OnUpdateDis)
@@ -81,6 +101,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_UPDATE_COMMAND_UI(ID_TEST_COMMUNICATION, OnUpdateDis)
 	ON_UPDATE_COMMAND_UI(ID_WINDGAS_ATRESIA, OnUpdateDis)
 	ON_UPDATE_COMMAND_UI(ID_FAILURE_ATRESIA, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_FDS_CONFIG, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_LOGIN, OnUpdateLog)
+	ON_UPDATE_COMMAND_UI(ID_LOGOUT, OnUpdateDis)
 //	ON_MESSAGE(WM_XTP_PRETRANSLATEMOUSEMSG, OnTabbarMouseMsg)  
 //    ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_INFO, OnSelchangeTabInfo)
 	//}}AFX_MSG_MAP
@@ -154,8 +177,9 @@ CMainFrame::CMainFrame()
 	m_rcMainFrame.SetRectEmpty();
 
 	m_nTheme = ID_THEME_VC9;
-
 	m_nOtherView = ID_VIEW_CLASSVIEW;
+
+	m_pMade=NULL;
 
 #ifdef _XTP_INCLUDE_SKINFRAMEWORK
 	XTPSkinManager()->GetResourceFile()->SetModuleHandle(AfxGetInstanceHandle());
@@ -163,7 +187,6 @@ CMainFrame::CMainFrame()
 
 //	m_pSampleFormView = NULL;
 	m_ontime =0;
-
 }
 
 CMainFrame::~CMainFrame()
@@ -245,49 +268,35 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_paneManager.InstallDockingPanes(this);
 	m_paneManager.SetTheme(xtpPaneThemeVisualStudio2005);
 	
-	CXTPDockingPane* paneResourceView = m_paneManager.CreatePane(
-		ID_VIEW_RESOURCEVIEW, CRect(0, 0, 100, 170), xtpPaneDockBottom);
-/*	CXTPDockingPane* paneResourceView1 = m_paneManager.CreatePane(
-		ID_VIEW_RESOURCEVIEW2, CRect(0, 0, 100, 135), xtpPaneDockBottom);
-	CXTPDockingPane* paneResourceView2 = m_paneManager.CreatePane(
-		ID_VIEW_RESOURCEVIEW3, CRect(0, 0, 100, 135), xtpPaneDockBottom);
-	CXTPDockingPane* paneResourceView3 = m_paneManager.CreatePane(
-		ID_VIEW_RESOURCEVIEW4, CRect(0, 0, 100, 135), xtpPaneDockBottom);
-	CXTPDockingPane* paneResourceView4 = m_paneManager.CreatePane(
-		ID_VIEW_RESOURCEVIEW5, CRect(0, 0, 100, 135), xtpPaneDockBottom);
-	CXTPDockingPane* paneResourceView5 = m_paneManager.CreatePane(
-		ID_VIEW_RESOURCEVIEW6, CRect(0, 0, 100, 135), xtpPaneDockBottom);*/
-//	CXTPDockingPane* paneResourceView6 = m_paneManager.CreatePane(
-//		ID_VIEW_RESOURCEVIEW7, CRect(0, 0, 100, 135), xtpPaneDockBottom);
-//		ID_WINDOWS_OUTPUT, CRect(0, 0, 150, 120), xtpPaneDockBottom);
-	
-//	CXTPDockingPane* paneToolBox = m_paneManager.CreatePane(
-//		ID_VIEW_TOOLBOX, CRect(0, 0, 200, 120), xtpPaneDockRight);
-	
-	CXTPDockingPane* paneClassView = m_paneManager.CreatePane(
-		ID_VIEW_CLASSVIEW, CRect(0, 0, 230, 135), xtpPaneDockBottom);  //xtpPaneDockLeft
-	
-	CXTPDockingPane* paneSolutionExplorer = m_paneManager.CreatePane(
-		ID_VIEW_SOLUTIONEXPLORER, CRect(0, 0, 230, 135), xtpPaneDockBottom);  //xtpPaneDockLeft
-	
-/*	CXTPDockingPane* paneResourceView = m_paneManager.CreatePane(
-		ID_VIEW_RESOURCEVIEW, CRect(0, 0, 230, 140), xtpPaneDockLeft);
+	if(theApp.strargc == "SDisA")
+	{
+//		OnMadeMade();
+	}
+	else
+	{
 
-	CXTPDockingPane* paneHelpView =m_paneManager.CreatePane(
-		ID_HELP_DYNAMICHELP, CRect(0, 0, 210, 140), xtpPaneDockBottom, paneToolBox);
+			CXTPDockingPane* paneResourceView = m_paneManager.CreatePane(
+				ID_VIEW_RESOURCEVIEW, CRect(0, 0, 100, 170), xtpPaneDockBottom);
+		//	CXTPDockingPane* paneResourceView6 = m_paneManager.CreatePane(
+		//		ID_VIEW_RESOURCEVIEW7, CRect(0, 0, 100, 135), xtpPaneDockBottom);
+		//		ID_WINDOWS_OUTPUT, CRect(0, 0, 150, 120), xtpPaneDockBottom);
+		//	CXTPDockingPane* paneToolBox = m_paneManager.CreatePane(
+		//		ID_VIEW_TOOLBOX, CRect(0, 0, 200, 120), xtpPaneDockRight);
+			CXTPDockingPane* paneClassView = m_paneManager.CreatePane(
+				ID_VIEW_CLASSVIEW, CRect(0, 0, 230, 135), xtpPaneDockBottom);  //xtpPaneDockLeft
+			CXTPDockingPane* paneSolutionExplorer = m_paneManager.CreatePane(
+				ID_VIEW_SOLUTIONEXPLORER, CRect(0, 0, 230, 135), xtpPaneDockBottom);  //xtpPaneDockLeft
+		/*	CXTPDockingPane* paneResourceView = m_paneManager.CreatePane(
+				ID_VIEW_RESOURCEVIEW, CRect(0, 0, 230, 140), xtpPaneDockLeft);
+			CXTPDockingPane* paneHelpView =m_paneManager.CreatePane(
+				ID_HELP_DYNAMICHELP, CRect(0, 0, 210, 140), xtpPaneDockBottom, paneToolBox);
+			paneHelpView->Close();
+		*/
+			m_paneManager.AttachPane(paneClassView,paneResourceView );
+			m_paneManager.AttachPane(paneSolutionExplorer,paneClassView);
 
-	paneHelpView->Close();
-*/
-/*	m_paneManager.AttachPane(paneResourceView2, paneResourceView1);
-	m_paneManager.AttachPane(paneResourceView3, paneResourceView2);
-	m_paneManager.AttachPane(paneResourceView4, paneResourceView3);
-	m_paneManager.AttachPane(paneResourceView5, paneResourceView4);
-	m_paneManager.AttachPane(paneResourceView6, paneResourceView5);*/
-	m_paneManager.AttachPane(paneClassView,paneResourceView );
-	m_paneManager.AttachPane(paneSolutionExplorer,paneClassView);
-
-	paneResourceView->Select();
-	
+			paneResourceView->Select();
+	}
 //	m_paneManager.CreatePane(
 //		ID_VIEW_PROPERTIESWINDOW, CRect(0, 0, 180, 140), xtpPaneDockBottom, paneClassView);
 
@@ -353,6 +362,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	
 	// Load the previous state for command bars.
 	LoadCommandBars(_T("CommandBars"));
+
+	if(theApp.strargc == "SDisA")
+	{
+		OnMadeMade();
+	}
 	return 0;
 }
 
@@ -641,49 +655,6 @@ LRESULT CMainFrame::OnDockingPaneNotify(WPARAM wParam, LPARAM lParam)
 					}
 					pPane->Attach(&m_wndResourceView);
 					break;
-/*				case ID_VIEW_RESOURCEVIEW2:
-					if (!m_wndResourceView1.GetSafeHwnd())
-					{
-						m_wndResourceView1.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
-					}
-					pPane->Attach(&m_wndResourceView1);
-					break;
-				case ID_VIEW_RESOURCEVIEW3:
-					if (!m_wndResourceView2.GetSafeHwnd())
-					{
-						m_wndResourceView2.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
-					}
-					pPane->Attach(&m_wndResourceView2);
-					break;
-				case ID_VIEW_RESOURCEVIEW4:
-					if (!m_wndResourceView3.GetSafeHwnd())
-					{
-						m_wndResourceView3.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
-					}
-					pPane->Attach(&m_wndResourceView3);
-					break;
-				case ID_VIEW_RESOURCEVIEW5:
-					if (!m_wndResourceView4.GetSafeHwnd())
-					{
-						m_wndResourceView4.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
-					}
-					pPane->Attach(&m_wndResourceView4);
-					break;
-				case ID_VIEW_RESOURCEVIEW6:
-					if (!m_wndResourceView5.GetSafeHwnd())
-					{
-						m_wndResourceView5.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
-					}
-					pPane->Attach(&m_wndResourceView5);
-					break;
-				case ID_VIEW_RESOURCEVIEW7:
-					CWnd* pView = pPane->AttachView(this, RUNTIME_CLASS(CSampleFormView));
-//					if (!m_wndResourceView6->GetSafeHwnd())
-					{
-//						m_wndResourceView6->Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
-					}
-//					pPane->Attach(m_wndResourceView6);
-					break;*/
 
 				case ID_VIEW_SOLUTIONEXPLORER:
 //					CWnd* pView = pPane->AttachView(this, RUNTIME_CLASS(CSampleFormView));
@@ -1269,18 +1240,16 @@ void CMainFrame::OnControlT()
 	dlg.DoModal();
 }
 
-void CMainFrame::OnControlS() 
+void CMainFrame::OnFeedE() 
 {
 	CSettingHostDlg dlg;
-	dlg.m_strtable =  _T("specialcontrol");
+	dlg.m_strtable =  _T("feedelectricity");
 	dlg.DoModal();
 }
 
-void CMainFrame::OnControlF() 
+void CMainFrame::OnColorS() 
 {
-	CSettingHostDlg dlg;
-	dlg.m_strtable =  _T("specialcontrol");
-	dlg.m_bADD = true;
+	CColorSetDlg dlg;
 	dlg.DoModal();
 }
 
@@ -1317,6 +1286,7 @@ void CMainFrame::OnWINDGASA()
 {
 	CSetTimeDlg dlg;
 	dlg.chcommand =  0x46;
+	dlg.m_nSecond =  6;
 	dlg.DoModal();
 }
 
@@ -1324,13 +1294,112 @@ void CMainFrame::OnFAILUREA()
 {
 	CSetTimeDlg dlg;
 	dlg.chcommand =  0x5A;
+	dlg.m_nSecond =  64;
+	dlg.DoModal();
+}
+
+void CMainFrame::OnFDSconfig() 
+{
+	CSetTimeDlg dlg;
+	dlg.chcommand =  0x41;
+	dlg.m_nSecond =  64;
 	dlg.DoModal();
 }
 ////////////////////////////////////////////////////////通讯命令
+//////////记录查询显示//////////////////////////////////////////
+void CMainFrame::OnSDisA() 
+{
+//	ShellExecute(NULL, "open", "F:\\窗口_3.rsy", NULL, NULL, SW_SHOWNORMAL); 
+      PROCESS_INFORMATION pi; //启动窗口的信息
+           STARTUPINFO si; //进程的信息
+           memset(&si,0,sizeof(si));
+           si.cb=sizeof(si);
+           si.wShowWindow=SW_SHOW;
+           si.dwFlags=STARTF_USESHOWWINDOW;
+     bool fRet=CreateProcess(gstrTimeOut +"\\RSDRAW-YRunD.EXE","SDisA",NULL,FALSE,NULL,NULL,NULL,NULL,&si,&pi);
+//	dlg.m_strdism = "SDisA";
+}
+
+void CMainFrame::OnSDisD() 
+{
+	CLoginDlg dlg;
+	dlg.m_strdism = "SDisD";
+	dlg.DoModal();
+}
+
+void CMainFrame::OnDisAAR() 
+{
+	CLoginDlg dlg;
+	dlg.m_strdism = "DisAAR";
+	dlg.DoModal();
+}
+
+void CMainFrame::OnDisABR() 
+{
+	CLoginDlg dlg;
+	dlg.m_strdism = "DisABR";
+	dlg.DoModal();
+}
+
+void CMainFrame::OnDisAFER() 
+{
+	CLoginDlg dlg;
+	dlg.m_strdism = "DisAFER";
+	dlg.DoModal();
+}
+
+void CMainFrame::OnDisASR() 
+{
+	CLoginDlg dlg;
+	dlg.m_strdism = "DisASR";
+	dlg.DoModal();
+}
+
+void CMainFrame::OnDisDABR() 
+{
+	CLoginDlg dlg;
+	dlg.m_strdism = "DisDABR";
+	dlg.DoModal();
+}
+
+void CMainFrame::OnDisDSC() 
+{
+	CLoginDlg dlg;
+	dlg.m_strdism = "DisDSC";
+	dlg.DoModal();
+}
+
+void CMainFrame::OnDisDFER() 
+{
+	CLoginDlg dlg;
+	dlg.m_strdism = "DisDFER";
+	dlg.DoModal();
+}
+///////记录查询显示/////////////////////////////////////////////
+
+void CMainFrame::OnSafeMethod() 
+{
+	CSafeMethod dlg;
+	dlg.DoModal();
+}
+
+void CMainFrame::OnAdjustdis() 
+{
+	CAdjustDlg dlg;
+	dlg.DoModal();
+}
 
 void CMainFrame::OnLOGIN() 
 {
 	CLoginDlg dlg;
+	dlg.m_strdism = "login";
+	dlg.DoModal();
+}
+
+void CMainFrame::OnLOGOUT() 
+{
+	CLoginDlg dlg;
+	dlg.m_strdism = "login";
 	dlg.DoModal();
 }
 
@@ -1809,4 +1878,30 @@ void CMainFrame::OnUpdateOnSoundPath(CCmdUI* pCmdUI)
 void CMainFrame::OnUpdateDis(CCmdUI* pCmdUI)
 {
 	pCmdUI->Enable(theApp.m_bLogIn);
+}
+
+void CMainFrame::OnUpdateLog(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(!theApp.m_bLogIn);
+}
+
+void CMainFrame::OnMadeMade() 
+{
+	// TODO: Add your command handler code here
+//	m_currentwin=4;//制作
+	if(m_pMade!=NULL)
+	{
+		m_pMade->MDIActivate();
+		return;
+	}
+
+	m_pMade=new CChildFrame();
+	CCreateContext context;
+	context.m_pNewViewClass=RUNTIME_CLASS(CMadeCertView);
+	if(!m_pMade->LoadFrame(ID_INDICATOR_PRINT,WS_MAXIMIZE|WS_OVERLAPPEDWINDOW,this,&context))
+		return;
+	m_pMade->SetWindowPos(this,0,0,GetSystemMetrics(SM_CXSCREEN)-8,140,SWP_NOMOVE|SWP_NOZORDER | SWP_NOACTIVATE|SWP_SHOWWINDOW);
+	m_pMade->ShowWindow(SW_SHOWMAXIMIZED);
+	m_pMade->InitialUpdateFrame(NULL,true);
+
 }

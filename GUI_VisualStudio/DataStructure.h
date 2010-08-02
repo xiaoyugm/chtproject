@@ -48,11 +48,14 @@ struct CWarnPoint
 struct CStrWarn{
 	int m_SlaveStation;                     // 分站号
 	int m_NumChannel;                     	//通道号
-	CString strPoint;                       //报警时刻
-	CString strDate;                        //断电时刻
-	CString strTime;                        //复电时刻
-	CString strText;                        //馈电时刻
-	CString strWarn;                        //安全措施
+	CString locationname;                       //安装地点/名称
+	CString strValue;                       //监测值
+	CString warnTime;                       //报警时刻
+	CString breakTime;                        //断电时刻
+	CString restoreTime;                        //复电时刻
+	CString feedStatus;                        //馈电状态
+	CString feedTime;                        //馈电时刻
+	CString safetyprecautions;                        //安全措施
 };
 
 
@@ -152,24 +155,18 @@ struct ADTypeTable	 {
 
 
 //////////////////////////////////////////////////////////////////////////
-//模拟量 类型结构
-struct AType	 {
-	CString falma;                  //报警音乐
-	CString WatchName;              //测点安装地点名称   
-	float AValue;	                //模拟量当前值
-	float m_RangeH;	        	//高量程
-	float m_RangeL;	        	//低量程
-	float AlarmValueH;	        //高报警值
-	float AlarmValueL;	        //低报警值
-	float Apbrk;	                 //模拟量类型断电值
-	float Aprtn;	                 //模拟量类型复电值
-	CString m_Unit;		        // (计量)单位
-	CString         utype;           //模拟量类型名称
+//ADC断电    馈电
+struct ADCbreakE	 {
+	int     bFSd;	                        //分站  
+	int     bchanel;                        //控制量通道     馈电通道
+	CString adpoint;                        //AD点号         
+	CString cpoint;                         //C点号
+	CString CName;                          //控制量测点安装地点名称   
 };
 
-//巡检分站结构
-struct FDSscan	 {
-	int scanfds;	            //需要巡检分站
+//串口连接分站   颜色设置
+struct SerialF	 {
+	int     SFSd;	                        //分站  颜色值
 };
 
 //通道号
@@ -180,29 +177,41 @@ struct FDSscan	 {
 //分站
 struct SlaveStation {
 //	int FStyle;	                        //分站类型  
-//	int IsScan;	                        //是否巡检 
 	int     ptype;                   //传感器类型
+	COleDateTime  ValueTime;              //采集测点值时间   
 	CString falma;                  //报警音乐
 	CString WatchName;              //测点安装地点名称   
 	CString         utype;           //开关量/模拟量类型名称
-    unsigned char   Channel_state;        //通道状态
-    unsigned char   Control_state;        //控制量状态
+    unsigned char   Channel_state;        //通道状态   0000 正常 0001:报警      
 
 	float AValue;	                 //模拟量当前值
 	float m_RangeH;	        	     //高量程
-//	float m_RangeL;	        	     //低量程
+	float m_RangeL;	        	     //低量程
 	float AlarmValueH;	             //高报警值
-//	float AlarmValueL;	             //低报警值
+	float AlarmValueL;	             //低报警值
 	float Apbrk;	                 //模拟量类型断电值
 	float Aprtn;	                 //模拟量类型复电值
 	CString m_Unit;		             // (计量)单位
     unsigned char       pnValue;        //模拟量百分比值
 
-	int    CValue;	                    //开关量/频率/数字（模拟） 当前值  
-	int AlarmState;	            //报警状态  
+	int    CValue;	                    //开关量/频率/数字（模拟） 当前值  0通道交直流
+	int AlarmState;	            //报警状态              0通道故障闭锁
 	CString ZeroState;          //0态   开关量
 	CString OneState;           //1态   开关量
 	CString TwoState;           //2态   开关量
+
+	unsigned char  RangeH8;                    //0通道控制量高四位
+	unsigned char  RangeL8;                    //0通道控制量低四位
+	unsigned char  AValueH8;
+	unsigned char  AValueL8;
+	unsigned char  ApbrkH8;
+	unsigned char  ApbrkL8;
+	unsigned char  AprtnH8;
+	unsigned char  AprtnL8;
+    unsigned char  Control_state;        //控制量状态
+	unsigned char  Channel8;             //传感器类型+模拟/开关(通道类型
+
+    unsigned char   Adjust_state;        //标校状态          
 };
 
 //IP

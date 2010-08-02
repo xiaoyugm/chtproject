@@ -14,6 +14,9 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+extern ADCbreakE             m_CFeed[65][9][65];
+extern ADCbreakE             m_ADCbreakE[65][25][65];
+extern SerialF                  m_Colorref[200];
 extern  SlaveStation             m_SlaveStation[65][25];
 extern  FormView  m_FormView[20];
 extern  DisplayPoint  m_DisplayPoint[32][64];
@@ -62,7 +65,11 @@ void CSampleFormView::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CSampleFormView, CFormView)
 	//{{AFX_MSG_MAP(CSampleFormView)
-//	ON_COMMAND(ID_A_D, OpenAddDel)
+	ON_COMMAND(ID_SELECT_POINT, OpenAddDel)
+	ON_COMMAND(ID_ADJUST_POINT, Openadjust)
+	ON_COMMAND(ID_DEL_ADJUST, Deladjust)
+	ON_COMMAND(ID_ADJUST_ALL, AdjustAll)
+	ON_COMMAND(ID_DEL_ADJUSTALL, DelAllAdjust)
 	ON_COMMAND(IDC_COMBO_THEMES, OnSelendokComboThemes)
 //	ON_WM_CREATE()
 //	ON_WM_ERASEBKGND()
@@ -98,7 +105,6 @@ void CSampleFormView::OnInitialUpdate()
 	CFormView::OnInitialUpdate();
 
 	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
-
    	pFWnd->m_pSampleFormView=this;
 
 	if (!CreateImageList(m_SampleFormImageList, IDB_CLASSTREE))
@@ -382,7 +388,10 @@ void CSampleFormView::SetMonitorListHead()
 //行数
 	CString strItem = _T("");
 	for (int iItem = 0; iItem < m_FormView[theApp.DocNum].m_ListCtrl[0].ColumniItem; ++iItem)
+	{
 		m_List1.InsertItem(iItem, strItem, 0);
+//        m_List1.SetRowColor(iItem, RGB(255,0,0), RGB(255,255,255));
+	}
 	for (iItem = 0; iItem < m_FormView[theApp.DocNum].m_ListCtrl[1].ColumniItem; ++iItem)
 		m_List2.InsertItem(iItem, strItem, 0);
 	for (iItem = 0; iItem < m_FormView[theApp.DocNum].m_ListCtrl[2].ColumniItem; ++iItem)
@@ -521,55 +530,69 @@ void CSampleFormView::OnRclick1(NMHDR* pNMHDR, LRESULT* pResult)
 	CString pString ;
 	m_List1.GetWindowText(pString);
 //	CListCtrl &CList =  GetListCtrl();//获取当前列表控件的指针
-       CMenu       menu ,* pSubMenu;//定义下面要用到的cmenu对象
+    CPoint point;//定义一个用于确定光标位置的位置
+    GetCursorPos( &point);//获取当前光标的位置，以便使得菜单可以跟随光标
 
+		CMenu menu;
+		if (menu.LoadMenu(IDC_POPLISTCONTROL))
+		{
+			CMenu* pPopup = menu.GetSubMenu(0);
+			ASSERT(pPopup != NULL);
+			int nResult = pPopup->TrackPopupMenu(TPM_RIGHTBUTTON | TPM_LEFTALIGN,
+								   point.x, point.y,
+								   AfxGetMainWnd()); // route commands through main window
+		}
+	nlistaj = 1;
+	ilistaj = m_Str2Data.String2Int(pString);
+
+     LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	 m_Itemnum = pNMLV->iItem;
+	 strItem=m_List1.GetItemText(m_Itemnum,3);
+     *pResult = 0;
+/*       CMenu       menu ,* pSubMenu;//定义下面要用到的cmenu对象
        menu.LoadMenu(IDC_POPLISTCONTROL);//装载自定义的右键菜单
-
        pSubMenu = menu.GetSubMenu(0);//获取第一个弹出菜单，所以第一个菜单必须有子菜单
-
     CPoint oPoint;//定义一个用于确定光标位置的位置
-
     GetCursorPos( &oPoint);//获取当前光标的位置，以便使得菜单可以跟随光标
-
 //       int istat;//=CList.GetSelectionMark();//用istat存放当前选定的是第几项
-
 //    CString pString; //=CList.GetItemText(istat,0);//获取当前项中的数据，0代表是第0列
 //	pString="您选择的路径是:"+pString ;//显示当前选择项
 //       MessageBox(pString);//显示当前选中的路径
 //       pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
-
 	// Will return zero if no selection was made (TPM_RETURNCMD)
 	int nResult = pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
 	switch(nResult)
 	{
 		case 0: break;
 		case 1:	OpenAddDel(1, m_Str2Data.String2Int(pString)); break;
-//		case 2: m_pColumnManager->OpenColumnPicker(*this); break;
+		case 2: Openadjust(1, m_Str2Data.String2Int(pString)); break;
 //		case 3: m_pColumnManager->ResetColumnsDefault(*this); break;
 		default: break;
-	}
+	}*/
 }
 void CSampleFormView::OnRclick2(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	CString pString ;
 	m_List2.GetWindowText(pString);
+    CPoint point;//定义一个用于确定光标位置的位置
+    GetCursorPos( &point);//获取当前光标的位置，以便使得菜单可以跟随光标
 
+		CMenu menu;
+		if (menu.LoadMenu(IDC_POPLISTCONTROL))
+		{
+			CMenu* pPopup = menu.GetSubMenu(0);
+			ASSERT(pPopup != NULL);
+			int nResult = pPopup->TrackPopupMenu(TPM_RIGHTBUTTON | TPM_LEFTALIGN,
+								   point.x, point.y,
+								   AfxGetMainWnd()); // route commands through main window
+		}
+	nlistaj = 2;
+	ilistaj = m_Str2Data.String2Int(pString);
 
-       CMenu       menu ,* pSubMenu;//定义下面要用到的cmenu对象
-       menu.LoadMenu(IDC_POPLISTCONTROL);//装载自定义的右键菜单
-       pSubMenu = menu.GetSubMenu(0);//获取第一个弹出菜单，所以第一个菜单必须有子菜单
-    CPoint oPoint;//定义一个用于确定光标位置的位置
-    GetCursorPos( &oPoint);//获取当前光标的位置，以便使得菜单可以跟随光标
-//       pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
-
-	// Will return zero if no selection was made (TPM_RETURNCMD)
-	int nResult = pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
-	switch(nResult)
-	{
-		case 0: break;
-		case 1:	OpenAddDel(2, m_Str2Data.String2Int(pString)); break;
-		default: break;
-	}
+     LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	 m_Itemnum = pNMLV->iItem;
+	 strItem=m_List2.GetItemText(m_Itemnum,3);
+     *pResult = 0;
 }
 
 
@@ -577,34 +600,130 @@ void CSampleFormView::OnRclick3(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	CString pString ;
 	m_List3.GetWindowText(pString);
+    CPoint point;//定义一个用于确定光标位置的位置
+    GetCursorPos( &point);//获取当前光标的位置，以便使得菜单可以跟随光标
+	theApp.DocNum = 3;
+	theApp.idis = m_Str2Data.String2Int(pString);
 
-	CMenu       menu ,* pSubMenu;//定义下面要用到的cmenu对象
-       menu.LoadMenu(IDC_POPLISTCONTROL);//装载自定义的右键菜单
-       pSubMenu = menu.GetSubMenu(0);//获取第一个弹出菜单，所以第一个菜单必须有子菜单
-    CPoint oPoint;//定义一个用于确定光标位置的位置
-    GetCursorPos( &oPoint);//获取当前光标的位置，以便使得菜单可以跟随光标
-//      pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
+		CMenu menu;
+		if (menu.LoadMenu(IDC_POPLISTCONTROL))
+		{
+			CMenu* pPopup = menu.GetSubMenu(0);
+			ASSERT(pPopup != NULL);
+			int nResult = pPopup->TrackPopupMenu(TPM_RIGHTBUTTON | TPM_LEFTALIGN,
+								   point.x, point.y,
+								   AfxGetMainWnd()); // route commands through main window
+		}
+	nlistaj = 3;
+	ilistaj = m_Str2Data.String2Int(pString);
 
-	// Will return zero if no selection was made (TPM_RETURNCMD)
-	int nResult = pSubMenu->TrackPopupMenu (TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
-	switch(nResult)
-	{
-		case 0: break;
-		case 1:	OpenAddDel(3, m_Str2Data.String2Int(pString)); break;
-		default: break;
-	}
+     LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	 m_Itemnum = pNMLV->iItem;
+	 strItem=m_List3.GetItemText(m_Itemnum,3);
+     *pResult = 0;
 }
 
-void CSampleFormView::OpenAddDel(int nlist ,int ilist) 
+void CSampleFormView::OpenAddDel() 
 {
 	CSettingHostDlg dlg;
 	dlg.m_strtable =  _T("dispoint");
-	dlg.PointDesid = ilist;
+	dlg.PointDesid = ilistaj;
 	if(dlg.DoModal() == IDOK)
 	{
 		theApp.InitData();
-		BuildList(nlist, ilist);
+		BuildList(nlistaj, ilistaj);
 	}
+}
+
+void CSampleFormView::Openadjust() 
+{
+	CString strf,strc;
+	int n =strItem.Find("A");
+	if(n == -1)
+	{
+        AfxMessageBox("请选择模拟量");
+		return;
+	}
+		    strf = strItem.Mid(0,2);
+    		strc = strItem.Mid(n+1);
+		int nfds = m_Str2Data.String2Int(strf);
+		int nchan = m_Str2Data.String2Int(strc);
+
+	m_SlaveStation[nfds][nchan].Adjust_state =1;
+
+	for(int i=0 ; i<65 ;i++)
+	{
+		int cfds = m_ADCbreakE[nfds][nchan][i].bFSd;
+		int cchan = m_ADCbreakE[nfds][nchan][i].bchanel;
+		if(cfds == 0)
+			break;
+     	m_SlaveStation[cfds][cchan+16].Adjust_state =1;
+    	for(int j=0 ; j<65 ;j++)
+		{
+    		int ffds = m_CFeed[cfds][cchan][j].bFSd;
+	    	int fchan = m_CFeed[cfds][cchan][j].bchanel;
+	      	if(ffds == 0)
+		     	break;
+         	m_SlaveStation[ffds][fchan].Adjust_state =1;
+		}
+	}
+
+	strItem += "标校";
+    	if(nlistaj == 3)
+        	m_List3.SetItemText(m_Itemnum, 3, strItem);
+     	else if(nlistaj == 2)
+        	m_List2.SetItemText(m_Itemnum, 3, strItem);
+       	else if(nlistaj == 1)
+         	m_List1.SetItemText(m_Itemnum, 3, strItem);
+
+}
+
+void CSampleFormView::Deladjust() 
+{
+	CString strf,strc;
+	int n =strItem.Find("A");
+	if(n == -1)
+	{
+        AfxMessageBox("请选择模拟量");
+		return;
+	}
+		    strf = strItem.Mid(0,2);
+    		strc = strItem.Mid(n+1);
+		int nfds = m_Str2Data.String2Int(strf);
+		int nchan = m_Str2Data.String2Int(strc);
+
+	m_SlaveStation[nfds][nchan].Adjust_state =0;
+	for(int i=0 ; i<65 ;i++)
+	{
+		int cfds = m_ADCbreakE[nfds][nchan][i].bFSd;
+		int cchan = m_ADCbreakE[nfds][nchan][i].bchanel;
+		if(cfds == 0)
+			break;
+     	m_SlaveStation[cfds][cchan+16].Adjust_state =0;
+    	for(int j=0 ; j<65 ;j++)
+		{
+    		int ffds = m_CFeed[cfds][cchan][j].bFSd;
+	    	int fchan = m_CFeed[cfds][cchan][j].bchanel;
+	      	if(ffds == 0)
+		     	break;
+         	m_SlaveStation[ffds][fchan].Adjust_state =0;
+		}
+	}
+	strItem = strItem.Mid(0,5);
+    	if(nlistaj == 3)
+        	m_List3.SetItemText(m_Itemnum, 3, strItem);
+     	else if(nlistaj == 2)
+        	m_List2.SetItemText(m_Itemnum, 3, strItem);
+       	else if(nlistaj == 1)
+         	m_List1.SetItemText(m_Itemnum, 3, strItem);
+}
+
+void CSampleFormView::AdjustAll() 
+{
+}
+
+void CSampleFormView::DelAllAdjust() 
+{
 }
 
 void CSampleFormView::DisList123() 
@@ -613,105 +732,180 @@ void CSampleFormView::DisList123()
 	CString pString ;
 	m_List1.GetWindowText(pString);
 	ilist = m_Str2Data.String2Int(pString);
-	BuildList(1, ilist);
+	DisList(1, ilist);
 
 	m_List2.GetWindowText(pString);
 	ilist = m_Str2Data.String2Int(pString);
-	BuildList(2, ilist);
+	DisList(2, ilist);
 
 	m_List3.GetWindowText(pString);
 	ilist = m_Str2Data.String2Int(pString);
-	BuildList(3, ilist);
+	DisList(3, ilist);
 }
 
 //nlist 列表控件 ilist  控件序号
 void CSampleFormView::BuildList(int nlist ,int ilist) 
 {
+		int ncount = m_DisplayPoint[ilist][60].fds;
 		if(nlist == 1)
 		{
-			int ncount = m_DisplayPoint[ilist][60].fds;
             m_List1.DeleteAllItems();
-    		m_List1.SetItemCount(ncount);
-		   for(int i = 0; i <= ncount; i ++)
+//    		m_List1.SetItemCount(ncount);
+		   for(int i = 0; i <= 64; i ++)
 		   {
-		int nfds = m_DisplayPoint[ilist][i].fds;
-		if(!nfds)
-			return;
-		int nchan = m_DisplayPoint[ilist][i].chan;
+        		int nfds = m_DisplayPoint[ilist][i].fds;
+	        	if(nfds == 0)
+	          		break;
+         		int nchan = m_DisplayPoint[ilist][i].chan;
 				  CString dddd =m_DisplayPoint[ilist][i].CPName;
-				  dddd.TrimRight();
 				  m_List1.InsertItem(i, "");
 				  m_List1.SetItemText(i, 1, dddd);
-				  int nptype = m_DisplayPoint[ilist][i].ptype;
-				  if( nptype== 0 || nptype== 1 || nptype== 2)
-					  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
-				  else
-					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
-    			  m_List1.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
-				  dddd.TrimRight();
 				  m_List1.SetItemText(i, 3, dddd);
 		   }
 		}
 		if(nlist == 2)
 		{
-			int ncount = m_DisplayPoint[ilist][60].fds;
             m_List2.DeleteAllItems();
-    		m_List2.SetItemCount(ncount);
-		   for(int i = 0; i <= ncount; i ++)
+		   for(int i = 0; i <= 64; i ++)
 		   {
 		int nfds = m_DisplayPoint[ilist][i].fds;
-		if(!nfds)
-			return;
+	        	if(nfds == 0)
+	          		break;
 		int nchan = m_DisplayPoint[ilist][i].chan;
 				  CString dddd =m_DisplayPoint[ilist][i].CPName;
-				  dddd.TrimRight();
 				  m_List2.InsertItem(i, "");
 				  m_List2.SetItemText(i, 1, dddd);
-				  int nptype = m_DisplayPoint[ilist][i].ptype;
-				  if( nptype== 0 || nptype== 1 || nptype== 2)
-					  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
-				  else
-					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
-    			  m_List2.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
-				  dddd.TrimRight();
 				  m_List2.SetItemText(i, 3, dddd);
 		   }
 		}
 		if(nlist == 3)
 		{
-			int ncount = m_DisplayPoint[ilist][60].fds;
             m_List3.DeleteAllItems();
-    		m_List3.SetItemCount(ncount);
-		   for(int i = 0; i <= ncount; i ++)
+		   for(int i = 0; i <= 64; i ++)
 		   {
 		int nfds = m_DisplayPoint[ilist][i].fds;
-		if(!nfds)
-			return;
+	        	if(nfds == 0)
+	          		break;
 		int nchan = m_DisplayPoint[ilist][i].chan;
 				  CString dddd =m_DisplayPoint[ilist][i].CPName;
-				  dddd.TrimRight();
 				  m_List3.InsertItem(i, "");
 				  m_List3.SetItemText(i, 1, dddd);
-				  int nptype = m_DisplayPoint[ilist][i].ptype;
-				  if( nptype== 0 || nptype== 1 || nptype== 2)
-					  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
-				  else
-					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
-    			  m_List3.SetItemText(i, 2, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
-				  dddd.TrimRight();
 				  m_List3.SetItemText(i, 3, dddd);
 		   }
 		}
 }
 
+void CSampleFormView::DisList(int nlist ,int ilist) 
+{
+     	CString dddd ;
+		int ncount = m_DisplayPoint[ilist][60].fds;
+		if(nlist == 1)
+		{
+		   for(int i = 0; i <= 64; i ++)
+		   {
+	         	int nfds = m_DisplayPoint[ilist][i].fds;
+	        	if(nfds == 0)
+	          		break;
+         		int nchan = m_DisplayPoint[ilist][i].chan;
+				  int nptype = m_DisplayPoint[ilist][i].ptype;
+				  if( nptype== 0 || nptype== 1 || nptype== 2)
+				  {
+					  int nstatus = m_SlaveStation[nfds][nchan].Channel_state;
+					  if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x70))
+						  dddd= socketClient.strstatus(nstatus);
+					  else
+	     				  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
+				  }
+				  else
+				  {
+//					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
+					  int nstatus = m_SlaveStation[nfds][nchan].CValue;
+					  if(nstatus == 0)
+						  dddd= m_SlaveStation[nfds][nchan].ZeroState;
+					  else if(nstatus == 1)
+						  dddd= m_SlaveStation[nfds][nchan].OneState;
+					  else if(nstatus == 2)
+						  dddd= m_SlaveStation[nfds][nchan].TwoState;
+				  }
+    			  m_List1.SetItemText(i, 2, dddd);
+//            m_List1.UpdateTextColor(i, m_Colorref[m_SlaveStation[nfds][nchan].Channel_state].SFSd);
+		   }
+		}
+		if(nlist == 2)
+		{
+		   for(int i = 0; i <= 64; i ++)
+		   {
+	        	int nfds = m_DisplayPoint[ilist][i].fds;
+	        	if(nfds == 0)
+	          		break;
+         		int nchan = m_DisplayPoint[ilist][i].chan;
+				  int nptype = m_DisplayPoint[ilist][i].ptype;
+				  if( nptype== 0 || nptype== 1 || nptype== 2)
+				  {
+					  int nstatus = m_SlaveStation[nfds][nchan].Channel_state;
+					  if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x70))
+						  dddd= socketClient.strstatus(nstatus);
+					  else
+				    	  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
+				  }
+				  else
+				  {
+//					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
+					  int nstatus = m_SlaveStation[nfds][nchan].CValue;
+					  if(nstatus == 0)
+						  dddd= m_SlaveStation[nfds][nchan].ZeroState;
+					  else if(nstatus == 1)
+						  dddd= m_SlaveStation[nfds][nchan].OneState;
+					  else if(nstatus == 2)
+						  dddd= m_SlaveStation[nfds][nchan].TwoState;
+				  }
+    			  m_List2.SetItemText(i, 2, dddd);
+//            m_List2.SetRowColor(i, m_Colorref[m_SlaveStation[nfds][nchan].Channel_state].SFSd, RGB(255,255,255));
+		   }
+		}
+		if(nlist == 3)
+		{
+		   for(int i = 0; i <= 64; i ++)
+		   {
+         		int nfds = m_DisplayPoint[ilist][i].fds;
+	        	if(nfds == 0)
+	          		break;
+	        	int nchan = m_DisplayPoint[ilist][i].chan;
+				  int nptype = m_DisplayPoint[ilist][i].ptype;
+				  if( nptype== 0 || nptype== 1 || nptype== 2)
+				  {
+					  int nstatus = m_SlaveStation[nfds][nchan].Channel_state;
+					  if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x70))
+						  dddd= socketClient.strstatus(nstatus);
+					  else
+			    		  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
+				  }
+				  else
+				  {
+//					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
+					  int nstatus = m_SlaveStation[nfds][nchan].CValue;
+					  if(nstatus == 0)
+						  dddd= m_SlaveStation[nfds][nchan].ZeroState;
+					  else if(nstatus == 1)
+						  dddd= m_SlaveStation[nfds][nchan].OneState;
+					  else if(nstatus == 2)
+						  dddd= m_SlaveStation[nfds][nchan].TwoState;
+				  }
+    			  m_List3.SetItemText(i, 2, dddd);
+//            m_List3.SetRowColor(i, m_Colorref[m_SlaveStation[nfds][nchan].Channel_state].SFSd, RGB(255,255,255));
+		   }
+		}
+}
+
+
 void CSampleFormView::OnContextMenu(CWnd* pWnd, CPoint point) 
 {
-CMenu menu; // 定义CMenu类对象
-menu.LoadMenu(IDC_POPLISTCONTROL); //装入刚建立的菜单 IDC_POPMENU menu.GetSubMenu(0)->TrackPopupMenu(TPM_LEFTALIGN,point.x,point.y,pWnd); 
+	CString pString ;
+    CMenu menu,* pSubMenu; // 定义CMenu类对象
+    menu.LoadMenu(IDC_POPLISTCONTROL); //装入刚建立的菜单 IDC_POPMENU menu.GetSubMenu(0)->TrackPopupMenu(TPM_LEFTALIGN,point.x,point.y,pWnd); 
 /*GetSubMenu(0) 得到IDC_POPMENU的第一层子菜单，TrackPopupMenu将菜单弹出到（x,y）处。由于设置为TPM_LEFTALIGN，所以菜单以（x,y）为左上角。*/
-
 }
 
