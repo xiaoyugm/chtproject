@@ -12,5 +12,8 @@ enum CommandType
 	FAULTATRESIA,               //故障闭锁
 	INFODEFINE,                 //配置分站
 	SERIALERROR,                 //串口通讯失败
-	AUTOCONTROL                 //自动控制操作
+	AUTOCONTROL,                 //自动控制操作
+	SAVEDBREALTIMEDATA,           //存实时数据
+	SAVEADJUSTDATA,               //存调校数据
+	SAVE5MRTDATA                  //存5M实时数据
 };

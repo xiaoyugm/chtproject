@@ -12,7 +12,11 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
+extern SerialF               m_ClassTime[200];            //°àÉèÖÃ
+extern CNDKMessage m_NDKmes[50];
+extern unsigned char *m_ndkRTD;
 static BOOL bIsConnect = FALSE;
+extern SlaveStation             m_SlaveStation[65][25];
 extern  OthersSetting    m_OthersSetting;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -124,12 +128,12 @@ BOOL CMQServer::SendStartTime(CTime time)
 	if(bIsConnect)
 	{
 		CNDKMessage message(SENDSTARTTIME);
-		message.Add(tHostStartTime.GetYear());
-		message.Add(tHostStartTime.GetMonth());
-		message.Add(tHostStartTime.GetDay());
-		message.Add(tHostStartTime.GetHour());
-		message.Add(tHostStartTime.GetMinute());
-		message.Add(tHostStartTime.GetSecond());
+		message.Add(m_OthersSetting.DBname);
+		message.Add(m_ClassTime[1].ffds);
+//		message.Add(tHostStartTime.GetDay());
+//		message.Add(tHostStartTime.GetHour());
+//		message.Add(tHostStartTime.GetMinute());
+//		message.Add(tHostStartTime.GetSecond());
 		
 		if(SendMessageToAllUsers(message))
 		{
@@ -418,5 +422,153 @@ void CMQServer::Sync(CNDKMessage &message)
 	{
 		AfxMessageBox(e.ErrorMessage());
 	}*/
+
+}
+
+void CMQServer::SyncCRTData(unsigned char  afds, unsigned char  achan,int dbtype)
+{
+	CString strTable;
+	int m_nptype = m_SlaveStation[afds][achan].ptype;
+	if(dbtype == 0 || dbtype == 2|| dbtype == 4)
+	{
+		CNDKMessage message(SAVEDBREALTIMEDATA);
+		message.Add(1);
+		strTable = m_SlaveStation[afds][achan].WatchName;
+		message.Add(strTable);
+		message.Add(m_nptype);
+		message.Add(afds);
+		message.Add(achan);
+	    if(m_nptype >3)
+		{
+    		message.Add(m_SlaveStation[afds][achan].CValue);
+    		message.Add(0);
+		}
+		else
+		{
+    		message.Add(0);
+    		message.Add(m_SlaveStation[afds][achan].AValue);
+		}
+		message.Add(m_SlaveStation[afds][achan].Channel_state);
+		message.Add(m_ndkRTD[0]);
+		message.Add(m_ndkRTD[1]);
+		message.Add(m_ndkRTD[2]);
+		message.Add(m_ndkRTD[3]);
+		message.Add(m_ndkRTD[4]);
+		message.Add(m_ndkRTD[5]);
+    	strTable = theApp.curuser;
+		message.Add(strTable);
+		if(dbtype == 0)
+		{
+		message.Add("");
+		message.Add(0);
+		message.Add(0);
+		message.Add("");
+		}
+		else if(dbtype == 2)
+		{
+		message.Add(m_SlaveStation[afds][achan].strSafe);
+		message.Add(m_SlaveStation[afds][achan].m_ffds);
+		message.Add(m_SlaveStation[afds][achan].m_fchan);
+		message.Add(m_SlaveStation[m_SlaveStation[afds][achan].m_ffds][m_SlaveStation[afds][achan].m_fchan].FeedState);
+		}
+		else
+		{
+		message.Add("");
+		message.Add(0);
+		message.Add(0);
+		message.Add(m_SlaveStation[afds][achan].FeedState);
+		}
+//		m_NDKmes[theApp.m_message] =message;
+		SendMessageToAllUsers(message);
+	}
+	else if(dbtype == 1 || dbtype == 3|| dbtype == 5)
+	{
+		CNDKMessage message(SAVEADJUSTDATA);
+		message.Add(1);
+		strTable = m_SlaveStation[afds][achan].WatchName;
+		message.Add(strTable);
+		message.Add(m_nptype);
+		message.Add(afds);
+		message.Add(achan);
+	    if(m_nptype >3)
+		{
+    		message.Add(m_SlaveStation[afds][achan].CValue);
+    		message.Add(0);
+		}
+		else
+		{
+    		message.Add(0);
+    		message.Add(m_SlaveStation[afds][achan].AValue);
+		}
+		message.Add(m_SlaveStation[afds][achan].Channel_state);
+		message.Add(m_ndkRTD[0]);
+		message.Add(m_ndkRTD[1]);
+		message.Add(m_ndkRTD[2]);
+		message.Add(m_ndkRTD[3]);
+		message.Add(m_ndkRTD[4]);
+		message.Add(m_ndkRTD[5]);
+   		strTable = theApp.curuser;
+		message.Add(strTable);
+		if(dbtype == 1)
+		{
+		message.Add("");
+		message.Add(0);
+		message.Add(0);
+		message.Add("");
+		}
+		else if(dbtype == 3)
+		{
+		message.Add(m_SlaveStation[afds][achan].strSafe);
+		message.Add(m_SlaveStation[afds][achan].m_ffds);
+		message.Add(m_SlaveStation[afds][achan].m_fchan);
+		message.Add(m_SlaveStation[m_SlaveStation[afds][achan].m_ffds][m_SlaveStation[afds][achan].m_fchan].FeedState);
+		}
+		else
+		{
+		message.Add("");
+		message.Add(0);
+		message.Add(0);
+		message.Add(m_SlaveStation[afds][achan].FeedState);
+		}
+		SendMessageToAllUsers(message);
+//		m_NDKmes[theApp.m_message] =message;
+	}
+	else if(dbtype == 10 )
+	{
+		CNDKMessage message(SAVE5MRTDATA);
+		message.Add(1);
+		strTable = m_SlaveStation[afds][achan].WatchName;
+		message.Add(strTable);
+		message.Add(m_nptype);
+		message.Add(afds);
+		message.Add(achan);  //4
+    		message.Add(m_SlaveStation[afds][achan].AMinValue);
+			float av= m_SlaveStation[afds][achan].ATotalValue/m_SlaveStation[afds][achan].m_Atotal;
+    		message.Add(av);
+		message.Add(m_SlaveStation[afds][achan].Channel_state);
+		message.Add(m_ndkRTD[0]);
+		message.Add(m_ndkRTD[1]);
+		message.Add(m_ndkRTD[2]);
+		message.Add(m_ndkRTD[3]);
+		message.Add(m_ndkRTD[4]);
+		message.Add(m_ndkRTD[5]);
+    	strTable = theApp.curuser;
+		message.Add(strTable);
+		message.Add(m_SlaveStation[afds][achan].AMaxValue);
+		SendMessageToAllUsers(message);
+//		m_NDKmes[theApp.m_message] =message;
+	}
+//	theApp.m_message++;
+//	if(theApp.m_message == 50)
+//		theApp.m_message = 0;
+
+
+
+//    FX_DateTime          (bSave, _T("safemdate"),       m_szsafemdate);
+//    FX_VarChar           (bSave, _T("safemtext"),     m_szsafemtext);
+
+//				  COleDateTime oleDateTime=m_SlaveStation[afds][achan].ValueTime;
+//				  CString dddd   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+
 
 }

@@ -41,6 +41,7 @@ enum
 	ACTION
 };
 
+extern CNDKMessage m_NDKmes[50];
 extern SerialF                  m_Colorref[200];
 extern SlaveStation             m_SlaveStation[65][25];
 extern DisplayDraw    m_DisplayDraw[MAX_POINT_NUMBER];
@@ -84,7 +85,6 @@ CDrawView::CDrawView()
 
 	m_bDragDataAcceptable = FALSE;
 	m_Second =3 ;
-	m_FdsScan = 0;
     CountView = 0;
 	BOOL m_bCount = FALSE;
 	m_bGrid = FALSE;
@@ -524,8 +524,8 @@ void CDrawView::OnInitialUpdate()
 							{
 	SetTimer(CHART,1000,NULL);
 ///	SetTimer(VIEW,1317,NULL);
-	SetTimer(DRAWTASK,900,NULL);
-	SetTimer(ACTION,30,NULL);
+//	SetTimer(DRAWTASK,30,NULL);
+	SetTimer(ACTION,1000,NULL);
 							}
 ///							else{
 ///								AfxMessageBox("对不起，请使用正版软件");
@@ -844,29 +844,19 @@ void CDrawView::OnTimer(UINT nIDEvent)
 	{
     	case DRAWTASK:                                     
 			{
-/*				if(theApp.m_sendcom)
+				if(theApp.m_message >0 )
 				{
-//		    		theApp.Sync();
-//					theApp.m_sendcom =false;
+	     			theApp.SendMessage(m_NDKmes[theApp.m_FdsScan]);
+		     		m_NDKmes[theApp.m_FdsScan]= NULL;
+		    		theApp.m_FdsScan++;
+					if(theApp.m_FdsScan == 50)
+						theApp.m_FdsScan =0;
 				}
-				else
-				{*/
-//					if(m_FDSscan[64].scanfds)
-					{
-       	            CNDKMessage message1(REALTIMEDATA);
-					message1.Add(0x7E);
-					message1.Add(1);
-//					message1.Add(m_FDSscan[m_FdsScan].scanfds);
-	 				message1.Add(0x44);
-					message1.Add(0x21);
+
+//					theApp.m_sendcom =false;
 //					theApp.m_sendmessage =NULL;
 //					theApp.m_sendmessage = message1;
-		    		theApp.Sync(message1);
-					m_FdsScan++;
-//					if(m_FdsScan == m_FDSscan[64].scanfds)
-						m_FdsScan= 0;
-					}
-//				}
+//		    		theApp.Sync(message1);
 			}
 			break ;
     	case CHART: 

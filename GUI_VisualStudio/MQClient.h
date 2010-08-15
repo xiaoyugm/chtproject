@@ -9,7 +9,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#define MAX_ROW     50  //最大行数 50
+#define MAX_ROW     400  //最大行数 50
 
 #include "MQCommandType.h"
 #include "drawobj.h"
@@ -38,6 +38,8 @@ public:
 	void HostStateCheck();
 
 	CString strstatus(unsigned char  ustatus);
+	void Savefeedbr(unsigned char  hfds, unsigned char  hchan);
+	void feedbr(unsigned char  hfds, unsigned char  hchan);
 	void handbr(unsigned char  hfds, unsigned char  hchan, unsigned char hbr);
 	void SaveAdjust(unsigned char  afds, unsigned char  achan);
 	void SaveRtdata(unsigned char  afds, unsigned char  achan);
@@ -53,6 +55,7 @@ public:
     CAdjustdata     *m_AdjustdataNew;
 	CRealtimedata   m_Realtimedata;
 	CRealtimedata   *m_RealtimedataNew;
+	void CalRtDB(CTime time ,int &eYear, unsigned char  &eMonth);
 
 	void ConnectDB();
 

@@ -36,6 +36,7 @@
 #include "TabbedViewView.h"
 #include "SetTimeDlg.h"
 #include "ChildFrm.h"
+#include "MadeCertView.h"
 
 class CMainFrame : public CXTPMDIFrameWnd
 {
@@ -56,8 +57,20 @@ public:
 	COutputPane m_wndOutput;
 
 	CResourceViewPane       m_wndResourceView;
+	CResourceViewPane       m_wndResourceView2;
+	CResourceViewPane       m_wndResourceView3;
+	CResourceViewPane       m_wndResourceView4;
+	CResourceViewPane       m_wndResourceView5;
+	CResourceViewPane       m_wndResourceView6;
+	CXTPDockingPane* paneResourceView6;
+	CXTPDockingPane* paneResourceView5;
+	CXTPDockingPane* paneResourceView4;
+	CXTPDockingPane* paneResourceView3;
+	CXTPDockingPane* paneResourceView2;
+	CXTPDockingPane* paneResourceView;
 
-	int m_ontime ;
+//	CMadeCertView*           m_MadeCert;
+
 	CSampleFormView*		m_pSampleFormView;
 
 	CTabbedViewView*        m_pTabbedViewView;
@@ -85,7 +98,7 @@ public:
 // Operations
 public:
 ///	void RemoveLogo();
-	void MsgDel();
+	void CreateP(CString str1,char *str2);
 	void Msg(int iItem, CString str1,CString str2,CString str3,CString str4,CString str5);
 
 protected:
@@ -154,16 +167,32 @@ protected:
 ///	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	afx_msg void OnMadeMade();
 
+	afx_msg void OnALARMS();
+	afx_msg void OnBREAKES();
+	afx_msg void OnFEEDES();
+	afx_msg void OnSELECTS();
+
 	afx_msg void OnSDisA();
 	afx_msg void OnSDisD();
 	afx_msg void OnDisAAR();
 	afx_msg void OnDisABR();
 	afx_msg void OnDisAFER();
-	afx_msg void OnDisASR();
 	afx_msg void OnDisDABR();
 	afx_msg void OnDisDSC();
 	afx_msg void OnDisDFER();
+	afx_msg void OnDRIVERE();
 	
+	afx_msg void OnRECAAD();
+	afx_msg void OnRECABD();
+	afx_msg void OnRECAFED();
+	afx_msg void OnRECASR();
+	afx_msg void OnRECDABD();
+	afx_msg void OnRECDABB();
+	afx_msg void OnRECDSCD();
+	afx_msg void OnRECDFED();
+	afx_msg void OnRECDRIVERE();
+
+	afx_msg void OnCLASSTIME();
 	afx_msg void OnAdjustdis();
 	afx_msg void OnSafeMethod();
 	afx_msg void OnLOGOUT();
@@ -187,7 +216,6 @@ protected:
 	afx_msg void OnManipulate();
 	afx_msg LRESULT OnTabbarMouseMsg(WPARAM wParam,LPARAM lParam);
 	afx_msg void OnSelchangeTabInfo(NMHDR* pNMHDR, LRESULT* pResult);
-
 
 	void ExchangeLayout(CXTPPropExchange* pPX, BOOL bSerializeControls = TRUE);
 	

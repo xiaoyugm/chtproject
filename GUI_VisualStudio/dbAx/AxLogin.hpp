@@ -49,3 +49,33 @@ public:
     FX_Integer           (bSave, _T("classer"),       m_szclasser);
   };
 };
+
+class CAxCommonSet :
+    public CAxRecordset
+{
+public:
+  CAxCommonSet() { _SetDefaultValues(); }
+  ~CAxCommonSet() { }
+
+//  CString     m_szName,m_szupwd;
+  int  m_szCommonID, m_sznum1,m_sznum2,m_sznum3,m_sznum4,m_sznum5,m_sznum6;
+
+  //Set default values of class members
+  void _SetDefaultValues()
+  {
+//    m_szName =m_szupwd = _T("");
+    m_szCommonID  =m_sznum1=m_sznum2=m_sznum3=m_sznum4=m_sznum5=m_sznum6 = 0;
+  };
+
+  //Exchange field values with data provider
+  void DoFieldExchange(bool bSave = FALSE)
+  {
+    FX_Integer           (bSave, _T("CommonID"),        m_szCommonID);
+    FX_Integer           (bSave, _T("num1"),       m_sznum1);
+    FX_Integer           (bSave, _T("num2"),       m_sznum2);
+    FX_Integer           (bSave, _T("num3"),       m_sznum3);
+    FX_Integer           (bSave, _T("num4"),       m_sznum4);
+    FX_Integer           (bSave, _T("num5"),       m_sznum5);
+    FX_Integer           (bSave, _T("num6"),       m_sznum6);
+  };
+};

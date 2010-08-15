@@ -21,7 +21,7 @@ public:
 	CMQServer();
 	virtual ~CMQServer();
 public:
-	BOOL Listenning(long lPort = 8008);
+	BOOL Listenning(long lPort = 8001);
 	BOOL SendMessage(CNDKMessage& message);
 
 	BOOL SendSQL(CString strSql);
@@ -29,6 +29,7 @@ public:
 
 	void StopServer();
 
+	void SyncCRTData(unsigned char  afds, unsigned char  achan,int dbtype);
 protected:
 	CString m_strIP;
 	CString m_strPort;

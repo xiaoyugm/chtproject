@@ -519,7 +519,7 @@ void CSetTimeDlg::OnButSend()
 	}
 	else if(chcommand == 0x43)       //ÅäÖÃ²âµã
 	{
-		int nptype;
+//		int nptype;
 		            m_ndkSend[0] = 0x7E;
 		     nfds = m_VERIFYT.GetCurSel()+1;
 		            m_ndkSend[1] = nfds;
@@ -608,7 +608,7 @@ void CSetTimeDlg::OnButSend()
 							{
                              m_SControl.AbsolutePosition(m_ndkSend[1]);
          					 m_SControlNew->m_szSID = m_ndkSend[1];
-	         				 m_SControlNew->m_szSpeCtrol = m_ndkSend[3];
+	         				 m_SControlNew->m_szSpeCtrol = (bool)m_ndkSend[3];
 					   	     m_SControlNew->Update();    //Update the recordset
 							}
 		     			    catch (CAxException *e)

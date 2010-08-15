@@ -603,7 +603,7 @@ void CSampleFormView::OnRclick3(NMHDR* pNMHDR, LRESULT* pResult)
     CPoint point;//定义一个用于确定光标位置的位置
     GetCursorPos( &point);//获取当前光标的位置，以便使得菜单可以跟随光标
 	theApp.DocNum = 3;
-	theApp.idis = m_Str2Data.String2Int(pString);
+//	theApp.idis = m_Str2Data.String2Int(pString);
 
 		CMenu menu;
 		if (menu.LoadMenu(IDC_POPLISTCONTROL))
@@ -657,6 +657,7 @@ void CSampleFormView::Openadjust()
 		int cchan = m_ADCbreakE[nfds][nchan][i].bchanel;
 		if(cfds == 0)
 			break;
+		//关联的开关量
      	m_SlaveStation[cfds][cchan+16].Adjust_state =1;
     	for(int j=0 ; j<65 ;j++)
 		{
@@ -664,6 +665,7 @@ void CSampleFormView::Openadjust()
 	    	int fchan = m_CFeed[cfds][cchan][j].bchanel;
 	      	if(ffds == 0)
 		     	break;
+			//关联的馈电量
          	m_SlaveStation[ffds][fchan].Adjust_state =1;
 		}
 	}
@@ -903,9 +905,9 @@ void CSampleFormView::DisList(int nlist ,int ilist)
 
 void CSampleFormView::OnContextMenu(CWnd* pWnd, CPoint point) 
 {
-	CString pString ;
-    CMenu menu,* pSubMenu; // 定义CMenu类对象
-    menu.LoadMenu(IDC_POPLISTCONTROL); //装入刚建立的菜单 IDC_POPMENU menu.GetSubMenu(0)->TrackPopupMenu(TPM_LEFTALIGN,point.x,point.y,pWnd); 
+//	CString pString ;
+//    CMenu menu,* pSubMenu; // 定义CMenu类对象
+//    menu.LoadMenu(IDC_POPLISTCONTROL); //装入刚建立的菜单 IDC_POPMENU menu.GetSubMenu(0)->TrackPopupMenu(TPM_LEFTALIGN,point.x,point.y,pWnd); 
 /*GetSubMenu(0) 得到IDC_POPMENU的第一层子菜单，TrackPopupMenu将菜单弹出到（x,y）处。由于设置为TPM_LEFTALIGN，所以菜单以（x,y）为左上角。*/
 }
 

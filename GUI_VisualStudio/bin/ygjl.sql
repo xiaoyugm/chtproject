@@ -164,11 +164,15 @@ CREATE TABLE [BJygjl].[dbo].[adjustdata] (
 	[AValue] [float] (8) ,
 	[ADStatus] [int] ,
 	[recdate] [datetime] ,
-	[Useridadd] [char] (20)
+	[Useridadd] [char] (20),
+	[safemtext] [char] (50),
+	[ffds] [int]   ,
+	[fchan] [int]   ,
+	[FeedStatus] [char] (20)
 ) ON [PRIMARY] 
 GO
 
-CREATE TABLE [BJygjl].[dbo].[realtimedata] (
+CREATE TABLE [BJygjl].[dbo].[rt201008data] (
 	[RTID] [int] NOT NULL PRIMARY KEY IDENTITY(1,1),
 	[Name] [char] (50) NOT NULL ,
 	[ptype] [int] ,
@@ -179,7 +183,53 @@ CREATE TABLE [BJygjl].[dbo].[realtimedata] (
 	[ADStatus] [int] ,
 	[recdate] [datetime] ,
 	[Useridadd] [char] (20),
-	[safemdate] [datetime] ,
-	[safemtext] [char] (50)
+	[safemtext] [char] (50),
+	[ffds] [int]   ,
+	[fchan] [int]   ,
+	[FeedStatus] [char] (20)
+) ON [PRIMARY] 
+GO
+
+CREATE TABLE [BJygjl].[dbo].[rt201009data] (
+	[RTID] [int] NOT NULL PRIMARY KEY IDENTITY(1,1),
+	[Name] [char] (50) NOT NULL ,
+	[ptype] [int] ,
+	[fds] [int]   ,
+	[chan] [int]   ,
+	[CDValue] [int] ,
+	[AValue] [float] (8) ,
+	[ADStatus] [int] ,
+	[recdate] [datetime] ,
+	[Useridadd] [char] (20),
+	[safemtext] [char] (50),
+	[ffds] [int]   ,
+	[fchan] [int]   ,
+	[FeedStatus] [char] (20)
+) ON [PRIMARY] 
+GO
+
+CREATE TABLE [BJygjl].[dbo].[rt5mdata] (
+	[RT5ID] [int] NOT NULL PRIMARY KEY IDENTITY(1,1),
+	[Name] [char] (50) NOT NULL ,
+	[ptype] [int] ,
+	[fds] [int]   ,
+	[chan] [int]   ,
+	[AMinValue] [float] (8) ,
+	[AValue] [float] (8) ,
+	[ADStatus] [int] ,
+	[recdate] [datetime] ,
+	[Useridadd] [char] (20),
+	[AMaxValue] [float] (8)
+) ON [PRIMARY] 
+GO
+
+CREATE TABLE [BJygjl].[dbo].[commonset] (
+	[CommonID] [int] NOT NULL,
+	[num1] [int] ,
+	[num2] [int]   ,
+	[num3] [int]   ,
+	[num4] [int] ,
+	[num5] [int] ,
+	[num6] [int]
 ) ON [PRIMARY] 
 GO

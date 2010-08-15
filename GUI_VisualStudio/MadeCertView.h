@@ -7,6 +7,10 @@
 // MadeCertView.h : header file
 //
 
+#include "dbAx\AxSControl.hpp"
+#include "dbAx\AxContactCmd.hpp"
+#include "dbAx\CardFileEvents.hpp"
+#include "dbAx\AccountSetEvents.hpp"
 /////////////////////////////////////////////////////////////////////////////
 // CMadeCertView form view
 
@@ -14,25 +18,59 @@
 #include <afxext.h>
 #endif
 
-
 class CMadeCertView : public CFormView
 {
-protected:
+public:
 	CMadeCertView();           // protected constructor used by dynamic creation
 	DECLARE_DYNCREATE(CMadeCertView)
+	virtual ~CMadeCertView();
 
 // Form Data
 public:
 	//{{AFX_DATA(CMadeCertView)
 	enum { IDD = IDD_FORMVIEW_MADE };
 	CListCtrl	m_List;
+	UINT	m_ctrlStartH;
+	UINT	m_ctrlEndH;
+	CDateTimeCtrl	m_ctrlStartTime;
+	CDateTimeCtrl	m_ctrlEndTime;
+	CXTFlatComboBox     m_ComBoxSM;
 	//}}AFX_DATA
+	CTime m_endDateTime;
+	CTime m_startDateTime;
 
+    CAxConnection   m_Cn;
+    CAxContactCmd   m_ContactCmd;
+    CAxPointDescription  m_PointDes;
+	CRealtimedata   m_Realtimedata;
+	CRealtimedata   m_Realtimedata1;
+	CRt5mdata       m_Rt5mdata;
+
+	CString2DataType    m_Str2Data;
 // Attributes
 public:
 	int m_select;
+	CString m_stragrv;
 	CString m_num;
 	CBitmap m_bitMadeView,m_bitMadeViewUser,m_bitMadeCert;
+
+	void OnALARMSM();
+	void OnBREAKESM();
+	void OnFEEDES();
+	void OnSELECTSM();
+
+	void OnRECAAD();
+	void OnRECABD();
+	void OnRECAFED();
+	void OnRECASR();
+	void OnRECDABD();
+	void OnRECDABB();
+	void OnRECDFED();
+	void OnRECDSCD();
+	void OnRECDRIVERE();
+
+	void copy_sheet(const char* from, const char* to);
+	int  GetDayM(int monthM);
 
 // Operations
 public:
@@ -48,7 +86,6 @@ public:
 
 // Implementation
 protected:
-	virtual ~CMadeCertView();
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
@@ -56,7 +93,12 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CMadeCertView)
-	afx_msg void OnButtonLineandmade();
+	afx_msg void OnchangeComboSM();
+	afx_msg void OnChangeEditStarth();
+	afx_msg void OnChangeEditEndh();
+	afx_msg void OnDatetimestart(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnDatetimeend(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnBOKSEARCH();
 	afx_msg void OnButtonViewinfo();
 	afx_msg void OnButtonAutMade();
 	afx_msg void OnClickListMade(NMHDR* pNMHDR, LRESULT* pResult);
