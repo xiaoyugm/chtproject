@@ -10,6 +10,7 @@
 
 using namespace std;
 
+CommonStr        m_CommonStr[11];
 ADTypeTable	     m_ADTypeTable[9];
 OthersSetting    m_OthersSetting;
 ViewWindows      m_ViewWindows[4];
@@ -105,6 +106,7 @@ bool CControlXml::ParseXml(const CString xmlFile)
 bool CControlXml::ParseGroups(CMarkup& xml)
 {
     // Look for <ControlGroups> element.
+	LPCTSTR str1 = "",str2 = "",str3 = "";
 	if(xml.FindElem(_T("IpAddress")))
 	{
     // Extract the group name.
@@ -116,6 +118,46 @@ bool CControlXml::ParseGroups(CMarkup& xml)
 		m_OthersSetting.IP = strnumForm;
         return true;
 	}
+	else if ( xml.FindElem(_T("ReportSort")) )
+    {
+        m_CommonStr[0].strc[11] = xml.GetAttrib(_T("TABLE"));
+    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s0")),str1,str2,str3);
+        m_CommonStr[0].strc[0] = str1;
+        m_CommonStr[0].strc[1] = str2;
+        m_CommonStr[0].strc[2] = str3;
+    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s1")),str1,str2,str3);
+        m_CommonStr[0].strc[3] = str1;
+        m_CommonStr[0].strc[4] = str2;
+        m_CommonStr[0].strc[5] = str3;
+    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s2")),str1,str2,str3);
+        m_CommonStr[0].strc[6] = str1;
+        m_CommonStr[0].strc[7] = str2;
+        m_CommonStr[0].strc[8] = str3;
+    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s3")),str1,str2,str3);
+        m_CommonStr[0].strc[9] = str1;
+        m_CommonStr[0].strc[10] = str2;
+        return true;
+    }
+	else if ( xml.FindElem(_T("ReportHead")) )
+    {
+    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s0")),str1,str2,str3);
+        m_CommonStr[1].strc[0] = str1;
+        m_CommonStr[1].strc[1] = str2;
+        m_CommonStr[1].strc[2] = str3;
+    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s1")),str1,str2,str3);
+        m_CommonStr[1].strc[3] = str1;
+        m_CommonStr[1].strc[4] = str2;
+        m_CommonStr[1].strc[5] = str3;
+    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s2")),str1,str2,str3);
+        m_CommonStr[1].strc[6] = str1;
+        m_CommonStr[1].strc[7] = str2;
+        m_CommonStr[1].strc[8] = str3;
+    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s3")),str1,str2,str3);
+        m_CommonStr[1].strc[9] = str1;
+        m_CommonStr[1].strc[10] = str2;
+        m_CommonStr[1].strc[11] = str3;
+        return true;
+    }
 	else if ( xml.FindElem(_T("PointsSetting")) )
     {
     // Extract the group name.

@@ -62,7 +62,9 @@
 #define IDB_RESTREE                     165
 #define IDD_FORMVIEW_MADE               165
 #define ID_DEBUG_STARTWITHOUTDEBUG      167
+#define IDR_MREPORT                     167
 #define ID_DEBUG_PROSSESES              168
+#define IDD_DIA_CLASS                   168
 #define ID_DEBUG_EXCEPTIONS             169
 #define ID_DEBUG_STEPINTO               170
 #define ID_DEBUG_STEPOVER               171
@@ -267,6 +269,14 @@
 #define IDC_EDIT_SM                     1070
 #define IDC_R_END                       1071
 #define IDC_R_START                     1072
+#define IDCANCELdemo                    1072
+#define IDC_COMBMADE                    1073
+#define IDC_E_START                     1074
+#define IDC_E_END                       1075
+#define IDC_EDIT_DAYREPORT              1075
+#define IDC_EDIT_CLASSNUM               1076
+#define IDOKSEARCH                      1077
+#define IDC_COMBLOG                     1078
 #define IDC_LIST_POINT1                 1128
 #define IDC_LIST_POINT2                 1129
 #define IDC_LIST_POINT3                 1130
@@ -351,6 +361,31 @@
 #define ID_MADE_MADE                    32828
 #define ID_DIS_AAR                      32829
 #define ID_DIS_ABR                      32830
+#define ID_ALARMS                       32831
+#define ID_BREAKES                      32832
+#define ID_FEEDES                       32833
+#define ID_SELECTS                      32834
+#define ID_CLASSTIME                    32835
+#define ID_REC_DRIVERE                  32836
+#define ID_DRIVERE                      32837
+#define ID_REC_AAD                      32838
+#define ID_REC_ABD                      32839
+#define ID_REC_AFED                     32840
+#define ID_REC_ASR                      32841
+#define ID_REC_DABD                     32842
+#define ID_REC_DSCD                     32843
+#define ID_REC_DFED                     32844
+#define ID_REC_DABB                     32845
+#define ID_EXCEL_A                      32846
+#define ID_EXCEL_AA                     32847
+#define ID_EXCEL_AB                     32848
+#define ID_EXCEL_AFE                    32849
+#define ID_EXCEL_ASR                    32850
+#define ID_EXCEL_DA                     32851
+#define ID_EXCEL_DAB                    32852
+#define ID_EXCEL_DSCD                   32853
+#define ID_EXCEL_DFE                    32854
+#define ID_EXCEL_DRIVERE                32855
 #define ID_OnSimulation                 32905
 #define ID_OnGenus                      32906
 #define ID_MANIPULATE                   32907
@@ -364,9 +399,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        166
-#define _APS_NEXT_COMMAND_VALUE         32829
-#define _APS_NEXT_CONTROL_VALUE         1072
+#define _APS_NEXT_RESOURCE_VALUE        169
+#define _APS_NEXT_COMMAND_VALUE         32856
+#define _APS_NEXT_CONTROL_VALUE         1079
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

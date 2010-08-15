@@ -140,33 +140,50 @@ struct ADTypeTable	 {
 	DTypeTFD        m_DTypeTFD;            //模拟量开关量类型描述
 };
 
-
 //控制表
-
-
 //馈电管理表
-
-
 //调校管理表
-
-
 //用户表
 
 
+//调用显示、报表  
+struct ADMainDis	 {
+	int     m_ATotalnum;	                 //模拟量0-24点总值数量           报警/断电次数
+	float   ATotalV;	        	         //模拟量0-24点总值
+	int     duant;                           //是否某段时间
+	float   AMaxValue;	                     //模拟量最大值                   第n次最大值
+	COleDateTime  AMaxTime;                  //模拟量最大值时间               第n次最大值时间
+	COleDateTime  ATime;                     //最后报警测点值时间             累计报警时间/馈电异常时刻
+	COleDateTime  NTime;                     //最后正常测点值时间   措施时刻  起始
+	COleDateTime  BTime;                     //最后断电测点值时间             终止
+	COleDateTime  RTime;                     //最后复电测点值时间   馈电时刻  措施时刻
+	CString     strsafetext;                                                //措施         
+	CString     strlocal;                                                   //断电区域|馈电状态|时刻  
+	int     havev; 
+};
+
+//日报/班报表头字符串
+struct CommonStr	 {
+	CString strc[12];                               
+};
 
 //////////////////////////////////////////////////////////////////////////
 //ADC断电    馈电
 struct ADCbreakE	 {
 	int     bFSd;	                        //分站  
 	int     bchanel;                        //控制量通道     馈电通道
-	CString adpoint;                        //AD点号         
-	CString cpoint;                         //C点号
+	CString adpoint;                        //AD     开关量点号         
+	CString cpoint;                         //C      控制量点号
 	CString CName;                          //控制量测点安装地点名称   
 };
 
-//串口连接分站   颜色设置
+//串口连接分站   颜色设置    报警、馈电、断电等list0--n对应点
 struct SerialF	 {
 	int     SFSd;	                        //分站  颜色值
+	int     cfds;	                        //分站 
+	int     cchan;	                        //控制通道
+	int     ffds;	                        //分站 
+	int     fchan;	                        //馈电通道
 };
 
 //通道号
@@ -176,7 +193,7 @@ struct SerialF	 {
 //};
 //分站
 struct SlaveStation {
-//	int FStyle;	                        //分站类型  
+	int     m_PID;	                        //点号  
 	int     ptype;                   //传感器类型
 	COleDateTime  ValueTime;              //采集测点值时间   
 	CString falma;                  //报警音乐
@@ -199,6 +216,8 @@ struct SlaveStation {
 	CString ZeroState;          //0态   开关量
 	CString OneState;           //1态   开关量
 	CString TwoState;           //2态   开关量
+	CString FeedState;           //馈电状态
+	CString strSafe;             //安全措施
 
 	unsigned char  RangeH8;                    //0通道控制量高四位
 	unsigned char  RangeL8;                    //0通道控制量低四位
@@ -211,7 +230,16 @@ struct SlaveStation {
     unsigned char  Control_state;        //控制量状态
 	unsigned char  Channel8;             //传感器类型+模拟/开关(通道类型
 
-    unsigned char   Adjust_state;        //标校状态          
+    unsigned char   Adjust_state;        //标校状态
+    unsigned char   m_second;            //第二次查馈电
+    unsigned char   m_ffds;              //馈电分站
+    unsigned char   m_fchan;             //馈电通道
+
+    CTime   m_5m;                //五分钟数据存储时间
+	float AMaxValue;	                 //模拟量最大值
+	float AMinValue;	                 //模拟量最小值
+	float ATotalValue;	                 //模拟量五分钟数据存储值
+    int   m_Atotal;                      //五分钟数据存储次数
 };
 
 //IP

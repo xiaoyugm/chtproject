@@ -17,6 +17,8 @@ static char THIS_FILE[] = __FILE__;
 
 //登陆成功判断
 static BOOL bIsLoggin = FALSE;
+extern ADMainDis         m_ADMainDis[65][25][65];          //调用显示
+extern SlaveStation             m_SlaveStation[65][25];
 extern  OthersSetting    m_OthersSetting;
 /////////////////////////////////////////////////////////////////////////////
 // CLoginDlg dialog
@@ -49,11 +51,13 @@ void CLoginDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDT_USER, m_strUser);
 //	DDX_Text(pDX, IDC_EDIT_SATUS, m_strEditStatus);
 	DDX_Control(pDX, IDC_LIST_USER, m_listUser);
+	DDX_Control(pDX, IDC_COMBLOG, m_ComBoxSM);
 	//}}AFX_DATA_MAP
 }
 
 BEGIN_MESSAGE_MAP(CLoginDlg, CXTResizeDialog)
 //{{AFX_MSG_MAP(CLoginDlg)
+	ON_CBN_SELCHANGE(IDC_COMBLOG, OnchangeComboSM)
 	ON_BN_CLICKED(IDC_BUTADD, AddODUser)
 	ON_BN_CLICKED(ID_DELUSER, DelUser)
     ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_USER, OnItemChangedList)
@@ -167,6 +171,8 @@ void CLoginDlg::OnOK()
 	}
     CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 	pFWnd->AddUser();
+        if ( m_PointDes._IsOpen() )
+            m_PointDes.Close();
     if ( m_SLogin._IsOpen() )
       m_SLogin.Close();
     m_Cn.Close();
@@ -176,10 +182,15 @@ void CLoginDlg::OnOK()
 
 void CLoginDlg::OnCancel() 
 {
-    if ( m_SLogin._IsOpen() )
-      m_SLogin.Close();
-    m_Cn.Close();
-    dbAx::Term();
+//	if(m_strdism != "OnDRIVERE")
+	{
+        if ( m_PointDes._IsOpen() )
+            m_PointDes.Close();
+        if ( m_SLogin._IsOpen() )
+            m_SLogin.Close();
+        m_Cn.Close();
+        dbAx::Term();
+	}
 	CDialog::OnCancel();
 }
 
@@ -189,12 +200,14 @@ BOOL CLoginDlg::OnInitDialog()
 	
 	int screenx=GetSystemMetrics (SM_CXSCREEN);
 	int screeny=GetSystemMetrics (SM_CYSCREEN);
-	ConnectDB();  //连接数据库
+//	if(m_strdism != "OnDRIVERE")
+    	ConnectDB();  //连接数据库
 	m_listUser.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_SHOWSELALWAYS | LVS_EX_GRIDLINES);
 	SetResize(IDC_LIST_USER,         SZ_TOP_LEFT,    SZ_BOTTOM_RIGHT);
 
 	if(m_strdism == "login")
 	{
+    	GetDlgItem(IDC_COMBLOG)->ShowWindow(SW_HIDE);;
 			m_listUser.InsertColumn(0,"用户",LVCFMT_LEFT,100);
 			m_listUser.InsertColumn(1,_T("等级"),LVCFMT_LEFT,100);
 			if(theApp.m_bLogIn)
@@ -249,73 +262,109 @@ BOOL CLoginDlg::OnInitDialog()
     			GetDlgItem(IDOK)->ShowWindow(SW_HIDE);;
     	MoveWindow(CRect(50,100,960,300));
 	}
-	if(m_strdism == "SDisA")
+	if(m_strdism == "OnSDisA")
 	{
     		SetWindowText(_T("模拟量调用显示"));
-			m_listUser.InsertColumn(0,"安装地点/名称",LVCFMT_LEFT,120);
-			m_listUser.InsertColumn(1,_T("单位"),LVCFMT_LEFT,40);
-			m_listUser.InsertColumn(2,"报警值",LVCFMT_LEFT,60);
-			m_listUser.InsertColumn(3,_T("断电值"),LVCFMT_LEFT,60);
-			m_listUser.InsertColumn(4,"复电值",LVCFMT_LEFT,60);
-			m_listUser.InsertColumn(5,_T("监测值"),LVCFMT_LEFT,60);
-			m_listUser.InsertColumn(6,"最近最大值",LVCFMT_LEFT,80);
-			m_listUser.InsertColumn(7,_T("平均值"),LVCFMT_LEFT,60);
-			m_listUser.InsertColumn(8,"最后报警时刻",LVCFMT_LEFT,120);
-			m_listUser.InsertColumn(9,_T("最后解除报警时刻"),LVCFMT_LEFT,120);
-			m_listUser.InsertColumn(10,"最后断电时刻",LVCFMT_LEFT,120);
-			m_listUser.InsertColumn(11,_T("最后复电时刻"),LVCFMT_LEFT,120);
+			m_listUser.InsertColumn(0,"安装地点/名称",LVCFMT_LEFT,150);
+//			m_listUser.InsertColumn(1,_T("单位"),LVCFMT_LEFT,40);
+//			m_listUser.InsertColumn(2,"报警值",LVCFMT_LEFT,60);
+//			m_listUser.InsertColumn(3,_T("断电值"),LVCFMT_LEFT,60);
+//			m_listUser.InsertColumn(4,"复电值",LVCFMT_LEFT,60);
+			m_listUser.InsertColumn(1,_T("监测值"),LVCFMT_LEFT,60);
+			m_listUser.InsertColumn(2,"最近最大值",LVCFMT_LEFT,80);
+			m_listUser.InsertColumn(3,_T("平均值"),LVCFMT_LEFT,60);
+			m_listUser.InsertColumn(4,"最后报警时刻",LVCFMT_LEFT,150);
+//			m_listUser.InsertColumn(5,_T("最后正常时刻"),LVCFMT_LEFT,120);
+			m_listUser.InsertColumn(5,"最后断电时刻",LVCFMT_LEFT,150);
+			m_listUser.InsertColumn(6,_T("最后复电(正常)时刻"),LVCFMT_LEFT,150);
+
+     	CString strstartTime,strname,dddd;
+//    	int eYear;
+		int iItem = 0;
+		m_PointDes.MoveFirst();
+		while ( !m_PointDes.IsEOF() )
+		{
+//			eYear = m_PointDes.m_szptype;
+//			if((eYear < 3) || (eYear > 12)||(eYear == 10))
+			{
+				strname = m_PointDes.m_szName;
+				strname.TrimRight();
+				strstartTime = m_PointDes.m_szpointnum;
+				strstartTime.TrimRight();
+				dddd = strstartTime + strname;
+               	m_ComBoxSM.AddString(dddd);
+   		       iItem++;
+			}
+			m_PointDes.MoveNext();
+		}
 	}
-	else if(m_strdism == "DisAAR")
-	{
-    		SetWindowText(_T("模拟量报警记录查询显示"));
-			m_listUser.InsertColumn(0,"用户",LVCFMT_LEFT,100);
-			m_listUser.InsertColumn(1,_T("等级"),LVCFMT_LEFT,100);
-	}
-	else if(m_strdism == "DisABR")
-	{
-    		SetWindowText(_T("模拟量断电记录查询显示"));
-			m_listUser.InsertColumn(0,"用户",LVCFMT_LEFT,100);
-			m_listUser.InsertColumn(1,_T("等级"),LVCFMT_LEFT,100);
-	}
-	else if(m_strdism == "DisAFER")
-	{
-    		SetWindowText(_T("模拟量馈电异常记录查询显示"));
-			m_listUser.InsertColumn(0,"用户",LVCFMT_LEFT,100);
-			m_listUser.InsertColumn(1,_T("等级"),LVCFMT_LEFT,100);
-	}
-	else if(m_strdism == "DisASR")
-	{
-    		SetWindowText(_T("模拟量统计值记录查询显示"));
-			m_listUser.InsertColumn(0,"用户",LVCFMT_LEFT,100);
-			m_listUser.InsertColumn(1,_T("等级"),LVCFMT_LEFT,100);
-	}
-	else if(m_strdism == "SDisD")
+	else if(m_strdism == "OnSDisD")
 	{
     		SetWindowText(_T("开关量调用显示"));
-			m_listUser.InsertColumn(0,"用户",LVCFMT_LEFT,100);
-			m_listUser.InsertColumn(1,_T("等级"),LVCFMT_LEFT,100);
+			m_listUser.InsertColumn(0,"安装地点/名称",LVCFMT_LEFT,150);
+			m_listUser.InsertColumn(1,_T("设备状态"),LVCFMT_LEFT,90);
+			m_listUser.InsertColumn(2,"时刻",LVCFMT_LEFT,150);
+			m_listUser.InsertColumn(3,"报警时刻",LVCFMT_LEFT,150);
+			m_listUser.InsertColumn(4,"断电时刻",LVCFMT_LEFT,150);
+			m_listUser.InsertColumn(5,_T("馈电状态/时刻"),LVCFMT_LEFT,190);
+			m_listUser.InsertColumn(6,_T("措施/时刻"),LVCFMT_LEFT,300);
+
+     	CString strstartTime,strname,dddd;
+		int iItem = 0;
+		m_PointDes.MoveFirst();
+		while ( !m_PointDes.IsEOF() )
+		{
+				strname = m_PointDes.m_szName;
+				strname.TrimRight();
+				strstartTime = m_PointDes.m_szpointnum;
+				strstartTime.TrimRight();
+				if(strstartTime.Find("D") != -1)
+				{
+		     		dddd = strstartTime + strname;
+                	m_ComBoxSM.AddString(dddd);
+   		            iItem++;
+				}
+			m_PointDes.MoveNext();
+		}
 	}
-	else if(m_strdism == "DisDABR")
+	if(m_strdism == "OnDRIVERE")
 	{
-    		SetWindowText(_T("开关量报警及断电记录查询显示"));
-			m_listUser.InsertColumn(0,"用户",LVCFMT_LEFT,100);
-			m_listUser.InsertColumn(1,_T("等级"),LVCFMT_LEFT,100);
-	}
-	else if(m_strdism == "DisDSC")
-	{
-    		SetWindowText(_T("开关量状态变动记录查询显示"));
-			m_listUser.InsertColumn(0,"用户",LVCFMT_LEFT,100);
-			m_listUser.InsertColumn(1,_T("等级"),LVCFMT_LEFT,100);
-	}
-	else if(m_strdism == "DisDFER")
-	{
-    		SetWindowText(_T("开关量馈电异常记录查询显示"));
-			m_listUser.InsertColumn(0,"用户",LVCFMT_LEFT,100);
-			m_listUser.InsertColumn(1,_T("等级"),LVCFMT_LEFT,100);
+    	GetDlgItem(IDC_COMBLOG)->ShowWindow(SW_HIDE);;
+    		SetWindowText(_T("设备故障显示"));
+			m_listUser.InsertColumn(0,"安装地点/名称",LVCFMT_LEFT,200);
+			m_listUser.InsertColumn(1,_T("故障状态"),LVCFMT_LEFT,80);
+			m_listUser.InsertColumn(2,"开始时间",LVCFMT_LEFT,150);
+			m_listUser.InsertColumn(3,_T("措施"),LVCFMT_LEFT,100);
+			m_listUser.InsertColumn(4,"措施时刻",LVCFMT_LEFT,150);
+
+		int iItem = 0;
+		CString strtemp,strtemp1;
+		for (int i = 1; i < 65;i++)
+		{
+			for(int j = 1; j < 25;j++ )
+			{
+				unsigned char m_state=m_SlaveStation[i][j].Channel_state;
+				if(m_state > 63)
+				{
+      	    	      m_listUser.InsertItem(iItem, m_SlaveStation[i][j].WatchName);
+//      	    	      m_listUser.SetItemText(iItem,0, m_SlaveStation[i][j].WatchName);
+				  	  strtemp = theApp.socketClient.strstatus(m_state);
+            		  m_listUser.SetItemText(iItem, 1, strtemp);
+				      COleDateTime o=m_SlaveStation[i][j].ValueTime;
+  	    			  strtemp = o.Format(_T("%Y-%m-%d %H:%M:%S")); 
+             		  m_listUser.SetItemText(iItem, 2, strtemp);
+					  strtemp1 = m_SlaveStation[i][j].strSafe;
+					  if(strtemp1 != ""){
+                  		  m_listUser.SetItemText(iItem, 3, strtemp1);
+                		  m_listUser.SetItemText(iItem, 4, strtemp);
+					  }
+					  iItem++;
+				}//if
+			}//j
+		}//i
+
 	}
 
-
-	
 	// TODO: Add extra initialization here
 //	m_btnOK.SetThemeHelper(&m_ThemeHelper);
 //	m_btnOK.SetIcon(IDI_ICON_OK);
@@ -331,7 +380,7 @@ BOOL CLoginDlg::OnInitDialog()
 	//	pWnd->SetFocus();
 	//	m_ctrlEditPWD.SetSel(0,-1,FALSE);
 	
-	UpdateData(FALSE);
+//	UpdateData(FALSE);
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -352,9 +401,22 @@ void CLoginDlg::ConnectDB()
 		m_SLogin.Create();
 		m_SLogin.CursorType(adOpenDynamic);
 		m_SLogin.CacheSize(50);
-		m_SLogin._SetRecordsetEvents(new CAccountSetEvents);
+//		m_SLogin._SetRecordsetEvents(new CAccountSetEvents);
 		m_SLogin.Open(_T("Select * From ygjluser"), &m_Cn);
 		m_SLogin.MarshalOptions(adMarshalModifiedOnly);
+
+		m_PointDes.Create();
+		m_PointDes.CursorType(adOpenDynamic);
+		m_PointDes.CacheSize(50);
+//		m_PointDes._SetRecordsetEvents(new CAccountSetEvents);
+     	if(m_strdism == "OnSDisA")
+			szConnect = "Select * From pointdescription WHERE fdel=0 and ptype<3";
+		else if(m_strdism == "OnSDisD")
+			szConnect = "Select * From pointdescription WHERE fdel=0 and ptype>3";
+		else 
+			szConnect = "Select * From pointdescription WHERE fdel=0 and ptype<3";
+       	m_PointDes.Open(szConnect, &m_Cn);
+		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
 	}
     catch ( dbAx::CAxException *e )
 	{
@@ -385,11 +447,17 @@ void CLoginDlg::OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult)
 
   *pResult = 0;
 
-  if ( pNMLV->uNewState == 3 )
-  {
-      if(!m_SLogin._IsEmpty() )
+   if(m_strdism == "OnSDisA"||m_strdism == "OnSDisD"||m_strdism == "OnDRIVERE")
+   {
+   }
+   else
+   {
+      if ( pNMLV->uNewState == 3 )
+	  {
+          if(!m_SLogin._IsEmpty() )
            m_SLogin.AbsolutePosition(pNMLV->iItem + 1);
-  }
+	  }
+   }
 }
 
 void CLoginDlg::DelUser()
@@ -414,10 +482,98 @@ void CLoginDlg::DelUser()
     m_listUser.DeleteAllItems();
           m_listUser.DeleteColumn(1);
           m_listUser.DeleteColumn(0);
+        if ( m_PointDes._IsOpen() )
+            m_PointDes.Close();
     if ( m_SLogin._IsOpen() )
       m_SLogin.Close();
     m_Cn.Close();
     dbAx::Term();
 	OnInitDialog();
+}
+
+void CLoginDlg::OnchangeComboSM() 
+{
+	CString strname, strf,strc;
+	UpdateData(TRUE);           //Exchange dialog data
+	int  kkkk = m_ComBoxSM.GetCurSel();
+	if(kkkk == -1 )
+		return;
+	m_ComBoxSM.GetLBText(kkkk,strname);
+	strname = strname.Mid(0,5);
+    		strf = strname.Mid(0,2);
+    		strc = strname.Mid(3);
+		int afds = m_Str2Data.String2Int(strf);
+		int achan = m_Str2Data.String2Int(strc);
+	if(m_strdism == "OnSDisA")
+	{
+		  m_listUser.InsertItem(0, m_SlaveStation[afds][achan].WatchName);
+			strname.Format(_T("%.2f"), m_SlaveStation[afds][achan].AValue);
+   		  m_listUser.SetItemText(0, 1, strname);
+			strname.Format(_T("%.2f"), m_ADMainDis[afds][achan][0].AMaxValue);
+		  m_listUser.SetItemText(0, 2, strname);
+			strname.Format(_T("%.2f"), m_ADMainDis[afds][achan][0].ATotalV/m_ADMainDis[afds][achan][0].m_ATotalnum);
+		  m_listUser.SetItemText(0, 3, strname);
+				  COleDateTime oleDateTime=m_ADMainDis[afds][achan][0].ATime;
+				  if(oleDateTime.GetYear() != 1900)
+     				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+				  else
+					  strname = "";
+		  m_listUser.SetItemText(0, 4, strname);
+				   oleDateTime=m_ADMainDis[afds][achan][0].BTime;
+				  if(oleDateTime.GetYear() != 1900)
+     				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+				  else
+					  strname = "";
+		  m_listUser.SetItemText(0, 5, strname);
+				   oleDateTime=m_ADMainDis[afds][achan][0].NTime;
+				  if(oleDateTime.GetYear() != 1900)
+     				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+				  else
+					  strname = "";
+		  m_listUser.SetItemText(0, 6, strname);
+	}
+	else if(m_strdism == "OnSDisD")
+	{
+		  m_listUser.InsertItem(0, m_SlaveStation[afds][achan].WatchName);
+					  int nstatus = m_SlaveStation[afds][achan].CValue;
+					  if(nstatus == 0)
+						  strname= m_SlaveStation[afds][achan].ZeroState;
+					  else if(nstatus == 1)
+						  strname= m_SlaveStation[afds][achan].OneState;
+					  else if(nstatus == 2)
+						  strname= m_SlaveStation[afds][achan].TwoState;
+   		  m_listUser.SetItemText(0, 1, strname);
+				  COleDateTime oleDateTime=m_SlaveStation[afds][achan].ValueTime;
+				  if(oleDateTime.GetYear() != 1900)
+     				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+				  else
+					  strname = "";
+		  m_listUser.SetItemText(0, 2, strname);
+				   oleDateTime=m_ADMainDis[afds][achan][0].ATime;
+				  if(oleDateTime.GetYear() != 1900)
+     				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+				  else
+					  strname = "";
+		  m_listUser.SetItemText(0, 3, strname);
+				   oleDateTime=m_ADMainDis[afds][achan][0].BTime;
+				  if(oleDateTime.GetYear() != 1900)
+     				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+				  else
+					  strname = "";
+		  m_listUser.SetItemText(0, 4, strname);
+				   oleDateTime=m_ADMainDis[afds][achan][0].RTime; //馈电状态/时刻
+				  if(oleDateTime.GetYear() != 1900)
+     				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+				  else
+					  strname = "";
+		  m_listUser.SetItemText(0, 5, m_SlaveStation[afds][achan].FeedState+"|"+strname);
+				   oleDateTime=m_ADMainDis[afds][achan][0].NTime;  //措施/时刻
+				  if(oleDateTime.GetYear() != 1900)
+     				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+				  else
+					  strname = "";
+		  m_listUser.SetItemText(0, 6, m_SlaveStation[afds][achan].strSafe+"|"+strname);
+	}
+
 }
 

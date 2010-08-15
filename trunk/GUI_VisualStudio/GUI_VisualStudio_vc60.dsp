@@ -154,7 +154,28 @@ SOURCE=.\AdjustDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\BasicExcel.cpp
+
+!IF  "$(CFG)" == "GUI_VisualStudio - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "GUI_VisualStudio - Win32 Debug"
+
+# ADD CPP /Yu
+
+!ELSEIF  "$(CFG)" == "GUI_VisualStudio - Win32 Unicode Release"
+
+!ELSEIF  "$(CFG)" == "GUI_VisualStudio - Win32 Unicode Debug"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\ChildFrm.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ClassTime.cpp
 # End Source File
 # Begin Source File
 
@@ -166,7 +187,7 @@ SOURCE=.\DynamicHelpView.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\excel.cpp
+SOURCE=.\ExcelFormat.cpp
 # End Source File
 # Begin Source File
 
@@ -223,7 +244,15 @@ SOURCE=.\AdjustDlg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\BasicExcel.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ChildFrm.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ClassTime.h
 # End Source File
 # Begin Source File
 
@@ -235,7 +264,7 @@ SOURCE=.\DynamicHelpView.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\excel.h
+SOURCE=.\ExcelFormat.h
 # End Source File
 # Begin Source File
 

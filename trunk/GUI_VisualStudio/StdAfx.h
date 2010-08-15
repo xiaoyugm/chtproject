@@ -101,7 +101,7 @@
 #pragma comment(lib,"gdiplus.lib")
 using namespace Gdiplus;
 
-#pragma comment(lib,"SQL.lib")
+#pragma comment(lib,"CommonTools.lib")
 
 #include <sqlite3.h>		//
 #pragma comment(lib,"sqlite3.lib")

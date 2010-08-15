@@ -24,6 +24,10 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
+extern ADMainDis         m_ADMainDis[65][25][65];          //调用显示
+extern SerialF               m_ClassTime[200];            //班设置
+unsigned char *m_ndkRTD;
+extern ADCbreakE             m_CFeed[65][9][65];
 extern  OthersSetting    m_OthersSetting;
 extern SerialF               m_SerialF[65][65];
 extern ADCbreakE             m_ADCbreakE[65][25][65];
@@ -137,15 +141,27 @@ void CMQClient::ConnectDB()
 		m_Adjustdata.MarshalOptions(adMarshalModifiedOnly);
 	    m_AdjustdataNew = &m_Adjustdata;
 
+		CTime t=CTime::GetCurrentTime();
+		CString sztime;
+		sztime.Format("%d",t.GetYear());
+		szConnect = "Select * From rt";
+		szConnect += sztime;
+		int m_mon = t.GetMonth();
+		if(m_mon>9)
+     		sztime.Format("%d",m_mon);
+		else
+     		sztime.Format("0%d",m_mon);
+		szConnect += sztime;
+		szConnect += "data";
+
 		m_Realtimedata.Create();
 		m_Realtimedata.CursorType(adOpenDynamic);
 		m_Realtimedata.CacheSize(50);
-		m_Realtimedata.Open("Select * From realtimedata" , &m_Cn);
+		m_Realtimedata.Open(szConnect , &m_Cn);
 		m_Realtimedata.MarshalOptions(adMarshalModifiedOnly);
 	    m_RealtimedataNew = &m_Realtimedata;
 
-
-
+	    m_ndkRTD = new unsigned char[6];
   }
   catch ( dbAx::CAxException *e )
   {
@@ -209,6 +225,8 @@ void CMQClient::Close()
  //    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
     delete e;
   }
+  		delete m_ndkRTD;
+
 	CloseConnection();
 }
 
@@ -235,7 +253,7 @@ void CMQClient::ManageServer(CNDKMessage& message)
 	theApp.internet30s = 0;
     CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 	CString ggggg,strtemp,strbegin;
-    unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
+    unsigned char  nstation ,nbegin,nend,ncommand ;
 	int  ntimer;
 
 	unsigned char* m_ndkSend2 = new  unsigned char[44];
@@ -347,8 +365,7 @@ void CMQClient::ManageServerG(CNDKMessage& message)
 	theApp.internet30s = 0;
     CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 	CString ggggg,strtemp,strbegin;
-    unsigned char  nstation ,nbegin,nend,ncommand ,ufData;
-	int  ntimer;
+    unsigned char  nstation ,nbegin ;
 	unsigned char* m_ndkSend2 = new  unsigned char[44];
 	message.GetAt(0, m_ndkSend2 ,44);
 //	message.GetAt(0,nbegin);
@@ -466,6 +483,7 @@ void CMQClient::ManageServerG(CNDKMessage& message)
 
 void CMQClient::CollectDate(CNDKMessage& message)
 {
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 	theApp.internet30s = 0;
 	CString2DataType m_Str2Data;
 //	float    dfOld , fMin ,fMax ; 
@@ -487,18 +505,24 @@ void CMQClient::CollectDate(CNDKMessage& message)
 	ufData4 = 	m_ndkSend[40];
 	ufData5 = 	m_ndkSend[41];
 	ufData6 = 	m_ndkSend[42];
-	strtemp1.Format(_T("20%x"), ufData1);
+	strtemp1.Format(_T("%x"), ufData1);
 	strtemp2.Format(_T("%x"), ufData2);
 	strtemp3.Format(_T("%x"), ufData3);
 	strtemp4.Format(_T("%x"), ufData4);
 	strtemp5.Format(_T("%x"), ufData5);
 	strtemp6.Format(_T("%x"), ufData6);
+	m_ndkRTD[0] = m_Str2Data.String2Int(strtemp1);
+	m_ndkRTD[1] = m_Str2Data.String2Int(strtemp2);
+	m_ndkRTD[2] = m_Str2Data.String2Int(strtemp3);
+	m_ndkRTD[3] = m_Str2Data.String2Int(strtemp4);
+	m_ndkRTD[4] = m_Str2Data.String2Int(strtemp5);
+	m_ndkRTD[5] = m_Str2Data.String2Int(strtemp6);
 	CTime t = CTime::GetCurrentTime();
 	COleDateTime told;
-	COleDateTime timetemp(m_Str2Data.String2Int(strtemp1),m_Str2Data.String2Int(strtemp2),m_Str2Data.String2Int(strtemp3),m_Str2Data.String2Int(strtemp4),m_Str2Data.String2Int(strtemp5),m_Str2Data.String2Int(strtemp6));
+	COleDateTime timetemp(2000+m_ndkRTD[0],m_ndkRTD[1],m_ndkRTD[2],m_ndkRTD[3],m_ndkRTD[4],m_ndkRTD[5]);
 	strtemp.Format(_T("20%x-%x-%x %x:%x:%x"), ufData1,ufData2,ufData3,ufData4,ufData5,ufData6);
 
-	int nItem =1;
+	unsigned char nItem =1;
 	for(int i=3 ; i< 34 ;i=i+2)     //3,4 1     33,34 16
 	{
 		if(m_SlaveStation[nstation][nItem].WatchName != "")
@@ -520,7 +544,7 @@ void CMQClient::CollectDate(CNDKMessage& message)
 			if((t.GetTime()-t1.GetTime())>1800)
 				bhalf = true;
 
-			if(ufData6 == 0  || ufData6 == 1 || ufData6 == 2)
+			if(ufData6 < 3)
 			{
 				olddata = m_SlaveStation[nstation][nItem].CValue;
 				if((olddata != ndata)|| bhalf)
@@ -537,20 +561,61 @@ void CMQClient::CollectDate(CNDKMessage& message)
 		         		m_SlaveStation[nstation][nItem].AValue = (m_SlaveStation[nstation][nItem].m_RangeH-m_SlaveStation[nstation][nItem].m_RangeL)*(ndata-200)/800;
 					}
           			if(ufData4 == 1)
-	     				SaveAdjust(nstation,nItem); 
+	     				theApp.SocketServer.SyncCRTData(nstation,nItem,1); 
 					else
-	     				SaveRtdata(nstation,nItem); 
+					{
+	     				theApp.SocketServer.SyncCRTData(nstation,nItem,0); 
+						float fcurv =m_SlaveStation[nstation][nItem].AValue;
+						if(m_SlaveStation[nstation][nItem].AMaxValue<fcurv)
+							m_SlaveStation[nstation][nItem].AMaxValue = fcurv;
+						if(m_SlaveStation[nstation][nItem].AMinValue>fcurv)
+							m_SlaveStation[nstation][nItem].AMinValue = fcurv;
+						m_SlaveStation[nstation][nItem].m_Atotal++;
+						m_SlaveStation[nstation][nItem].ATotalValue +=fcurv;
+
+						CTime vt(2000+m_ndkRTD[0],m_ndkRTD[1],m_ndkRTD[2],m_ndkRTD[3],m_ndkRTD[4],m_ndkRTD[5]);
+						CTime m5minute = m_SlaveStation[nstation][nItem].m_5m;
+						if(vt.GetTime()-m5minute.GetTime() >=300)
+						{
+	        				theApp.SocketServer.SyncCRTData(nstation,nItem,10); 
+							m_SlaveStation[nstation][nItem].m_5m = vt;
+							m_SlaveStation[nstation][nItem].AMaxValue=fcurv;
+							m_SlaveStation[nstation][nItem].AMinValue=fcurv;
+							m_SlaveStation[nstation][nItem].m_Atotal=0;
+							m_SlaveStation[nstation][nItem].ATotalValue=0;
+						}
+					}
 					bhalf = false;
          			m_SlaveStation[nstation][nItem].ValueTime = timetemp;
+					//调用显示最大值、平均值
+					if(m_ADMainDis[nstation][nItem][0].AMaxValue < m_SlaveStation[nstation][nItem].AValue)
+						m_ADMainDis[nstation][nItem][0].AMaxValue = m_SlaveStation[nstation][nItem].AValue;
+					m_ADMainDis[nstation][nItem][0].m_ATotalnum++;
+					m_ADMainDis[nstation][nItem][0].ATotalV += m_SlaveStation[nstation][nItem].AValue;
 				}
 				strtemp1.Format(_T("%.2f"), m_SlaveStation[nstation][nItem].AValue);
 			    if((ufData1 == 0x40)|| (ufData1 == 0x50)  || (ufData1 == 0x60))
 				{
-                    if(ufData5 != ufData1) 
+					//第二次断电确认
+            		int m_two =m_SlaveStation[nstation][nItem].m_second;
+                    if(ufData5 != ufData1 || m_two ==1) 
 					{
-    	                 AddWarn( m_SlaveStation[nstation][nItem].WatchName, strstatus(ufData1), "", strtemp, "", "", "", "");
-	    				 if(m_SlaveStation[nstation][0].AlarmState ==1)
-    			        		handbr(nstation,nItem,1);
+	    	    			 if(m_SlaveStation[nstation][0].AlarmState ==1)
+							 {
+	        					m_ADMainDis[nstation][nItem][0].BTime = timetemp;
+                               pFWnd->m_wndResourceView.InitLC(nstation,nItem);
+                               pFWnd->m_wndResourceView2.InitLB(nstation,nItem);
+                               pFWnd->m_wndResourceView3.InitLF(nstation,nItem);
+							 }
+						if(m_two ==0)
+			        		 m_SlaveStation[nstation][nItem].m_second++;
+						else
+							 m_SlaveStation[nstation][nItem].m_second =0;
+						if(ufData5 != ufData1)
+					     	//0通道故障闭锁使能
+	    	    			 if(m_SlaveStation[nstation][0].AlarmState ==1)
+    			        		   handbr(nstation,nItem,1);
+						Savefeedbr(nstation,nItem);  //馈电状态
 					}
 				}
 			}
@@ -562,40 +627,98 @@ void CMQClient::CollectDate(CNDKMessage& message)
 					m_SlaveStation[nstation][nItem].CValue = n_cdata;
 					strtemp1.Format(_T("%d"), n_cdata);
           			if(ufData4 == 1)
-	     				SaveAdjust(nstation,nItem); 
+	     				theApp.SocketServer.SyncCRTData(nstation,nItem,1); 
 					else
-	     				SaveRtdata(nstation,nItem); 
+	     				theApp.SocketServer.SyncCRTData(nstation,nItem,0); 
 					bhalf = false;
          			m_SlaveStation[nstation][nItem].ValueTime = timetemp;
+                    pFWnd->m_wndResourceView6.InitLDCH(nstation,nItem);
 				}
 			}
 
 			if(ufData1 == 0x00)
 			{
-				if(ufData5 != 0x00)
+    			int m_two = m_SlaveStation[nstation][nItem].m_second;
+				//报警后不用复电
+				if(((ufData5 != 0x10)&&(ufData1 != ufData5)) || m_two ==1)
 				{
-					handbr(nstation,nItem,0);
+					if(m_two ==0)
+			            m_SlaveStation[nstation][nItem].m_second++;
+					else
+			            m_SlaveStation[nstation][nItem].m_second =0;
+					if((ufData5 != 0x10)&&(ufData1 != ufData5))
+    			    		handbr(nstation,nItem,0);
+                 		if(ufData6 < 3)
+						{
+	     				m_ADMainDis[nstation][nItem][0].NTime = timetemp;
+                         pFWnd->m_wndResourceView.InitLC(nstation,nItem);
+                         pFWnd->m_wndResourceView3.InitLF(nstation,nItem);
+						}
+			    		else
+                         pFWnd->m_wndResourceView5.InitLDF(nstation,nItem);
+					Savefeedbr(nstation,nItem);  //馈电状态
 				}
 			}
 			else if(ufData1 == 0x10)
 			{
                 if(ufData5 != 0x10)
-                    AddWarn( m_SlaveStation[nstation][nItem].WatchName, strtemp1, strtemp, strstatus(ufData1), "", "", "", "");
+				{
+						m_ADMainDis[nstation][nItem][0].ATime = timetemp;
+	        		if(ufData6 < 3)
+					{
+                         pFWnd->m_wndResourceView.InitLC(nstation,nItem);
+					}
+					else
+                         pFWnd->m_wndResourceView4.InitLDAB(nstation,nItem);
+				}
 			}
 			else if(ufData1 == 0x20)
 			{
-                if(ufData5 != 0x20)
+    			int m_two = m_SlaveStation[nstation][nItem].m_second;
+                if(ufData5 != 0x20 || m_two==1)
 				{
-					handbr(nstation,nItem,1);
+					m_ADMainDis[nstation][nItem][0].BTime = timetemp;
+	        		if(ufData6 < 3)
+					{
+                         pFWnd->m_wndResourceView.InitLC(nstation,nItem);
+                         pFWnd->m_wndResourceView2.InitLB(nstation,nItem);
+                         pFWnd->m_wndResourceView3.InitLF(nstation,nItem);
+					}
+					else
+					{
+                         pFWnd->m_wndResourceView4.InitLDAB(nstation,nItem);
+                         pFWnd->m_wndResourceView5.InitLDF(nstation,nItem);
+					}
+					if(ufData5 != 0x20)
+     					handbr(nstation,nItem,1);
+					if(m_two ==0)
+			            m_SlaveStation[nstation][nItem].m_second++;
+					else
+			            m_SlaveStation[nstation][nItem].m_second =0;
+					Savefeedbr(nstation,nItem);  //馈电状态
 				}
 			}
 			else if(ufData1 == 0x70)
 			{
                 if(ufData5 != ufData1)
 				{
-    	            AddWarn( m_SlaveStation[nstation][nItem].WatchName, strstatus(ufData1), "", strtemp, "", "", "", "");
 					if(m_SlaveStation[nstation][0].AlarmState ==1)
+					{
     					handbr(nstation,nItem,1);
+	    				m_ADMainDis[nstation][nItem][0].BTime = timetemp;
+					}
+	        		if(ufData6 < 3)
+					{
+                         pFWnd->m_wndResourceView.InitLC(nstation,nItem);
+                         pFWnd->m_wndResourceView2.InitLB(nstation,nItem);
+                         pFWnd->m_wndResourceView3.InitLF(nstation,nItem);
+					}
+					else
+					{
+                         pFWnd->m_wndResourceView4.InitLDAB(nstation,nItem);
+                         pFWnd->m_wndResourceView5.InitLDF(nstation,nItem);
+					}
+					Savefeedbr(nstation,nItem);  //馈电状态
 				}
 			}
 		}
@@ -627,16 +750,27 @@ void CMQClient::CollectDate(CNDKMessage& message)
 			if((t.GetTime()-t2.GetTime())>1800)
 				bhalf = true;
 
+		//第二次断电确认
+        int m_two =m_SlaveStation[nstation][i].m_second;
 		ufData1 = m_SlaveStation[nstation][i].CValue;
-		if((ufData1 != ufData)|| bhalf)
+		if((ufData1 != ufData)|| bhalf || m_two==1)
 		{
-         	m_SlaveStation[nstation][i].CValue = ufData;
-			m_SlaveStation[nstation][i].ValueTime = timetemp;
-			ufData4 = m_SlaveStation[nstation][i].Adjust_state;
-			if(ufData4 == 1)
-					SaveAdjust(nstation,i); 
+			if(m_two ==1)
+			{
+				m_SlaveStation[nstation][i].m_second =0;
+	    		feedbr(nstation , i );//馈电状态
+			}
 			else
-	     			SaveRtdata(nstation,nItem); 
+			{
+			    m_SlaveStation[nstation][i].m_second++;
+            	m_SlaveStation[nstation][i].CValue = ufData;
+    			m_SlaveStation[nstation][i].ValueTime = timetemp;
+    			ufData4 = m_SlaveStation[nstation][i].Adjust_state;
+    			if(ufData4 == 1)
+					theApp.SocketServer.SyncCRTData(nstation,i,1);     //adjustdata
+       			else
+	     			theApp.SocketServer.SyncCRTData(nstation,i,0);     //rtdata
+			}
 			bhalf = false;
 		}
 	}
@@ -654,18 +788,112 @@ void CMQClient::CollectDate(CNDKMessage& message)
 		if((pFWnd)&&(pFWnd->m_pSampleFormView!= NULL))
     		pFWnd->m_pSampleFormView2->SetInfo(3,state,strItem,strSubA,strSubB);
 */
-}
 
+}
+//控制量馈电状态
+void CMQClient::feedbr(unsigned char  hfds, unsigned char  hchan)
+{
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	CString strtemp;
+			 int cvalue = m_SlaveStation[hfds][hchan].CValue;
+			 for(int j= 0 ;j<64 ; j++)
+			 {
+    		     int ffds = m_CFeed[hfds][hchan-16][j].bFSd;
+	       		 int fchan = m_CFeed[hfds][hchan-16][j].bchanel;
+				 if(ffds == 0)
+	 				 break;
+				 strtemp = m_SlaveStation[ffds][fchan].FeedState;
+	    		 int dvalue = m_SlaveStation[ffds][fchan].CValue;
+				 if(cvalue == 1)
+				 {
+					 if(dvalue ==0)
+						 m_SlaveStation[ffds][fchan].FeedState ="正常";
+					 else if(strtemp =="正常")
+						 m_SlaveStation[ffds][fchan].FeedState ="异常";
+	         		int ufData4 = m_SlaveStation[ffds][fchan].Adjust_state;
+	          		if(ufData4 == 1)
+		      			theApp.SocketServer.SyncCRTData(ffds,fchan,5);     //adjustdata
+	        		else
+	     	      		theApp.SocketServer.SyncCRTData(ffds,fchan,4);     //rtdata
+				 }
+				 else if(cvalue ==0)
+				 {
+					 if((dvalue ==0) &&(strtemp =="正常"))
+						 m_SlaveStation[ffds][fchan].FeedState ="异常";
+					 else if(dvalue ==1)
+						 m_SlaveStation[ffds][fchan].FeedState ="正常";
+	         		int ufData4 = m_SlaveStation[ffds][fchan].Adjust_state;
+	          		if(ufData4 == 1)
+		      			theApp.SocketServer.SyncCRTData(ffds,fchan,5);     //adjustdata
+	        		else
+	     	      		theApp.SocketServer.SyncCRTData(ffds,fchan,4);     //rtdata 馈电
+				 }
+				m_ADMainDis[ffds][fchan][0].RTime = COleDateTime::GetCurrentTime();
+			 }
+}
+//模拟量开关量馈电存储
+void CMQClient::Savefeedbr(unsigned char  hfds, unsigned char  hchan)
+{
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	CString strtemp;
+	for(int i= 0 ;i<64 ; i++)
+	{
+		     int cfds = m_ADCbreakE[hfds][hchan][i].bFSd;
+			 int cchan = m_ADCbreakE[hfds][hchan][i].bchanel;
+			 if(cfds == 0)
+				 break;
+			 for(int j= 0 ;j<64 ; j++)
+			 {
+    		     int ffds = m_CFeed[cfds][cchan][j].bFSd;
+	       		 int fchan = m_CFeed[cfds][cchan][j].bchanel;
+				 if(ffds == 0)
+	 				 break;
+    			 int cvalue = m_SlaveStation[cfds][cchan+16].CValue;
+				 strtemp = m_SlaveStation[ffds][fchan].FeedState;
+	    		 int dvalue = m_SlaveStation[ffds][fchan].CValue;
+				 if(cvalue == 1)
+				 {
+					 if(dvalue ==0)
+						 m_SlaveStation[ffds][fchan].FeedState ="正常";
+					 else if(strtemp =="正常")
+						 m_SlaveStation[ffds][fchan].FeedState ="异常";
+					 m_SlaveStation[hfds][hchan].m_ffds = ffds;
+					 m_SlaveStation[hfds][hchan].m_fchan =fchan;
+	         		int ufData4 = m_SlaveStation[hfds][hchan].Adjust_state;
+	          		if(ufData4 == 1)
+		      			theApp.SocketServer.SyncCRTData(hfds,hchan,3);     //adjustdata
+	        		else
+	     	      		theApp.SocketServer.SyncCRTData(hfds,hchan,2);     //rtdata
+				 }
+				 else if(cvalue ==0)
+				 {
+					 if((dvalue ==0) &&(strtemp =="正常"))
+						 m_SlaveStation[ffds][fchan].FeedState ="异常";
+					 else if(dvalue ==1)
+						 m_SlaveStation[ffds][fchan].FeedState ="正常";
+					 m_SlaveStation[hfds][hchan].m_ffds = ffds;
+					 m_SlaveStation[hfds][hchan].m_fchan =fchan;
+	         		int ufData4 = m_SlaveStation[hfds][hchan].Adjust_state;
+	          		if(ufData4 == 1)
+		      			theApp.SocketServer.SyncCRTData(hfds,hchan,3);     //adjustdata
+	        		else
+	     	      		theApp.SocketServer.SyncCRTData(hfds,hchan,2);     //rtdata 馈电
+				 }
+				m_ADMainDis[ffds][fchan][0].RTime = COleDateTime::GetCurrentTime();
+			 }
+	}
+}
+//断电器 开关量
 void CMQClient::handbr(unsigned char  hfds, unsigned char  hchan, unsigned char hbr)
 {
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 	unsigned char cfds,cchan  ,nfds,nchan;
 	for(int i= 0 ;i<64 ; i++)
 	{
 	m_ndkSend1 = new unsigned char[6];
-					theApp.m_sendmessage =NULL;
 		     cfds = m_ADCbreakE[hfds][hchan][i].bFSd;
 			 cchan = m_ADCbreakE[hfds][hchan][i].bchanel;
-			 if(!((cfds >0) && (cchan >0)))
+			 if(cfds == 0)
 			 {
             		delete m_ndkSend1;
             		m_ndkSend1=NULL;
@@ -680,14 +908,14 @@ void CMQClient::handbr(unsigned char  hfds, unsigned char  hchan, unsigned char 
                     m_ndkSend1[3] = cchan;
                     m_ndkSend1[4] = hbr;
                     m_ndkSend1[5] = 0x21;
-					if(hbr)
+					if(hbr)    //断电
 					{
 						if(hfds != cfds)
 						{
     	CNDKMessage message1(AUTOCONTROL);
 					message1.Add(m_ndkSend1 ,6);
 					theApp.Sync(message1);
-         AddWarn( m_SlaveStation[cfds][cchan+16].WatchName, "断电", "", strCTime, "", "", "", "");
+//                         pFWnd->m_wndResourceView.InitLC(cfds,cchan+16);
 						}
 					}
 					else
@@ -716,9 +944,10 @@ void CMQClient::handbr(unsigned char  hfds, unsigned char  hchan, unsigned char 
     	CNDKMessage message1(AUTOCONTROL);
 					message1.Add(m_ndkSend1 ,6);
 					theApp.Sync(message1);
-         AddWarn( m_SlaveStation[cfds][cchan+16].WatchName, "复电", "", "", strCTime, "", "", "");
+//                         pFWnd->m_wndResourceView.InitLC(cfds,cchan+16);
 						}
 					}
+
 		delete m_ndkSend1;
 		m_ndkSend1=NULL;
 	}
@@ -726,7 +955,7 @@ void CMQClient::handbr(unsigned char  hfds, unsigned char  hchan, unsigned char 
 
 void CMQClient::SaveRtdata(unsigned char  afds, unsigned char  achan)
 {
-            				try
+//            				try
 							{
 	         				 m_RealtimedataNew->m_szRTID  = 1;
 		      			     m_RealtimedataNew->m_szName = m_SlaveStation[afds][achan].WatchName;
@@ -753,10 +982,10 @@ void CMQClient::SaveRtdata(unsigned char  afds, unsigned char  achan)
 							//otherwise we may out-of-sync
 						    m_RealtimedataNew->Requery();
 							}
-		     			    catch (CAxException *e)
+//		     			    catch (CAxException *e)
 							{
-					        	AfxMessageBox(e->m_szErrorDesc, MB_OK);
-				        		delete e;
+//					        	AfxMessageBox(e->m_szErrorDesc, MB_OK);
+//				        		delete e;
 							}
 }
 
@@ -815,6 +1044,10 @@ CString CMQClient::strstatus(unsigned char ustatus)
 		str = "故障";
 	else if((ustatus == 0x08) ||(ustatus == 0x80))
 		str = "标校";
+	else if((ustatus == 0x90))
+		str = "串口故障";
+	else if((ustatus == 0xa0))
+		str = "以太网故障";
 	return  str;
 }
 
@@ -846,7 +1079,6 @@ void CMQClient::DiaplayWarnTableC(unsigned short nPointNo)
                     strWarnDate.Format("正常 %d -- %4.2f %s",ufData,dfValue,usUnit);
 				else if (nPointNo > 4)
                  	strWarnDate.Format(" 正常  %d ",ufData );
-	            AddWarn( strPointNo, strWarnDate, strExplaintemp, strWarnCausetemp, strWarnTime);
 			}
          	else if((Warn_state & 0x30) == 0x20)
 			{
@@ -855,7 +1087,6 @@ void CMQClient::DiaplayWarnTableC(unsigned short nPointNo)
                     strWarnDate.Format(" 报警 %d-- %4.2f %s",ufData,dfValue,usUnit);
 				else if (nPointNo > 4)
             		strWarnDate.Format(" 报警 %d ",ufData );
-	       		AddWarn( strPointNo, strWarnDate, strExplaintemp, strWarnCausetemp, strWarnTime);
 			}
 			
     	m_CWarnPoint[0].warnPoint = nPointNo;
@@ -886,7 +1117,46 @@ void CMQClient::AddWarn( CString strtemp, CString strtemp1, CString strtemp2, CS
 
     CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 //    pFWnd->Msg(0,m_CStrWarn[0].strPoint , m_CStrWarn[0].strDate , m_CStrWarn[0].strText ,m_CStrWarn[0].strWarn ,m_CStrWarn[0].strTime);
-    pFWnd->m_wndResourceView.InitLC();
 
 }
 
+void CMQClient::CalRtDB(CTime time,int  &eYear, unsigned char  &eMonth)
+{
+	int m_h = m_ClassTime[1].ffds;
+		int m_year = time.GetYear();
+		int m_mon = time.GetMonth();
+	if(m_h >12)
+	{
+    	long m_addt = time.GetTime()+(24-m_h)*3600;
+		CTime t1 (m_addt);
+		int t1_year = t1.GetYear();
+		int t1_mon = t1.GetMonth();
+		if(t1_mon != m_mon)
+		{
+			eYear = t1_year;
+			eMonth = t1_mon;
+		}
+		else
+		{
+			eYear = m_year;
+			eMonth = m_mon;
+		}
+	}
+	else
+	{
+    	long m_addt = time.GetTime()-m_h*3600;
+		CTime t1 (m_addt);
+		int t1_year = t1.GetYear();
+		int t1_mon = t1.GetMonth();
+		if(t1_mon != m_mon)
+		{
+			eYear = t1_year;
+			eMonth = t1_mon;
+		}
+		else
+		{
+			eYear = m_year;
+			eMonth = m_mon;
+		}
+	}
+}

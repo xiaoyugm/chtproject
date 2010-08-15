@@ -48,9 +48,19 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-ADCbreakE             m_CFeed[65][9][65];
+CNDKMessage m_NDKmes[50];
+ADMainDis         m_ADRecord[65][25][266];          //记录查询
+ADMainDis         m_ADMainDis[65][25][65];          //调用显示
+SerialF               m_ClassTime[200];            //班设置
+SerialF               m_DCHlist[65][25][65];        //D状态改变
+SerialF               m_DFlist[65][25][65];     //D馈电列表
+SerialF               m_DABlist[65][25][65];    //D报警\断电列表
+SerialF               m_Flist[65][25][65];       //A馈电列表
+SerialF               m_Blist[65][25][65];   //A断电列表
+SerialF               m_Warnlist[65][25];    //A报警列表
+ADCbreakE             m_CFeed[65][9][65];    //馈电规则
 SerialF               m_Colorref[200];
-SerialF               m_SerialF[65][65];
+SerialF               m_SerialF[65][65];    //各串口连接的分站
 ADCbreakE             m_ADCbreakE[65][25][65];
 DisplayDraw    m_DisplayDraw[MAX_POINT_NUMBER];
 DisplayPoint   m_DisplayPoint[32][64];
@@ -95,6 +105,7 @@ CGUI_VisualStudioApp::CGUI_VisualStudioApp()
 	strargc ="";
 	m_bLogIn = false;
 	m_bsuper = true;
+	m_FdsScan = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -177,12 +188,10 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 	pMainFrame->UpdateWindow();*/
 
 	strargc.Format("%s",__argv[0]);
+//	strargc = "OnRECDRIVERE";
 
-	if(strargc == "SDisA")
-	{
-	}
 //	else
-//	{
+	{
 			pDocTemplate = new CMultiDocTemplate(
 				IDR_DRAWTYPE,
 				RUNTIME_CLASS(CDrawDoc),
@@ -193,7 +202,7 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 ///		IDR_DRAWTYPE_SRVR_EMB, IDR_DRAWTYPE_SRVR_IP,
 ///		RUNTIME_CLASS(CInPlaceFrame));
         	AddDocTemplate(pDocTemplate);
-
+	}
 	// Connect the COleTemplateServer to the document template.
 	//  The COleTemplateServer creates new documents on behalf
 	//  of requesting OLE containers by using information
@@ -202,31 +211,45 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 
 	// Register all OLE server factories as running.  This enables the
 	//  OLE libraries to create objects from other applications.
-        	COleTemplateServer::RegisterAll();
+//        	COleTemplateServer::RegisterAll();
 		// Note: MDI applications register all server objects without regard
 		//  to the /Embedding or /Automation on the command line.
 //	}
+	if((strargc == "OnALARMS")||(strargc == "OnBREAKES")||(strargc == "OnFEEDES")
+		||(strargc == "OnSELECTS")||(strargc == "OnRECAAD")||(strargc == "OnRECABD")
+		||(strargc == "OnRECAFED")||(strargc == "OnRECASR")||(strargc == "OnRECDABD")
+		||(strargc == "OnRECDABB")||(strargc == "OnRECDFED")||(strargc == "OnRECDSCD")
+		||(strargc == "OnRECDRIVERE"))
+	{
+	}
+	else
+	{
 			pNewDocTemplate = new CMultiDocTemplate(
 				IDR_DRAWTYPE,
 				RUNTIME_CLASS(CFlatTabViewDoc),
 				RUNTIME_CLASS(CChildFrame), // custom MDI child frame   CFlatTabViewDoc
-				RUNTIME_CLASS(CSampleFormView));
+				RUNTIME_CLASS(CSampleFormView));   //CTabbedViewView
 			AddDocTemplate(pNewDocTemplate);
+	}
 
-//			pTabViewDocTemplate = new CMultiDocTemplate(
-//				IDR_DRAWTYPE,
-//				RUNTIME_CLASS(CFlatTabViewDoc),
-//				RUNTIME_CLASS(CChildFrame), // custom MDI child frame   CFlatTabViewDoc
-//				RUNTIME_CLASS(CTabbedViewView));
-//			AddDocTemplate(pTabViewDocTemplate);
+			if(!InitUIInfo())
+			{
+				AfxMessageBox("没有找到合适的分辨率配置文件，请确认是否有当前屏幕分辨率的配置文件!");
+				return FALSE;
+			}
+	if(!InitData())
+	{
+		AfxMessageBox("初始化数据库失败！");
+		return FALSE;
+	}
 
 	// create main MDI Frame window
 	CMainFrame* pMainFrame = new CMainFrame;
-	if (!pMainFrame->LoadFrame(IDR_MAINFRAME))
-		return FALSE;
+     	if (!pMainFrame->LoadFrame(IDR_MAINFRAME))
+       		return FALSE;
 	m_pMainWnd = pMainFrame;
 
-	// Enable drag/drop open
+	// Enable drag/drop open 
 	m_pMainWnd->DragAcceptFiles();
 
 	// Enable DDE Execute open
@@ -257,30 +280,29 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 	// The main window has been initialized, so show and update it.
 	//SW_SHOWMAXIMIZED              SW_SHOWNORMAL
 //	pMainFrame->ShowWindow(m_nCmdShow);
-	pMainFrame->ShowWindow(SW_SHOWMAXIMIZED);
+	if((strargc == "OnALARMS")||(strargc == "OnBREAKES")||(strargc == "OnFEEDES")
+		||(strargc == "OnSELECTS")||(strargc == "OnRECAAD")||(strargc == "OnRECABD")
+		||(strargc == "OnRECAFED")||(strargc == "OnRECASR")||(strargc == "OnRECDABD")
+		||(strargc == "OnRECDABB")||(strargc == "OnRECDFED")||(strargc == "OnRECDSCD")
+		||(strargc == "OnRECDRIVERE"))
+    	pMainFrame->ShowWindow(SW_NORMAL);
+	else
+    	pMainFrame->ShowWindow(SW_SHOWMAXIMIZED);
 	pMainFrame->UpdateWindow();
 
 	// Initialize GDI+.   
 	GdiplusStartupInput gdiplusStartupInput;
 	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-			if(!InitUIInfo())
-			{
-				AfxMessageBox("没有找到合适的分辨率配置文件，请确认是否有当前屏幕分辨率的配置文件!");
-				return FALSE;
-			}
-
-	if(!InitData())
-	{
-		AfxMessageBox("初始化数据库失败！");
-		return FALSE;
-	}
-
 	gstrTimeOut = GetAppPath();
 	CString strrsy ;
 	strrsy.Format("%d",GetSystemMetrics(SM_CXSCREEN));
 
-	if(strargc == "SDisA")
+	if((strargc == "OnALARMS")||(strargc == "OnBREAKES")||(strargc == "OnFEEDES")
+		||(strargc == "OnSELECTS")||(strargc == "OnRECAAD")||(strargc == "OnRECABD")
+		||(strargc == "OnRECAFED")||(strargc == "OnRECASR")||(strargc == "OnRECDABD")
+		||(strargc == "OnRECDABB")||(strargc == "OnRECDFED")||(strargc == "OnRECDSCD")
+		||(strargc == "OnRECDRIVERE"))
 	{
 	}
 	else
@@ -311,6 +333,19 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 			CLoginDlg dlglogin;
 		//	if(dlglogin.DoModal()==IDOK) 
 				m_bLogIn=true;
+
+			for(int k=0 ; k<50 ;k++)
+				m_NDKmes[k] = NULL;
+		     StartServer();
+           PROCESS_INFORMATION pi; //启动窗口的信息
+           STARTUPINFO si; //进程的信息  SW_SHOWNORMAL  SW_HIDE
+           memset(&si,0,sizeof(si));
+           si.cb=sizeof(si);
+           si.wShowWindow=SW_SHOWMINNOACTIVE;
+//           si.wShowWindow=SW_SHOWMINNOACTIVE | SW_SHOWNORMAL;
+           si.dwFlags=STARTF_USESHOWWINDOW;
+          int fRet=CreateProcess(gstrTimeOut +"\\RSDRAW-YSDB.EXE",NULL,NULL,FALSE,NULL,NULL,NULL,NULL,&si,&pi);
+//        return fRet;
 	}
 //		 strargc.Format("@@@%s@@@%s",__argv[0],__argv[1]);
 //		AfxMessageBox(strargc);
@@ -320,12 +355,22 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 
 int CGUI_VisualStudioApp::ExitInstance() 
 {
-	GdiplusShutdown(gdiplusToken);	
-
+	GdiplusShutdown(gdiplusToken);
+//	LPCTSTR ExeName;
 //	m_sql.Close();
 //	OnCloseDB();
-		
-	socketClient.Close();
+	if((strargc == "OnALARMS")||(strargc == "OnBREAKES")||(strargc == "OnFEEDES")
+		||(strargc == "OnSELECTS")||(strargc == "OnRECAAD")||(strargc == "OnRECABD")
+		||(strargc == "OnRECAFED")||(strargc == "OnRECASR")||(strargc == "OnRECDABD")
+		||(strargc == "OnRECDABB")||(strargc == "OnRECDFED")||(strargc == "OnRECDSCD")
+		||(strargc == "OnRECDRIVERE"))
+	{
+	}
+	else
+	{
+		m_Str2Data.KillProcess("RSDRAW-YSDB.EXE");
+    	socketClient.Close();
+	}
 	return CWinApp::ExitInstance();
 }
 
@@ -517,6 +562,13 @@ BOOL CGUI_VisualStudioApp::ConnectDB()
 		m_AxFeedE._SetRecordsetEvents(new CAccountSetEvents);
 		m_AxFeedE.Open(_T("Select * From feedelectricity WHERE fdel=0"), &m_Cn);
 		m_AxFeedE.MarshalOptions(adMarshalModifiedOnly);
+
+		m_CommonSet.Create();
+		m_CommonSet.CursorType(adOpenDynamic);
+		m_CommonSet.CacheSize(50);
+		m_CommonSet._SetRecordsetEvents(new CAccountSetEvents);
+		m_CommonSet.Open(_T("Select * From commonset"), &m_Cn);
+		m_CommonSet.MarshalOptions(adMarshalModifiedOnly);
   }
   catch ( dbAx::CAxException *e )
   {
@@ -547,6 +599,37 @@ BOOL CGUI_VisualStudioApp::InitData()
 	if(!InitDisplay())
 		return FALSE;
 	OnCloseDB();
+
+			COleDateTime CTime(1900,1,1,0,0,0);
+		for(int i = 1; i < 65;i++ )
+			for(int j = 1; j < 25;j++ )
+			{
+					m_Warnlist[i][j].SFSd = 500;
+				for(int k = 0; k < 65;k++)
+				{
+					m_Blist[i][j][k].SFSd = 500;
+					m_Flist[i][j][k].SFSd = 500;
+					m_DABlist[i][j][k].SFSd = 500;
+					m_DFlist[i][j][k].SFSd = 500;
+					m_DCHlist[i][j][k].SFSd = 500;
+					m_ADMainDis[i][j][k].m_ATotalnum = 0;
+					m_ADMainDis[i][j][k].ATotalV = 0;
+					m_ADMainDis[i][j][k].ATime = CTime;
+					m_ADMainDis[i][j][k].BTime = CTime;
+					m_ADMainDis[i][j][k].NTime = CTime;
+					m_ADMainDis[i][j][k].RTime = CTime;
+				}
+				for(int h = 0; h < 266;h++)
+				{
+					m_ADRecord[i][j][h].m_ATotalnum = 0;
+					m_ADRecord[i][j][h].ATotalV = 0;
+					m_ADRecord[i][j][h].duant = 0;
+					m_ADRecord[i][j][h].strlocal = "";
+					m_ADRecord[i][j][h].havev = 0;
+				}
+			}
+	idis =bidis = fidis= dabidis =dfidis = dchidis=0;
+
     return true;
 }
 
@@ -629,13 +712,26 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 					m_SlaveStation[i][j].ZeroState = "";
 					m_SlaveStation[i][j].OneState = "";
 					m_SlaveStation[i][j].TwoState = "";
+					m_SlaveStation[i][j].FeedState = "正常";
 					m_SlaveStation[i][j].Adjust_state = 0;
+					m_SlaveStation[i][j].m_second = 0;
+					m_SlaveStation[i][j].m_ffds = 0;
+					m_SlaveStation[i][j].m_fchan = 0;
+					m_SlaveStation[i][j].strSafe = "";
+					m_SlaveStation[i][j].m_5m = 0;
+					m_SlaveStation[i][j].AMaxValue = 0;
+					m_SlaveStation[i][j].AMinValue = 0;
+					m_SlaveStation[i][j].ATotalValue = 0;
+					m_SlaveStation[i][j].m_Atotal = 0;
+
 	          COleDateTime timetemp;//(2010,1,1,0,0,0);
 					m_SlaveStation[i][j].ValueTime = timetemp.GetCurrentTime();
+					m_SlaveStation[i][j].m_PID = 0;
 			}
 					m_SlaveStation[i][0].RangeH8 = 0;
 					m_SlaveStation[i][0].RangeL8 = 0;
 		}
+		
 		if ( m_PointDes._IsEmpty() )
 		  return TRUE;
 		int xxx = m_PointDes.RecordCount();
@@ -709,6 +805,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 				else if(nptype == 2)
 					chanh =0x40;
     			m_SlaveStation[nfds][nchan].Channel8 = 0x01 |chanh;
+    			m_SlaveStation[nfds][nchan].m_PID = m_PointDes.m_szPID;
 
 				m_DisplayDraw[m_PointDes.m_szPID].fds = nfds;
 				m_DisplayDraw[m_PointDes.m_szPID].chan = nchan;
@@ -748,13 +845,14 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 				strtemp = m_AccountSet.m_szfalm;
 				strtemp.TrimRight();
     			m_SlaveStation[nfds][nchan].falma = strtemp;
+    			m_SlaveStation[nfds][nchan].m_PID = m_PointDes.m_szPID;
 
 				int xxx;
 				unsigned char chanalarm,chanb,chanr,chanalarm1,chanb1,chanr1;
 				if((nptype == 10) ||(nptype == 13)||(nptype == 14))
 				{
 					xxx = m_SlaveStation[nfds][nchan].AlarmState;
-					if(xxx == 0)
+					if(xxx == 0)   //不报警，不断电
 					{
 						chanalarm =0xff;
 						chanb =0xff;
@@ -763,7 +861,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 						chanb1 =0xff;
 						chanr1 = 0xff;
 					}
-					else if(xxx == 1)
+					else if(xxx == 1)  //0态报警
 					{
 						chanalarm =0x00;
 						chanb =0xff;
@@ -772,7 +870,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 						chanb1 =0xff;
 						chanr1 = 0xff;
 					}
-					else if(xxx == 2)
+					else if(xxx == 2) //1态报警
 					{
 						chanalarm =0x01;
 						chanb =0xff;
@@ -781,7 +879,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 						chanb1 =0xff;
 						chanr1 = 0xff;
 					}
-					else if(xxx == 3)
+					else if(xxx == 3) //1态复电
 					{
 						chanalarm =0xff;
 						chanb =0x00;
@@ -790,7 +888,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 						chanb1 =0x00;
 						chanr1 = 0x00;
 					}
-					else if(xxx == 4)
+					else if(xxx == 4)//1态断电
 					{
 						chanalarm =0xff;
 						chanb =0x01;
@@ -871,10 +969,29 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 		}
         m_PointDes.MoveFirst();
 
+		//显示班设置
+		m_CommonSet.MoveFirst();
+		while ( !m_CommonSet.IsEOF() )
+		{
+			//班设置 1
+			int coxx = m_CommonSet.m_szCommonID;
+			if(coxx == 1)
+			{
+    			int vcolor = m_CommonSet.m_sznum1;
+	     		m_ClassTime[1].ffds = vcolor;   //班初始时间
+	    		vcolor = m_CommonSet.m_sznum2;
+	       		m_ClassTime[1].fchan = vcolor;  //班次
+				break;
+			}
+			m_CommonSet.MoveNext();
+		}
+		//显示颜色
 		m_Colorset.MoveFirst();
 		while ( !m_Colorset.IsEOF() )
 		{
+			//数据状态
 			int coxx = m_Colorset.m_szColorID;
+			//颜色值
 			int vcolor = m_Colorset.m_szColorrefset;
 			m_Colorref[coxx].SFSd = vcolor;
 			m_Colorset.MoveNext();
@@ -883,7 +1000,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 		//馈电规则
 		if ( !m_AxFeedE._IsEmpty() )
 		{
-			for( i = 0; i < 65;i++ )
+			for( i = 1; i < 65;i++ )
 			{
 			for(int j = 1; j < 9;j++ )
 			{
@@ -891,7 +1008,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 					m_CFeed[i][j][k].bFSd = 0;
 			}
 			}
-		    iItem = 0;
+//		    iItem = 0;
 		m_AxFeedE.MoveFirst();
 		while ( !m_AxFeedE.IsEOF() )
 		{
@@ -901,19 +1018,26 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
     		strc = strItem.Mid(3);
 	    	int nfds = m_Str2Data.String2Int(strf);  
 	     	int nchan = m_Str2Data.String2Int(strc);   //1-8
-			m_CFeed[nfds][nchan][iItem].cpoint = strItem;
+			int j;
+			for( j = 0; j < 65;j++)
+			{
+    			int nfeed = m_CFeed[nfds][nchan][j].bFSd;
+				if(nfeed == 0)
+					break;
+			}
+			m_CFeed[nfds][nchan][j].cpoint = strItem;
 			strItem = m_AxFeedE.m_szepointnum;
-			m_CFeed[nfds][nchan][iItem].adpoint = strItem;
+			m_CFeed[nfds][nchan][j].adpoint = strItem;
     		strf = strItem.Mid(0,2);
     		strc = strItem.Mid(3);
 	    	int fnfds = m_Str2Data.String2Int(strf);
 	     	int fnchan = m_Str2Data.String2Int(strc);
-			m_CFeed[nfds][nchan][iItem].bFSd = fnfds;
-			m_CFeed[nfds][nchan][iItem].bchanel = fnchan;
+			m_CFeed[nfds][nchan][j].bFSd = fnfds;
+			m_CFeed[nfds][nchan][j].bchanel = fnchan;
 			strItem = m_AxFeedE.m_szName;
 			strItem.TrimRight();
-			m_CFeed[nfds][nchan][iItem].CName = strItem;
-			iItem++;
+			m_CFeed[nfds][nchan][j].CName = strItem;
+//			iItem++;
 			m_AxFeedE.MoveNext();
 		}
 		}
@@ -929,7 +1053,9 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 		m_SControl.MoveFirst();
 		while ( !m_SControl.IsEOF() )
 		{
+			//故障闭锁
 			m_SlaveStation[m_SControl.m_szSID][0].AlarmState = m_SControl.m_szSpeCtrol;
+			//各串口连接的分站
 			m_SerialF[m_SControl.m_szSerialnum][iItem].SFSd = m_SControl.m_szSID;
 			iItem++;
 			m_SControl.MoveNext();
@@ -977,7 +1103,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 				else if(cnchan == 8)					charc = 0x80;
 				m_SlaveStation[nfds][nchan].Control_state |= charc;
 			}
-				//C
+				//C  模拟量开关量控制的控制量
 				m_ADCbreakE[nfds][nchan][m_ADCbreakE[nfds][nchan][64].bFSd].bFSd = cnfds;
 				m_ADCbreakE[nfds][nchan][m_ADCbreakE[nfds][nchan][64].bFSd].bchanel = cnchan;   //1-8
 				m_ADCbreakE[nfds][nchan][m_ADCbreakE[nfds][nchan][64].bFSd].adpoint = strItem;
@@ -986,7 +1112,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 //				strc.TrimRight();
 //				m_ADCbreakE[cnfds][cnchan+16][m_ADCbreakE[nfds][nchan][64].bFSd].CName = strc;
 				m_ADCbreakE[nfds][nchan][64].bFSd++;
-				//A D
+				//A D 控制量控制的
 				m_ADCbreakE[cnfds][cnchan+16][m_ADCbreakE[cnfds][cnchan+16][64].bFSd].bFSd = nfds;
 				m_ADCbreakE[cnfds][cnchan+16][m_ADCbreakE[cnfds][cnchan+16][64].bFSd].bchanel = nchan;
 				m_ADCbreakE[cnfds][cnchan+16][m_ADCbreakE[cnfds][cnchan+16][64].bFSd].adpoint = strItem;
@@ -1270,6 +1396,8 @@ void CGUI_VisualStudioApp::OnCloseDB()
       m_Colorset.Close();
     if ( m_AxFeedE._IsOpen() )
       m_AxFeedE.Close();
+    if ( m_CommonSet._IsOpen() )
+      m_CommonSet.Close();
 
     m_Cn.Close();
 
@@ -1315,5 +1443,17 @@ void CGUI_VisualStudioApp::Sync(CNDKMessage& message)
 		socketClient.SendMessage(message);
 	}
 
+}
+
+//本机作为主机启动网络监听
+BOOL CGUI_VisualStudioApp::StartServer()
+{
+	if(SocketServer.Listenning())
+	{
+		m_message =0;
+//		bIsClient = FALSE;
+		return TRUE;
+	}
+	return FALSE;
 }
 

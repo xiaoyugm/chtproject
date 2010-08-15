@@ -36,7 +36,8 @@ public:
   //Set default values of class members
   void _SetDefaultValues()
   {
-    m_szSID =m_szSpeCtrol = m_szSerialnum = 0;
+    m_szSID  = m_szSerialnum = 0;
+	m_szSpeCtrol =false;
   };
 
   //Exchange field values with data provider
@@ -55,16 +56,16 @@ public:
   CAdjustdata() { _SetDefaultValues(); }
   ~CAdjustdata() { }
 
-  int  m_szADID ,m_szCDValue,m_szADStatus,m_szptype,m_szfds,m_szchan;
-  CString     m_szName,m_szUseridadd;
+  int  m_szADID ,m_szCDValue,m_szADStatus,m_szptype,m_szfds,m_szchan,m_szffds,m_szfchan;
+  CString     m_szName,m_szUseridadd,m_szFeedStatus,m_szsafemtext;
   COleDateTime   m_szrecdate;
   REAL m_szAValue;
 
   //Set default values of class members
   void _SetDefaultValues()
   {
-    m_szName = m_szUseridadd = _T("");
-    m_szADID =m_szCDValue=m_szAValue =m_szADStatus= m_szptype=m_szfds=m_szchan=0;
+    m_szName = m_szUseridadd = m_szFeedStatus =m_szsafemtext=_T("");
+    m_szADID =m_szCDValue=m_szAValue =m_szADStatus= m_szptype=m_szfds=m_szchan=m_szffds=m_szfchan=0;
   };
 
   //Exchange field values with data provider
@@ -80,6 +81,10 @@ public:
     FX_Integer           (bSave, _T("ADStatus"),       m_szADStatus);
     FX_DateTime          (bSave, _T("recdate"),       m_szrecdate);
     FX_VarChar           (bSave, _T("Useridadd"),     m_szUseridadd);
+    FX_VarChar           (bSave, _T("safemtext"),     m_szsafemtext);
+    FX_Integer           (bSave, _T("ffds"),         m_szffds);
+    FX_Integer           (bSave, _T("fchan"),         m_szfchan);
+    FX_VarChar           (bSave, _T("FeedStatus"),     m_szFeedStatus);
   };
 };
 
@@ -90,16 +95,16 @@ public:
   CRealtimedata() { _SetDefaultValues(); }
   ~CRealtimedata() { }
 
-  int  m_szRTID ,m_szCDValue,m_szADStatus,m_szptype,m_szfds,m_szchan;
-  CString     m_szName,m_szUseridadd,m_szsafemtext;
-  COleDateTime   m_szrecdate,m_szsafemdate;
+  int  m_szRTID ,m_szCDValue,m_szADStatus,m_szptype,m_szfds,m_szchan,m_szffds,m_szfchan;
+  CString     m_szName,m_szUseridadd,m_szsafemtext,m_szFeedStatus;
+  COleDateTime   m_szrecdate;
   REAL m_szAValue;
 
   //Set default values of class members
   void _SetDefaultValues()
   {
-    m_szName = m_szUseridadd = m_szsafemtext =_T("");
-    m_szRTID =m_szCDValue=m_szAValue =m_szADStatus= m_szptype=m_szfds=m_szchan=0;
+    m_szName = m_szUseridadd = m_szsafemtext =m_szFeedStatus=_T("");
+    m_szRTID =m_szCDValue=m_szAValue =m_szADStatus= m_szptype=m_szfds=m_szchan=m_szffds=m_szfchan=0;
   };
 
   //Exchange field values with data provider
@@ -115,7 +120,45 @@ public:
     FX_Integer           (bSave, _T("ADStatus"),       m_szADStatus);
     FX_DateTime          (bSave, _T("recdate"),       m_szrecdate);
     FX_VarChar           (bSave, _T("Useridadd"),     m_szUseridadd);
-    FX_DateTime          (bSave, _T("safemdate"),       m_szsafemdate);
     FX_VarChar           (bSave, _T("safemtext"),     m_szsafemtext);
+    FX_Integer           (bSave, _T("ffds"),         m_szffds);
+    FX_Integer           (bSave, _T("fchan"),         m_szfchan);
+    FX_VarChar           (bSave, _T("FeedStatus"),     m_szFeedStatus);
+  };
+};
+
+class CRt5mdata :
+    public CAxRecordset
+{
+public:
+  CRt5mdata() { _SetDefaultValues(); }
+  ~CRt5mdata() { }
+
+  int  m_szRT5ID ,m_szADStatus,m_szptype,m_szfds,m_szchan;
+  CString     m_szName,m_szUseridadd;
+  COleDateTime   m_szrecdate;
+  REAL m_szAValue,m_szAMinValue,m_szAMaxValue;
+
+  //Set default values of class members
+  void _SetDefaultValues()
+  {
+    m_szName = m_szUseridadd =_T("");
+    m_szRT5ID =m_szAValue =m_szADStatus= m_szptype=m_szfds=m_szchan=m_szAMaxValue=m_szAMinValue=0;
+  };
+
+  //Exchange field values with data provider
+  void DoFieldExchange(bool bSave = FALSE)
+  {
+    FX_Integer           (bSave, _T("RT5ID"),        m_szRT5ID);
+    FX_VarChar           (bSave, _T("Name"),        m_szName);
+    FX_Integer           (bSave, _T("ptype"),       m_szptype);
+    FX_Integer           (bSave, _T("fds"),         m_szfds);
+    FX_Integer           (bSave, _T("chan"),         m_szchan);
+    FX_Real           (bSave, _T("AMinValue"),       m_szAMinValue);
+    FX_Real              (bSave, _T("AValue"),           m_szAValue);
+    FX_Integer           (bSave, _T("ADStatus"),       m_szADStatus);
+    FX_DateTime          (bSave, _T("recdate"),       m_szrecdate);
+    FX_VarChar           (bSave, _T("Useridadd"),     m_szUseridadd);
+    FX_Real           (bSave, _T("AMaxValue"),     m_szAMaxValue);
   };
 };

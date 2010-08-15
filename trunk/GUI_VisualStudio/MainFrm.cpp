@@ -33,7 +33,9 @@
 #include "AdjustDlg.h"
 #include "SafeMethod.h"
 #include "MadeCertView.h"
+#include "ClassTime.h"
 
+#include  <tlhelp32.h>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -72,19 +74,49 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_FDS_CONFIGop, OnFDSconfig)
 	ON_COMMAND(ID_LOGIN, OnLOGIN)
 	ON_COMMAND(ID_LOGOUT, OnLOGOUT)
+	ON_COMMAND(ID_CLASSTIME, OnCLASSTIME)
 
 	ON_COMMAND(ID_ADJUST_DIS, OnAdjustdis)
 	ON_COMMAND(ID_SAFEMETHOD, OnSafeMethod)
+	ON_COMMAND(ID_ALARMS, OnALARMS)
+	ON_COMMAND(ID_BREAKES, OnBREAKES)
+	ON_COMMAND(ID_FEEDES, OnFEEDES)
+	ON_COMMAND(ID_SELECTS, OnSELECTS)
 
 	ON_COMMAND(ID_SELECT_DISA, OnSDisA)
 	ON_COMMAND(ID_SELECT_DISD, OnSDisD)
 	ON_COMMAND(ID_DIS_AAR, OnDisAAR)
 	ON_COMMAND(ID_DIS_ABR, OnDisABR)
 	ON_COMMAND(ID_DIS_AFER, OnDisAFER)
-	ON_COMMAND(ID_DIS_ASR, OnDisASR)
 	ON_COMMAND(ID_DIS_DABR, OnDisDABR)
 	ON_COMMAND(ID_DIS_DSC, OnDisDSC)
 	ON_COMMAND(ID_DIS_DFER, OnDisDFER)
+	ON_COMMAND(ID_DRIVERE, OnDRIVERE)
+
+		//记录查询显示
+	ON_COMMAND(ID_REC_AAD, OnRECAAD)
+	ON_COMMAND(ID_REC_ABD, OnRECABD)
+	ON_COMMAND(ID_REC_AFED, OnRECAFED)
+	ON_COMMAND(ID_REC_ASR, OnRECASR)
+	ON_COMMAND(ID_REC_DABD, OnRECDABD)
+	ON_COMMAND(ID_REC_DABB, OnRECDABB)
+	ON_COMMAND(ID_REC_DSCD, OnRECDSCD)
+	ON_COMMAND(ID_REC_DFED, OnRECDFED)
+	ON_COMMAND(ID_REC_DRIVERE, OnRECDRIVERE)
+		//日(班)报表
+	ON_COMMAND(ID_EXCEL_A, OnEXCELA)
+	ON_COMMAND(ID_EXCEL_AA, OnEXCELAA)
+	ON_COMMAND(ID_EXCEL_AB, OnRECAFED)
+	ON_COMMAND(ID_EXCEL_AFE, OnRECASR)
+	ON_COMMAND(ID_EXCEL_ASR, OnRECDABD)
+	ON_COMMAND(ID_EXCEL_DA, OnRECDABB)
+	ON_COMMAND(ID_EXCEL_DAB, OnRECDSCD)
+	ON_COMMAND(ID_EXCEL_DSCD, OnRECDFED)
+	ON_COMMAND(ID_EXCEL_DFE, OnRECDRIVERE)
+	ON_COMMAND(ID_EXCEL_DRIVERE, OnRECAAD)
+
+
+
 
 	ON_COMMAND(ID_MADE_MADE, OnMadeMade)
 
@@ -149,8 +181,8 @@ static UINT indicators[] =
 	ID_SEPARATOR,           // status line indicator
 //    ID_MOUSCAPTION,
 //	ID_MOUSPOINT,
-	ID_INDICATOR_CAPS,
-	ID_INDICATOR_NUM,
+//	ID_INDICATOR_CAPS,
+//	ID_INDICATOR_NUM,
 //	ID_INDICATOR_SCRL,
 };
 
@@ -186,7 +218,7 @@ CMainFrame::CMainFrame()
 #endif
 
 //	m_pSampleFormView = NULL;
-	m_ontime =0;
+//	m_ontime =0;
 }
 
 CMainFrame::~CMainFrame()
@@ -219,7 +251,15 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CXTPCommandBars* pCommandBars = GetCommandBars();
 
-	CXTPCommandBar* pMenuBar = pCommandBars->SetMenu(_T("Menu Bar"), IDR_MAINFRAME);
+	CXTPCommandBar* pMenuBar;
+	if((theApp.strargc == "OnALARMS")||(theApp.strargc == "OnBREAKES")||(theApp.strargc == "OnFEEDES")
+		||(theApp.strargc == "OnSELECTS")||(theApp.strargc == "OnRECAAD")||(theApp.strargc == "OnRECABD")
+		||(theApp.strargc == "OnRECAFED")||(theApp.strargc == "OnRECASR")||(theApp.strargc == "OnRECDABD")
+		||(theApp.strargc == "OnRECDABB")||(theApp.strargc == "OnRECDFED")||(theApp.strargc == "OnRECDSCD")
+		||(theApp.strargc == "OnRECDRIVERE"))
+    	pMenuBar = pCommandBars->SetMenu(_T("Menu Bar"), IDR_MREPORT);
+	else
+    	pMenuBar = pCommandBars->SetMenu(_T("Menu Bar"), IDR_MAINFRAME);
 	pMenuBar->SetFlags(xtpFlagIgnoreSetMenuMessage | xtpFlagHideMDIButtons);  //main  IDR_MAINFRAME
 
 /*	CXTPToolBar* pCommandBar = (CXTPToolBar*)pCommandBars->Add(_T("Standard"), xtpBarTop);
@@ -268,33 +308,84 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_paneManager.InstallDockingPanes(this);
 	m_paneManager.SetTheme(xtpPaneThemeVisualStudio2005);
 	
-	if(theApp.strargc == "SDisA")
+	if((theApp.strargc == "OnALARMS")||(theApp.strargc == "OnBREAKES")||(theApp.strargc == "OnFEEDES")
+		||(theApp.strargc == "OnSELECTS")||(theApp.strargc == "OnRECAAD")||(theApp.strargc == "OnRECABD")
+		||(theApp.strargc == "OnRECAFED")||(theApp.strargc == "OnRECASR")||(theApp.strargc == "OnRECDABD")
+		||(theApp.strargc == "OnRECDABB")||(theApp.strargc == "OnRECDFED")||(theApp.strargc == "OnRECDSCD")
+		||(theApp.strargc == "OnRECDRIVERE"))
 	{
 //		OnMadeMade();
 	}
 	else
 	{
-
-			CXTPDockingPane* paneResourceView = m_paneManager.CreatePane(
+			 paneResourceView = m_paneManager.CreatePane(
 				ID_VIEW_RESOURCEVIEW, CRect(0, 0, 100, 170), xtpPaneDockBottom);
-		//	CXTPDockingPane* paneResourceView6 = m_paneManager.CreatePane(
-		//		ID_VIEW_RESOURCEVIEW7, CRect(0, 0, 100, 135), xtpPaneDockBottom);
+			 paneResourceView2 = m_paneManager.CreatePane(
+				ID_VIEW_RESOURCEVIEW2, CRect(0, 0, 100, 170), xtpPaneDockBottom);
+			 paneResourceView3 = m_paneManager.CreatePane(
+				ID_VIEW_RESOURCEVIEW3, CRect(0, 0, 100, 170), xtpPaneDockBottom);
+			 paneResourceView4 = m_paneManager.CreatePane(
+				ID_VIEW_RESOURCEVIEW4, CRect(0, 0, 100, 170), xtpPaneDockBottom);
+			 paneResourceView5 = m_paneManager.CreatePane(
+				ID_VIEW_RESOURCEVIEW5, CRect(0, 0, 100, 170), xtpPaneDockBottom);
+			 paneResourceView6 = m_paneManager.CreatePane(
+				ID_VIEW_RESOURCEVIEW6, CRect(0, 0, 100, 170), xtpPaneDockBottom);
 		//		ID_WINDOWS_OUTPUT, CRect(0, 0, 150, 120), xtpPaneDockBottom);
 		//	CXTPDockingPane* paneToolBox = m_paneManager.CreatePane(
 		//		ID_VIEW_TOOLBOX, CRect(0, 0, 200, 120), xtpPaneDockRight);
-			CXTPDockingPane* paneClassView = m_paneManager.CreatePane(
-				ID_VIEW_CLASSVIEW, CRect(0, 0, 230, 135), xtpPaneDockBottom);  //xtpPaneDockLeft
-			CXTPDockingPane* paneSolutionExplorer = m_paneManager.CreatePane(
-				ID_VIEW_SOLUTIONEXPLORER, CRect(0, 0, 230, 135), xtpPaneDockBottom);  //xtpPaneDockLeft
+//			CXTPDockingPane* paneClassView = m_paneManager.CreatePane(
+//				ID_VIEW_CLASSVIEW, CRect(0, 0, 230, 135), xtpPaneDockBottom);  //xtpPaneDockLeft
+//			CXTPDockingPane* paneSolutionExplorer = m_paneManager.CreatePane(
+//				ID_VIEW_SOLUTIONEXPLORER, CRect(0, 0, 230, 135), xtpPaneDockBottom);  //xtpPaneDockLeft
 		/*	CXTPDockingPane* paneResourceView = m_paneManager.CreatePane(
 				ID_VIEW_RESOURCEVIEW, CRect(0, 0, 230, 140), xtpPaneDockLeft);
 			CXTPDockingPane* paneHelpView =m_paneManager.CreatePane(
 				ID_HELP_DYNAMICHELP, CRect(0, 0, 210, 140), xtpPaneDockBottom, paneToolBox);
 			paneHelpView->Close();
 		*/
-			m_paneManager.AttachPane(paneClassView,paneResourceView );
-			m_paneManager.AttachPane(paneSolutionExplorer,paneClassView);
+			m_paneManager.AttachPane(paneResourceView2,paneResourceView );
+			m_paneManager.AttachPane(paneResourceView3,paneResourceView2);
+			m_paneManager.AttachPane(paneResourceView4,paneResourceView3 );
+			m_paneManager.AttachPane(paneResourceView5,paneResourceView4);
+			m_paneManager.AttachPane(paneResourceView6,paneResourceView5 );
+//			m_paneManager.AttachPane(paneResourceView3,paneResourceView2);
+					if (!m_wndResourceView3.GetSafeHwnd())
+					{
+						theApp.m_resnum = 3;
+						m_wndResourceView3.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
+					}
+					paneResourceView3->Attach(&m_wndResourceView3);
+					if (!m_wndResourceView2.GetSafeHwnd())
+					{
+						theApp.m_resnum = 2;
+						m_wndResourceView2.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
+					}
+					paneResourceView2->Attach(&m_wndResourceView2);
+					if (!m_wndResourceView.GetSafeHwnd())
+					{
+						theApp.m_resnum = 1;
+						m_wndResourceView.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
+					}
+					paneResourceView->Attach(&m_wndResourceView);
 
+					if (!m_wndResourceView4.GetSafeHwnd())
+					{
+						theApp.m_resnum = 4;
+						m_wndResourceView4.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
+					}
+					paneResourceView4->Attach(&m_wndResourceView4);
+					if (!m_wndResourceView5.GetSafeHwnd())
+					{
+						theApp.m_resnum = 5;
+						m_wndResourceView5.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
+					}
+					paneResourceView5->Attach(&m_wndResourceView5);
+					if (!m_wndResourceView6.GetSafeHwnd())
+					{
+						theApp.m_resnum = 6;
+						m_wndResourceView6.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
+					}
+					paneResourceView6->Attach(&m_wndResourceView6);
 			paneResourceView->Select();
 	}
 //	m_paneManager.CreatePane(
@@ -363,7 +454,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// Load the previous state for command bars.
 	LoadCommandBars(_T("CommandBars"));
 
-	if(theApp.strargc == "SDisA")
+	if((theApp.strargc == "OnALARMS")||(theApp.strargc == "OnBREAKES")||(theApp.strargc == "OnFEEDES")
+		||(theApp.strargc == "OnSELECTS")||(theApp.strargc == "OnRECAAD")||(theApp.strargc == "OnRECABD")
+		||(theApp.strargc == "OnRECAFED")||(theApp.strargc == "OnRECASR")||(theApp.strargc == "OnRECDABD")
+		||(theApp.strargc == "OnRECDABB")||(theApp.strargc == "OnRECDFED")||(theApp.strargc == "OnRECDSCD")
+		||(theApp.strargc == "OnRECDRIVERE"))
 	{
 		OnMadeMade();
 	}
@@ -392,7 +487,8 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 //	CXTPDrawHelpers::RegisterWndClass(AfxGetInstanceHandle(), cs.lpszClass, 
 //		CS_DBLCLKS, AfxGetApp()->LoadIcon(IDR_MAINFRAME));
 	cs.style = WS_OVERLAPPED | WS_CAPTION | FWS_ADDTOTITLE
-		| WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_MAXIMIZE ;
+		| WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX  ;
+//		| WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_MAXIMIZE ;
 
 //	cs.style&=~(LONG)FWS_ADDTOTITLE;     //去掉标题栏前半部分和“—”
 	// Helps to reduce screen flicker.
@@ -651,9 +747,26 @@ LRESULT CMainFrame::OnDockingPaneNotify(WPARAM wParam, LPARAM lParam)
 				case ID_VIEW_RESOURCEVIEW:
 					if (!m_wndResourceView.GetSafeHwnd())
 					{
+						theApp.m_resnum = 1;
 						m_wndResourceView.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
 					}
 					pPane->Attach(&m_wndResourceView);
+					break;
+				case ID_VIEW_RESOURCEVIEW2:
+					if (!m_wndResourceView2.GetSafeHwnd())
+					{
+						theApp.m_resnum = 2;
+						m_wndResourceView2.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
+					}
+					pPane->Attach(&m_wndResourceView2);
+					break;
+				case ID_VIEW_RESOURCEVIEW3:
+					if (!m_wndResourceView3.GetSafeHwnd())
+					{
+						theApp.m_resnum = 3;
+						m_wndResourceView3.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
+					}
+					pPane->Attach(&m_wndResourceView3);
 					break;
 
 				case ID_VIEW_SOLUTIONEXPLORER:
@@ -1253,7 +1366,7 @@ void CMainFrame::OnColorS()
 	dlg.DoModal();
 }
 
-//////////////////////////////////////////////////通讯命令
+////////////通讯命令//////////////////////////////////////
 void CMainFrame::OnVerifyT() 
 {
 	CSetTimeDlg dlg;
@@ -1305,77 +1418,124 @@ void CMainFrame::OnFDSconfig()
 	dlg.m_nSecond =  64;
 	dlg.DoModal();
 }
-////////////////////////////////////////////////////////通讯命令
-//////////记录查询显示//////////////////////////////////////////
-void CMainFrame::OnSDisA() 
-{
-//	ShellExecute(NULL, "open", "F:\\窗口_3.rsy", NULL, NULL, SW_SHOWNORMAL); 
-      PROCESS_INFORMATION pi; //启动窗口的信息
-           STARTUPINFO si; //进程的信息
-           memset(&si,0,sizeof(si));
-           si.cb=sizeof(si);
-           si.wShowWindow=SW_SHOW;
-           si.dwFlags=STARTF_USESHOWWINDOW;
-     bool fRet=CreateProcess(gstrTimeOut +"\\RSDRAW-YRunD.EXE","SDisA",NULL,FALSE,NULL,NULL,NULL,NULL,&si,&pi);
-//	dlg.m_strdism = "SDisA";
-}
-
-void CMainFrame::OnSDisD() 
+/////列表显示/////////////通讯命令///////
+void CMainFrame::OnSDisA()    //模拟量调用
 {
 	CLoginDlg dlg;
-	dlg.m_strdism = "SDisD";
+	dlg.m_strdism = "OnSDisA";
 	dlg.DoModal();
 }
 
-void CMainFrame::OnDisAAR() 
+void CMainFrame::OnSDisD()       //开关量调用
 {
 	CLoginDlg dlg;
-	dlg.m_strdism = "DisAAR";
+	dlg.m_strdism = "OnSDisD";
 	dlg.DoModal();
 }
 
-void CMainFrame::OnDisABR() 
+void CMainFrame::OnDisAAR()  //模拟量报警
+{
+//	dlg.m_strdism = "OnDisAAR";
+	paneResourceView->Select();
+}
+
+void CMainFrame::OnDisABR()   //模拟量断电
+{
+	paneResourceView2->Select();
+}
+
+void CMainFrame::OnDisAFER() //模拟量馈电异常
+{
+	paneResourceView3->Select();
+}
+
+void CMainFrame::OnDisDABR()   //开关量报警与断电
+{
+	paneResourceView4->Select();
+}
+
+void CMainFrame::OnDisDSC() //开关量状态变动
+{
+	paneResourceView6->Select();
+}
+
+void CMainFrame::OnDisDFER() //开关量馈电异常
+{
+	paneResourceView5->Select();
+}
+
+void CMainFrame::OnDRIVERE()    //设备故障
 {
 	CLoginDlg dlg;
-	dlg.m_strdism = "DisABR";
+	dlg.m_strdism = "OnDRIVERE";
 	dlg.DoModal();
 }
 
-void CMainFrame::OnDisAFER() 
+////列表显示///记录查询显示///////////////
+void CMainFrame::OnRECAAD()  //模拟量报警记录
 {
-	CLoginDlg dlg;
-	dlg.m_strdism = "DisAFER";
-	dlg.DoModal();
+	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECAAD");
+}
+void CMainFrame::OnRECABD()  //模拟量断电记录
+{
+	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECABD");
+}
+void CMainFrame::OnRECAFED() //模拟量馈电异常记录
+{
+	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECAFED");
+}
+void CMainFrame::OnRECASR() //模拟量统计值记录
+{
+	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECASR");
+}
+void CMainFrame::OnRECDABD() //开关量报警记录
+{
+	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDABD");
+}
+void CMainFrame::OnRECDABB() //开关量断电记录
+{
+	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDABB");
+}
+void CMainFrame::OnRECDSCD() //开关量状态变动记录
+{
+	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDSCD");
+}
+void CMainFrame::OnRECDFED() //开关量馈电异常记录
+{
+	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDFED");
+}
+void CMainFrame::OnRECDRIVERE() //设备故障记录
+{
+	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDRIVERE");
+}
+///////记录查询显示/////分类查询//////////
+
+void CMainFrame::OnALARMS() 
+{
+	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnALARMS");
 }
 
-void CMainFrame::OnDisASR() 
+void CMainFrame::OnBREAKES() 
 {
-	CLoginDlg dlg;
-	dlg.m_strdism = "DisASR";
-	dlg.DoModal();
+	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnBREAKES");
 }
 
-void CMainFrame::OnDisDABR() 
+void CMainFrame::OnFEEDES() 
 {
-	CLoginDlg dlg;
-	dlg.m_strdism = "DisDABR";
-	dlg.DoModal();
+	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnFEEDES");
 }
 
-void CMainFrame::OnDisDSC() 
+void CMainFrame::OnSELECTS() 
 {
-	CLoginDlg dlg;
-	dlg.m_strdism = "DisDSC";
-	dlg.DoModal();
+	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnSELECTS");
 }
+///////////////////////分类查询/////////////////////////////
 
-void CMainFrame::OnDisDFER() 
+void CMainFrame::OnCLASSTIME() 
 {
-	CLoginDlg dlg;
-	dlg.m_strdism = "DisDFER";
+	CClassTime dlg;
 	dlg.DoModal();
 }
-///////记录查询显示/////////////////////////////////////////////
 
 void CMainFrame::OnSafeMethod() 
 {
@@ -1480,17 +1640,6 @@ void CMainFrame::OnManipulate()
 
 void CMainFrame::Msg(int iItem, CString str1,CString str2,CString str3,CString str4,CString str5)
 {
-//	m_wndResourceView.SetLC(iItem, str1,str2, str3, str4, str5);
-
-/*	if(m_ontime == 30)
-		m_ontime = 0;
-	m_ontime++;
-		m_wndResourceView.m_listCtrl.SetItemText(m_ontime, 0, str1);
-		m_wndResourceView.m_listCtrl.SetItemText(m_ontime, 1,  str2);
-		m_wndResourceView.m_listCtrl.SetItemText(m_ontime, 2,  str3);
-		m_wndResourceView.m_listCtrl.SetItemText(m_ontime, 3,  str4);
-		m_wndResourceView.m_listCtrl.SetItemText(m_ontime, 4, str5);
-
 /*	CListBox * plistInfo = (CListBox*)m_wndBar.GetDlgItem(IDC_LIST_INFO);
 	SYSTEMTIME tm;
 	GetLocalTime(&tm);
@@ -1559,11 +1708,15 @@ void CMainFrame::OnSelchangeTabInfo(NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 
-void CMainFrame::MsgDel()
+void CMainFrame::CreateP(CString str1,char *str2)
 {
-//	CListBox * plistInfo = (CListBox*)m_wndBar.GetDlgItem(IDC_LIST_INFO);
-//	int numList=plistInfo->GetCount()-1;
-//	plistInfo->DeleteString(numList);
+      PROCESS_INFORMATION pi; //启动窗口的信息
+           STARTUPINFO si; //进程的信息
+           memset(&si,0,sizeof(si));
+           si.cb=sizeof(si);
+           si.wShowWindow=SW_SHOW;
+           si.dwFlags=STARTF_USESHOWWINDOW;
+     int fRet=CreateProcess(str1,str2,NULL,FALSE,NULL,NULL,NULL,NULL,&si,&pi);
 }
 
 
@@ -1690,7 +1843,7 @@ void CMainFrame::AddUser()
 	int nIndex = m_wndStatusBar.CommandToIndex(ID_INDICATOR_USER);
 	ASSERT (nIndex != -1);
 
-	m_wndStatusBar.SetPaneWidth(nIndex, 30);
+	m_wndStatusBar.SetPaneWidth(nIndex, 60);
 	m_wndStatusBar.SetPaneStyle(nIndex, m_wndStatusBar.GetPaneStyle(nIndex) | SBPS_NOBORDERS);
 //	m_wndStatusBar.AddControl(&m_wndEditCtrl, ID_INDICATOR_EDIT, FALSE);
 	m_wndStatusBar.SetPaneText(m_wndStatusBar.CommandToIndex(ID_INDICATOR_USER),theApp.curuser); //显示用户
@@ -1894,14 +2047,14 @@ void CMainFrame::OnMadeMade()
 		m_pMade->MDIActivate();
 		return;
 	}
-
 	m_pMade=new CChildFrame();
 	CCreateContext context;
 	context.m_pNewViewClass=RUNTIME_CLASS(CMadeCertView);
+//	m_MadeCert->m_stragrv = theApp.strargc;
 	if(!m_pMade->LoadFrame(ID_INDICATOR_PRINT,WS_MAXIMIZE|WS_OVERLAPPEDWINDOW,this,&context))
 		return;
-	m_pMade->SetWindowPos(this,0,0,GetSystemMetrics(SM_CXSCREEN)-8,140,SWP_NOMOVE|SWP_NOZORDER | SWP_NOACTIVATE|SWP_SHOWWINDOW);
-	m_pMade->ShowWindow(SW_SHOWMAXIMIZED);
-	m_pMade->InitialUpdateFrame(NULL,true);
+//	m_pMade->SetWindowPos(this,0,0,GetSystemMetrics(SM_CXSCREEN)-8,140,SWP_NOMOVE|SWP_NOZORDER | SWP_NOACTIVATE|SWP_SHOWWINDOW);
+//	m_pMade->ShowWindow(SW_SHOWMAXIMIZED);
+//	m_pMade->InitialUpdateFrame(NULL,true);   //如用就加载两次
 
 }

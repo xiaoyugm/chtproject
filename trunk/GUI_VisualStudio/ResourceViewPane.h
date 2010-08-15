@@ -42,7 +42,12 @@ public:
 	int m_ontime ;
 
 	void InitListControl();
-	void InitLC();
+	void InitLC(unsigned char  afds, unsigned char  achan);
+	void InitLB(unsigned char  afds, unsigned char  achan);
+	void InitLF(unsigned char  afds, unsigned char  achan);
+	void InitLDAB(unsigned char  afds, unsigned char  achan);
+	void InitLDF(unsigned char  afds, unsigned char  achan);
+	void InitLDCH(unsigned char  afds, unsigned char  achan);
 
 	virtual CWnd* GetClientWnd() { return &m_listCtrl; }
 //	void OnEmptyCommand();

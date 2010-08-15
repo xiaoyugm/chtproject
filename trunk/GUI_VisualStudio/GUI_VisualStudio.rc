@@ -51,6 +51,7 @@ BEGIN
     BEGIN
         MENUITEM "FLAT_TAB_PROP",               ID_FLAT_TAB_PROP
         MENUITEM "FormView风格",                IDC_COMBO_THEMES
+        MENUITEM "baobiao",                     ID_MADE_MADE
     END
     POPUP "模拟图显示"
     BEGIN
@@ -290,33 +291,86 @@ BEGIN
     END
     POPUP "参数设置"
     BEGIN
+        MENUITEM "系统参数",                    ID_CLASSTIME
         MENUITEM "模拟量类型定义",              ID_A_D
         MENUITEM "开关量类型定义",              ID_D_D
         MENUITEM "安装地点定义",                ID_LOCALTION
-        MENUITEM "测点定义",                    ID_BROWSERMOD
-        MENUITEM "控制规则定义",                ID_CONTROLTABLE
+        MENUITEM "测点定义(累计量)",            ID_BROWSERMOD
         MENUITEM "馈电规则定义",                ID_CONTROLS
         MENUITEM "颜色设置",                    ID_CONTROLF
         MENUITEM "报警音乐",                    ID_MANIPULATE
     END
+    MENUITEM "页面编辑",                    65535
     POPUP "控制"
     BEGIN
+        MENUITEM "控制逻辑(规则)",              ID_CONTROLTABLE
+        MENUITEM "操作(手动控制)",              ID_MANUAL_CONTROL
         MENUITEM "校时通讯",                    ID_VERIFY_TIMER
-        MENUITEM "手动控制",                    ID_MANUAL_CONTROL
         MENUITEM "测点配置",                    ID_FDS_CONFIG
         MENUITEM "通讯测试",                    ID_TEST_COMMUNICATION
         MENUITEM "风电瓦斯闭锁",                ID_WINDGAS_ATRESIA
         MENUITEM "故障闭锁",                    ID_FAILURE_ATRESIA
         MENUITEM "分站配置",                    ID_FDS_CONFIGop
+        MENUITEM "安全措施",                    ID_SAFEMETHOD
     END
     POPUP "列表显示"
     BEGIN
-        MENUITEM "安全措施",                    ID_SAFEMETHOD
-        MENUITEM "标校数据显示",                ID_ADJUST_DIS
-        MENUITEM "模拟量调用显示",              ID_SELECT_DISA
-        MENUITEM "开关量调用显示",              ID_SELECT_DISD
-        MENUITEM "baobiao",                     ID_MADE_MADE
+        MENUITEM "模拟量调用",                  ID_SELECT_DISA
+        MENUITEM "模拟量报警",                  ID_DIS_AAR
+        MENUITEM "模拟量断电",                  ID_DIS_ABR
+        MENUITEM "模拟量馈电异常",              ID_DIS_AFER
+        MENUITEM "开关量调用",                  ID_SELECT_DISD
+        MENUITEM "开关量报警与断电",            ID_DIS_DABR
+        MENUITEM "开关量馈电异常",              ID_DIS_DFER
+        MENUITEM "开关量状态变动",              ID_DIS_DSC
+        MENUITEM "设备故障",                    ID_DRIVERE
+        MENUITEM "标校数据",                    ID_ADJUST_DIS
     END
+    MENUITEM "曲线显示",                    65535
+    MENUITEM "状态图与柱状图显示",          65535
+    MENUITEM "模拟图显示",                  65535
+    POPUP "打印"
+    BEGIN
+        MENUITEM "模拟量日(班)报表",            ID_EXCEL_A
+        MENUITEM "模拟量报警日(班)报表",        ID_EXCEL_AA
+        MENUITEM "模拟量断电日(班)报表",        ID_EXCEL_AB
+        MENUITEM "模拟量馈电异常日(班)报表",    ID_EXCEL_AFE
+        MENUITEM "模拟量统计值日(班)报表",      ID_EXCEL_ASR
+        MENUITEM "开关量报警日(班)报表",        ID_EXCEL_DA
+        MENUITEM "开关量断电日(班)报表",        ID_EXCEL_DAB
+        MENUITEM "开关量状态变动日(班)报表",    ID_EXCEL_DSCD
+        MENUITEM "开关量馈电异常日(班)报表",    ID_EXCEL_DFE
+        MENUITEM "监控设备故障日(班)报表",      ID_EXCEL_DRIVERE
+    END
+    POPUP "查询"
+    BEGIN
+        MENUITEM "模拟量报警记录",              ID_REC_AAD
+        MENUITEM "模拟量断电记录",              ID_REC_ABD
+        MENUITEM "模拟量馈电异常记录",          ID_REC_AFED
+        MENUITEM "模拟量统计值记录",            ID_REC_ASR
+        MENUITEM "开关量报警记录",              ID_REC_DABD
+        MENUITEM "开关量断电记录",              ID_REC_DABB
+        MENUITEM "开关量状态变动记录",          ID_REC_DSCD
+        MENUITEM "开关量馈电异常记录",          ID_REC_DFED
+        MENUITEM "设备故障记录",                ID_REC_DRIVERE
+    END
+    POPUP "分类查询"
+    BEGIN
+        MENUITEM "报警",                        ID_ALARMS
+        MENUITEM "断电",                        ID_BREAKES
+        MENUITEM "馈电异常",                    ID_FEEDES
+        MENUITEM "调用",                        ID_SELECTS
+    END
+    POPUP "帮助(&H)"
+    BEGIN
+        MENUITEM "帮助主题(&H)",                ID_HELP_FINDER
+        MENUITEM SEPARATOR
+        MENUITEM "关于 ...",                    ID_APP_ABOUT
+    END
+END
+
+IDR_MREPORT MENU DISCARDABLE 
+BEGIN
     POPUP "记录查询显示"
     BEGIN
         MENUITEM "模拟量报警",                  ID_DIS_AAR
@@ -327,16 +381,12 @@ BEGIN
         MENUITEM "开关量状态变动",              ID_DIS_DSC
         MENUITEM "开关量馈电异常",              ID_DIS_DFER
     END
-    POPUP "查询打印"
+    POPUP "分类查询"
     BEGIN
-        MENUITEM "模拟量调用显示",              ID_SELECT_DISA
-        MENUITEM "模拟量报警",                  ID_DIS_AAR
-        MENUITEM "模拟量断电",                  ID_DIS_ABR
-        MENUITEM "模拟量馈电异常",              ID_DIS_AFER
-        MENUITEM "开关量调用显示",              ID_SELECT_DISD
-        MENUITEM "开关量报警",                  ID_DIS_DABR
-        MENUITEM "开关量断电",                  ID_DIS_DABR
-        MENUITEM "开关量馈电异常",              ID_DIS_DFER
+        MENUITEM "报警",                        ID_ALARMS
+        MENUITEM "断电",                        ID_BREAKES
+        MENUITEM "馈电异常",                    ID_FEEDES
+        MENUITEM "调用",                        ID_SELECTS
     END
 END
 
@@ -515,16 +565,18 @@ FONT 10, "宋体", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_EDT_PWD,105,49,43,16,ES_PASSWORD | ES_AUTOHSCROLL
     EDITTEXT        IDC_EDT_USER,105,25,43,16,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "确定",IDOK,34,116,34,26
-    PUSHBUTTON      "删除用户",ID_DELUSER,151,116,43,26
+    DEFPUSHBUTTON   "确定",IDOK,34,128,34,14
+    PUSHBUTTON      "删除用户",ID_DELUSER,151,128,43,14
     LTEXT           "用户名",IDC_STATICL1,72,27,24,16
     LTEXT           "密  码",IDC_STATICL2,72,51,26,16
     ICON            "IDI_ICON_LOGIN",IDC_STATIC,45,25,20,20
     ICON            "IDI_ICON_KEY",IDC_STATIC,45,47,20,20
-    PUSHBUTTON      "添加用户",IDC_BUTADD,79,120,60,20
+    PUSHBUTTON      "添加用户",IDC_BUTADD,79,128,60,14
     CONTROL         "List1",IDC_LIST_USER,"SysListView32",LVS_REPORT | 
-                    LVS_SHOWSELALWAYS | WS_TABSTOP,5,7,202,103,
+                    LVS_SHOWSELALWAYS | WS_TABSTOP,7,15,202,103,
                     WS_EX_STATICEDGE
+    COMBOBOX        IDC_COMBLOG,18,2,181,150,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
 END
 
 IDD_COLORSET DIALOG DISCARDABLE  0, 0, 162, 206
@@ -585,7 +637,7 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 FONT 10, "System"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,29,161,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,116,161,50,14
+    PUSHBUTTON      "Cancel",IDCANCELdemo,116,161,50,14
     COMBOBOX        IDC_CB_SAFE_M,20,7,180,144,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
     EDITTEXT        IDC_EDIT_SM,22,45,174,107,ES_AUTOHSCROLL
@@ -596,14 +648,36 @@ IDD_FORMVIEW_MADE DIALOG DISCARDABLE  0, 0, 255, 193
 STYLE WS_CHILD | WS_THICKFRAME
 FONT 10, "宋体"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,63,172,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,142,172,50,14
+    DEFPUSHBUTTON   "查询",IDOKSEARCH,49,172,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,133,172,50,14,NOT WS_VISIBLE
     CONTROL         "DateTimePicker1",IDC_R_END,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | WS_TABSTOP,7,42,56,15
+                    DTS_RIGHTALIGN | WS_TABSTOP,123,32,56,15
     CONTROL         "DateTimePicker1",IDC_R_START,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | WS_TABSTOP,192,40,56,15
-    COMBOBOX        IDC_CB_C,23,7,184,78,CBS_DROPDOWN | WS_VSCROLL | 
+                    DTS_RIGHTALIGN | WS_TABSTOP,24,32,56,15
+    COMBOBOX        IDC_COMBMADE,23,7,196,150,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
+    EDITTEXT        IDC_E_START,82,32,20,14,ES_AUTOHSCROLL
+    LTEXT           "小时",IDC_STATIC,104,35,16,9
+    EDITTEXT        IDC_E_END,180,32,20,14,ES_AUTOHSCROLL
+    LTEXT           "小时",IDC_STATIC,202,35,16,9
+    LTEXT           "分:00 秒:00",IDC_STATIC,76,51,46,14
+    LTEXT           "分:59 秒:59",IDC_STATIC,172,51,46,14
+    LTEXT           "起始时间",IDC_STATIC,25,51,43,8
+    LTEXT           "结束时间",IDC_STATIC,125,51,43,8
+END
+
+IDD_DIA_CLASS DIALOG DISCARDABLE  0, 0, 179, 150
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "班设置"
+FONT 10, "宋体"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,29,129,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,108,129,50,14
+    LTEXT           "初始日报时间",IDC_STATIC,13,15,46,8
+    LTEXT           "班次",IDC_STATIC,28,33,16,8
+    EDITTEXT        IDC_EDIT_DAYREPORT,61,13,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CLASSNUM,61,30,40,14,ES_AUTOHSCROLL
+    LTEXT           "小时",IDC_STATIC,104,16,16,8
 END
 
 
@@ -693,6 +767,14 @@ BEGIN
         RIGHTMARGIN, 248
         TOPMARGIN, 7
         BOTTOMMARGIN, 186
+    END
+
+    IDD_DIA_CLASS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 172
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 143
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -860,13 +942,13 @@ END
 STRINGTABLE DISCARDABLE 
 BEGIN
     ID_VIEW_SOLUTIONEXPLORER "断电控制\n断电控制"
-    ID_VIEW_RESOURCEVIEW    "报警、馈电异常、断电控制显示\n报警、馈电异常、断电控制显示"
+    ID_VIEW_RESOURCEVIEW    "模拟量报警显示\n模拟量报警显示"
     ID_VIEW_PROPERTIESWINDOW "Properties\nProperties"
     ID_VIEW_TOOLBOX         "Toolbox\nToolbox"
     ID_VIEW_CLASSVIEW       "状态变动\n状态变动"
     ID_WINDOWS_OUTPUT       "Output\nOutput"
     ID_HELP_DYNAMICHELP     "Dynamic Help\nDynamic Help"
-    ID_VIEW_RESOURCEVIEW2   "断电控制\n断电控制"
+    ID_VIEW_RESOURCEVIEW2   "模拟量断电显示\n模拟量断电显示"
 END
 
 STRINGTABLE DISCARDABLE 
@@ -993,10 +1075,10 @@ END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
-    ID_VIEW_RESOURCEVIEW3   "馈电异常\n馈电异常"
-    ID_VIEW_RESOURCEVIEW4   "调用显示\n调用显示"
-    ID_VIEW_RESOURCEVIEW5   "设备故障\n设备故障"
-    ID_VIEW_RESOURCEVIEW6   "开关量状态\n开关量状态"
+    ID_VIEW_RESOURCEVIEW3   "模拟量馈电异常显示\n模拟量馈电异常显示"
+    ID_VIEW_RESOURCEVIEW4   "开关量报警与断电显示\n开关量报警与断电显示"
+    ID_VIEW_RESOURCEVIEW5   "开关量馈电异常显示\n开关量馈电异常显示"
+    ID_VIEW_RESOURCEVIEW6   "开关量状态变动显示\n开关量状态变动显示"
     ID_VIEW_RESOURCEVIEW7   "备用显示\n备用显示"
 END
 

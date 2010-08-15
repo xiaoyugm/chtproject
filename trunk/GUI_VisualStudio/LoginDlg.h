@@ -28,16 +28,20 @@ public:
 
     CCardFileEvents *pCnEvents;
     CAxConnection   m_Cn;
+    CAxPointDescription  m_PointDes;
     CAxLogin        m_SLogin;
     CAxLogin        *m_SLoginNew;
+
 	CSQLDirect m_SQLDirect;
-    
+ 	CString2DataType    m_Str2Data;
+   
 // Dialog Data
 	//{{AFX_DATA(CLoginDlg)
 	enum { IDD = IDD_DLG_LOGIN };
 	CButton	m_CheckManachine;
 	CEdit	m_ctrlEditPWD;
 	CButton m_btnOK;
+	CXTFlatComboBox     m_ComBoxSM;
 //	CXPStyleButtonST m_btnOK;
 //	CButton m_btnCANCEL;
 	CXTListCtrl         m_listUser;
@@ -59,6 +63,7 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CLoginDlg)
+	afx_msg void OnchangeComboSM();
     afx_msg void OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void DelUser();
 	afx_msg void AddODUser();

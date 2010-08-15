@@ -45,6 +45,7 @@
 #include "dbAx\AxDisPoint.hpp"
 #include "dbAx\CardFileEvents.hpp"
 #include "dbAx\AxColorset.hpp"
+#include "dbAx\AxLogin.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 // CGUI_VisualStudioApp:
@@ -59,6 +60,7 @@ public:
 	BOOL   ProcessShellCommand(CCommandLineInfo& rCmdInfo);
     CMQServer  SocketServer;
     CMQClient socketClient;
+	BOOL   StartServer();
 	BOOL   StartClient();
 	void   SendMessage(CNDKMessage& message);     //211
 	void   Sync(CNDKMessage& message);
@@ -88,11 +90,14 @@ public:
     CAxControl       m_Control;
     CAxColorset      m_Colorset;
     CAxFeedE         m_AxFeedE;
+    CAxCommonSet        m_CommonSet;
 
 	//	CSQLDirect		m_sqlD;		//Êý¾Ý¿â
-	int DocNum ,idis,internet30s;
+	int DocNum ,idis,internet30s,m_resnum,bidis,fidis,dabidis,dfidis,dchidis;
 	CString curuser,strargc;
 	BOOL m_bsuper;
+	int  m_message;
+	UINT    	m_FdsScan;
 
 	bool m_senddata , m_sendcom,m_bLogIn;
 
