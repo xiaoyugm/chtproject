@@ -143,6 +143,7 @@ public:
 // Generated message map functions
 protected:
 	//{{AFX_MSG(CDrawView)
+	afx_msg void OnDRAWCA();
 	afx_msg void OnDestroy();
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);

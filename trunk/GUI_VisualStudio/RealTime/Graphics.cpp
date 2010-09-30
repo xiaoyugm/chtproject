@@ -303,7 +303,7 @@ void CGraphics::Legend(COLORREF cr, int Index, const char* Name)
     	SetStringAlign(RIGHT, CENTER);
 		PrintString(GR - (Index-1) *(GR-GL)/5  , GT - m_bM /1.8 , 0, Name);
 		SetStringAlign(LEFT, CENTER);
-		PrintString(GL , GT - m_bM /1.8 , 0, "点号:值");
+		PrintString(GL , GT - m_bM /1.8 , 0, "点号:值");  //下边数据
 
 		::SelectObject(m_hDC, hOldFont);
 		::DeleteObject(m_Font);

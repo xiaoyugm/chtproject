@@ -3,8 +3,8 @@
 
 #include "stdafx.h"
 #include "GUI_VisualStudio.h"
-
 #include "FlatTabViewDoc.h"
+#include "SampleFormView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -35,6 +35,21 @@ CFlatTabViewDoc::CFlatTabViewDoc()
 
 CFlatTabViewDoc::~CFlatTabViewDoc()
 {
+}
+
+BOOL CFlatTabViewDoc::OnOpenDocument(LPCTSTR lpszPathName)
+{
+//0415
+	POSITION pos = GetFirstViewPosition();
+	CSampleFormView *psView;
+	while (pos != NULL)
+		psView = (CSampleFormView*)GetNextView(pos);
+	
+	if(psView != NULL)
+	{
+		theApp.m_Sam.SetAt(lpszPathName,psView);
+	}
+	return CDocument::OnOpenDocument(lpszPathName);
 }
 
 BOOL CFlatTabViewDoc::OnNewDocument()

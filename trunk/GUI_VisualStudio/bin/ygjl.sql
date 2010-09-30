@@ -21,7 +21,7 @@ CREATE TABLE [BJygjl].[dbo].[analogtype] (
 	[prtn] [float] (8) ,
 	[punit] [char] (20)  ,
 	[pico] [int] ,
-	[falm] [char] (50)  ,
+	[falm] [char] (300)  ,
 	[fdel] [bit]  ,
 	[recdate] [datetime] ,
 	[deldate] [datetime] ,
@@ -38,7 +38,7 @@ CREATE TABLE [BJygjl].[dbo].[digitaltype] (
 	[name1] [char] (20) ,
 	[name2] [char] (20) ,
 	[palms] [int]  ,
-	[falm] [char] (50)  ,
+	[falm] [char] (300)  ,
 	[fdel] [bit]  ,
 	[recdate] [datetime] ,
 	[deldate] [datetime] ,
@@ -154,9 +154,9 @@ CREATE TABLE [BJygjl].[dbo].[colorset] (
 ) ON [PRIMARY] 
 GO
 
-CREATE TABLE [BJygjl].[dbo].[adjustdata] (
+CREATE TABLE [BJygjl].[dbo].[rtadjustdata] (
 	[ADID] [int] NOT NULL PRIMARY KEY IDENTITY(1,1),
-	[Name] [char] (50) NOT NULL ,
+	[PID] [int] ,
 	[ptype] [int] ,
 	[fds] [int]   ,
 	[chan] [int]   ,
@@ -174,7 +174,7 @@ GO
 
 CREATE TABLE [BJygjl].[dbo].[rt201008data] (
 	[RTID] [int] NOT NULL PRIMARY KEY IDENTITY(1,1),
-	[Name] [char] (50) NOT NULL ,
+	[PID] [int] ,
 	[ptype] [int] ,
 	[fds] [int]   ,
 	[chan] [int]   ,
@@ -192,7 +192,7 @@ GO
 
 CREATE TABLE [BJygjl].[dbo].[rt201009data] (
 	[RTID] [int] NOT NULL PRIMARY KEY IDENTITY(1,1),
-	[Name] [char] (50) NOT NULL ,
+	[PID] [int] ,
 	[ptype] [int] ,
 	[fds] [int]   ,
 	[chan] [int]   ,
@@ -210,7 +210,7 @@ GO
 
 CREATE TABLE [BJygjl].[dbo].[rt5mdata] (
 	[RT5ID] [int] NOT NULL PRIMARY KEY IDENTITY(1,1),
-	[Name] [char] (50) NOT NULL ,
+	[PID] [int] ,
 	[ptype] [int] ,
 	[fds] [int]   ,
 	[chan] [int]   ,
@@ -225,11 +225,45 @@ GO
 
 CREATE TABLE [BJygjl].[dbo].[commonset] (
 	[CommonID] [int] NOT NULL,
-	[num1] [int] ,
-	[num2] [int]   ,
-	[num3] [int]   ,
-	[num4] [int] ,
-	[num5] [int] ,
-	[num6] [int]
+	[strc1] [char] (100),
+	[strc2] [char] (100),
+	[strc3] [char] (100),
+	[strc4] [char] (100),
+	[strc5] [char] (100),
+	[strc6] [char] (100),
+	[strc7] [char] (100),
+	[strc8] [char] (100),
+	[strc9] [char] (100),
+	[strc10] [char] (100),
+	[strc11] [char] (100),
+	[strc12] [char] (100),
+	[strc13] [char] (100),
+	[strc14] [char] (100),
+	[strc15] [char] (100),
+	[strc16] [char] (100),
+	[strc17] [char] (100),
+	[strc18] [char] (100),
+	[strc19] [char] (100),
+	[strc20] [char] (100),
+	[strc21] [char] (100),
+	[strc22] [char] (100),
+	[strc23] [char] (100),
+	[strc24] [char] (100),
+	[strc25] [char] (100),
+	[strc26] [char] (100),
+	[strc27] [char] (100),
+	[strc28] [char] (100),
+	[strc29] [char] (100),
+	[strc30] [char] (100)
+) ON [PRIMARY] 
+GO
+
+CREATE TABLE [BJygjl].[dbo].[fanscon] (
+	[FansID] [int] NOT NULL PRIMARY KEY IDENTITY(1,1),
+	[Name1] [char] (100),
+	[pointnum1] [char] (100) ,
+	[Name2] [char] (100) ,
+	[pointnum2] [char] (100),
+	[AStatus] [int] 
 ) ON [PRIMARY] 
 GO

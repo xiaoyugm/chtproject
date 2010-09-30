@@ -6,13 +6,13 @@
 #include "SafeMethod.h"
 #include "MainFrm.h"
 
-#include "ExcelFormat.h"
-using namespace ExcelFormat;
+//#include "ExcelFormat.h"
+//using namespace ExcelFormat;
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <shellapi.h>
-#include <crtdbg.h>
+//#define WIN32_LEAN_AND_MEAN
+//#include <windows.h>
+//#include <shellapi.h>
+//#include <crtdbg.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -20,12 +20,12 @@ using namespace ExcelFormat;
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern ADMainDis         m_ADMainDis[65][25][65];          //调用显示
-extern SlaveStation             m_SlaveStation[65][25];
+extern ADMainDis         m_ADMainDis[MAX_FDS][MAX_CHAN];          //调用显示
+extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 extern  OthersSetting    m_OthersSetting;
 /////////////////////////////////////////////////////////////////////////////
 // CSafeMethod dialog
-
+/*
 //BasicExcel封装了读写excel的操作(com)，速度很快，不过往xls文件中写入中文会出现乱码。
 //在写入中文钱先将中文编码转换为unicode然后在写入xls文件可解决乱码问题
 //添加一个函数，所有的字符串先使用GB2312ToUnicode转换一下
@@ -48,7 +48,7 @@ static void copy_sheet(const char* from, const char* to)
 	xls.Load(from);
 	xls.SaveAs(to);
 }
-
+*/
 CSafeMethod::CSafeMethod(CWnd* pParent /*=NULL*/)
 	: CDialog(CSafeMethod::IDD, pParent)
 {
@@ -63,6 +63,7 @@ void CSafeMethod::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CSafeMethod)
 		  DDX_Text(pDX, IDC_EDIT_SM, strsm);
+//	DDV_MaxChars(pDX, strsm, 20);
 		  DDX_Control(pDX, IDC_CB_SAFE_M, m_ComBoxSM);
 	//}}AFX_DATA_MAP
 }
@@ -137,8 +138,9 @@ BOOL CSafeMethod::OnInitDialog()
 			eYear = m_PointDes.m_szptype;
 			if((eYear < 3) || (eYear > 12)||(eYear == 10))
 			{
-				strname = m_PointDes.m_szName;
-				strname.TrimRight();
+             		int nfds = m_PointDes.m_szfds;
+              		int nchan = m_PointDes.m_szchan;
+				strname = m_SlaveStation[nfds][nchan].WatchName;
 				strstartTime = m_PointDes.m_szpointnum;
 				strstartTime.TrimRight();
 				dddd = strstartTime + strname;
@@ -176,11 +178,11 @@ void CSafeMethod::OnClose()
   }
 }
 
-BOOL CSafeMethod::DestroyWindow() 
-{
-	OnClose();
-	return CDialog::DestroyWindow();
-}
+//BOOL CSafeMethod::DestroyWindow() 
+//{
+//	OnClose();
+//	return CDialog::DestroyWindow();
+//}
 
 void CSafeMethod::OnBnOkSM()
 {
@@ -190,7 +192,10 @@ void CSafeMethod::OnBnOkSM()
 			UpdateData(TRUE);           //Exchange dialog data
 	int  kkkk = m_ComBoxSM.GetCurSel();
 	if(kkkk == -1 || strsm == "")
+	{
+        AfxMessageBox("请选择测点和输入安全措施！");
 		return;
+	}
 	m_ComBoxSM.GetLBText(kkkk,strname);
 	strname = strname.Mid(0,5);
     		strf = strname.Mid(0,2);
@@ -207,7 +212,7 @@ void CSafeMethod::OnBnOkSM()
             				try
 							{
 	         				 m_RealtimedataNew->m_szRTID  = 1;
-		      			     m_RealtimedataNew->m_szName = m_SlaveStation[afds][achan].WatchName;
+		      			     m_RealtimedataNew->m_szPID = m_SlaveStation[afds][achan].m_PID;
 							 int m_nptype = m_SlaveStation[afds][achan].ptype;
 		    			     m_RealtimedataNew->m_szptype = m_nptype;
     						 m_RealtimedataNew->m_szfds = afds;
@@ -217,7 +222,7 @@ void CSafeMethod::OnBnOkSM()
 					m_SlaveStation[afds][achan].ValueTime = CTime.GetCurrentTime();
 							 if(m_nptype >3)
 							 {
-							m_ADMainDis[afds][achan][0].NTime = CTime.GetCurrentTime();
+							m_ADMainDis[afds][achan].NTime = CTime.GetCurrentTime();
     						      m_RealtimedataNew->m_szCDValue = m_SlaveStation[afds][achan].CValue;
      				   		      m_RealtimedataNew->m_szAValue = 0;
                                   pFWnd->m_wndResourceView4.InitLDAB(afds,achan);
@@ -244,10 +249,17 @@ void CSafeMethod::OnBnOkSM()
 					        	AfxMessageBox(e->m_szErrorDesc, MB_OK);
 				        		delete e;
 							}
-
-  EndDialog(IDOK);
+	OnClose();
+    EndDialog(IDOK);
 }
 
+void CSafeMethod::OnCancel() 
+{
+	// TODO: Add extra cleanup here
+	OnClose();
+	CDialog::OnCancel();
+}
+/*
 void CSafeMethod::OnBndemo() 
 {
 	BasicExcel xls;
@@ -311,7 +323,7 @@ BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
     cell->SetFormat(fmt_bold);
 //  xls.SaveAs(path);
   delete [] buf;
-*/
+*//*
 //	xls.Save();
 	xls.SaveAs("example5.xls");
 //	copy_sheet("example5.xls","example6.xls");
@@ -320,7 +332,7 @@ BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
 	CDialog::OnCancel();
 	ShellExecute(0, NULL, "example4.xls", NULL, NULL, SW_NORMAL);
 }
-
+*/
 /*
 static void example1(const char* path)
 {

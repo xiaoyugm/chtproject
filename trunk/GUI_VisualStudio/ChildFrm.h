@@ -47,7 +47,7 @@ public:
 	//{{AFX_VIRTUAL(CChildFrame)
 //	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	virtual void ActivateFrame(int nCmdShow);
+//	virtual void ActivateFrame(int nCmdShow);
 	//}}AFX_VIRTUAL
 
 // Implementation

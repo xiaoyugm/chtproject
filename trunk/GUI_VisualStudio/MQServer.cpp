@@ -12,11 +12,11 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
+extern SerialF               m_one[MAX_FDS][17];
 extern SerialF               m_ClassTime[200];            //°àÉèÖÃ
 extern CNDKMessage m_NDKmes[50];
 extern unsigned char *m_ndkRTD;
-static BOOL bIsConnect = FALSE;
-extern SlaveStation             m_SlaveStation[65][25];
+extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 extern  OthersSetting    m_OthersSetting;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -25,6 +25,7 @@ extern  OthersSetting    m_OthersSetting;
 CMQServer::CMQServer()
 {
 	tHostStartTime = CTime::GetCurrentTime();
+	bIsConnect = FALSE;
 }
 
 CMQServer::~CMQServer()
@@ -427,27 +428,25 @@ void CMQServer::Sync(CNDKMessage &message)
 
 void CMQServer::SyncCRTData(unsigned char  afds, unsigned char  achan,int dbtype)
 {
+	if(m_one[afds][achan].SFSd == 1)
+		return;
+	if(!theApp.m_bLogIn)
+		return;
+	if(!theApp.b_SaveRT)
+		return;
+
 	CString strTable;
 	int m_nptype = m_SlaveStation[afds][achan].ptype;
 	if(dbtype == 0 || dbtype == 2|| dbtype == 4)
 	{
 		CNDKMessage message(SAVEDBREALTIMEDATA);
 		message.Add(1);
-		strTable = m_SlaveStation[afds][achan].WatchName;
-		message.Add(strTable);
+		message.Add(m_SlaveStation[afds][achan].m_PID);
 		message.Add(m_nptype);
 		message.Add(afds);
 		message.Add(achan);
-	    if(m_nptype >3)
-		{
-    		message.Add(m_SlaveStation[afds][achan].CValue);
-    		message.Add(0);
-		}
-		else
-		{
-    		message.Add(0);
-    		message.Add(m_SlaveStation[afds][achan].AValue);
-		}
+   		message.Add(m_SlaveStation[afds][achan].CValue);
+   		message.Add(m_SlaveStation[afds][achan].AValue);
 		message.Add(m_SlaveStation[afds][achan].Channel_state);
 		message.Add(m_ndkRTD[0]);
 		message.Add(m_ndkRTD[1]);
@@ -485,21 +484,12 @@ void CMQServer::SyncCRTData(unsigned char  afds, unsigned char  achan,int dbtype
 	{
 		CNDKMessage message(SAVEADJUSTDATA);
 		message.Add(1);
-		strTable = m_SlaveStation[afds][achan].WatchName;
-		message.Add(strTable);
+		message.Add(m_SlaveStation[afds][achan].m_PID);
 		message.Add(m_nptype);
 		message.Add(afds);
 		message.Add(achan);
-	    if(m_nptype >3)
-		{
-    		message.Add(m_SlaveStation[afds][achan].CValue);
-    		message.Add(0);
-		}
-		else
-		{
-    		message.Add(0);
-    		message.Add(m_SlaveStation[afds][achan].AValue);
-		}
+   		message.Add(m_SlaveStation[afds][achan].CValue);
+    	message.Add(m_SlaveStation[afds][achan].AValue);
 		message.Add(m_SlaveStation[afds][achan].Channel_state);
 		message.Add(m_ndkRTD[0]);
 		message.Add(m_ndkRTD[1]);
@@ -537,8 +527,7 @@ void CMQServer::SyncCRTData(unsigned char  afds, unsigned char  achan,int dbtype
 	{
 		CNDKMessage message(SAVE5MRTDATA);
 		message.Add(1);
-		strTable = m_SlaveStation[afds][achan].WatchName;
-		message.Add(strTable);
+		message.Add(m_SlaveStation[afds][achan].m_PID);
 		message.Add(m_nptype);
 		message.Add(afds);
 		message.Add(achan);  //4

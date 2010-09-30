@@ -31,9 +31,12 @@
 #include "LoginDlg.h"
 #include "ColorSetDlg.h"
 #include "AdjustDlg.h"
-#include "SafeMethod.h"
+#include "DASafeMehod.h"
 #include "MadeCertView.h"
 #include "ClassTime.h"
+
+#include "DynamicMenu.h"
+//#include <CommonTools.h>
 
 #include  <tlhelp32.h>
 #ifdef _DEBUG
@@ -42,6 +45,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+extern  DrawView         m_DrawView[20];
 /////////////////////////////////////////////////////////////////////////////
 // CMainFrame
 
@@ -58,6 +62,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 
 	ON_COMMAND(ID_MANIPULATE, OnSoundPath)
 	ON_UPDATE_COMMAND_UI(ID_MANIPULATE, OnUpdateOnSoundPath)
+
 	ON_COMMAND(ID_D_D, OnDigital)
 	ON_COMMAND(ID_A_D, OnAnalog)
 	ON_COMMAND(ID_LOCALTION, OnLocation)
@@ -72,12 +77,14 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_WINDGAS_ATRESIA, OnWINDGASA)
 	ON_COMMAND(ID_FAILURE_ATRESIA, OnFAILUREA)
 	ON_COMMAND(ID_FDS_CONFIGop, OnFDSconfig)
+	ON_COMMAND(ID_DLGAM, OnSafeMethod)
+	ON_COMMAND(ID_SAFEMETHOD, OnSafeMethod)
 	ON_COMMAND(ID_LOGIN, OnLOGIN)
 	ON_COMMAND(ID_LOGOUT, OnLOGOUT)
 	ON_COMMAND(ID_CLASSTIME, OnCLASSTIME)
+	ON_COMMAND(ID_FANSA, OnFansA)
 
 	ON_COMMAND(ID_ADJUST_DIS, OnAdjustdis)
-	ON_COMMAND(ID_SAFEMETHOD, OnSafeMethod)
 	ON_COMMAND(ID_ALARMS, OnALARMS)
 	ON_COMMAND(ID_BREAKES, OnBREAKES)
 	ON_COMMAND(ID_FEEDES, OnFEEDES)
@@ -85,13 +92,15 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 
 	ON_COMMAND(ID_SELECT_DISA, OnSDisA)
 	ON_COMMAND(ID_SELECT_DISD, OnSDisD)
+
 	ON_COMMAND(ID_DIS_AAR, OnDisAAR)
 	ON_COMMAND(ID_DIS_ABR, OnDisABR)
 	ON_COMMAND(ID_DIS_AFER, OnDisAFER)
 	ON_COMMAND(ID_DIS_DABR, OnDisDABR)
-	ON_COMMAND(ID_DIS_DSC, OnDisDSC)
 	ON_COMMAND(ID_DIS_DFER, OnDisDFER)
+
 	ON_COMMAND(ID_DRIVERE, OnDRIVERE)
+	ON_COMMAND(ID_DIS_DSC, OnDisDSC)
 
 		//记录查询显示
 	ON_COMMAND(ID_REC_AAD, OnRECAAD)
@@ -106,17 +115,25 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 		//日(班)报表
 	ON_COMMAND(ID_EXCEL_A, OnEXCELA)
 	ON_COMMAND(ID_EXCEL_AA, OnEXCELAA)
-	ON_COMMAND(ID_EXCEL_AB, OnRECAFED)
-	ON_COMMAND(ID_EXCEL_AFE, OnRECASR)
-	ON_COMMAND(ID_EXCEL_ASR, OnRECDABD)
-	ON_COMMAND(ID_EXCEL_DA, OnRECDABB)
-	ON_COMMAND(ID_EXCEL_DAB, OnRECDSCD)
-	ON_COMMAND(ID_EXCEL_DSCD, OnRECDFED)
-	ON_COMMAND(ID_EXCEL_DFE, OnRECDRIVERE)
-	ON_COMMAND(ID_EXCEL_DRIVERE, OnRECAAD)
+	ON_COMMAND(ID_EXCEL_AB, OnEXCELAB)
+	ON_COMMAND(ID_EXCEL_AFE, OnEXCELAFE)
+	ON_COMMAND(ID_EXCEL_ASR, OnEXCELASR)
+	ON_COMMAND(ID_EXCEL_DA, OnEXCELDA)
+	ON_COMMAND(ID_EXCEL_DAB, OnEXCELDAB)
+	ON_COMMAND(ID_EXCEL_DSCD, OnEXCELDSCD)
+	ON_COMMAND(ID_EXCEL_DFE, OnEXCELDFE)
+	ON_COMMAND(ID_EXCEL_DRIVERE, OnEXCELDRIVERE)
 
+	ON_COMMAND(ID_DRAW_PAERATION, OnWAERATION)
+	ON_COMMAND(ID_DRAW_PGAS, OnWGAS)
+	ON_COMMAND(ID_DRAW_SYSTEM, OnWSYSTEM)
 
-
+	ON_COMMAND(ID_DRAW_STATE, OnCDS)
+	ON_COMMAND(ID_DRAW_COLUMNIATION, OnCDC)
+	ON_COMMAND(ID_DRAW_CS, OnCASelect)
+	ON_COMMAND(ID_DRAW_CA, OnCAALARM)
+	ON_COMMAND(ID_DRAW_CB, OnCABREAK)
+	ON_COMMAND(ID_DRAW_CFE, OnCAFEED)
 
 	ON_COMMAND(ID_MADE_MADE, OnMadeMade)
 
@@ -136,8 +153,13 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_UPDATE_COMMAND_UI(ID_FDS_CONFIG, OnUpdateDis)
 	ON_UPDATE_COMMAND_UI(ID_LOGIN, OnUpdateLog)
 	ON_UPDATE_COMMAND_UI(ID_LOGOUT, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_CLASSTIME, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_FDS_CONFIGop, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_DLGAM, OnUpdateDis)
+	ON_UPDATE_COMMAND_UI(ID_SAFEMETHOD, OnUpdateDis)
 //	ON_MESSAGE(WM_XTP_PRETRANSLATEMOUSEMSG, OnTabbarMouseMsg)  
 //    ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_INFO, OnSelchangeTabInfo)
+	ON_COMMAND(IDI_STOP, OnSoundStop)
 	//}}AFX_MSG_MAP
 	ON_MESSAGE(XTPWM_DOCKINGPANE_NOTIFY, OnDockingPaneNotify)
 
@@ -219,6 +241,8 @@ CMainFrame::CMainFrame()
 
 //	m_pSampleFormView = NULL;
 //	m_ontime =0;
+	m_nPaneID =0;
+	m_RepeatFlag = FALSE;
 }
 
 CMainFrame::~CMainFrame()
@@ -247,16 +271,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (!InitCommandBars())
 		return -1;
 
-	CXTPPaintManager::SetTheme(xtpThemeOffice2003);  //xtpThemeVisualStudio2008
+	CXTPPaintManager::SetTheme(xtpThemeVisualStudio2008);  //xtpThemeVisualStudio2008
 
 	CXTPCommandBars* pCommandBars = GetCommandBars();
 
 	CXTPCommandBar* pMenuBar;
-	if((theApp.strargc == "OnALARMS")||(theApp.strargc == "OnBREAKES")||(theApp.strargc == "OnFEEDES")
-		||(theApp.strargc == "OnSELECTS")||(theApp.strargc == "OnRECAAD")||(theApp.strargc == "OnRECABD")
-		||(theApp.strargc == "OnRECAFED")||(theApp.strargc == "OnRECASR")||(theApp.strargc == "OnRECDABD")
-		||(theApp.strargc == "OnRECDABB")||(theApp.strargc == "OnRECDFED")||(theApp.strargc == "OnRECDSCD")
-		||(theApp.strargc == "OnRECDRIVERE"))
+	CString strmes = theApp.strargc.Mid(0,2);
+	if(strmes == "On")
     	pMenuBar = pCommandBars->SetMenu(_T("Menu Bar"), IDR_MREPORT);
 	else
     	pMenuBar = pCommandBars->SetMenu(_T("Menu Bar"), IDR_MAINFRAME);
@@ -270,22 +291,22 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	}
 
-/*	CXTPToolBar* pWebBar = (CXTPToolBar*)pCommandBars->Add(_T("Web"), xtpBarTop);
+	CXTPToolBar* pWebBar = (CXTPToolBar*)pCommandBars->Add(_T("Web"), xtpBarTop);
 	if (!pWebBar ||
 		!pWebBar->LoadToolBar(IDR_TOOLBAR_WEB))
 	{
 		TRACE0("Failed to create toolbar\n");
 		return -1;
-	}*/
-
-//	CXTPToolBar* pThemeBar = (CXTPToolBar*)pCommandBars->Add(_T("Theme"), xtpBarTop);
-//	if (!pThemeBar ||
-//		!pThemeBar->LoadToolBar(IDR_TOOLBAR_THEME))
-	{
-//		TRACE0("Failed to create toolbar\n");
-//		return -1;
 	}
-/*	DockRightOf(pThemeBar, pWebBar);
+
+	CXTPToolBar* pThemeBar = (CXTPToolBar*)pCommandBars->Add(_T("Theme"), xtpBarTop);
+	if (!pThemeBar ||
+		!pThemeBar->LoadToolBar(IDR_TOOLBAR_THEME))
+	{
+		TRACE0("Failed to create toolbar\n");
+		return -1;
+	}
+	DockRightOf(pThemeBar, pWebBar);
 
 	CXTPToolBar* pFullScreenBar = (CXTPToolBar*)pCommandBars->Add(_T("Full Screen"), xtpBarTop);
 	if (!pFullScreenBar ||
@@ -306,15 +327,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 //	CreateToolBox();
 
 	m_paneManager.InstallDockingPanes(this);
-	m_paneManager.SetTheme(xtpPaneThemeVisualStudio2005);
+	m_paneManager.SetTheme(xtpPaneThemeVisualStudio2005);  //xtpPaneThemeVisualStudio2005
 	
-	if((theApp.strargc == "OnALARMS")||(theApp.strargc == "OnBREAKES")||(theApp.strargc == "OnFEEDES")
-		||(theApp.strargc == "OnSELECTS")||(theApp.strargc == "OnRECAAD")||(theApp.strargc == "OnRECABD")
-		||(theApp.strargc == "OnRECAFED")||(theApp.strargc == "OnRECASR")||(theApp.strargc == "OnRECDABD")
-		||(theApp.strargc == "OnRECDABB")||(theApp.strargc == "OnRECDFED")||(theApp.strargc == "OnRECDSCD")
-		||(theApp.strargc == "OnRECDRIVERE"))
+	if(strmes == "On")
 	{
-//		OnMadeMade();
 	}
 	else
 	{
@@ -330,19 +346,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 				ID_VIEW_RESOURCEVIEW5, CRect(0, 0, 100, 170), xtpPaneDockBottom);
 			 paneResourceView6 = m_paneManager.CreatePane(
 				ID_VIEW_RESOURCEVIEW6, CRect(0, 0, 100, 170), xtpPaneDockBottom);
-		//		ID_WINDOWS_OUTPUT, CRect(0, 0, 150, 120), xtpPaneDockBottom);
-		//	CXTPDockingPane* paneToolBox = m_paneManager.CreatePane(
-		//		ID_VIEW_TOOLBOX, CRect(0, 0, 200, 120), xtpPaneDockRight);
-//			CXTPDockingPane* paneClassView = m_paneManager.CreatePane(
-//				ID_VIEW_CLASSVIEW, CRect(0, 0, 230, 135), xtpPaneDockBottom);  //xtpPaneDockLeft
-//			CXTPDockingPane* paneSolutionExplorer = m_paneManager.CreatePane(
-//				ID_VIEW_SOLUTIONEXPLORER, CRect(0, 0, 230, 135), xtpPaneDockBottom);  //xtpPaneDockLeft
-		/*	CXTPDockingPane* paneResourceView = m_paneManager.CreatePane(
-				ID_VIEW_RESOURCEVIEW, CRect(0, 0, 230, 140), xtpPaneDockLeft);
-			CXTPDockingPane* paneHelpView =m_paneManager.CreatePane(
-				ID_HELP_DYNAMICHELP, CRect(0, 0, 210, 140), xtpPaneDockBottom, paneToolBox);
-			paneHelpView->Close();
-		*/
+		
 			m_paneManager.AttachPane(paneResourceView2,paneResourceView );
 			m_paneManager.AttachPane(paneResourceView3,paneResourceView2);
 			m_paneManager.AttachPane(paneResourceView4,paneResourceView3 );
@@ -386,11 +390,29 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 						m_wndResourceView6.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
 					}
 					paneResourceView6->Attach(&m_wndResourceView6);
-			paneResourceView->Select();
+//			paneResourceView->Select();
 	}
-//	m_paneManager.CreatePane(
-//		ID_VIEW_PROPERTIESWINDOW, CRect(0, 0, 180, 140), xtpPaneDockBottom, paneClassView);
+/*
+	m_paneManager.CreatePane(
+		ID_WINDOWS_OUTPUT, CRect(0, 0, 150, 120), xtpPaneDockBottom);
+	CXTPDockingPane* paneToolBox = m_paneManager.CreatePane(
+		ID_VIEW_TOOLBOX, CRect(0, 0, 200, 120), xtpPaneDockRight);
+	CXTPDockingPane* paneClassView = m_paneManager.CreatePane(
+		ID_VIEW_CLASSVIEW, CRect(0, 0, 230, 140), xtpPaneDockLeft);
+	CXTPDockingPane* paneSolutionExplorer = m_paneManager.CreatePane(
+		ID_VIEW_SOLUTIONEXPLORER, CRect(0, 0, 230, 140), xtpPaneDockLeft);
+//	CXTPDockingPane* paneResourceView = m_paneManager.CreatePane(
+//		ID_VIEW_RESOURCEVIEW, CRect(0, 0, 230, 140), xtpPaneDockLeft);
+	CXTPDockingPane* paneHelpView =m_paneManager.CreatePane(
+		ID_HELP_DYNAMICHELP, CRect(0, 0, 210, 140), xtpPaneDockBottom, paneToolBox);
+	paneHelpView->Close();
+	m_paneManager.AttachPane(paneClassView, paneSolutionExplorer);
+//	m_paneManager.AttachPane(paneResourceView, paneClassView);
+	paneClassView->Select();
 
+	m_paneManager.CreatePane(
+		ID_VIEW_PROPERTIESWINDOW, CRect(0, 0, 180, 140), xtpPaneDockBottom, paneClassView);
+*/
 	m_paneManager.EnableKeyboardNavigate();
 	
 
@@ -419,17 +441,21 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_paneManager.SetImageManager(pImageManager);
 
 	m_paneManager.SetAlphaDockingContext(TRUE);
+//	m_paneManager.UseSplitterTracker(FALSE);
 	m_paneManager.SetShowDockingContextStickers(TRUE);
 	m_paneManager.SetShowContentsWhileDragging(TRUE);
-	m_paneManager.SetDefaultPaneOptions(xtpPaneNoCloseable |xtpPaneNoHoverShow
-		| xtpPaneNoHideable |xtpPaneNoDockable |xtpPaneNoCaption
-//		|xtpPaneDisabled |xtpPaneNoFloatable |xtpPaneNoFloatableByTabDoubleClick|xtpPaneNoFloatableByCaptionDoubleClick
-		); //xtpPaneHasMenuButton  xtpPaneNoFloatable
+//	m_paneManager.SetDefaultPaneOptions(xtpPaneHasMenuButton);
+	m_paneManager.SetDefaultPaneOptions(xtpPaneNoHoverShow | xtpPaneNoCloseable//|xtpPaneHasMenuButton
+//		| xtpPaneNoHideable //|xtpPaneNoDockable //|xtpPaneNoCaption  //停靠按钮
+		|xtpPaneNoFloatableByTabDoubleClick|xtpPaneNoFloatableByCaptionDoubleClick
+		); //xtpPaneHasMenuButton  xtpPaneNoFloatable |xtpPaneDisabled |xtpPaneNoFloatable 
+//	m_paneManager.HidePane(201);
+	m_paneManager.EnableSideDocking(FALSE);
 
 	VERIFY(m_MTIClientWnd.Attach(this, TRUE));
-//	m_MTIClientWnd.EnableToolTips();
-	m_MTIClientWnd.SetFlags(xtpWorkspaceHideClose);   //child
-	XTPImageManager()->SetIcons(IDR_DRAWTYPE);
+	m_MTIClientWnd.EnableToolTips();
+//	m_MTIClientWnd.SetFlags(xtpWorkspaceHideClose);   //child  关闭按钮
+//	XTPImageManager()->SetIcons(IDR_DRAWTYPE);
 
 	m_MTIClientWnd.GetPaintManager()->m_bShowIcons = FALSE;  //FALSE
 //	m_MTIClientWnd.SetNewTabPosition(xtpWorkspaceNewTabLeftMost);
@@ -441,12 +467,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndStatusBar.GetPane(0)->SetBeginGroup(FALSE);
 	AddLogo();
 	m_wndStatusBar.SetRibbonDividerIndex(m_wndStatusBar.GetPaneCount() - 1);
+	AddSwitchButtons();
 	AddEdit();
 	AddUser();
 	AddMessage("");
 //	AddProgress();
 //	AddAnimation();
-//	AddSwitchButtons();
 //	AddZoomButton();
 //	AddZoomSlider();
 	m_wndStatusBar.EnableCustomization();
@@ -454,11 +480,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// Load the previous state for command bars.
 	LoadCommandBars(_T("CommandBars"));
 
-	if((theApp.strargc == "OnALARMS")||(theApp.strargc == "OnBREAKES")||(theApp.strargc == "OnFEEDES")
-		||(theApp.strargc == "OnSELECTS")||(theApp.strargc == "OnRECAAD")||(theApp.strargc == "OnRECABD")
-		||(theApp.strargc == "OnRECAFED")||(theApp.strargc == "OnRECASR")||(theApp.strargc == "OnRECDABD")
-		||(theApp.strargc == "OnRECDABB")||(theApp.strargc == "OnRECDFED")||(theApp.strargc == "OnRECDSCD")
-		||(theApp.strargc == "OnRECDRIVERE"))
+	if(strmes == "On")
 	{
 		OnMadeMade();
 	}
@@ -732,9 +754,9 @@ LRESULT CMainFrame::OnDockingPaneNotify(WPARAM wParam, LPARAM lParam)
 		{
 			switch (pPane->GetID())
 			{
-//				case ID_VIEW_TOOLBOX:					
-//					pPane->Attach(CreateToolBox());
-//					break;
+				case ID_VIEW_TOOLBOX:					
+					pPane->Attach(CreateToolBox());
+					break;
 
 				case ID_VIEW_CLASSVIEW:
 					if (!m_wndClassView.GetSafeHwnd())
@@ -778,7 +800,7 @@ LRESULT CMainFrame::OnDockingPaneNotify(WPARAM wParam, LPARAM lParam)
 					pPane->Attach(&m_wndSolutionExplorer);
 					break;
 
-/*				case ID_VIEW_PROPERTIESWINDOW:   
+				case ID_VIEW_PROPERTIESWINDOW:   
 					if (!m_wndProperties.GetSafeHwnd())
 					{
 						m_wndProperties.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
@@ -800,7 +822,7 @@ LRESULT CMainFrame::OnDockingPaneNotify(WPARAM wParam, LPARAM lParam)
 						CWnd* pView = pPane->AttachView(this, RUNTIME_CLASS(CDynamicHelpView));
 						pView;
 						break;
-					}*/
+					}
 	
 			}
 		}
@@ -1094,6 +1116,34 @@ void CMainFrame::OnClose()
 		px.SaveToFile(m_strIniFileName);
 	}
 
+//	CommonTools CT;
+	CString strmes = theApp.strargc.Mid(0,2);
+	if(strmes == "On")
+	{
+	}
+	else
+	{
+    	theApp.socketClient.Close();
+
+#ifdef _DEBUG
+#else
+    	theApp.SocketServer.StopServer();
+		C_Ts.KillProcess("RSDRAW-YSDB.EXE");
+#endif //_DEBUG
+
+		m_wndResourceView.m_listCtrl.DestroyWindow();
+	      m_wndResourceView2.m_listCtrl.DestroyWindow();
+	      m_wndResourceView3.m_listCtrl.DestroyWindow();
+	      m_wndResourceView4.m_listCtrl.DestroyWindow();
+	      m_wndResourceView5.m_listCtrl.DestroyWindow();
+	      m_wndResourceView6.m_listCtrl.DestroyWindow();
+	 paneResourceView6->Close();
+	 paneResourceView5->Close();
+	 paneResourceView4->Close();
+	 paneResourceView3->Close();
+	 paneResourceView2->Close();
+	 paneResourceView->Close();
+	}
 	CMDIFrameWnd::OnClose();
 }
 
@@ -1407,7 +1457,7 @@ void CMainFrame::OnFAILUREA()
 {
 	CSetTimeDlg dlg;
 	dlg.chcommand =  0x5A;
-	dlg.m_nSecond =  64;
+	dlg.m_nSecond =  MAX_FDS-1;
 	dlg.DoModal();
 }
 
@@ -1415,17 +1465,26 @@ void CMainFrame::OnFDSconfig()
 {
 	CSetTimeDlg dlg;
 	dlg.chcommand =  0x41;
-	dlg.m_nSecond =  64;
+	dlg.m_nSecond =  MAX_FDS-1;
 	dlg.DoModal();
 }
+
+void CMainFrame::OnFansA() 
+{
+	CSetTimeDlg dlg;
+	dlg.chcommand =  0xf0;
+//	dlg.m_nSecond =  64;
+	dlg.DoModal();
+}
+
 /////列表显示/////////////通讯命令///////
+
 void CMainFrame::OnSDisA()    //模拟量调用
 {
 	CLoginDlg dlg;
 	dlg.m_strdism = "OnSDisA";
 	dlg.DoModal();
 }
-
 void CMainFrame::OnSDisD()       //开关量调用
 {
 	CLoginDlg dlg;
@@ -1435,35 +1494,52 @@ void CMainFrame::OnSDisD()       //开关量调用
 
 void CMainFrame::OnDisAAR()  //模拟量报警
 {
-//	dlg.m_strdism = "OnDisAAR";
-	paneResourceView->Select();
+//	dlg.m_strdism = "OnDisAAR";ToggleDocking   
+//    if(!paneResourceView->IsSelected())
+	{
+//		paneResourceView->SetFocus();
+//		m_paneManager.ClosePane(201);
+        	paneResourceView->Select();
+	}
 }
-
 void CMainFrame::OnDisABR()   //模拟量断电
 {
-	paneResourceView2->Select();
+//		paneResourceView2->SetFocus();
+	 BOOL m_select = paneResourceView3->IsSelected();
+//     if(!paneResourceView2->IsSelected()&& !m_select)
+	 {
+//		m_paneManager.ClosePane(207);
+       	paneResourceView2->Select();
+	 }
 }
-
 void CMainFrame::OnDisAFER() //模拟量馈电异常
 {
-	paneResourceView3->Select();
+//		BOOL m_select = paneResourceView3->IsSelected();
+//     if(!m_select)
+	 {
+//		m_paneManager.ClosePane(208);
+		paneResourceView3->SetFocus();
+        	paneResourceView3->Select();
+	 }
 }
-
 void CMainFrame::OnDisDABR()   //开关量报警与断电
 {
-	paneResourceView4->Select();
+//		m_paneManager.ClosePane(209);
+//     if(!paneResourceView4->IsSelected())
+        	paneResourceView4->Select();
 }
-
-void CMainFrame::OnDisDSC() //开关量状态变动
-{
-	paneResourceView6->Select();
-}
-
 void CMainFrame::OnDisDFER() //开关量馈电异常
 {
-	paneResourceView5->Select();
+//		m_paneManager.ClosePane(210);
+//     if(!paneResourceView5->IsSelected())
+         	paneResourceView5->Select();
 }
-
+void CMainFrame::OnDisDSC() //开关量状态变动
+{
+//		m_paneManager.ClosePane(211);
+//     if(!paneResourceView6->IsSelected())
+        	paneResourceView6->Select();
+}
 void CMainFrame::OnDRIVERE()    //设备故障
 {
 	CLoginDlg dlg;
@@ -1474,62 +1550,152 @@ void CMainFrame::OnDRIVERE()    //设备故障
 ////列表显示///记录查询显示///////////////
 void CMainFrame::OnRECAAD()  //模拟量报警记录
 {
-	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECAAD");
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECAAD",5,0x00000001);
 }
 void CMainFrame::OnRECABD()  //模拟量断电记录
 {
-	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECABD");
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECABD",5,0x00000001);
 }
 void CMainFrame::OnRECAFED() //模拟量馈电异常记录
 {
-	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECAFED");
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECAFED",5,0x00000001);
 }
 void CMainFrame::OnRECASR() //模拟量统计值记录
 {
-	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECASR");
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECASR",5,0x00000001);
 }
 void CMainFrame::OnRECDABD() //开关量报警记录
 {
-	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDABD");
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDABD",5,0x00000001);
 }
 void CMainFrame::OnRECDABB() //开关量断电记录
 {
-	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDABB");
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDABB",5,0x00000001);
 }
 void CMainFrame::OnRECDSCD() //开关量状态变动记录
 {
-	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDSCD");
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDSCD",5,0x00000001);
 }
 void CMainFrame::OnRECDFED() //开关量馈电异常记录
 {
-	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDFED");
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDFED",5,0x00000001);
 }
 void CMainFrame::OnRECDRIVERE() //设备故障记录
 {
-	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDRIVERE");
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDRIVERE",5,0x00000001);
 }
-///////记录查询显示/////分类查询//////////
+///////记录查询显示/////打印////////////
+void CMainFrame::OnEXCELA()  //模拟量记录
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELA",5,0x00000001);
+}
+void CMainFrame::OnEXCELAA()  //模拟量报警记录
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELAA",5,0x00000001);
+}
+void CMainFrame::OnEXCELAB()  //模拟量断电记录
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELAB",5,0x00000001);
+}
+void CMainFrame::OnEXCELAFE() //模拟量馈电异常记录
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELAFE",5,0x00000001);
+}
+void CMainFrame::OnEXCELASR() //模拟量统计值记录
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELASR",5,0x00000001);
+}
+void CMainFrame::OnEXCELDA() //开关量报警记录
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDA",5,0x00000001);
+}
+void CMainFrame::OnEXCELDAB() //开关量断电记录
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDAB",5,0x00000001);
+}
+void CMainFrame::OnEXCELDSCD() //开关量状态变动记录
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDSCD",5,0x00000001);
+}
+void CMainFrame::OnEXCELDFE() //开关量馈电异常记录
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDFE",5,0x00000001);
+}
+void CMainFrame::OnEXCELDRIVERE() //设备故障记录
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDRIVERE",5,0x00000001);
+}
+///////打印/////分类查询//////////
 
 void CMainFrame::OnALARMS() 
 {
-	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnALARMS");
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnALARMS",5,0x00000001);
 }
 
 void CMainFrame::OnBREAKES() 
 {
-	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnBREAKES");
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnBREAKES",5,0x00000001);
 }
 
 void CMainFrame::OnFEEDES() 
 {
-	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnFEEDES");
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnFEEDES",5,0x00000001);
 }
 
 void CMainFrame::OnSELECTS() 
 {
-	CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnSELECTS");
+	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnSELECTS",5,0x00000001);
 }
 ///////////////////////分类查询/////////////////////////////
+///////////////////////模拟图显示/////////////////////////////
+void CMainFrame::OnWAERATION() 
+{
+	OnMView(2);
+}
+
+void CMainFrame::OnWGAS() 
+{
+	OnMView(1);
+}
+
+void CMainFrame::OnWSYSTEM() 
+{
+	OnMView(0);
+}
+//开关量状态图、柱状图
+void CMainFrame::OnCDS() 
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", "OnCDS",5,0x00000001);
+//	OnMView(3);
+}
+
+void CMainFrame::OnCDC() 
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", "OnCDC",5,0x00000001);
+//	OnMView(4);
+}
+
+void CMainFrame::OnCASelect() 
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", "OnCASelect",5,0x00000001);
+}
+
+void CMainFrame::OnCAALARM() 
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", "OnCAALARM",5,0x00000001);
+}
+
+void CMainFrame::OnCABREAK() 
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", "OnCABREAK",5,0x00000001);
+}
+
+void CMainFrame::OnCAFEED() 
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", "OnCAFEED",5,0x00000001);
+}
+
+///////////////////////模拟图显示/////////////////////////////
 
 void CMainFrame::OnCLASSTIME() 
 {
@@ -1539,7 +1705,7 @@ void CMainFrame::OnCLASSTIME()
 
 void CMainFrame::OnSafeMethod() 
 {
-	CSafeMethod dlg;
+	CDASafeMehod dlg;
 	dlg.DoModal();
 }
 
@@ -1633,9 +1799,35 @@ void CMainFrame::OnGenus()
 	}
 }
 
-void CMainFrame::OnManipulate() 
+void CMainFrame::OnMView(int sview) 
 {
-//	m_pSampleFormView->SetInfo(_T(" %d年%d月%d日 %d时:%d分：%d秒"));
+	CString strrsy,strTemp1 ;
+	strrsy.Format("%d",GetSystemMetrics(SM_CXSCREEN));
+	strTemp1 = gstrTimeOut + "\\" + strrsy+ "rsy\\" + m_DrawView[sview].DrawViewName ;
+            	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
+              	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
+               	CDrawView *pView = (CDrawView*)pChild->GetActiveView();	
+		         	CString strTemp;
+				for(int i=0;i<12;i++)
+				{
+    	        		if(m_ViewPos != NULL)
+						{
+			            	theApp.m_map.GetNextAssoc(m_ViewPos,strTemp,pView);
+							if(strTemp == strTemp1)
+							{
+//       		            	if(pView != NULL)
+			            		pView->GetParentFrame()->ActivateFrame();
+								break;
+							}
+						}
+		            	else 
+						{
+		    	        	m_ViewPos = theApp.m_map.GetStartPosition() ;     //0415
+//			            	theApp.m_map.GetNextAssoc(m_ViewPos,strTemp,pView);
+//       		            	if(pView != NULL)
+//			            		pView->GetParentFrame()->ActivateFrame();
+						}
+				}
 }
 
 void CMainFrame::Msg(int iItem, CString str1,CString str2,CString str3,CString str4,CString str5)
@@ -1762,13 +1954,13 @@ void CMainFrame::AddZoomButton()
 void CMainFrame::AddZoomSlider()
 {
 	CXTPStatusBarSliderPane* pZoomPane = (CXTPStatusBarSliderPane*)m_wndStatusBar.AddIndicator(new CXTPStatusBarSliderPane(), ID_INDICATOR_ZOOMSLIDER);
-	pZoomPane->SetWidth(130);
+//	pZoomPane->SetWidth(130);
 	
-	pZoomPane->SetPos(100);
-	pZoomPane->SetRange(0, 200);
-	pZoomPane->SetStyle(SBPS_NOBORDERS);
+//	pZoomPane->SetPos(100);
+//	pZoomPane->SetRange(0, 200);
+//	pZoomPane->SetStyle(SBPS_NOBORDERS);
 
-	pZoomPane->SetBeginGroup(FALSE);
+//	pZoomPane->SetBeginGroup(FALSE);
 
 	pZoomPane->SetCaption(_T("&Zoom Slider"));
 	pZoomPane->SetTooltip(_T("Zoom"));
@@ -1779,16 +1971,18 @@ void CMainFrame::AddSwitchButtons()
 {
 	static UINT switches[] =
 	{
-		ID_INDICATOR_PRINT,
-		ID_INDICATOR_FULLSCREEN,
-		ID_INDICATOR_WEB,
-		ID_INDICATOR_OUTLINE,
-		ID_INDICATOR_DRAFT,
+		IDI_STOP,
+//		ID_INDICATOR_PRINT,
+//		ID_INDICATOR_FULLSCREEN,
+//		ID_INDICATOR_WEB,
+//		ID_INDICATOR_OUTLINE,
+//		ID_INDICATOR_DRAFT,
 	};
 
-	CXTPStatusBarSwitchPane* pSwitchPane = (CXTPStatusBarSwitchPane*)m_wndStatusBar.AddIndicator(new CXTPStatusBarSwitchPane(), ID_INDICATOR_VIEW);
+	CXTPStatusBarSwitchPane* pSwitchPane = (CXTPStatusBarSwitchPane*)m_wndStatusBar.AddIndicator(new CXTPStatusBarSwitchPane(), 2);
+//	CXTPStatusBarSwitchPane* pSwitchPane = (CXTPStatusBarSwitchPane*)m_wndStatusBar.AddIndicator(new CXTPStatusBarSwitchPane(), ID_INDICATOR_VIEW);
 	pSwitchPane->SetSwitches(switches, sizeof(switches)/sizeof(UINT));
-	pSwitchPane->SetChecked(ID_INDICATOR_PRINT);
+	pSwitchPane->SetChecked(IDI_STOP);
 
 	for (int i = 0; i < sizeof(switches)/sizeof(UINT); i++)
 	{
@@ -1799,8 +1993,19 @@ void CMainFrame::AddSwitchButtons()
 
 	m_wndStatusBar.UpdateAllPanes(TRUE, FALSE);
 
-	m_strMessage.LoadString(ID_INDICATOR_PRINT);
+	m_strMessage.LoadString(IDI_STOP);
+}
 
+void CMainFrame::OnSoundStop()
+{
+    m_RepeatFlag=FALSE;
+}
+
+void CMainFrame::DoPlayWarnSound(CString strFileName)
+{
+//	strFileName.Format("%swarnsound%d.wav", GetAppPath() + "sound\\", uWarnNo+1);
+	if(m_RepeatFlag && m_bSoundPath)
+        sndPlaySound(strFileName,SND_ASYNC);	
 }
 
 void CMainFrame::AddEdit()
@@ -1820,7 +2025,7 @@ void CMainFrame::AddEdit()
 	CString s=time.Format("%Y-%m-%d %H:%M:%S");//转换时间格式
 
 	// add the indicator to the status bar.   ID_INDICATOR_EDIT
-	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_EDIT,2);
+	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_EDIT,3);
 
 	// Initialize the pane info and add the control.
 	int nIndex = m_wndStatusBar.CommandToIndex(ID_INDICATOR_EDIT);
@@ -1837,7 +2042,7 @@ void CMainFrame::AddEdit()
 void CMainFrame::AddUser()
 {
 	// add the indicator to the status bar.   ID_INDICATOR_EDIT
-	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_USER,3);
+	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_USER,4);
 
 	// Initialize the pane info and add the control.
 	int nIndex = m_wndStatusBar.CommandToIndex(ID_INDICATOR_USER);
@@ -1872,7 +2077,7 @@ void CMainFrame::AddLogo()
 {
 #if 0 // Obsolete 
 
-	if (!m_wndLogoPane.Create(_T("Bodhi Software"), &m_wndStatusBar))
+	if (!m_wndLogoPane.Create(_T("阳光金力软件"), &m_wndStatusBar))
 	{
 		TRACE0("Failed to create logo control.\n");
 		return;
@@ -1894,14 +2099,14 @@ void CMainFrame::AddLogo()
 	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_LOGO, 0);
 	
 #ifndef _XTP_INCLUDE_MARKUP
-	pPane->SetText(_T("Bodhi Software"));
+	pPane->SetText(_T("阳光金力软件"));
 	pPane->SetTextColor(0x915f36);
 	CXTPPaintManager::CNonClientMetrics ncm;
 	ncm.lfMenuFont.lfWeight = FW_BOLD;
 	pPane->SetTextFont(&ncm.lfMenuFont);
 #else
 	m_wndStatusBar.EnableMarkup(TRUE);
-	pPane->SetText(_T("<TextBlock VerticalAlignment='Center'><Bold><Run Foreground='#365f91'>Bodhi</Run> <Run Foreground='Black'>Software</Run></Bold></TextBlock>"));
+	pPane->SetText(_T("<TextBlock VerticalAlignment='Center'><Bold><Run Foreground='#365f91'>阳光金力</Run> <Run Foreground='Black'>软件</Run></Bold></TextBlock>"));
 #endif
 
 	pPane->SetCaption(_T("Application Logo"));
@@ -1959,7 +2164,7 @@ void CMainFrame::OnSoundPath()
 {
 	m_bSoundPath ^= 1;
 
-	CXTPPropExchangeXMLNode px(FALSE, 0, _T("Settings"));
+/*	CXTPPropExchangeXMLNode px(FALSE, 0, _T("Settings"));
 	CXTPPropExchangeXMLNode* pxLayoutSave = DYNAMIC_DOWNCAST(CXTPPropExchangeXMLNode, px.GetSection(_T("FullScreenLayout")));
 	ASSERT(pxLayoutSave);
 
@@ -1993,7 +2198,7 @@ void CMainFrame::OnSoundPath()
 		delete m_pFullScreenLayout;
 	}
 	m_pFullScreenLayout = pxLayoutSave;
-
+*/
 
 /*	if (m_bFullScreen)
 	{
@@ -2019,7 +2224,7 @@ void CMainFrame::OnSoundPath()
 		MoveWindow(&m_rcMainFrame);
 		m_wndStatusBar.ShowWindow(SW_SHOW);
 	}*/
-	RecalcLayout(TRUE);
+//	RecalcLayout(TRUE);
 }
 
 void CMainFrame::OnUpdateOnSoundPath(CCmdUI* pCmdUI)
@@ -2054,7 +2259,101 @@ void CMainFrame::OnMadeMade()
 	if(!m_pMade->LoadFrame(ID_INDICATOR_PRINT,WS_MAXIMIZE|WS_OVERLAPPEDWINDOW,this,&context))
 		return;
 //	m_pMade->SetWindowPos(this,0,0,GetSystemMetrics(SM_CXSCREEN)-8,140,SWP_NOMOVE|SWP_NOZORDER | SWP_NOACTIVATE|SWP_SHOWWINDOW);
-//	m_pMade->ShowWindow(SW_SHOWMAXIMIZED);
+	m_pMade->ShowWindow(SW_SHOWNORMAL);
 //	m_pMade->InitialUpdateFrame(NULL,true);   //如用就加载两次
 
+}
+
+void CMainFrame::ModifySystem()
+{
+	CDynamicMenu  *dmenu;
+// dmenu->modifyMenuItem("系统(&S)", "登录(&L)", "注销(&Z)");
+// dmenu->addMenuItem("系统(&S)", "用户管理(&U)","注销(&Z)",140002);
+	dmenu->createMenu();
+	dmenu->addMenu("用户管理(&U)","登录(&L)",140003);
+}
+
+//////////////////////////////////////////////////////////////////////
+void CMainFrame::addEqupmentManagerMenuItem()
+{
+	CDynamicMenu  *dmenu;
+ dmenu->createMenuItemChild();
+ dmenu->appendMenuItem(150001, "设备管理(&D)");
+ dmenu->appendMenuItem(150002,"用户编号管理(&U)");
+ dmenu->addMenu("系统(&S)", "设备管理(&M)", 150000);
+}
+
+void CMainFrame::addCopyDataMenuItem()
+{
+	CDynamicMenu  *dmenu;
+ dmenu->createMenuItemChild();
+ dmenu->appendMenuItem(160001, "抄录电表(&R)");
+ dmenu->addMenu("设备管理(&M)", "抄录电表(&R)", 160000);
+}
+
+void CMainFrame::setEnableItem()
+{
+	CDynamicMenu  *dmenu;
+ dmenu->setEnable("设备管理(&M)", 150001, 1);
+}
+
+void CMainFrame::OnManipulate() 
+{
+		m_paneManager.ClosePane(201);
+			paneResourceView->Select();
+
+//	ModifySystem();
+//	addEqupmentManagerMenuItem();
+//	addCopyDataMenuItem();
+//	setEnableItem();
+/*
+CMenu*pMenu=this->GetMenu(); 
+CMenu*pmSub=pMenu->GetSubMenu(0);//2，port 
+
+
+pmSub->InsertMenu(-1,MF_CHECKED|MF_STRING,100, "1 "); 
+                  pmSub->InsertMenu(-1,MF_CHECKED|MF_STRING,200, "2 "); 
+                  pmSub->InsertMenu(-1,MF_CHECKED|MF_STRING,300, "3 "); 
+
+this->DrawMenuBar();
+
+CMenu   sortMenu; 
+sortMenu.CreatePopupMenu(); 
+sortMenu.AppendMenu(MF_BYCOMMAND   |   MF_STRING   |   MF_ENABLED,TG::eSortForType,_T( "1 ")); 
+sortMenu.AppendMenu(MF_BYCOMMAND   |   MF_STRING   |   MF_ENABLED,TG::eSortForState,_T( "2 ")); 
+hMenu   =   sortMenu.GetSafeHmenu(); 
+
+pMenu-> AppendMenu(MF_POPUP,(UINT)hMenu,_T( "port ")); 
+
+HMENU hPopmenu;
+hPopmenu=CreateMenu();
+
+CMenu menu;
+menu.CreatePopupMenu();
+GetMenu()->AppendMenu(MF_POPUP,(UINT)menu.m_hMenu,"Append");
+//并给它添加菜单项：
+menu.AppendMenu(MF_STRING,111,"HELLO");
+//然后在菜单的首位置插入一个子菜单：
+GetMenu()->InsertMenu(MF_POPUP,(UINT)menu.m_hMenu,0,"Insert");
+*/
+
+//        AfxGetMainWnd()->SetMenu(NULL);
+//		AfxGetMainWnd()->DrawMenuBar();
+/*
+CMenu addmenu,*mainmenu; 
+if(!addmenu.LoadMenu(IDR_MAINFRAME)) //装入菜单资源。
+{ 
+MessageBox("菜单装入失败!","错误",MB_OK|MB_ICONERROR); 
+return; //如装入失败，显示消息框，且返回。 
+}
+CString str="颜色(&C)"; //要增加的菜单项的标签。 
+mainmenu=AfxGetMainWnd()->GetMenu(); 
+//取得指向窗口菜单的Cmenu对象的指针。 
+mainmenu->InsertMenu (1,MF_POPUP|MF_BYPOSITION|MF_STRING,(UINT)addmenu.GetSubMenu(0)->m_hMenu,str); 
+//将弹出式菜单插入到第2项菜单之前（菜单项从0开始计算）。 
+// addmenu.GetSubMenu(0)-> m_hMenu是被装入菜单的第一个菜单项的弹出式菜单的菜单句柄。 
+mainmenu->Detach(); //将窗口菜单和Cmenu对象分离。 
+addmenu.Detach(); //将资源菜单（IDR_MENU1）和Cmenu对象分离。 
+DrawMenuBar(); //重画菜单。 
+*/
 }

@@ -8,7 +8,7 @@
 
 #include "Common/XTPVersion.h"
 
-#include "CodejockSample.rc"
+#include "..\\AboutDlg\\CodejockSample.rc"
 
 #ifdef _XTP_INCLUDE_SKINFRAMEWORK
 #include "SkinFramework\Styles\Vista\Vista.rc"

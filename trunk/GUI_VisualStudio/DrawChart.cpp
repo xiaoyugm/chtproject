@@ -15,7 +15,7 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-extern SlaveStation             m_SlaveStation[65][25];
+extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 extern DisplayDraw    m_DisplayDraw[MAX_POINT_NUMBER];
 IMPLEMENT_SERIAL(CDrawChart, CDrawObj, 0)
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -90,18 +90,20 @@ void CDrawChart::Init()
 			if(i == 3)
         	   nPointNo = m_nPoint4 ;
 
-			double fScaleHigh,fScaleLow,fMax,fMin;
+			double fScaleHigh,fScaleLow,fMax,fMin,frtn;
 //    		if(m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].ptype == 0)
 			{
 				fScaleHigh = m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].m_RangeH;
 				fScaleLow = 0;
 				fMax = m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].Apbrk;
 				fMin = m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].AlarmValueH;
+				frtn = m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].Aprtn;
 			}
 			m_Graph.m_LineArray[i].m_dScaleHigh = fScaleHigh;
 			m_Graph.m_LineArray[i].m_dScaleLow = fScaleLow;
 			m_Graph.m_LineArray[i].m_dMax = fMax;
 			m_Graph.m_LineArray[i].m_dMin = fMin;
+			m_Graph.m_LineArray[i].m_dMid = frtn;
 		}
 
 }

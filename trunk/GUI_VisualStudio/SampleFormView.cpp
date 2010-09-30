@@ -14,10 +14,10 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern ADCbreakE             m_CFeed[65][9][65];
-extern ADCbreakE             m_ADCbreakE[65][25][65];
+extern ADCbreakE             m_CFeed[MAX_FDS][9][65];
+extern ADCbreakE             m_ADCbreakE[MAX_FDS][MAX_CHAN][65];
 extern SerialF                  m_Colorref[200];
-extern  SlaveStation             m_SlaveStation[65][25];
+extern  SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 extern  FormView  m_FormView[20];
 extern  DisplayPoint  m_DisplayPoint[32][64];
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,7 @@ CSampleFormView::CSampleFormView()
 	m_bSortArrow = TRUE;
 	m_bHotTracking = TRUE;
 	m_bWinTheme = TRUE;
+	b_curdis = FALSE;
 
 	m_nSortedCol = 1;
 	m_bAscending = true;
@@ -123,17 +124,17 @@ void CSampleFormView::OnInitialUpdate()
 	m_List2.SetWindowText(strlist2);
 	m_List3.SetWindowText(strlist3);
 
-	m_List1.SetImageList(&m_SampleFormImageList, LVSIL_SMALL);
-	m_List2.SetImageList(&m_ImageList, LVSIL_SMALL);
+//	m_List1.SetImageList(&m_SampleFormImageList, LVSIL_SMALL);   //每行图片
+//	m_List2.SetImageList(&m_ImageList, LVSIL_SMALL);
 	// Give better margin to editors
-	m_List1.SetCellMargin(1.2);
-	CGridRowTraitXP* pRowTrait = new CGridRowTraitXP;
-	m_List1.SetDefaultRowTrait(pRowTrait);
+//	m_List1.SetCellMargin(1.2);
+//	CGridRowTraitXP* pRowTrait = new CGridRowTraitXP;
+//	m_List1.SetDefaultRowTrait(pRowTrait);
 
 	// Create Columns
-	m_List1.InsertHiddenLabelColumn();	// Requires one never uses column 0
-	m_List2.InsertHiddenLabelColumn();	// Requires one never uses column 0
-	m_List3.InsertHiddenLabelColumn();	// Requires one never uses column 0
+//	m_List1.InsertHiddenLabelColumn();	// Requires one never uses column 0
+//	m_List2.InsertHiddenLabelColumn();	// Requires one never uses column 0
+//	m_List3.InsertHiddenLabelColumn();	// Requires one never uses column 0
 
 /*	for(int col = 0; col < m_DataModel.GetColCount() ; ++col)
 	{
@@ -182,15 +183,21 @@ void CSampleFormView::OnInitialUpdate()
 
 	// Assign images to the list-control
 //	m_List1.SetCellImage(0, 2, 0);
-	m_List1.SetCellImage(1, 2, 0);
-	m_List1.SetCellImage(2, 2, 0);
-	m_List1.SetCellImage(3, 2, 1);
+//	m_List1.SetCellImage(1, 2, 0);
+//	m_List1.SetCellImage(2, 2, 0);
+//	m_List1.SetCellImage(3, 2, 1);
 
 //	CGridColumnManagerProfile* pColumnProfile = new CGridColumnManagerProfile(_T("Sample List"));
 //	pColumnProfile->AddColumnProfile(_T("Default"));
 //	pColumnProfile->AddColumnProfile(_T("Special"));
 //	m_List1.SetupColumnConfig(pColumnProfile);
 
+	SetInfo();
+}
+
+void CSampleFormView::SetInfo() 
+{
+//	m_List1.SetCellImage(3, 1, 1);
 	CString pString ;
 	m_List1.GetWindowText(pString);
 	BuildList(1, m_Str2Data.String2Int(pString));
@@ -198,43 +205,6 @@ void CSampleFormView::OnInitialUpdate()
 	BuildList(2, m_Str2Data.String2Int(pString));
 	m_List3.GetWindowText(pString);
 	BuildList(3, m_Str2Data.String2Int(pString));
-
-}
-
-void CSampleFormView::SetInfo(int m_List,int iItem,CString strSubA,CString strSubB,CString strSubC) 
-{
-	if (m_List == 1)
-	{
-	m_List1.SetCellImage(1, 1, 0);
-	m_List1.SetCellImage(2, 1, 0);
-	m_List1.SetCellImage(3, 1, 1);
-		int ncolumn = m_List1.GetItemCount();
-		CString strname;
-		strname.Format("%d",ncolumn);
-		m_List1.SetItem(iItem-1, 1, LVIF_TEXT, strSubA, 0, NULL, NULL, NULL);
-		m_List1.SetItem(iItem, 2, LVIF_TEXT, strSubB, 0, NULL, NULL, NULL);
-		m_List1.SetItem(ncolumn-1, 3, LVIF_TEXT, strname, 0, NULL, NULL, NULL);
-		m_List1.SetRowColor(iItem, RGB(255,0,0), RGB(0,0,255));
-	}
-	if (m_List == 2)
-	{
-	m_List2.SetCellImage(1, 2, 0);
-	m_List2.SetCellImage(2, 2, 0);
-	m_List2.SetCellImage(3, 2, 1);
-		int ncolumn1 = m_List2.GetItemCount();
-		CString strname1;
-		strname1.Format("%d",ncolumn1);
-		m_List2.SetItem(iItem+1, 1, LVIF_TEXT, strSubA, 0, NULL, NULL, NULL);
-		m_List2.SetItem(iItem+1, 2, LVIF_TEXT, strSubB, 0, NULL, NULL, NULL);
-		m_List2.SetItem(ncolumn1-1, 3, LVIF_TEXT, strname1, 0, NULL, NULL, NULL);
-	}
-	if (m_List == 3)
-	{
-		m_List3.SetItem(iItem+2, 1, LVIF_TEXT, strSubA, 0, NULL, NULL, NULL);
-		m_List3.SetItem(iItem+2, 2, LVIF_TEXT, strSubB, 0, NULL, NULL, NULL);
-		m_List3.SetItem(iItem+2, 3, LVIF_TEXT, strSubC, 0, NULL, NULL, NULL);
-	}
-
 }
 
 void CSampleFormView::SetMonitorListHead()
@@ -248,10 +218,10 @@ void CSampleFormView::SetMonitorListHead()
 	m_List1.SetWindowPos(NULL,0,0,m_FormView[theApp.DocNum].m_ListCtrl[0].SetWindowPosX,m_FormView[theApp.DocNum].m_ListCtrl[0].SetWindowPosY,SWP_NOMOVE|SWP_NOZORDER | SWP_NOACTIVATE);
 //	m_List1.SetExtendedStyle(LVS_EX_FULLROWSELECT);
 
-//		m_List1.InsertColumn(0,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnHeading1,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnWidth1);
-		m_List1.InsertColumn(1,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnHeading1,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnWidth1);
-		m_List1.InsertColumn(2,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnHeading2,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnWidth2);
-		m_List1.InsertColumn(3,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnHeading3,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnWidth3);
+		m_List1.InsertColumn(0,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnHeading1,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnWidth1);
+		m_List1.InsertColumn(1,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnHeading2,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnWidth2);
+		m_List1.InsertColumn(2,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnHeading3,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnWidth3);
+//		m_List1.InsertColumn(3,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnHeading3,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[0].ColumnWidth3);
 //		m_List1.SetImageList(&m_SampleFormView, TVSIL_NORMAL);
 //获得原有风格
      DWORD dwStyle = ::GetWindowLong(m_List1.m_hWnd, GWL_STYLE);
@@ -277,11 +247,11 @@ void CSampleFormView::SetMonitorListHead()
     RECT rect = {m_FormView[theApp.DocNum].m_ListCtrl[1].MoveWindowx, 0, 0, 0};
 	ctext->MoveWindow(&rect);//Move window 
 	m_List2.SetWindowPos(this,0,0,m_FormView[theApp.DocNum].m_ListCtrl[1].SetWindowPosX,m_FormView[theApp.DocNum].m_ListCtrl[1].SetWindowPosY,SWP_NOMOVE|SWP_NOZORDER | SWP_NOACTIVATE);
-	m_List2.SetExtendedStyle(LVS_EX_ONECLICKACTIVATE);
-//		m_List2.InsertColumn(0,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnHeading1,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnWidth1);
-		m_List2.InsertColumn(1,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnHeading1,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnWidth1);
-		m_List2.InsertColumn(2,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnHeading2,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnWidth2);
-		m_List2.InsertColumn(3,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnHeading3,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnWidth3);
+//	m_List2.SetExtendedStyle(LVS_EX_ONECLICKACTIVATE);
+		m_List2.InsertColumn(0,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnHeading1,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnWidth1);
+		m_List2.InsertColumn(1,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnHeading2,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnWidth2);
+		m_List2.InsertColumn(2,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnHeading3,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnWidth3);
+//		m_List2.InsertColumn(3,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnHeading3,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[1].ColumnWidth3);
 
      dwStyle = ::GetWindowLong(m_List2.m_hWnd, GWL_STYLE);
 	 if(!m_FormView[theApp.DocNum].m_ListCtrl[1].Visible)
@@ -293,11 +263,11 @@ void CSampleFormView::SetMonitorListHead()
     RECT rect1 = {m_FormView[theApp.DocNum].m_ListCtrl[2].MoveWindowx, 0, 0, 0};
 	ctext1->MoveWindow(&rect1);//Move window 
 	m_List3.SetWindowPos(NULL,0,0,m_FormView[theApp.DocNum].m_ListCtrl[2].SetWindowPosX,m_FormView[theApp.DocNum].m_ListCtrl[2].SetWindowPosY,SWP_NOMOVE|SWP_NOZORDER | SWP_NOACTIVATE);
-	m_List3.SetExtendedStyle(LVS_EX_TWOCLICKACTIVATE);
-//		m_List3.InsertColumn(0,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnHeading1,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnWidth1);
-		m_List3.InsertColumn(1,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnHeading1,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnWidth1);
-		m_List3.InsertColumn(2,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnHeading2,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnWidth2);
-		m_List3.InsertColumn(3,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnHeading3,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnWidth3);
+//	m_List3.SetExtendedStyle(LVS_EX_TWOCLICKACTIVATE);
+		m_List3.InsertColumn(0,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnHeading1,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnWidth1);
+		m_List3.InsertColumn(1,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnHeading2,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnWidth2);
+		m_List3.InsertColumn(2,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnHeading3,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnWidth3);
+//		m_List3.InsertColumn(3,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnHeading3,LVCFMT_LEFT,m_FormView[theApp.DocNum].m_ListCtrl[2].ColumnWidth3);
 
      dwStyle = ::GetWindowLong(m_List3.m_hWnd, GWL_STYLE);
 	 if(!m_FormView[theApp.DocNum].m_ListCtrl[2].Visible)
@@ -309,8 +279,8 @@ void CSampleFormView::SetMonitorListHead()
 	m_List3.SubclassHeader(m_FormView[theApp.DocNum].m_ListCtrl[2].SubclassHeader);
 
 //		strtemp.Format("□%d",iItem); //◎◎··●●□□◇   //**change subscript
-	CXTFlatHeaderCtrl* pHeaderCtrl = m_List2.GetFlatHeaderCtrl( );
-	if ( pHeaderCtrl != NULL )
+//	CXTFlatHeaderCtrl* pHeaderCtrl = m_List2.GetFlatHeaderCtrl( );
+//	if ( pHeaderCtrl != NULL )
 	{
 //		pHeaderCtrl->EnableAutoSize();
 //    	pHeaderCtrl->SetBitmap(0, IDB_COLUMN_0, FALSE, RGB(0,255,0));
@@ -328,9 +298,16 @@ void CSampleFormView::SetMonitorListHead()
 
 	// Get the windows handle to the header control for the
 	// list control then subclass the control.
-//	HWND hWndHeader = m_List1.GetDlgItem(IDC_LIST_POINT1)->GetSafeHwnd();
+	HWND hWndHeader = m_List1.GetDlgItem(IDC_LIST_POINT1)->GetSafeHwnd();
 //	m_flatHeader.SubclassWindow (hWndHeader);
 	m_flatHeader = m_List1.GetFlatHeaderCtrl( );
+	OnSelendokComboThemes();
+	 hWndHeader = m_List2.GetDlgItem(IDC_LIST_POINT2)->GetSafeHwnd();
+	m_flatHeader = m_List2.GetFlatHeaderCtrl( );
+	OnSelendokComboThemes();
+	 hWndHeader = m_List3.GetDlgItem(IDC_LIST_POINT3)->GetSafeHwnd();
+	m_flatHeader = m_List3.GetFlatHeaderCtrl( );
+	OnSelendokComboThemes();
 
 	// add bitmap images.
 //	m_flatHeader->SetBitmap(0, IDB_COLUMN_0, FALSE, RGB(0,255,0));
@@ -343,7 +320,7 @@ void CSampleFormView::SetMonitorListHead()
 	// enable auto sizing.
 //	m_flatHeader->EnableAutoSize(TRUE);
 //	m_flatHeader->ResizeColumnsToFit();
-	SortColumn(m_nSortedCol, m_bAscending);
+//	SortColumn(m_nSortedCol, m_bAscending);
 
 	// size to fit the columns
 //	m_List1.AutoSizeColumn ();
@@ -362,28 +339,28 @@ void CSampleFormView::SetMonitorListHead()
 
 	// set the text and back colors for the list control.
 //	m_List1.SetRowColors(m_cpText.GetColor(), m_cpBack.GetColor());
-	m_List1.SetRowColors(m_FormView[theApp.DocNum].m_ListCtrl[0].TextColor, m_FormView[theApp.DocNum].m_ListCtrl[0].BackColor);
-	m_List2.SetRowColors(m_FormView[theApp.DocNum].m_ListCtrl[1].TextColor, m_FormView[theApp.DocNum].m_ListCtrl[1].BackColor);
-	m_List3.SetRowColors(m_FormView[theApp.DocNum].m_ListCtrl[2].TextColor, m_FormView[theApp.DocNum].m_ListCtrl[2].BackColor);
+//	m_List1.SetRowColors(m_FormView[theApp.DocNum].m_ListCtrl[0].TextColor, m_FormView[theApp.DocNum].m_ListCtrl[0].BackColor);
+//	m_List2.SetRowColors(m_FormView[theApp.DocNum].m_ListCtrl[1].TextColor, m_FormView[theApp.DocNum].m_ListCtrl[1].BackColor);
+//	m_List3.SetRowColors(m_FormView[theApp.DocNum].m_ListCtrl[2].TextColor, m_FormView[theApp.DocNum].m_ListCtrl[2].BackColor);
 
 	// set some extnded styles
 //	m_List1.SetExtendedStyle (LVS_EX_FULLROWSELECT|LVS_EX_FLATSB);
-	m_List1.SetExtendedStyle (LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+	m_List1.SetExtendedStyle (LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES|LVS_EX_FLATSB);
 	m_List2.SetExtendedStyle (LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES|LVS_EX_FLATSB);
 	m_List3.SetExtendedStyle (LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES|LVS_EX_FLATSB);
 
 //	m_List1.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT);
-	m_List1.EnableUserSortColor(true);
-	m_List1.EnableUserListColor(true);
+//	m_List1.EnableUserSortColor(true);
+//	m_List1.EnableUserListColor(true);
 	m_List1.EnableUserRowColor(true);
-	m_List2.EnableUserSortColor(true);
-	m_List2.EnableUserListColor(true);
+//	m_List2.EnableUserSortColor(true);
+//	m_List2.EnableUserListColor(true);
 	m_List2.EnableUserRowColor(true);
-	m_List3.EnableUserSortColor(true);
-	m_List3.EnableUserListColor(true);
+//	m_List3.EnableUserSortColor(true);
+//	m_List3.EnableUserListColor(true);
 	m_List3.EnableUserRowColor(true);
 
-	OnSelendokComboThemes();
+//	OnSelendokComboThemes();
 
 //行数
 	CString strItem = _T("");
@@ -547,7 +524,7 @@ void CSampleFormView::OnRclick1(NMHDR* pNMHDR, LRESULT* pResult)
 
      LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	 m_Itemnum = pNMLV->iItem;
-	 strItem=m_List1.GetItemText(m_Itemnum,3);
+	 strItem=m_List1.GetItemText(m_Itemnum,2);    //3
      *pResult = 0;
 /*       CMenu       menu ,* pSubMenu;//定义下面要用到的cmenu对象
        menu.LoadMenu(IDC_POPLISTCONTROL);//装载自定义的右键菜单
@@ -591,7 +568,7 @@ void CSampleFormView::OnRclick2(NMHDR* pNMHDR, LRESULT* pResult)
 
      LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	 m_Itemnum = pNMLV->iItem;
-	 strItem=m_List2.GetItemText(m_Itemnum,3);
+	 strItem=m_List2.GetItemText(m_Itemnum,2);
      *pResult = 0;
 }
 
@@ -619,10 +596,10 @@ void CSampleFormView::OnRclick3(NMHDR* pNMHDR, LRESULT* pResult)
 
      LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	 m_Itemnum = pNMLV->iItem;
-	 strItem=m_List3.GetItemText(m_Itemnum,3);
+	 strItem=m_List3.GetItemText(m_Itemnum,2);
      *pResult = 0;
 }
-
+//选择显示测点
 void CSampleFormView::OpenAddDel() 
 {
 	CSettingHostDlg dlg;
@@ -671,12 +648,13 @@ void CSampleFormView::Openadjust()
 	}
 
 	strItem += "标校";
+	m_DisplayPoint[ilistaj][m_Itemnum].CPpointnum =strItem;
     	if(nlistaj == 3)
-        	m_List3.SetItemText(m_Itemnum, 3, strItem);
+        	m_List3.SetItemText(m_Itemnum, 2, strItem); //3
      	else if(nlistaj == 2)
-        	m_List2.SetItemText(m_Itemnum, 3, strItem);
+        	m_List2.SetItemText(m_Itemnum, 2, strItem);
        	else if(nlistaj == 1)
-         	m_List1.SetItemText(m_Itemnum, 3, strItem);
+         	m_List1.SetItemText(m_Itemnum, 2, strItem);
 
 }
 
@@ -712,12 +690,13 @@ void CSampleFormView::Deladjust()
 		}
 	}
 	strItem = strItem.Mid(0,5);
+	m_DisplayPoint[ilistaj][m_Itemnum].CPpointnum =strItem;
     	if(nlistaj == 3)
-        	m_List3.SetItemText(m_Itemnum, 3, strItem);
+        	m_List3.SetItemText(m_Itemnum, 2, strItem);
      	else if(nlistaj == 2)
-        	m_List2.SetItemText(m_Itemnum, 3, strItem);
+        	m_List2.SetItemText(m_Itemnum, 2, strItem);
        	else if(nlistaj == 1)
-         	m_List1.SetItemText(m_Itemnum, 3, strItem);
+         	m_List1.SetItemText(m_Itemnum, 2, strItem);
 }
 
 void CSampleFormView::AdjustAll() 
@@ -748,7 +727,7 @@ void CSampleFormView::DisList123()
 //nlist 列表控件 ilist  控件序号
 void CSampleFormView::BuildList(int nlist ,int ilist) 
 {
-		int ncount = m_DisplayPoint[ilist][60].fds;
+//		int ncount = m_DisplayPoint[ilist][60].fds;
 		if(nlist == 1)
 		{
             m_List1.DeleteAllItems();
@@ -759,11 +738,11 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 	        	if(nfds == 0)
 	          		break;
          		int nchan = m_DisplayPoint[ilist][i].chan;
-				  CString dddd =m_DisplayPoint[ilist][i].CPName;
-				  m_List1.InsertItem(i, "");
-				  m_List1.SetItemText(i, 1, dddd);
+				  CString dddd =m_SlaveStation[nfds][nchan].WatchName;
+				  m_List1.InsertItem(i, dddd);
+//				  m_List1.SetItemText(i, 1, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
-				  m_List1.SetItemText(i, 3, dddd);
+				  m_List1.SetItemText(i, 2, dddd);
 		   }
 		}
 		if(nlist == 2)
@@ -775,11 +754,11 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 	        	if(nfds == 0)
 	          		break;
 		int nchan = m_DisplayPoint[ilist][i].chan;
-				  CString dddd =m_DisplayPoint[ilist][i].CPName;
-				  m_List2.InsertItem(i, "");
-				  m_List2.SetItemText(i, 1, dddd);
+				  CString dddd = m_SlaveStation[nfds][nchan].WatchName;
+				  m_List2.InsertItem(i, dddd);
+//				  m_List2.SetItemText(i, 1, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
-				  m_List2.SetItemText(i, 3, dddd);
+				  m_List2.SetItemText(i, 2, dddd);
 		   }
 		}
 		if(nlist == 3)
@@ -791,19 +770,24 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 	        	if(nfds == 0)
 	          		break;
 		int nchan = m_DisplayPoint[ilist][i].chan;
-				  CString dddd =m_DisplayPoint[ilist][i].CPName;
-				  m_List3.InsertItem(i, "");
-				  m_List3.SetItemText(i, 1, dddd);
+				  CString dddd = m_SlaveStation[nfds][nchan].WatchName;
+				  m_List3.InsertItem(i, dddd);
+//				  m_List3.SetItemText(i, 1, dddd);
 				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
-				  m_List3.SetItemText(i, 3, dddd);
+				  m_List3.SetItemText(i, 2, dddd);
 		   }
 		}
 }
 
 void CSampleFormView::DisList(int nlist ,int ilist) 
 {
+	if(b_curdis)
+	{
+      	SetInfo();
+		b_curdis =FALSE;
+	}
      	CString dddd ;
-		int ncount = m_DisplayPoint[ilist][60].fds;
+//		int ncount = m_DisplayPoint[ilist][60].fds;
 		if(nlist == 1)
 		{
 		   for(int i = 0; i <= 64; i ++)
@@ -811,28 +795,42 @@ void CSampleFormView::DisList(int nlist ,int ilist)
 	         	int nfds = m_DisplayPoint[ilist][i].fds;
 	        	if(nfds == 0)
 	          		break;
-         		int nchan = m_DisplayPoint[ilist][i].chan;
-				  int nptype = m_DisplayPoint[ilist][i].ptype;
-				  if( nptype== 0 || nptype== 1 || nptype== 2)
-				  {
-					  int nstatus = m_SlaveStation[nfds][nchan].Channel_state;
-					  if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x70))
-						  dddd= socketClient.strstatus(nstatus);
-					  else
-	     				  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
-				  }
-				  else
-				  {
-//					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
-					  int nstatus = m_SlaveStation[nfds][nchan].CValue;
-					  if(nstatus == 0)
+             		int nchan = m_DisplayPoint[ilist][i].chan;
+    				 unsigned char oldstatus = m_DisplayPoint[ilist][i].D_Chan_state;
+				     unsigned char nstatus = m_SlaveStation[nfds][nchan].Channel_state;
+					 m_DisplayPoint[ilist][i].D_Chan_state =nstatus;
+					 int nptype = m_SlaveStation[nfds][nchan].ptype;
+				  dddd ="";
+	     			  if( nptype<3)
+					  {
+				    	  if((nstatus == 0x40)||(nstatus == 0x50))
+				    		  dddd= socketClient.strstatus(nstatus);
+				    	  else
+						  {
+							  if(nptype == 2)
+            					  dddd.Format("%.0f",m_SlaveStation[nfds][nchan].AValue);
+							  else
+    	     			    	  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
+							  dddd += m_SlaveStation[nfds][nchan].m_Unit;
+						  }
+					  }
+			    	  else
+					  {
+				    	  int nstatus1 = m_SlaveStation[nfds][nchan].CValue;
+					     if(nstatus1 == 0)
 						  dddd= m_SlaveStation[nfds][nchan].ZeroState;
-					  else if(nstatus == 1)
+					     else if(nstatus1 == 1)
 						  dddd= m_SlaveStation[nfds][nchan].OneState;
-					  else if(nstatus == 2)
+				     	  else if(nstatus1 == 2)
 						  dddd= m_SlaveStation[nfds][nchan].TwoState;
-				  }
-    			  m_List1.SetItemText(i, 2, dddd);
+					  }
+					  if((nstatus == 0x80)||(nstatus == 0x70)||(nstatus == 0x90)|| (nstatus == 0xa0))
+				    		  dddd= socketClient.strstatus(nstatus);
+    		     	  m_List1.SetItemText(i, 1, dddd);
+//				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
+//				  m_List1.SetItemText(i, 2, dddd);
+				  if(oldstatus != nstatus)
+                       m_List1.SetRowColor(i, m_Colorref[nstatus].SFSd, RGB(255,255,255));
 //            m_List1.UpdateTextColor(i, m_Colorref[m_SlaveStation[nfds][nchan].Channel_state].SFSd);
 		   }
 		}
@@ -844,28 +842,41 @@ void CSampleFormView::DisList(int nlist ,int ilist)
 	        	if(nfds == 0)
 	          		break;
          		int nchan = m_DisplayPoint[ilist][i].chan;
-				  int nptype = m_DisplayPoint[ilist][i].ptype;
-				  if( nptype== 0 || nptype== 1 || nptype== 2)
+    				 unsigned char oldstatus = m_DisplayPoint[ilist][i].D_Chan_state;
+				     unsigned char nstatus = m_SlaveStation[nfds][nchan].Channel_state;
+					 m_DisplayPoint[ilist][i].D_Chan_state =nstatus;
+					 int nptype = m_SlaveStation[nfds][nchan].ptype;
+				  dddd ="";
+				  if( nptype<3)
 				  {
-					  int nstatus = m_SlaveStation[nfds][nchan].Channel_state;
-					  if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x70))
+					  if((nstatus == 0x40)||(nstatus == 0x50))
 						  dddd= socketClient.strstatus(nstatus);
 					  else
-				    	  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
+					  {
+							  if(nptype == 2)
+            					  dddd.Format("%.0f",m_SlaveStation[nfds][nchan].AValue);
+							  else
+    	     			    	  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
+							  dddd += m_SlaveStation[nfds][nchan].m_Unit;
+					  }
 				  }
 				  else
 				  {
-//					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
-					  int nstatus = m_SlaveStation[nfds][nchan].CValue;
-					  if(nstatus == 0)
+					  int nstatus1 = m_SlaveStation[nfds][nchan].CValue;
+					  if(nstatus1 == 0)
 						  dddd= m_SlaveStation[nfds][nchan].ZeroState;
-					  else if(nstatus == 1)
+					  else if(nstatus1 == 1)
 						  dddd= m_SlaveStation[nfds][nchan].OneState;
-					  else if(nstatus == 2)
+					  else if(nstatus1 == 2)
 						  dddd= m_SlaveStation[nfds][nchan].TwoState;
 				  }
-    			  m_List2.SetItemText(i, 2, dddd);
-//            m_List2.SetRowColor(i, m_Colorref[m_SlaveStation[nfds][nchan].Channel_state].SFSd, RGB(255,255,255));
+					  if((nstatus == 0x80)||(nstatus == 0x70)||(nstatus == 0x90)|| (nstatus == 0xa0))
+				    		  dddd= socketClient.strstatus(nstatus);
+    			  m_List2.SetItemText(i, 1, dddd);
+//				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
+//				  m_List2.SetItemText(i, 2, dddd);
+				  if(oldstatus != nstatus)
+                       m_List2.SetRowColor(i, m_Colorref[nstatus].SFSd, RGB(255,255,255));
 		   }
 		}
 		if(nlist == 3)
@@ -876,28 +887,41 @@ void CSampleFormView::DisList(int nlist ,int ilist)
 	        	if(nfds == 0)
 	          		break;
 	        	int nchan = m_DisplayPoint[ilist][i].chan;
-				  int nptype = m_DisplayPoint[ilist][i].ptype;
-				  if( nptype== 0 || nptype== 1 || nptype== 2)
+    				 unsigned char oldstatus = m_DisplayPoint[ilist][i].D_Chan_state;
+				     unsigned char nstatus = m_SlaveStation[nfds][nchan].Channel_state;
+					 m_DisplayPoint[ilist][i].D_Chan_state =nstatus;
+					 int nptype = m_SlaveStation[nfds][nchan].ptype;
+				  dddd ="";
+				  if( nptype<3)
 				  {
-					  int nstatus = m_SlaveStation[nfds][nchan].Channel_state;
 					  if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x70))
 						  dddd= socketClient.strstatus(nstatus);
 					  else
-			    		  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
+					  {
+							  if(nptype == 2)
+            					  dddd.Format("%.0f",m_SlaveStation[nfds][nchan].AValue);
+							  else
+    	     			    	  dddd.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
+							  dddd += m_SlaveStation[nfds][nchan].m_Unit;
+					  }
 				  }
 				  else
 				  {
-//					  dddd.Format("%d",m_SlaveStation[nfds][nchan].CValue);
-					  int nstatus = m_SlaveStation[nfds][nchan].CValue;
-					  if(nstatus == 0)
+					  int nstatus1 = m_SlaveStation[nfds][nchan].CValue;
+					  if(nstatus1 == 0)
 						  dddd= m_SlaveStation[nfds][nchan].ZeroState;
-					  else if(nstatus == 1)
+					  else if(nstatus1 == 1)
 						  dddd= m_SlaveStation[nfds][nchan].OneState;
-					  else if(nstatus == 2)
+					  else if(nstatus1 == 2)
 						  dddd= m_SlaveStation[nfds][nchan].TwoState;
 				  }
-    			  m_List3.SetItemText(i, 2, dddd);
-//            m_List3.SetRowColor(i, m_Colorref[m_SlaveStation[nfds][nchan].Channel_state].SFSd, RGB(255,255,255));
+					  if((nstatus == 0x80)||(nstatus == 0x70)||(nstatus == 0x90)|| (nstatus == 0xa0))
+				    		  dddd= socketClient.strstatus(nstatus);
+    			  m_List3.SetItemText(i, 1, dddd);
+//				  dddd =m_DisplayPoint[ilist][i].CPpointnum;
+//				  m_List3.SetItemText(i, 2, dddd);
+				  if(oldstatus != nstatus)
+                        m_List3.SetRowColor(i, m_Colorref[nstatus].SFSd, RGB(255,255,255));
 		   }
 		}
 }

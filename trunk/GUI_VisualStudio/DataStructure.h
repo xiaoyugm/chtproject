@@ -15,10 +15,12 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-#define QQ_HOST _T("http://happyfarm.qzone.qq.com")		//服务器地址
+//#define QQ_HOST _T("http://happyfarm.qzone.qq.com")		//服务器地址
 
-#define MAX_POINT_NUMBER     15001  //最大点数  1-15000
+#define MAX_POINT_NUMBER     15001       //最大点数  1-15000
 #define COLOR_MASK	RGB(0x00,0x80,0x80)
+#define MAX_FDS      61                  //最大分站  60 +1
+#define MAX_CHAN     25                  //每分站最大通道  24 +1   16AD 8C
 
 struct CPointInfo
 {
@@ -151,6 +153,7 @@ struct ADMainDis	 {
 	int     m_ATotalnum;	                 //模拟量0-24点总值数量           报警/断电次数
 	float   ATotalV;	        	         //模拟量0-24点总值
 	int     duant;                           //是否某段时间
+	float   AavV;	        	             //模拟量平均值
 	float   AMaxValue;	                     //模拟量最大值                   第n次最大值
 	COleDateTime  AMaxTime;                  //模拟量最大值时间               第n次最大值时间
 	COleDateTime  ATime;                     //最后报警测点值时间             累计报警时间/馈电异常时刻
@@ -160,6 +163,7 @@ struct ADMainDis	 {
 	CString     strsafetext;                                                //措施         
 	CString     strlocal;                                                   //断电区域|馈电状态|时刻  
 	int     havev; 
+	COleDateTimeSpan tmid;
 };
 
 //日报/班报表头字符串
@@ -231,7 +235,7 @@ struct SlaveStation {
 	unsigned char  Channel8;             //传感器类型+模拟/开关(通道类型
 
     unsigned char   Adjust_state;        //标校状态
-    unsigned char   m_second;            //第二次查馈电
+    int   m_second;            //第二次查馈电
     unsigned char   m_ffds;              //馈电分站
     unsigned char   m_fchan;             //馈电通道
 
@@ -294,11 +298,11 @@ struct FormView {
 
 //DisplayPoint 列表显示
 struct DisplayPoint {
-	CString     CPName;                    //模拟量开关量类型名称描述   
+//	CString     CPName;                    //模拟量开关量类型名称描述   
 	CString     CPpointnum;                       //点号
 	int         fds;             //分站
 	int         chan;            // 通道
-	int         ptype;           //模拟量开关量类型
+	unsigned char      D_Chan_state;           //模拟量开关量类型
 };
 
 //动态图显示

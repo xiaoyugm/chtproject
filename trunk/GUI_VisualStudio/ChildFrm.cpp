@@ -65,15 +65,15 @@ BOOL CChildFrame::PreCreateWindow(CREATESTRUCT& cs)
 	if( !CMDIChildWnd::PreCreateWindow(cs) )
 		return FALSE;
 
-	cs.style |= WS_CLIPCHILDREN;
+///	cs.style |= WS_CLIPCHILDREN;
 	
-	cs.style = WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU
-		| FWS_ADDTOTITLE | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX 
-    ;
+///	cs.style = WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU
+///		| FWS_ADDTOTITLE | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX 
+///    ;
 
 //	cs.style   &=~   (LONG)   FWS_PREFIXTITLE;
-	cs.style &= ~WS_MAXIMIZEBOX;
-	cs.style &= ~WS_THICKFRAME;
+///	cs.style &= ~WS_MAXIMIZEBOX;
+///	cs.style &= ~WS_THICKFRAME;
 //   cs.style   &=~WS_VSCROLL;     FWS_ADDTOTITLE
 
 
@@ -81,7 +81,7 @@ BOOL CChildFrame::PreCreateWindow(CREATESTRUCT& cs)
 	return TRUE;
 }
 
-
+/*
 void CChildFrame::ActivateFrame(int nCmdShow)
 {
 	// TODO: Modify this function to change how the frame is activated.
@@ -90,7 +90,7 @@ void CChildFrame::ActivateFrame(int nCmdShow)
 
 	CMDIChildWnd::ActivateFrame(nCmdShow);
 }
-
+*/
 
 /////////////////////////////////////////////////////////////////////////////
 // CChildFrame diagnostics

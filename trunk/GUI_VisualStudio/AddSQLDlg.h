@@ -27,6 +27,7 @@ public:
 	CXTFlatComboBox     m_ComBoxD5;
 	CXTFlatComboBox     m_ComBoxD6;
 
+    float   fstr2,fstr3,fstr4,fstr5,fstr6,fstr9;
     CString strtable,str1,str2,str3,str4,str5,str6,str7,str8,str9;
     int    acdid;
 	CString2DataType m_Str2Data;
@@ -55,4 +56,5 @@ public:
 	afx_msg void OnchangeComboD5();
 	afx_msg void OnchangeComboD6();
   afx_msg void OnKillFocusAccntId();
+	afx_msg void OnChE();
 };

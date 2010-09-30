@@ -6,11 +6,12 @@
 #endif // _MSC_VER > 1000
 // SetTimeDlg.h : header file
 //
+//#define __STDC_WANT_SECURE_LIB__     
 
 #include "dbAx\AxSControl.hpp"
 #include "dbAx\AxControl.hpp"
 //#include "dbAx\AxDisPoint.hpp"
-//#include "dbAx\AxPointDescription.hpp"
+#include "dbAx\AxPointDescription.hpp"
 //#include "dbAx\AxMAlocationSet.hpp"
 //#include "dbAx\AxAccountSet.hpp"
 #include "dbAx\AxContactCmd.hpp"
@@ -51,6 +52,11 @@ public:
   CAxContactCmd   m_ContactCmd;
   CAxSControl     m_SControl;
   CAxSControl     *m_SControlNew;
+  CAxPointDescription  m_PointDes;
+  CAxFans         m_Fans;
+
+	vector<CString> m_Records1;
+	vector<CString> m_Records2;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -65,11 +71,14 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CSetTimeDlg)
+	afx_msg void OnChCBP();
+	afx_msg void OnChCBV();
 	afx_msg void OnButSend();
 	afx_msg void OnchangeComboD();
     afx_msg void OnClose();
 	afx_msg void OnButCancel();
 	afx_msg void OnButRES();
+    afx_msg void OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

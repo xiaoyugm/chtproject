@@ -26,9 +26,10 @@ protected:
 public:
 	//{{AFX_DATA(CSampleFormView)
 	enum { IDD = IDD_FORMVIEW };
-	CGridListCtrlGroups	m_List1;
-	CGridListCtrlGroups	m_List2;
-	CGridListCtrlGroups	m_List3;
+	CXTListCtrl	m_List1;
+//	CGridListCtrlGroups	m_List2;
+	CXTListCtrl	m_List2;
+	CXTListCtrl	m_List3;
 		// NOTE: the ClassWizard will add data members here
 	//}}AFX_DATA
 	CListCtrl_DataModel m_DataModel;
@@ -39,7 +40,7 @@ public:
 	int        nlistaj;
 	int        ilistaj;
 	int                 m_iTheme;
-	BOOL                m_bHotTracking;
+	BOOL                m_bHotTracking,b_curdis;
 	BOOL                m_bWinTheme;
 	BOOL                m_bSortArrow;
 	int             m_nSortedCol;
@@ -70,7 +71,7 @@ public:
     void AdjustAll() ;
     void DelAllAdjust() ;
 
-	void SetInfo(int m_List,int iItem,CString strSubA,CString strSubB,CString strSubC);
+	void SetInfo();
 	void SetMonitorListHead(void);
 
 	void EnableControls(BOOL bRedraw=TRUE);

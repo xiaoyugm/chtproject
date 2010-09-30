@@ -16,7 +16,8 @@ CALine::CALine()
 	m_dMax			= 0;			
 	m_dScaleLow		= 0;	
 	m_dScaleHigh	= 0;	
-	m_nSize			= 0; 
+	m_nSize			= 0;
+	m_dMid          = 0;
 }
 
 bool CALine::Reset(DWORD size)
@@ -210,7 +211,7 @@ void CRealTime::Reset()
 
 bool CRealTime::AddALine(COLORREF color, double low, double high, 
 						 const char* name, const char* desc, const char* unit, 
-						 double min, double max, int style, int width)
+						 double min, double max, int style, int width,double mid)
 {
 	m_LineArray.Add(m_line);
 	int n = m_LineArray.GetSize() - 1;
@@ -229,6 +230,7 @@ bool CRealTime::AddALine(COLORREF color, double low, double high,
 	m_LineArray[n].m_dMax			= max;			
 	m_LineArray[n].m_nLineStyle		= style;
 	m_LineArray[n].m_nLineWidth		= width;
+	m_LineArray[n].m_dMid   		= mid;
 
 	if (!m_LineArray[n].Reset(m_nDataPerLine))
 	{
@@ -348,7 +350,7 @@ void CRealTime::Grid()
 	::SelectObject(m_hDC, hOldPen);
 	::DeleteObject(hPen);
 }
-//右边值域
+//右边值域 4条直线
 void CRealTime::RightYTick()
 {
     int	  xb, yb, xe, ye, yL, yH,yt;   
@@ -403,24 +405,52 @@ void CRealTime::RightYTick()
          		Format( 2 , strH, valueH);
         		PrintString(GR - m *(GR-GL)/5 - 80, GT - m_bM /1.2, 0, strH);
 
-            	HPEN hPen	= ::CreatePen(PS_DASHDOT, 0, cr);
-            	HPEN hOldPen = (HPEN)::SelectObject(m_hDC, hPen);
+//	crTable[2]  = RGB(255,   0,   0);     // Red
+//	crTable[4]  = RGB(  0,   0, 255);     // Blue
+//	crTable[15] = RGB(255, 255,   0);     // Yellow
+
+        		COLORREF cr1 = RGB(255, 255,   0) ;
+        		COLORREF cr2 = RGB(255,   0,   0) ;
+        		COLORREF cr3 = RGB(  0,   0, 255) ;
+            	HPEN hPen1	= ::CreatePen(PS_DASHDOT, 0, cr1);
+            	HPEN hOldPen1 = (HPEN)::SelectObject(m_hDC, hPen1);
 
 				value1 = (float)(  m_LineArray[m].m_dMin );
 				Format( 2 , strwarnL, value1);
-				valueL = (float)(  (m_LineArray[m].m_dMin -m_LineArray[m].m_dScaleLow)/(m_LineArray[m].m_dScaleHigh -m_LineArray[m].m_dScaleLow) );
+//				valueL = (float)(  (m_LineArray[m].m_dMin -m_LineArray[m].m_dScaleLow)/(m_LineArray[m].m_dScaleHigh -m_LineArray[m].m_dScaleLow) );
+				valueL = (float)(  (m_LineArray[m].m_dMin)/(m_LineArray[m].m_dScaleHigh) );
 				yL = GT + (int)(1.0 * valueL * (GB-GT)) ;
-				DrawLine(GL + 1, yL, GR - 1, yL);
-				PrintString((GR + GL) / 2 + 30*m, yL+35, 0, strwarnL);
+				DrawLine(GL + 1, yL, GR - 1, yL);  //报警线
+				PrintString((GR + GL) / 2 + 30*m, yL+17, 0, strwarnL);
+//				PrintString((GR + GL) / 2 + 30*m, yL+35, 0, strwarnL);
+
+				::SelectObject(m_hDC, hOldPen1);
+             	::DeleteObject(hPen1);
+            	HPEN hPen2	= ::CreatePen(PS_DASHDOT, 0, cr2);
+            	HPEN hOldPen2 = (HPEN)::SelectObject(m_hDC, hPen2);
+
 				value2 = (float)( m_LineArray[m].m_dMax );
 				Format( 2 , strwarnH, value2);
-				valueH = (float)(  (m_LineArray[m].m_dMax -m_LineArray[m].m_dScaleLow)/(m_LineArray[m].m_dScaleHigh -m_LineArray[m].m_dScaleLow) );
+//				valueH = (float)(  (m_LineArray[m].m_dMax -m_LineArray[m].m_dScaleLow)/(m_LineArray[m].m_dScaleHigh -m_LineArray[m].m_dScaleLow) );
+				valueH = (float)(  (m_LineArray[m].m_dMax )/(m_LineArray[m].m_dScaleHigh ) );
 				yH = GT + (int)(1.0 * valueH * (GB-GT)) ;
-				DrawLine(GL + 1, yH, GR - 1, yH);
-				PrintString((GR + GL) / 2 + 30*m, yH+35, 0, strwarnH);
+				DrawLine(GL + 1, yH, GR - 1, yH);  //断电
+				PrintString((GR + GL) / 2 + 30*m, yH+17, 0, strwarnH);
 
-				::SelectObject(m_hDC, hOldPen);
-             	::DeleteObject(hPen);
+				::SelectObject(m_hDC, hOldPen2);
+             	::DeleteObject(hPen2);
+            	HPEN hPen3	= ::CreatePen(PS_DASHDOT, 0, cr3);
+            	HPEN hOldPen3 = (HPEN)::SelectObject(m_hDC, hPen3);
+
+				value2 = (float)( m_LineArray[m].m_dMid );
+				Format( 2 , strwarnH, value2);
+				valueH = (float)(  (m_LineArray[m].m_dMid)/(m_LineArray[m].m_dScaleHigh ) );
+				yH = GT + (int)(1.0 * valueH * (GB-GT)) ;
+				DrawLine(GL + 1, yH, GR - 1, yH);  //复电 yh高
+				PrintString((GR + GL) / 2 + 30*m, yH+17, 0, strwarnH);
+
+				::SelectObject(m_hDC, hOldPen3);
+             	::DeleteObject(hPen3);
 
                 SetStringAlign(LEFT, CENTER);
 				PrintString(GL, GT - m_bM /1.2, 0, "值域(大 小)");

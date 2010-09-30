@@ -61,3 +61,32 @@ public:
     FX_VarChar           (bSave, _T("Useriddel"),     m_szUseriddel);
   };
 };
+
+class CAxFans :
+    public CAxRecordset
+{
+public:
+  CAxFans() { _SetDefaultValues(); }
+  ~CAxFans() { }
+
+  CString     m_szName1,m_szName2,m_szpointnum1,m_szpointnum2;
+  int m_szFansID,m_szAStatus;
+
+  //Set default values of class members
+  void _SetDefaultValues()
+  {
+    m_szName1 =m_szName2 =m_szpointnum1= m_szpointnum2 = _T("");
+    m_szFansID = m_szAStatus =0;
+  };
+
+  //Exchange field values with data provider
+  void DoFieldExchange(bool bSave = FALSE)
+  {
+    FX_Integer           (bSave, _T("FansID"),         m_szFansID);
+    FX_VarChar           (bSave, _T("Name1"),          m_szName1);
+    FX_VarChar           (bSave, _T("Name2"),          m_szName2);
+    FX_VarChar           (bSave, _T("pointnum1"),           m_szpointnum1);
+    FX_VarChar           (bSave, _T("pointnum2"),           m_szpointnum2);
+    FX_Integer           (bSave, _T("AStatus"),         m_szAStatus);
+  };
+};

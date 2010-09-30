@@ -110,7 +110,7 @@ public:
   void   Insfeed();
   void   InsAddfeed();
   void   InsDIS();
-  void   pushDIS(CString  str1,CString  str2,CString  str3);
+  void   pushDIS(CString str1);
   void   BuildDisList();
 
 	void SortColumn(int iCol, bool bAsc);
@@ -127,6 +127,9 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CSettingHostDlg)
+	afx_msg void OnChCB04();
+	afx_msg void OnChCB03();
+	afx_msg void OnchangeCombo2();
 	afx_msg void OnchangeComboF();
 	afx_msg void OnButtonSelect();
 	afx_msg void OnButtonDeselect();
