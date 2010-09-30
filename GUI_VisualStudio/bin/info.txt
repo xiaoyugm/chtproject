@@ -114,6 +114,11 @@ INSERT INTO colorset VALUES(176,255);
 INSERT INTO colorset VALUES(192,0);
 
 
+INSERT INTO commonset VALUES(1,'','','','','','','','','','','','','','','','','','','','','','','','','','','','','','');
+
+
+
+
 
 
 

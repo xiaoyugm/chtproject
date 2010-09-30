@@ -29,6 +29,7 @@ public:
 
 	void StopServer();
 
+    BOOL bIsConnect ;
 	void SyncCRTData(unsigned char  afds, unsigned char  achan,int dbtype);
 protected:
 	CString m_strIP;

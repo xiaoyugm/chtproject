@@ -13,7 +13,8 @@ public:
                EventStatusEnum * adStatus,
                _ADOConnection * pConnection)
       {
-        AfxMessageBox(_T("Connected to BJygjl"));
+        AfxMessageBox(_T("连接BJygjl数据库"));
+//        AfxMessageBox(_T("Connected to BJygjl"));
         return S_OK;
       }
 };

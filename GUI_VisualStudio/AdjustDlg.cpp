@@ -13,10 +13,10 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern ADCbreakE             m_CFeed[65][9][65];
-extern ADCbreakE             m_ADCbreakE[65][25][65];
+extern ADCbreakE             m_CFeed[MAX_FDS][9][65];
+extern ADCbreakE             m_ADCbreakE[MAX_FDS][MAX_CHAN][65];
 extern  OthersSetting    m_OthersSetting;
-extern  SlaveStation             m_SlaveStation[65][25];
+extern  SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 /////////////////////////////////////////////////////////////////////////////
 // CAdjustDlg dialog
 
@@ -61,7 +61,8 @@ BEGIN_MESSAGE_MAP(CAdjustDlg, CXTResizeDialog)
 //	ON_BN_CLICKED(IDCANCEL, OnButCancel)
 //	ON_BN_CLICKED(IDC_BUT_RES, OnButRES)
 	ON_WM_DESTROY()
-	ON_NOTIFY(DTN_CLOSEUP, IDC_DT_ADJUST, OnDtimeA)
+	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_DT_ADJUST, OnDtimeA)
+//	ON_NOTIFY(DTN_CLOSEUP, IDC_DT_ADJUST, OnDtimeA)
 	ON_CBN_SELCHANGE(IDC_CB_A, OnCB_A)
 	ON_CBN_SELCHANGE(IDC_CB_C, OnCB_C)
 	ON_CBN_SELCHANGE(IDC_CB_F, OnCB_F)
@@ -75,18 +76,18 @@ BOOL CAdjustDlg::OnInitDialog()
   CXTResizeDialog::OnInitDialog();
 //	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 //   	pFWnd->m_pSetTimeDlg=this;
-	    SetResize(IDC_L_A,         SZ_TOP_LEFT,    SZ_BOTTOM_CENTER);
+/*	    SetResize(IDC_L_A,         SZ_TOP_LEFT,    SZ_BOTTOM_CENTER);
     	SetResize(IDC_L_C,         SZ_TOP_CENTER,    SZ_BOTTOM_CENTER);
 		SetResize(IDC_L_F,         SZ_TOP_CENTER,    SZ_BOTTOM_RIGHT);
 	    SetResize(IDC_CB_A,         SZ_TOP_LEFT,    SZ_TOP_CENTER);
     	SetResize(IDC_CB_C,         SZ_TOP_CENTER,    SZ_TOP_CENTER);
     	SetResize(IDC_CB_F,         SZ_TOP_CENTER,    SZ_TOP_RIGHT);
 	    SetResize(IDC_DT_ADJUST,         SZ_BOTTOM_LEFT,    SZ_BOTTOM_CENTER);
-    	SetResize(IDOK,         SZ_BOTTOM_CENTER,    SZ_BOTTOM_CENTER);
+    	SetResize(IDOK,         SZ_BOTTOM_RIGHT,    SZ_BOTTOM_RIGHT);
     	SetResize(IDCANCEL,         SZ_BOTTOM_CENTER,    SZ_BOTTOM_RIGHT);
-
+*/
 	// Enable Office XP themes.
-	XTThemeManager()->SetTheme(xtThemeOfficeXP);
+	XTThemeManager()->SetTheme(xtThemeOffice2003);
 	HWND hWndHeader = m_L_A.GetDlgItem(0)->GetSafeHwnd();
 	m_header.SubclassWindow(hWndHeader);
 
@@ -105,13 +106,13 @@ BOOL CAdjustDlg::OnInitDialog()
 	m_L_C.ModifyExtendedStyle(0, LVS_EX_GRIDLINES);
 	m_L_F.ModifyExtendedStyle(0, LVS_EX_GRIDLINES);
 
-		m_L_A.InsertColumn(0,"测点值",LVCFMT_LEFT,60);
-		m_L_A.InsertColumn(1,"状态",LVCFMT_LEFT,60);
-		m_L_A.InsertColumn(2,"时间|模拟量",LVCFMT_LEFT,160);
-		m_L_C.InsertColumn(0,"测点值",LVCFMT_LEFT,70);
-		m_L_C.InsertColumn(1,"时间|控制量",LVCFMT_LEFT,160);
-		m_L_F.InsertColumn(0,"测点值",LVCFMT_LEFT,70);
-		m_L_F.InsertColumn(1,"时间|馈电量",LVCFMT_LEFT,160);
+		m_L_A.InsertColumn(0,_T("测点值"),LVCFMT_LEFT,60);
+		m_L_A.InsertColumn(1,_T("状态"),LVCFMT_LEFT,60);
+		m_L_A.InsertColumn(2,_T("时间"),LVCFMT_LEFT,160);
+		m_L_C.InsertColumn(0,_T("测点值"),LVCFMT_LEFT,70);
+		m_L_C.InsertColumn(1,_T("时间"),LVCFMT_LEFT,160);
+		m_L_F.InsertColumn(0,_T("测点值"),LVCFMT_LEFT,70);
+		m_L_F.InsertColumn(1,_T("时间"),LVCFMT_LEFT,160);
 
 	// insert strings into the size combo box. DeleteString
 /*    	m_CB_A.AddString("关闭");
@@ -136,7 +137,7 @@ BOOL CAdjustDlg::OnInitDialog()
     m_Cn.Open((LPCTSTR)szConnect);
 
 	CString strstartTime,strname;
-	CString dddd = "Select * From adjustdata WHERE recdate>'";
+	CString dddd = "Select * From rtadjustdata WHERE recdate>'";
 
 	UpdateData(TRUE);
 	m_LTime.GetTime(m_startDateTime);
@@ -145,9 +146,9 @@ BOOL CAdjustDlg::OnInitDialog()
 	eYear = m_startDateTime.GetYear();
 	eMonth = m_startDateTime.GetMonth();
 	eDay = m_startDateTime.GetDay();
-	strstartTime.Format("%d-%d-%d 00:00:00",eYear,eMonth,eDay);
+	strstartTime.Format(_T("%d-%d-%d 00:00:00"),eYear,eMonth,eDay);
 	dddd = dddd + strstartTime +"' and recdate<'";
-	strstartTime.Format("%d-%d-%d 23:59:59",eYear,eMonth,eDay);
+	strstartTime.Format(_T("%d-%d-%d 23:59:59"),eYear,eMonth,eDay);
 	dddd = dddd + strstartTime +"'";
 
 		m_Adjustdata.Create();
@@ -167,9 +168,8 @@ BOOL CAdjustDlg::OnInitDialog()
 						m_cba =66;
             	eMonth = m_Adjustdata.m_szfds;
                	eDay = m_Adjustdata.m_szchan;
-				strstartTime.Format("%dA%d ",eMonth,eDay);
-				strname = m_Adjustdata.m_szName;
-				strname.TrimRight();
+				strstartTime.Format(_T("%dA%d "),eMonth,eDay);
+				strname = m_SlaveStation[eMonth][eDay].WatchName;
 				dddd = strstartTime + strname;
 				if(iItem == 0)
 				{
@@ -203,7 +203,7 @@ BOOL CAdjustDlg::OnInitDialog()
     delete e;
     return (FALSE);
   }
-  MoveWindow(CRect(50,100,960,700));
+//  MoveWindow(CRect(50,100,960,700));
   return TRUE;  // return TRUE unless you set the focus to a control
   // EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -217,6 +217,7 @@ void CAdjustDlg::OnDtimeA(NMHDR* pNMHDR, LRESULT* pResult)
    	m_L_C.DeleteAllItems();
    	m_L_F.DeleteAllItems();
 
+//	AfxMessageBox("没有找到合适的幕分辨率的配置文件!");
 	UpdateData(TRUE);
 	m_LTime.GetTime(m_startDateTime);
 	UpdateData(FALSE);
@@ -225,14 +226,14 @@ void CAdjustDlg::OnDtimeA(NMHDR* pNMHDR, LRESULT* pResult)
     if ( m_Adjustdata._IsOpen() )
         m_Adjustdata.Close();
 	CString strstartTime,strname;
-	CString dddd = "Select * From adjustdata WHERE recdate>'";
+	CString dddd = "Select * From rtadjustdata WHERE recdate>'";
 	int eYear,eMonth,eDay,m_cba;
 	eYear = m_startDateTime.GetYear();
 	eMonth = m_startDateTime.GetMonth();
 	eDay = m_startDateTime.GetDay();
-	strstartTime.Format("%d-%d-%d 00:00:00",eYear,eMonth,eDay);
+	strstartTime.Format(_T("%d-%d-%d 00:00:00"),eYear,eMonth,eDay);
 	dddd = dddd + strstartTime +"' and recdate<'";
-	strstartTime.Format("%d-%d-%d 23:59:59",eYear,eMonth,eDay);
+	strstartTime.Format(_T("%d-%d-%d 23:59:59"),eYear,eMonth,eDay);
 	dddd = dddd + strstartTime +"'";
 		m_Adjustdata.Create();
 		m_Adjustdata.CursorType(adOpenDynamic);
@@ -253,8 +254,7 @@ void CAdjustDlg::OnDtimeA(NMHDR* pNMHDR, LRESULT* pResult)
             	eMonth = m_Adjustdata.m_szfds;
                	eDay = m_Adjustdata.m_szchan;
 				strstartTime.Format("%dA%d ",eMonth,eDay);
-				strname = m_Adjustdata.m_szName;
-				strname.TrimRight();
+				strname = m_SlaveStation[eMonth][eDay].WatchName;
 				dddd = strstartTime + strname;
 				if(iItem == 0)
 				{
@@ -302,8 +302,7 @@ void CAdjustDlg::OnCB_A()
             	eMonth = m_Adjustdata.m_szfds;
                	eDay = m_Adjustdata.m_szchan;
 				strstartTime.Format("%dA%d ",eMonth,eDay);
-				strfc = m_Adjustdata.m_szName;
-				strfc.TrimRight();
+				strfc = m_SlaveStation[eMonth][eDay].WatchName;
 				dddd = strstartTime + strfc;
 				if(strname == dddd)
 				{
@@ -354,8 +353,7 @@ void CAdjustDlg::OnCB_C()
 					strstartTime.Format("%d",eMonth); 
 				strfc.Format("0%d ",eDay); 
 
-				dddd = m_Adjustdata.m_szName;
-				dddd.TrimRight();
+				dddd = m_SlaveStation[eMonth][eDay+16].WatchName;
 				dddd = strstartTime +strfc +dddd;
 				if(strname == dddd)
 				{
@@ -408,8 +406,7 @@ void CAdjustDlg::OnCB_F()
 				else
 					strfc.Format("%d ",eDay); 
 
-				dddd = m_Adjustdata.m_szName;
-				dddd.TrimRight();
+				dddd = m_SlaveStation[eMonth][eDay].WatchName;
 				dddd = strstartTime +strfc +dddd;
 				if(strname == dddd)
 				{

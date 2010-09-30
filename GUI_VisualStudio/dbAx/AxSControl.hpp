@@ -56,23 +56,23 @@ public:
   CAdjustdata() { _SetDefaultValues(); }
   ~CAdjustdata() { }
 
-  int  m_szADID ,m_szCDValue,m_szADStatus,m_szptype,m_szfds,m_szchan,m_szffds,m_szfchan;
-  CString     m_szName,m_szUseridadd,m_szFeedStatus,m_szsafemtext;
+  int  m_szADID ,m_szCDValue,m_szADStatus,m_szptype,m_szfds,m_szchan,m_szffds,m_szfchan,m_szPID;
+  CString     m_szUseridadd,m_szFeedStatus,m_szsafemtext;
   COleDateTime   m_szrecdate;
   REAL m_szAValue;
 
   //Set default values of class members
   void _SetDefaultValues()
   {
-    m_szName = m_szUseridadd = m_szFeedStatus =m_szsafemtext=_T("");
-    m_szADID =m_szCDValue=m_szAValue =m_szADStatus= m_szptype=m_szfds=m_szchan=m_szffds=m_szfchan=0;
+    m_szUseridadd = m_szFeedStatus =m_szsafemtext=_T("");
+    m_szADID =m_szCDValue=m_szAValue =m_szADStatus= m_szptype=m_szfds=m_szchan=m_szffds=m_szfchan=m_szPID=0;
   };
 
   //Exchange field values with data provider
   void DoFieldExchange(bool bSave = FALSE)
   {
     FX_Integer           (bSave, _T("ADID"),        m_szADID);
-    FX_VarChar           (bSave, _T("Name"),        m_szName);
+    FX_Integer           (bSave, _T("PID"),        m_szPID);
     FX_Integer           (bSave, _T("ptype"),       m_szptype);
     FX_Integer           (bSave, _T("fds"),         m_szfds);
     FX_Integer           (bSave, _T("chan"),         m_szchan);
@@ -95,23 +95,23 @@ public:
   CRealtimedata() { _SetDefaultValues(); }
   ~CRealtimedata() { }
 
-  int  m_szRTID ,m_szCDValue,m_szADStatus,m_szptype,m_szfds,m_szchan,m_szffds,m_szfchan;
-  CString     m_szName,m_szUseridadd,m_szsafemtext,m_szFeedStatus;
+  int  m_szPID,m_szRTID ,m_szCDValue,m_szADStatus,m_szptype,m_szfds,m_szchan,m_szffds,m_szfchan;
+  CString     m_szUseridadd,m_szsafemtext,m_szFeedStatus;
   COleDateTime   m_szrecdate;
   REAL m_szAValue;
 
   //Set default values of class members
   void _SetDefaultValues()
   {
-    m_szName = m_szUseridadd = m_szsafemtext =m_szFeedStatus=_T("");
-    m_szRTID =m_szCDValue=m_szAValue =m_szADStatus= m_szptype=m_szfds=m_szchan=m_szffds=m_szfchan=0;
+    m_szUseridadd = m_szsafemtext =m_szFeedStatus=_T("");
+    m_szRTID =m_szCDValue=m_szAValue =m_szADStatus= m_szptype=m_szfds=m_szchan=m_szffds=m_szfchan=m_szPID=0;
   };
 
   //Exchange field values with data provider
   void DoFieldExchange(bool bSave = FALSE)
   {
     FX_Integer           (bSave, _T("RTID"),        m_szRTID);
-    FX_VarChar           (bSave, _T("Name"),        m_szName);
+    FX_Integer           (bSave, _T("PID"),        m_szPID);
     FX_Integer           (bSave, _T("ptype"),       m_szptype);
     FX_Integer           (bSave, _T("fds"),         m_szfds);
     FX_Integer           (bSave, _T("chan"),         m_szchan);
@@ -134,23 +134,23 @@ public:
   CRt5mdata() { _SetDefaultValues(); }
   ~CRt5mdata() { }
 
-  int  m_szRT5ID ,m_szADStatus,m_szptype,m_szfds,m_szchan;
-  CString     m_szName,m_szUseridadd;
+  int  m_szRT5ID ,m_szADStatus,m_szptype,m_szfds,m_szchan,m_szPID;
+  CString     m_szUseridadd;
   COleDateTime   m_szrecdate;
   REAL m_szAValue,m_szAMinValue,m_szAMaxValue;
 
   //Set default values of class members
   void _SetDefaultValues()
   {
-    m_szName = m_szUseridadd =_T("");
-    m_szRT5ID =m_szAValue =m_szADStatus= m_szptype=m_szfds=m_szchan=m_szAMaxValue=m_szAMinValue=0;
+    m_szUseridadd =_T("");
+    m_szRT5ID =m_szAValue =m_szADStatus= m_szptype=m_szfds=m_szchan=m_szAMaxValue=m_szAMinValue=m_szPID=0;
   };
 
   //Exchange field values with data provider
   void DoFieldExchange(bool bSave = FALSE)
   {
     FX_Integer           (bSave, _T("RT5ID"),        m_szRT5ID);
-    FX_VarChar           (bSave, _T("Name"),        m_szName);
+    FX_Integer           (bSave, _T("PID"),        m_szPID);
     FX_Integer           (bSave, _T("ptype"),       m_szptype);
     FX_Integer           (bSave, _T("fds"),         m_szfds);
     FX_Integer           (bSave, _T("chan"),         m_szchan);

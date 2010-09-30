@@ -14,7 +14,8 @@ public:
                                        EventStatusEnum  *adStatus,
                                        _ADORecordset  *pRecordset)
    {
-      AfxMessageBox(_T("Recordset changed"));
+      AfxMessageBox(_T("¼ÇÂ¼¸Ä±ä"));
+//      AfxMessageBox(_T("Recordset changed"));
       return S_OK;
    }
 };

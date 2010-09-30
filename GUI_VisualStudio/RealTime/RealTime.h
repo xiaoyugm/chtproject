@@ -28,6 +28,7 @@ struct CALine
 	double		m_dMax;				// maximum value
 	double		m_dScaleLow;		// scaled minimum value
 	double		m_dScaleHigh;		// scaled maximum value
+	double		m_dMid;	        	// scaled mid value  ¸´µç
 
 	bool Reset(DWORD size);
 	void AddValue(double& value, DWORD begin, DWORD end);
@@ -82,7 +83,7 @@ public:
 	void DrawRealTimeLines();
 	bool AddALine(COLORREF color, double low = 0, double high = 100, 
 				  const char* name = "N/A", const char* desc = "N/A", const char* unit = "N/A", 
-				  double min = 0, double max = 100, int style = PS_SOLID, int width = 0);
+				  double min = 0, double max = 100, int style = PS_SOLID, int width = 0,double mid=0);
 	bool InsertALine(int index, COLORREF color, double low = 0, double high = 100, 
 				  const char* name = "N/A", const char* desc = "N/A", const char* unit = "N/A", 
 				  double min = 0, double max = 100, int style = PS_SOLID, int width = 0);

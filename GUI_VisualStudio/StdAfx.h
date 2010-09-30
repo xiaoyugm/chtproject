@@ -74,7 +74,7 @@
 #define ENABLE_MANIFESTEDITOR
 
 #include <XTToolkitPro.h>   // Codejock Software Components
-#include <AboutDlg.h>       // Sample About Dialog
+//#include <AboutDlg.h>       // Sample About Dialog
 
 #if _MSC_VER >= 1300
 	#define WPD_CHARFORMAT CHARFORMAT2
@@ -86,6 +86,8 @@
 
 #include <afxole.h>         // MFC OLE classes
 #include <afxodlgs.h>       // MFC OLE dialog classes
+
+//#pragma comment(lib,"winmm.lib")
 
 #include "Enum.h"
 #include "DataStructure.h"
@@ -101,6 +103,7 @@
 #pragma comment(lib,"gdiplus.lib")
 using namespace Gdiplus;
 
+#include <CommonTools.h>
 #pragma comment(lib,"CommonTools.lib")
 
 #include <sqlite3.h>		//
@@ -114,7 +117,7 @@ using namespace Gdiplus;
 using namespace std;
 
 #include "CGridListCtrlEx\CGridColumnManagerProfile.h"
-#include "..\CGridListCtrlEx\CGridColumnTraitDateTime.h"
+#include "CGridListCtrlEx\CGridColumnTraitDateTime.h"
 #include "CGridListCtrlEx\CGridColumnTraitEdit.h"
 #include "CGridListCtrlEx\CGridColumnTraitCombo.h"
 #include "CGridListCtrlEx\CGridRowTraitXP.h"
@@ -122,6 +125,8 @@ using namespace std;
 
 //Support for AxLib library
 #include "dbAx\AxLib.h"
+
+#pragma comment(lib,"version.lib ")
 
 
 

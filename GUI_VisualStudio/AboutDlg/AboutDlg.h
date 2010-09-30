@@ -101,23 +101,24 @@ public:
 
 		// set the sample title.
 		CString csSampleTitle;
-		csSampleTitle.Format(_T("%s Application"), pApp->m_pszAppName);
+		csSampleTitle.Format(_T("%s 应用"), pApp->m_pszAppName);
 		m_txtAppName.SetWindowText( csSampleTitle );
 
 		// set the package version.
 		CString csPackageVersion;
 		csPackageVersion.Format( _T( "%s v%d.%d.%d" ),
 			_XTP_PACKAGE_NAME, _XTPLIB_VERSION_MAJOR, _XTPLIB_VERSION_MINOR, _XTPLIB_VERSION_REVISION);
-		m_txtPackageVersion.SetWindowText( csPackageVersion );
+		m_txtPackageVersion.SetWindowText( "版本 2.0" );
 
 		// set the about caption.
 		CString csAboutCaption;
-		csAboutCaption.Format( _T("About %s" ), pApp->m_pszAppName );
+		csAboutCaption.Format( _T("关于 %s" ), pApp->m_pszAppName );
 		SetWindowText( csAboutCaption );
 
 		// set the copyright info.
 		CString csCopyrightInfo;
-		csCopyrightInfo.Format( _T( "(c)2003-%d BodhiTech Software, All Rights Reserved" ),
+		csCopyrightInfo.Format( _T( "(c) 2003-%d 阳光金力煤矿安全监控" ),
+//		csCopyrightInfo.Format( _T( "(c)2003-%d 阳光金力, All Rights Reserved" ),
 			COleDateTime::GetCurrentTime().GetYear( ) );
 		m_txtCopyrightInfo.SetWindowText( csCopyrightInfo );
 
@@ -126,14 +127,15 @@ public:
 
 
 		// define the url for our hyperlinks.
-		m_txtURL.SetURL( _T( "http://www.xxx.com" ) );
+		m_txtURL.SetURL( _T( "网址: http://www.xxx.com" ) );
 		m_txtURL.SetUnderline( false );
 
-		m_txtEmail.SetURL( _T( "mailto:robustwell@gmail.com" ) );
+		m_txtEmail.SetURL( _T( "邮箱:robustwellcao@gmail.com" ) );//mailto:
 		m_txtEmail.SetUnderline( false );
 
 		// set OK button style.
 		m_btnOk.SetXButtonStyle( BS_XT_SEMIFLAT | BS_XT_HILITEPRESSED | BS_XT_WINXP_COMPAT );
+        GetDlgItem(IDOK)->SetWindowText(_T("确定"));
 
 		return TRUE;  // return TRUE unless you set the focus to a control
 		              // EXCEPTION: OCX Property Pages should return FALSE

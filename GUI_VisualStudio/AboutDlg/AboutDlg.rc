@@ -1,4 +1,4 @@
-// Microsoft Visual C++ generated resource script.
+//Microsoft Developer Studio generated resource script.
 //
 #include "Resource.h"
 
@@ -13,13 +13,63 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// Chinese (P.R.C.) resources
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 #ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
 #endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 239, 177
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "关于"
+FONT 10, "宋体"
+BEGIN
+    CTEXT           "<< package version >>",IDC_TXT_TITLE,7,126,225,8,
+                    SS_NOPREFIX,WS_EX_TRANSPARENT
+    CTEXT           "<< sample name >>",IDC_TXT_APPNAME,45,132,133,8,NOT 
+                    WS_VISIBLE,WS_EX_TRANSPARENT
+    CTEXT           "<< copyright info >>",IDC_TXT_COPYRIGHT,7,112,225,8,0,
+                    WS_EX_TRANSPARENT
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME | NOT WS_VISIBLE,7,
+                    115,225,30
+    RTEXT           "邮箱:",IDC_STATIC,13,120,37,8,NOT WS_VISIBLE,
+                    WS_EX_TRANSPARENT
+    RTEXT           "网址:",IDC_STATIC,14,132,36,8,NOT WS_VISIBLE,
+                    WS_EX_TRANSPARENT
+    LTEXT           "robustwellcao@gmail.com",IDC_TXT_EMAIL,79,151,91,8,0,
+                    WS_EX_TRANSPARENT
+    LTEXT           "http://www.xxx.com",IDC_TXT_URL,79,162,108,8,0,
+                    WS_EX_TRANSPARENT
+    DEFPUSHBUTTON   "确定",IDOK,21,156,25,14,WS_GROUP
+    CONTROL         101,IDC_STATIC,"Static",SS_BITMAP,34,7,198,102
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 232
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 170
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -27,18 +77,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "Resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "\r\n"
     "\0"
@@ -54,57 +104,15 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_POPUP_CLOSE         ICON                    "res\\PopupClose.ico"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_ABOUTBOX DIALOGEX 0, 0, 204, 138
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "About Sample Application"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
-BEGIN
-    CTEXT           "<< package version >>",IDC_TXT_TITLE,7,49,190,8,SS_NOPREFIX
-    DEFPUSHBUTTON   "OK",IDOK,137,118,60,14,WS_GROUP
-    CONTROL         101,IDC_STATIC,"Static",SS_BITMAP,7,7,190,37
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,83,190,30
-    CTEXT           "<< copyright info >>",IDC_TXT_COPYRIGHT,7,69,190,8
-    LTEXT           "http://www.xxx.com",IDC_TXT_URL,72,98,108,8
-    LTEXT           "robustwell@gmail.com",IDC_TXT_EMAIL,72,89,91,8
-    RTEXT           "contact:",IDC_STATIC,31,89,37,8
-    RTEXT           "website:",IDC_STATIC,32,98,36,8
-    CTEXT           "<< sample name >>",IDC_TXT_APPNAME,7,59,190,8
-END
-
+IDI_POPUP_CLOSE         ICON    DISCARDABLE     "res\\PopupClose.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Bitmap
 //
 
-IDC_CODEJOCK            BITMAP                  "res\\cj_logo.bmp"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
-BEGIN
-    IDD_ABOUTBOX, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 197
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 131
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-#endif    // English (U.S.) resources
+IDC_CODEJOCK            BITMAP  MOVEABLE PURE   "res\\cj_logo.bmp"
+#endif    // Chinese (P.R.C.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

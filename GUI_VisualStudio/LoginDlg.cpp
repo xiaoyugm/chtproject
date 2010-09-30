@@ -17,8 +17,8 @@ static char THIS_FILE[] = __FILE__;
 
 //登陆成功判断
 static BOOL bIsLoggin = FALSE;
-extern ADMainDis         m_ADMainDis[65][25][65];          //调用显示
-extern SlaveStation             m_SlaveStation[65][25];
+extern ADMainDis         m_ADMainDis[MAX_FDS][MAX_CHAN];          //调用显示
+extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 extern  OthersSetting    m_OthersSetting;
 /////////////////////////////////////////////////////////////////////////////
 // CLoginDlg dialog
@@ -44,12 +44,14 @@ void CLoginDlg::DoDataExchange(CDataExchange* pDX)
 	CXTResizeDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CLoginDlg)
 //	DDX_Control(pDX, IDC_CHECK_MANACHINE, m_CheckManachine);
-	DDX_Control(pDX, IDC_EDT_PWD, m_ctrlEditPWD);
+	DDX_Text(pDX, IDC_EDT_USER, m_strUser);
+	DDV_MaxChars(pDX, m_strUser, 10);
+	DDX_Text(pDX, IDC_EDT_PWD, m_strPasswd);
+	DDV_MaxChars(pDX, m_strUser, 8);
 	DDX_Control(pDX, IDOK, m_btnOK);
 //	DDX_Control(pDX, IDCANCEL, m_btnCANCEL);
-	DDX_Text(pDX, IDC_EDT_PWD, m_strPasswd);
-	DDX_Text(pDX, IDC_EDT_USER, m_strUser);
 //	DDX_Text(pDX, IDC_EDIT_SATUS, m_strEditStatus);
+	DDX_Control(pDX, IDC_EDT_PWD, m_ctrlEditPWD);
 	DDX_Control(pDX, IDC_LIST_USER, m_listUser);
 	DDX_Control(pDX, IDC_COMBLOG, m_ComBoxSM);
 	//}}AFX_DATA_MAP
@@ -75,12 +77,14 @@ void CLoginDlg::OnOK()
 
 	if(!theApp.m_bLogIn)
 	{
-    	if (m_strUser =="" || m_strPasswd =="") 
+    	if (m_strUser =="" && m_strPasswd =="") 
 		{ 
-		AfxMessageBox("对不起，用户名或密码不能为空，请重新输入");
-		CWnd* pWnd=GetDlgItem(IDC_EDT_USER);
-		pWnd->SetFocus();
-		return;
+               	theApp.m_bLogIn=false;
+             	theApp.curuser = "";
+//		AfxMessageBox("对不起，用户名或密码不能为空，请重新输入！");
+//		CWnd* pWnd=GetDlgItem(IDC_EDT_USER);
+//		pWnd->SetFocus();
+//		return;
 		}  
     	else 
 		{
@@ -95,6 +99,8 @@ void CLoginDlg::OnOK()
 						    m_SLoginNew->Requery();
                	theApp.m_bLogIn=true;
              	theApp.curuser = m_strUser;
+				theApp.m_bsuper = true;
+
 			}
 	    	else
 			{
@@ -115,6 +121,8 @@ void CLoginDlg::OnOK()
 								theApp.m_bsuper = true;
 							else
 								theApp.m_bsuper = false;
+           					if("主机" == m_strUser)
+								theApp.b_SaveRT = TRUE;
 							break;
 						}
 					}
@@ -123,7 +131,10 @@ void CLoginDlg::OnOK()
         			m_SLogin.MoveNext();
 				}
 				if(theApp.m_bLogIn == false)
+				{
+					AfxMessageBox("用户名或密码错误，请重新输入！",MB_ICONINFORMATION);
             		return;
+				}
 			}
 				//登陆成功判断
 						bIsLoggin = TRUE;
@@ -133,20 +144,15 @@ void CLoginDlg::OnOK()
 	}
 	else if(m_bAddUser && theApp.m_bsuper)
 	{
-		int nuid;
+		int nuid =0;
          		m_SLogin.MoveFirst();
           		while ( !m_SLogin.IsEOF() )
 				{
-					nuid = m_SLogin.m_szUID;
+					nrecord = m_SLogin.m_szUID;
 			       	strtemp = m_SLogin.m_szName;
 		    		strtemp.TrimRight();
 					if(strtemp == m_strUser)
-					{
 						nuid =1;
-						break;
-					}
-					if(nrecord <= nuid)
-						nrecord = nuid;
         			m_SLogin.MoveNext();
 				}
 				if(nuid == 1)
@@ -164,11 +170,14 @@ void CLoginDlg::OnOK()
 					   	    m_SLoginNew->Update();    //Update the recordset
 						    m_SLoginNew->Requery();
 	}
-	else
+	else if(theApp.m_bLogIn)
 	{
-    	theApp.curuser = "";
-    	theApp.m_bLogIn=false;
+				theApp.b_SaveRT = FALSE;
+				theApp.m_bsuper = false;
+               	theApp.m_bLogIn=false;
+             	theApp.curuser = "";
 	}
+
     CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 	pFWnd->AddUser();
         if ( m_PointDes._IsOpen() )
@@ -207,7 +216,8 @@ BOOL CLoginDlg::OnInitDialog()
 
 	if(m_strdism == "login")
 	{
-    	GetDlgItem(IDC_COMBLOG)->ShowWindow(SW_HIDE);;
+         		GetDlgItem(IDC_EDT_USER)->SetFocus();
+    	GetDlgItem(IDC_COMBLOG)->ShowWindow(SW_HIDE);
 			m_listUser.InsertColumn(0,"用户",LVCFMT_LEFT,100);
 			m_listUser.InsertColumn(1,_T("等级"),LVCFMT_LEFT,100);
 			if(theApp.m_bLogIn)
@@ -219,47 +229,52 @@ BOOL CLoginDlg::OnInitDialog()
 				else
 				{
         			GetDlgItem(IDC_LIST_USER)->ShowWindow(SW_HIDE);
-        			GetDlgItem(ID_DELUSER)->ShowWindow(SW_HIDE);;
-        			GetDlgItem(IDC_BUTADD)->ShowWindow(SW_HIDE);;
+        			GetDlgItem(ID_DELUSER)->ShowWindow(SW_HIDE);
+        			GetDlgItem(IDC_BUTADD)->ShowWindow(SW_HIDE);
     				SetWindowText(_T("注销用户"));
 				}
     			GetDlgItem(IDOK)->SetWindowText(_T("注销"));
-    			GetDlgItem(IDC_EDT_USER)->ShowWindow(SW_HIDE);;
-    			GetDlgItem(IDC_EDT_PWD)->ShowWindow(SW_HIDE);;
-    			GetDlgItem(IDC_STATICL1)->ShowWindow(SW_HIDE);;
-    			GetDlgItem(IDC_STATICL2)->ShowWindow(SW_HIDE);;
+    			GetDlgItem(IDC_EDT_USER)->ShowWindow(SW_HIDE);
+    			GetDlgItem(IDC_EDT_PWD)->ShowWindow(SW_HIDE);
+    			GetDlgItem(IDC_STATICL1)->ShowWindow(SW_HIDE);
+    			GetDlgItem(IDC_STATICL2)->ShowWindow(SW_HIDE);
+    			GetDlgItem(IDCANCEL)->ShowWindow(SW_HIDE);
 
 				CString dddd;
 				int iItem = 0;
          				m_SLogin.MoveFirst();
           				while ( !m_SLogin.IsEOF() )
 						{
-						  m_listUser.InsertItem(iItem, m_SLogin.m_szName);
-						  if(m_SLoginNew->m_szclasser == 1)
-							  dddd = "超级用户";
-						  else
+							if(m_SLoginNew->m_szclasser != 1)
+							{
+			    			  m_listUser.InsertItem(iItem, m_SLogin.m_szName);
+//					    	  if(m_SLoginNew->m_szclasser == 1)
+//							  dddd = "超级用户";
+//					    	  else
 							  dddd = "操作员";
-						  m_listUser.SetItemText(iItem, 1, dddd);
-						  iItem++;
+				    		  m_listUser.SetItemText(iItem, 1, dddd);
+					    	  iItem++;
+							}
         					m_SLogin.MoveNext();
 						}
 			}
 			else
 			{
-    			GetDlgItem(IDC_LIST_USER)->ShowWindow(SW_HIDE);;
-    			GetDlgItem(ID_DELUSER)->ShowWindow(SW_HIDE);;
-    			GetDlgItem(IDC_BUTADD)->ShowWindow(SW_HIDE);;
+    			GetDlgItem(IDC_LIST_USER)->ShowWindow(SW_HIDE);
+    			GetDlgItem(ID_DELUSER)->ShowWindow(SW_HIDE);
+    			GetDlgItem(IDC_BUTADD)->ShowWindow(SW_HIDE);
+         		GetDlgItem(IDC_EDT_USER)->SetFocus();
 			}
 	}
 	else
 	{
-    			GetDlgItem(IDC_EDT_USER)->ShowWindow(SW_HIDE);;
-    			GetDlgItem(IDC_EDT_PWD)->ShowWindow(SW_HIDE);;
-    			GetDlgItem(IDC_STATICL1)->ShowWindow(SW_HIDE);;
-    			GetDlgItem(IDC_STATICL2)->ShowWindow(SW_HIDE);;
-    			GetDlgItem(ID_DELUSER)->ShowWindow(SW_HIDE);;
-    			GetDlgItem(IDC_BUTADD)->ShowWindow(SW_HIDE);;
-    			GetDlgItem(IDOK)->ShowWindow(SW_HIDE);;
+    			GetDlgItem(IDC_EDT_USER)->ShowWindow(SW_HIDE);
+    			GetDlgItem(IDC_EDT_PWD)->ShowWindow(SW_HIDE);
+    			GetDlgItem(IDC_STATICL1)->ShowWindow(SW_HIDE);
+    			GetDlgItem(IDC_STATICL2)->ShowWindow(SW_HIDE);
+    			GetDlgItem(ID_DELUSER)->ShowWindow(SW_HIDE);
+    			GetDlgItem(IDC_BUTADD)->ShowWindow(SW_HIDE);
+    			GetDlgItem(IDOK)->ShowWindow(SW_HIDE);
     	MoveWindow(CRect(50,100,960,300));
 	}
 	if(m_strdism == "OnSDisA")
@@ -287,8 +302,9 @@ BOOL CLoginDlg::OnInitDialog()
 //			eYear = m_PointDes.m_szptype;
 //			if((eYear < 3) || (eYear > 12)||(eYear == 10))
 			{
-				strname = m_PointDes.m_szName;
-				strname.TrimRight();
+             		int nfds = m_PointDes.m_szfds;
+              		int nchan = m_PointDes.m_szchan;
+				strname = m_SlaveStation[nfds][nchan].WatchName;
 				strstartTime = m_PointDes.m_szpointnum;
 				strstartTime.TrimRight();
 				dddd = strstartTime + strname;
@@ -314,8 +330,9 @@ BOOL CLoginDlg::OnInitDialog()
 		m_PointDes.MoveFirst();
 		while ( !m_PointDes.IsEOF() )
 		{
-				strname = m_PointDes.m_szName;
-				strname.TrimRight();
+             		int nfds = m_PointDes.m_szfds;
+              		int nchan = m_PointDes.m_szchan;
+				strname = m_SlaveStation[nfds][nchan].WatchName;
 				strstartTime = m_PointDes.m_szpointnum;
 				strstartTime.TrimRight();
 				if(strstartTime.Find("D") != -1)
@@ -329,6 +346,7 @@ BOOL CLoginDlg::OnInitDialog()
 	}
 	if(m_strdism == "OnDRIVERE")
 	{
+       	m_listUser.DeleteAllItems();
     	GetDlgItem(IDC_COMBLOG)->ShowWindow(SW_HIDE);;
     		SetWindowText(_T("设备故障显示"));
 			m_listUser.InsertColumn(0,"安装地点/名称",LVCFMT_LEFT,200);
@@ -339,14 +357,20 @@ BOOL CLoginDlg::OnInitDialog()
 
 		int iItem = 0;
 		CString strtemp,strtemp1;
-		for (int i = 1; i < 65;i++)
+		for (int i = 1; i < MAX_FDS;i++)
 		{
-			for(int j = 1; j < 25;j++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
 			{
-				unsigned char m_state=m_SlaveStation[i][j].Channel_state;
-				if(m_state > 63)
+				strtemp1 = m_SlaveStation[i][j].WatchName;
+				if(strtemp1 !="")
 				{
-      	    	      m_listUser.InsertItem(iItem, m_SlaveStation[i][j].WatchName);
+					int n_ptype = m_SlaveStation[i][j].ptype;
+    				unsigned char m_state=m_SlaveStation[i][j].Channel_state;
+    				if(m_state > 63 && m_state !=255)
+					{
+						if((n_ptype > 3 && m_state >111) || n_ptype <3)
+						{
+      	        	      m_listUser.InsertItem(iItem, m_SlaveStation[i][j].WatchName);
 //      	    	      m_listUser.SetItemText(iItem,0, m_SlaveStation[i][j].WatchName);
 				  	  strtemp = theApp.socketClient.strstatus(m_state);
             		  m_listUser.SetItemText(iItem, 1, strtemp);
@@ -354,16 +378,21 @@ BOOL CLoginDlg::OnInitDialog()
   	    			  strtemp = o.Format(_T("%Y-%m-%d %H:%M:%S")); 
              		  m_listUser.SetItemText(iItem, 2, strtemp);
 					  strtemp1 = m_SlaveStation[i][j].strSafe;
-					  if(strtemp1 != ""){
+				     	  if(strtemp1 != ""){
                   		  m_listUser.SetItemText(iItem, 3, strtemp1);
                 		  m_listUser.SetItemText(iItem, 4, strtemp);
-					  }
-					  iItem++;
-				}//if
+						  }
+				     	  iItem++;
+						}
+					}//if
+				}
 			}//j
 		}//i
 
 	}
+//		CWnd* pWnd=GetDlgItem(IDC_EDT_USER);
+//		pWnd->SetFocus();
+//	UpdateData(TRUE);
 
 	// TODO: Add extra initialization here
 //	m_btnOK.SetThemeHelper(&m_ThemeHelper);
@@ -380,7 +409,7 @@ BOOL CLoginDlg::OnInitDialog()
 	//	pWnd->SetFocus();
 	//	m_ctrlEditPWD.SetSel(0,-1,FALSE);
 	
-//	UpdateData(FALSE);
+	UpdateData(FALSE);
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -432,37 +461,38 @@ void CLoginDlg::AddODUser()
 		SetWindowText(_T("添加用户"));
     	GetDlgItem(IDOK)->SetWindowText(_T("确定"));
 		m_bAddUser = 1;
-    	GetDlgItem(IDC_EDT_USER)->ShowWindow(SW_SHOW);;
-    	GetDlgItem(IDC_EDT_PWD)->ShowWindow(SW_SHOW);;
-    	GetDlgItem(IDC_STATICL1)->ShowWindow(SW_SHOW);;
-    	GetDlgItem(IDC_STATICL2)->ShowWindow(SW_SHOW);;
-    	GetDlgItem(IDC_BUTADD)->ShowWindow(SW_HIDE);;
-    	GetDlgItem(ID_DELUSER)->ShowWindow(SW_HIDE);;
-    	GetDlgItem(IDC_LIST_USER)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_EDT_USER)->ShowWindow(SW_SHOW);
+    	GetDlgItem(IDC_EDT_PWD)->ShowWindow(SW_SHOW);
+    	GetDlgItem(IDC_STATICL1)->ShowWindow(SW_SHOW);
+    	GetDlgItem(IDC_STATICL2)->ShowWindow(SW_SHOW);
+    	GetDlgItem(IDC_BUTADD)->ShowWindow(SW_HIDE);
+    	GetDlgItem(ID_DELUSER)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDC_LIST_USER)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDCANCEL)->ShowWindow(SW_SHOW);
 }
 
 void CLoginDlg::OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult)
 {
-  LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+    LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 
-  *pResult = 0;
+    *pResult = 0;
 
-   if(m_strdism == "OnSDisA"||m_strdism == "OnSDisD"||m_strdism == "OnDRIVERE")
-   {
-   }
-   else
-   {
+    if(m_strdism == "OnSDisA"||m_strdism == "OnSDisD"||m_strdism == "OnDRIVERE")
+    {
+    }
+    else
+	{
       if ( pNMLV->uNewState == 3 )
 	  {
           if(!m_SLogin._IsEmpty() )
-           m_SLogin.AbsolutePosition(pNMLV->iItem + 1);
+           m_SLogin.AbsolutePosition(pNMLV->iItem + 2);  //1 超级用户隐藏
 	  }
-   }
+	}
 }
 
 void CLoginDlg::DelUser()
 {
-	bool isselect = true;
+	bool isselect = false;
 	int nItemCount=m_listUser.GetItemCount();
     for(int nItem=0;nItem<nItemCount;nItem++)
 	{
@@ -498,6 +528,7 @@ void CLoginDlg::OnchangeComboSM()
 	int  kkkk = m_ComBoxSM.GetCurSel();
 	if(kkkk == -1 )
 		return;
+	m_listUser.DeleteAllItems();
 	m_ComBoxSM.GetLBText(kkkk,strname);
 	strname = strname.Mid(0,5);
     		strf = strname.Mid(0,2);
@@ -509,23 +540,27 @@ void CLoginDlg::OnchangeComboSM()
 		  m_listUser.InsertItem(0, m_SlaveStation[afds][achan].WatchName);
 			strname.Format(_T("%.2f"), m_SlaveStation[afds][achan].AValue);
    		  m_listUser.SetItemText(0, 1, strname);
-			strname.Format(_T("%.2f"), m_ADMainDis[afds][achan][0].AMaxValue);
+			strname.Format(_T("%.2f"), m_ADMainDis[afds][achan].AMaxValue);
 		  m_listUser.SetItemText(0, 2, strname);
-			strname.Format(_T("%.2f"), m_ADMainDis[afds][achan][0].ATotalV/m_ADMainDis[afds][achan][0].m_ATotalnum);
+		  int n_meant = m_ADMainDis[afds][achan].m_ATotalnum;
+		  if(n_meant == 0)
+			strname ="0.00";
+		  else
+			strname.Format(_T("%.2f"), m_ADMainDis[afds][achan].ATotalV/n_meant);
 		  m_listUser.SetItemText(0, 3, strname);
-				  COleDateTime oleDateTime=m_ADMainDis[afds][achan][0].ATime;
+				  COleDateTime oleDateTime=m_ADMainDis[afds][achan].ATime;
 				  if(oleDateTime.GetYear() != 1900)
      				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
 				  else
 					  strname = "";
 		  m_listUser.SetItemText(0, 4, strname);
-				   oleDateTime=m_ADMainDis[afds][achan][0].BTime;
+				   oleDateTime=m_ADMainDis[afds][achan].BTime;
 				  if(oleDateTime.GetYear() != 1900)
      				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
 				  else
 					  strname = "";
 		  m_listUser.SetItemText(0, 5, strname);
-				   oleDateTime=m_ADMainDis[afds][achan][0].NTime;
+				   oleDateTime=m_ADMainDis[afds][achan].NTime;
 				  if(oleDateTime.GetYear() != 1900)
      				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
 				  else
@@ -534,6 +569,7 @@ void CLoginDlg::OnchangeComboSM()
 	}
 	else if(m_strdism == "OnSDisD")
 	{
+		  strname = "";
 		  m_listUser.InsertItem(0, m_SlaveStation[afds][achan].WatchName);
 					  int nstatus = m_SlaveStation[afds][achan].CValue;
 					  if(nstatus == 0)
@@ -549,25 +585,25 @@ void CLoginDlg::OnchangeComboSM()
 				  else
 					  strname = "";
 		  m_listUser.SetItemText(0, 2, strname);
-				   oleDateTime=m_ADMainDis[afds][achan][0].ATime;
+				   oleDateTime=m_ADMainDis[afds][achan].ATime;
 				  if(oleDateTime.GetYear() != 1900)
      				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
 				  else
 					  strname = "";
 		  m_listUser.SetItemText(0, 3, strname);
-				   oleDateTime=m_ADMainDis[afds][achan][0].BTime;
+				   oleDateTime=m_ADMainDis[afds][achan].BTime;
 				  if(oleDateTime.GetYear() != 1900)
      				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
 				  else
 					  strname = "";
 		  m_listUser.SetItemText(0, 4, strname);
-				   oleDateTime=m_ADMainDis[afds][achan][0].RTime; //馈电状态/时刻
+				   oleDateTime=m_ADMainDis[afds][achan].RTime; //馈电状态/时刻
 				  if(oleDateTime.GetYear() != 1900)
      				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
 				  else
 					  strname = "";
 		  m_listUser.SetItemText(0, 5, m_SlaveStation[afds][achan].FeedState+"|"+strname);
-				   oleDateTime=m_ADMainDis[afds][achan][0].NTime;  //措施/时刻
+				   oleDateTime=m_ADMainDis[afds][achan].NTime;  //措施/时刻
 				  if(oleDateTime.GetYear() != 1900)
      				  strname   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
 				  else

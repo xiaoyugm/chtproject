@@ -14,7 +14,7 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-extern SlaveStation             m_SlaveStation[65][25];
+extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 extern DisplayDraw    m_DisplayDraw[MAX_POINT_NUMBER];
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

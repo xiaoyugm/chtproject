@@ -56,6 +56,7 @@ public:
 	CRealtimedata   m_Realtimedata;
 	CRealtimedata   *m_RealtimedataNew;
 	void CalRtDB(CTime time ,int &eYear, unsigned char  &eMonth);
+	void CalTime(COleDateTime time);
 
 	void ConnectDB();
 

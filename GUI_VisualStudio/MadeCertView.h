@@ -7,6 +7,7 @@
 // MadeCertView.h : header file
 //
 
+#include "dbAx\AxLogin.hpp"
 #include "dbAx\AxSControl.hpp"
 #include "dbAx\AxContactCmd.hpp"
 #include "dbAx\CardFileEvents.hpp"
@@ -35,9 +36,13 @@ public:
 	CDateTimeCtrl	m_ctrlStartTime;
 	CDateTimeCtrl	m_ctrlEndTime;
 	CXTFlatComboBox     m_ComBoxSM;
+	CXTListCtrl         m_LCEXCEL1;
+	CXTListCtrl         m_LCEXCEL2;
 	//}}AFX_DATA
 	CTime m_endDateTime;
 	CTime m_startDateTime;
+	CTime t;
+	CTime t1;
 
     CAxConnection   m_Cn;
     CAxContactCmd   m_ContactCmd;
@@ -45,8 +50,15 @@ public:
 	CRealtimedata   m_Realtimedata;
 	CRealtimedata   m_Realtimedata1;
 	CRt5mdata       m_Rt5mdata;
+    CAxCommonSet        m_CommonSet;
 
+	ADMainDis         m_ADP[1000][500];          //记录查询
+	ADMainDis         m_ADRecord[MAX_FDS][MAX_CHAN][300];          //记录查询
 	CString2DataType    m_Str2Data;
+	int mPoint[1000];
+	vector<int> m_Points;
+	vector<int>::iterator  iter;
+	int m_tnum;
 // Attributes
 public:
 	int m_select;
@@ -54,10 +66,7 @@ public:
 	CString m_num;
 	CBitmap m_bitMadeView,m_bitMadeViewUser,m_bitMadeCert;
 
-	void OnALARMSM();
-	void OnBREAKESM();
-	void OnFEEDES();
-	void OnSELECTSM();
+	void OnSABFE();
 
 	void OnRECAAD();
 	void OnRECABD();
@@ -69,8 +78,11 @@ public:
 	void OnRECDSCD();
 	void OnRECDRIVERE();
 
+	void OnEXCELA();
+
 	void copy_sheet(const char* from, const char* to);
-	int  GetDayM(int monthM);
+	void L2upDB();
+	void InitStr();
 
 // Operations
 public:
@@ -93,6 +105,8 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CMadeCertView)
+	afx_msg void OnBED();
+	afx_msg void OnBES();
 	afx_msg void OnchangeComboSM();
 	afx_msg void OnChangeEditStarth();
 	afx_msg void OnChangeEditEndh();

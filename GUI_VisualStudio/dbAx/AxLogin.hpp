@@ -58,24 +58,53 @@ public:
   ~CAxCommonSet() { }
 
 //  CString     m_szName,m_szupwd;
-  int  m_szCommonID, m_sznum1,m_sznum2,m_sznum3,m_sznum4,m_sznum5,m_sznum6;
+  int  m_szCommonID;
+  CString m_szstrc1,m_szstrc2,m_szstrc3,m_szstrc4,m_szstrc5,m_szstrc6,m_szstrc7,m_szstrc8,m_szstrc9,m_szstrc10
+	  ,m_szstrc11,m_szstrc12,m_szstrc13,m_szstrc14,m_szstrc15,m_szstrc16,m_szstrc17,m_szstrc18,m_szstrc19,m_szstrc20
+	  ,m_szstrc21,m_szstrc22,m_szstrc23,m_szstrc24,m_szstrc25,m_szstrc26,m_szstrc27,m_szstrc28,m_szstrc29,m_szstrc30;
 
   //Set default values of class members
   void _SetDefaultValues()
   {
-//    m_szName =m_szupwd = _T("");
-    m_szCommonID  =m_sznum1=m_sznum2=m_sznum3=m_sznum4=m_sznum5=m_sznum6 = 0;
+    m_szstrc1=m_szstrc2=m_szstrc3=m_szstrc4=m_szstrc5=m_szstrc6=m_szstrc7=m_szstrc8=m_szstrc9=m_szstrc10
+	  =m_szstrc11=m_szstrc12=m_szstrc13=m_szstrc14=m_szstrc15=m_szstrc16=m_szstrc17=m_szstrc18=m_szstrc19=m_szstrc20
+	  =m_szstrc21=m_szstrc22=m_szstrc23=m_szstrc24=m_szstrc25=m_szstrc26=m_szstrc27=m_szstrc28=m_szstrc29=m_szstrc30 = "";
+    m_szCommonID = 0;
   };
 
   //Exchange field values with data provider
   void DoFieldExchange(bool bSave = FALSE)
   {
     FX_Integer           (bSave, _T("CommonID"),        m_szCommonID);
-    FX_Integer           (bSave, _T("num1"),       m_sznum1);
-    FX_Integer           (bSave, _T("num2"),       m_sznum2);
-    FX_Integer           (bSave, _T("num3"),       m_sznum3);
-    FX_Integer           (bSave, _T("num4"),       m_sznum4);
-    FX_Integer           (bSave, _T("num5"),       m_sznum5);
-    FX_Integer           (bSave, _T("num6"),       m_sznum6);
+    FX_VarChar           (bSave, _T("strc1"),       m_szstrc1);
+    FX_VarChar           (bSave, _T("strc2"),       m_szstrc2);
+    FX_VarChar           (bSave, _T("strc3"),       m_szstrc3);
+    FX_VarChar           (bSave, _T("strc4"),       m_szstrc4);
+    FX_VarChar           (bSave, _T("strc5"),       m_szstrc5);
+    FX_VarChar           (bSave, _T("strc6"),       m_szstrc6);
+    FX_VarChar           (bSave, _T("strc7"),       m_szstrc7);
+    FX_VarChar           (bSave, _T("strc8"),       m_szstrc8);
+    FX_VarChar           (bSave, _T("strc9"),       m_szstrc9);
+    FX_VarChar           (bSave, _T("strc10"),       m_szstrc10);
+    FX_VarChar           (bSave, _T("strc11"),       m_szstrc11);
+    FX_VarChar           (bSave, _T("strc12"),       m_szstrc12);
+    FX_VarChar           (bSave, _T("strc13"),       m_szstrc13);
+    FX_VarChar           (bSave, _T("strc14"),       m_szstrc14);
+    FX_VarChar           (bSave, _T("strc15"),       m_szstrc15);
+    FX_VarChar           (bSave, _T("strc16"),       m_szstrc16);
+    FX_VarChar           (bSave, _T("strc17"),       m_szstrc17);
+    FX_VarChar           (bSave, _T("strc18"),       m_szstrc18);
+    FX_VarChar           (bSave, _T("strc19"),       m_szstrc19);
+    FX_VarChar           (bSave, _T("strc20"),       m_szstrc20);
+    FX_VarChar           (bSave, _T("strc21"),       m_szstrc21);
+    FX_VarChar           (bSave, _T("strc22"),       m_szstrc22);
+    FX_VarChar           (bSave, _T("strc23"),       m_szstrc23);
+    FX_VarChar           (bSave, _T("strc24"),       m_szstrc24);
+    FX_VarChar           (bSave, _T("strc25"),       m_szstrc25);
+    FX_VarChar           (bSave, _T("strc26"),       m_szstrc26);
+    FX_VarChar           (bSave, _T("strc27"),       m_szstrc27);
+    FX_VarChar           (bSave, _T("strc28"),       m_szstrc28);
+    FX_VarChar           (bSave, _T("strc29"),       m_szstrc29);
+    FX_VarChar           (bSave, _T("strc30"),       m_szstrc30);
   };
 };

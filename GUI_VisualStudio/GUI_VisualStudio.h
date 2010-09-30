@@ -34,6 +34,7 @@
 #include "MQServer.h"
 #include "MQClient.h"
 #include "drawview.h"
+#include "SampleFormView.h"
 //#include <SqlDirect.h>
 #include <String2DataType.h>
 #include "dbAx\AxFeedE.hpp"
@@ -46,6 +47,7 @@
 #include "dbAx\CardFileEvents.hpp"
 #include "dbAx\AxColorset.hpp"
 #include "dbAx\AxLogin.hpp"
+#include "dbAx\AxMAlocationSet.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 // CGUI_VisualStudioApp:
@@ -66,9 +68,9 @@ public:
 	void   Sync(CNDKMessage& message);
 	CNDKMessage m_sendmessage;
 
-	CString GetAppPath();				//返回应用程序所在路径
 	ULONG_PTR           gdiplusToken;
 	CString2DataType    m_Str2Data;
+	CommonTools         C_Ts;
 
 	BOOL   InitUIInfo();
 	BOOL   InitData();
@@ -91,11 +93,13 @@ public:
     CAxColorset      m_Colorset;
     CAxFeedE         m_AxFeedE;
     CAxCommonSet        m_CommonSet;
+    CAxMAlocationSet   m_MAlocation;
+    CAxFans         m_Fans;
 
 	//	CSQLDirect		m_sqlD;		//数据库
 	int DocNum ,idis,internet30s,m_resnum,bidis,fidis,dabidis,dfidis,dchidis;
 	CString curuser,strargc;
-	BOOL m_bsuper;
+	BOOL m_bsuper,b_SaveRT;
 	int  m_message;
 	UINT    	m_FdsScan;
 
@@ -107,6 +111,7 @@ public:
 //	CMultiDocTemplate* pTabViewDocTemplate;
 
 	CTypedPtrMap<CMapStringToOb,CString,CDrawView *> m_map;
+	CTypedPtrMap<CMapStringToOb,CString,CSampleFormView *> m_Sam;
 
 
 // Overrides
@@ -115,6 +120,7 @@ public:
 	public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	//}}AFX_VIRTUAL
 
 	COleTemplateServer m_server;

@@ -41,6 +41,8 @@
 #include "SettingHostDlg.h"
 #include "SetTimeDlg.h"
 #include "LoginDlg.h"
+#include "Tlhelp32.h"
+//#include "SplashWindow.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -49,22 +51,23 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 CNDKMessage m_NDKmes[50];
-ADMainDis         m_ADRecord[65][25][266];          //记录查询
-ADMainDis         m_ADMainDis[65][25][65];          //调用显示
+
+SerialF               m_AFans[MAX_FDS][MAX_CHAN];    //双风门主扇备扇报警
+ADMainDis             m_ADMainDis[MAX_FDS][MAX_CHAN];          //调用显示
 SerialF               m_ClassTime[200];            //班设置
-SerialF               m_DCHlist[65][25][65];        //D状态改变
-SerialF               m_DFlist[65][25][65];     //D馈电列表
-SerialF               m_DABlist[65][25][65];    //D报警\断电列表
-SerialF               m_Flist[65][25][65];       //A馈电列表
-SerialF               m_Blist[65][25][65];   //A断电列表
-SerialF               m_Warnlist[65][25];    //A报警列表
-ADCbreakE             m_CFeed[65][9][65];    //馈电规则
+SerialF               m_DCHlist[MAX_FDS][MAX_CHAN][65];        //D状态改变
+SerialF               m_DFlist[MAX_FDS][MAX_CHAN][65];     //D馈电列表
+SerialF               m_DABlist[MAX_FDS][MAX_CHAN][65];    //D报警\断电列表
+SerialF               m_Flist[MAX_FDS][MAX_CHAN][65];       //A馈电列表
+SerialF               m_Blist[MAX_FDS][MAX_CHAN][65];   //A断电列表
+SerialF               m_Warnlist[MAX_FDS][MAX_CHAN];    //A报警列表
+ADCbreakE             m_CFeed[MAX_FDS][9][65];    //馈电规则
 SerialF               m_Colorref[200];
-SerialF               m_SerialF[65][65];    //各串口连接的分站
-ADCbreakE             m_ADCbreakE[65][25][65];
+SerialF               m_SerialF[MAX_FDS][65];    //各串口连接的分站
+ADCbreakE             m_ADCbreakE[MAX_FDS][MAX_CHAN][65];
 DisplayDraw    m_DisplayDraw[MAX_POINT_NUMBER];
 DisplayPoint   m_DisplayPoint[32][64];
-SlaveStation             m_SlaveStation[65][25];
+SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 extern  OthersSetting    m_OthersSetting;
 extern  DrawView         m_DrawView[20];
 extern  FormView  m_FormView[20];
@@ -101,10 +104,16 @@ CGUI_VisualStudioApp::CGUI_VisualStudioApp()
 	DocNum = idis = internet30s = 0;
 	m_senddata = false;
 	m_sendcom = true;
-	curuser ="cht";
 	strargc ="";
 	m_bLogIn = false;
+	curuser ="";
+	m_bsuper = false;
+	b_SaveRT = FALSE;
+#ifdef _DEBUG
+	curuser ="cht";
+	m_bLogIn = true;
 	m_bsuper = true;
+#endif //_DEBUG
 	m_FdsScan = 0;
 }
 
@@ -126,6 +135,8 @@ static const CLSID clsid =
 BOOL CGUI_VisualStudioApp::InitInstance()
 {
 	AfxEnableControlContainer();
+
+
 	CXTPWinDwmWrapper().SetProcessDPIAware();
 
 	// Standard initialization
@@ -188,9 +199,20 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 	pMainFrame->UpdateWindow();*/
 
 	strargc.Format("%s",__argv[0]);
-//	strargc = "OnRECDRIVERE";
-
-//	else
+//	strargc.Format("%s",__argv[1]);
+//	strargc.Format("%s",__argv[2]);
+//	strargc = "OnEXCELA";
+	CString strmes = strargc.Mid(0,2);
+	if(strmes == "On")
+	{
+			pDocTemplate = new CMultiDocTemplate(
+				IDR_DRAWTYPE,
+				RUNTIME_CLASS(CDrawDoc),
+				RUNTIME_CLASS(CChildFrame), // custom MDI child frame
+				RUNTIME_CLASS(CMadeCertView));
+        	AddDocTemplate(pDocTemplate);
+	}
+	else
 	{
 			pDocTemplate = new CMultiDocTemplate(
 				IDR_DRAWTYPE,
@@ -215,11 +237,7 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 		// Note: MDI applications register all server objects without regard
 		//  to the /Embedding or /Automation on the command line.
 //	}
-	if((strargc == "OnALARMS")||(strargc == "OnBREAKES")||(strargc == "OnFEEDES")
-		||(strargc == "OnSELECTS")||(strargc == "OnRECAAD")||(strargc == "OnRECABD")
-		||(strargc == "OnRECAFED")||(strargc == "OnRECASR")||(strargc == "OnRECDABD")
-		||(strargc == "OnRECDABB")||(strargc == "OnRECDFED")||(strargc == "OnRECDSCD")
-		||(strargc == "OnRECDRIVERE"))
+	if(strmes == "On")
 	{
 	}
 	else
@@ -280,11 +298,7 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 	// The main window has been initialized, so show and update it.
 	//SW_SHOWMAXIMIZED              SW_SHOWNORMAL
 //	pMainFrame->ShowWindow(m_nCmdShow);
-	if((strargc == "OnALARMS")||(strargc == "OnBREAKES")||(strargc == "OnFEEDES")
-		||(strargc == "OnSELECTS")||(strargc == "OnRECAAD")||(strargc == "OnRECABD")
-		||(strargc == "OnRECAFED")||(strargc == "OnRECASR")||(strargc == "OnRECDABD")
-		||(strargc == "OnRECDABB")||(strargc == "OnRECDFED")||(strargc == "OnRECDSCD")
-		||(strargc == "OnRECDRIVERE"))
+	if(strmes == "On")
     	pMainFrame->ShowWindow(SW_NORMAL);
 	else
     	pMainFrame->ShowWindow(SW_SHOWMAXIMIZED);
@@ -294,29 +308,47 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 	GdiplusStartupInput gdiplusStartupInput;
 	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-	gstrTimeOut = GetAppPath();
+#ifdef _DEBUG
+#else
+	if(strmes != "On")
+	{
+		int n_process = C_Ts.FindProcess("RSDRAW-YRun.EXE");
+		if(n_process == 2)
+		{
+    		AfxMessageBox("应用程序已打开！");
+    		return FALSE;
+		}
+	}
+#endif //_DEBUG
+
+//    	CSplashWindow SplashW;
+//        CSplashWindow::ShowSplashScreen( NULL, "Starting application...");
+//    	CSplashWindow::ShowSplashScreen( NULL, "Initializing hardware...");
+//       	CSplashWindow::ShowSplashScreen( NULL, "Initializing database...");
+    	// display final splash screen and have it turn off after 3 seconds (3000 milliseconds)
+//     	CSplashWindow::ShowSplashScreen( m_pMainWnd, "http://www.xxx.com/", 3000);
+
+
+	gstrTimeOut = C_Ts.GetAppPath();
 	CString strrsy ;
 	strrsy.Format("%d",GetSystemMetrics(SM_CXSCREEN));
 
-	if((strargc == "OnALARMS")||(strargc == "OnBREAKES")||(strargc == "OnFEEDES")
-		||(strargc == "OnSELECTS")||(strargc == "OnRECAAD")||(strargc == "OnRECABD")
-		||(strargc == "OnRECAFED")||(strargc == "OnRECASR")||(strargc == "OnRECDABD")
-		||(strargc == "OnRECDABB")||(strargc == "OnRECDFED")||(strargc == "OnRECDSCD")
-		||(strargc == "OnRECDRIVERE"))
+	if(strmes == "On")
 	{
+//		pDocTemplate->OpenDocumentFile(NULL) ;
 	}
 	else
 	{
-			for(int i = 0; i < 4;i++ )
+			for(int i = 0; i < 5;i++ )
 			{
-				if(m_ViewWindows[i].VWName == _T("FormView"))
+				if(m_ViewWindows[i].VWName == _T("FormView"))  //1
 				{
           			for(DocNum =0; DocNum < m_ViewWindows[i].numFormView ;DocNum++)
 					{
 						pNewDocTemplate->OpenDocumentFile(gstrTimeOut + "\\" + strrsy+ "rsy\\" + m_FormView[DocNum].FormViewName) ;
 					}
 				}
-				else if(m_ViewWindows[i].VWName == _T("DrawView"))
+				else if(m_ViewWindows[i].VWName == _T("DrawView")) //0
 				{
           			DocNum =9;
           			for(int k =0; k < m_ViewWindows[i].numDrawView ; k++)
@@ -325,53 +357,56 @@ BOOL CGUI_VisualStudioApp::InitInstance()
 					}
 				}
 			}
-//	pDocTemplate->OpenDocumentFile(gstrTimeOut + "\\rsy\\窗口_4.rsy") ;
-
 			if(!StartClient())
 				return FALSE;
 
-			CLoginDlg dlglogin;
-		//	if(dlglogin.DoModal()==IDOK) 
-				m_bLogIn=true;
+//			for(int k=0 ; k<50 ;k++)
+//				m_NDKmes[k] = NULL;
 
-			for(int k=0 ; k<50 ;k++)
-				m_NDKmes[k] = NULL;
+#ifdef _DEBUG
+#else
+//         	curuser.Format("%d",n_process);
+//    		AfxMessageBox(curuser);
+    		C_Ts.KillProcess("RSDRAW-YSDB.EXE");
+
+			CLoginDlg dlglogin;
+			dlglogin.m_strdism = "login";
+			if(dlglogin.DoModal()==IDOK) 
+			{
+				if(curuser == "")
+    				m_bLogIn=false;
+				else
+    				m_bLogIn=true;
+			}
+			else
+				return FALSE;
+
 		     StartServer();
-           PROCESS_INFORMATION pi; //启动窗口的信息
-           STARTUPINFO si; //进程的信息  SW_SHOWNORMAL  SW_HIDE
-           memset(&si,0,sizeof(si));
-           si.cb=sizeof(si);
-           si.wShowWindow=SW_SHOWMINNOACTIVE;
-//           si.wShowWindow=SW_SHOWMINNOACTIVE | SW_SHOWNORMAL;
-           si.dwFlags=STARTF_USESHOWWINDOW;
-          int fRet=CreateProcess(gstrTimeOut +"\\RSDRAW-YSDB.EXE",NULL,NULL,FALSE,NULL,NULL,NULL,NULL,&si,&pi);
+			 C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YSDB.EXE",NULL,7,0x00000001);
+#endif //_DEBUG
 //        return fRet;
 	}
-//		 strargc.Format("@@@%s@@@%s",__argv[0],__argv[1]);
-//		AfxMessageBox(strargc);
 
 	return TRUE;
 }
 
 int CGUI_VisualStudioApp::ExitInstance() 
 {
+	OnWindowCloseAll();
 	GdiplusShutdown(gdiplusToken);
 //	LPCTSTR ExeName;
 //	m_sql.Close();
 //	OnCloseDB();
-	if((strargc == "OnALARMS")||(strargc == "OnBREAKES")||(strargc == "OnFEEDES")
-		||(strargc == "OnSELECTS")||(strargc == "OnRECAAD")||(strargc == "OnRECABD")
-		||(strargc == "OnRECAFED")||(strargc == "OnRECASR")||(strargc == "OnRECDABD")
-		||(strargc == "OnRECDABB")||(strargc == "OnRECDFED")||(strargc == "OnRECDSCD")
-		||(strargc == "OnRECDRIVERE"))
-	{
-	}
-	else
-	{
-		m_Str2Data.KillProcess("RSDRAW-YSDB.EXE");
-    	socketClient.Close();
-	}
+
 	return CWinApp::ExitInstance();
+}
+
+BOOL CGUI_VisualStudioApp::PreTranslateMessage(MSG* pMsg) 
+{
+	if (CSplashWindow::PreTranslateAppMessage(pMsg))
+		return TRUE;
+		
+	return CWinApp::PreTranslateMessage(pMsg);
 }
 
 BOOL CGUI_VisualStudioApp::ProcessShellCommand(CCommandLineInfo& rCmdInfo)
@@ -447,20 +482,6 @@ BOOL CGUI_VisualStudioApp::ProcessShellCommand(CCommandLineInfo& rCmdInfo)
 	}
 	return bResult;
 
-}
-
-
-/******************************************************************************
-//获得应用程序所在的路径
-******************************************************************************/
-CString CGUI_VisualStudioApp::GetAppPath()
-{
-	char AppPath[MAX_PATH];
-	GetModuleFileName(NULL,AppPath,MAX_PATH);
-	CString strAppPath=CString(AppPath);
-	int i=strAppPath.ReverseFind('\\');
-	strAppPath.Delete(i,strAppPath.GetLength()-i);
-	return strAppPath;
 }
 
 //作为客户端连接主机
@@ -569,6 +590,20 @@ BOOL CGUI_VisualStudioApp::ConnectDB()
 		m_CommonSet._SetRecordsetEvents(new CAccountSetEvents);
 		m_CommonSet.Open(_T("Select * From commonset"), &m_Cn);
 		m_CommonSet.MarshalOptions(adMarshalModifiedOnly);
+
+		m_MAlocation.Create();
+		m_MAlocation.CursorType(adOpenDynamic);
+		m_MAlocation.CacheSize(50);
+		m_MAlocation._SetRecordsetEvents(new CAccountSetEvents);
+		m_MAlocation.Open(_T("Select * From fixlocation"), &m_Cn);
+		m_MAlocation.MarshalOptions(adMarshalModifiedOnly);
+
+		m_Fans.Create();
+		m_Fans.CursorType(adOpenDynamic);
+		m_Fans.CacheSize(50);
+		m_Fans._SetRecordsetEvents(new CAccountSetEvents);
+		m_Fans.Open(_T("Select * From fanscon"), &m_Cn);
+		m_Fans.MarshalOptions(adMarshalModifiedOnly);
   }
   catch ( dbAx::CAxException *e )
   {
@@ -581,7 +616,7 @@ BOOL CGUI_VisualStudioApp::ConnectDB()
 
 BOOL CGUI_VisualStudioApp::InitUIInfo()
 {
-	CString strAppPath = GetAppPath();
+	CString strAppPath = C_Ts.GetAppPath();
 	CString strxmlFile ;
 	strxmlFile.Format("%d",GetSystemMetrics(SM_CXSCREEN));
 	strxmlFile = strAppPath + "\\" +strxmlFile + ".xml";
@@ -601,9 +636,15 @@ BOOL CGUI_VisualStudioApp::InitData()
 	OnCloseDB();
 
 			COleDateTime CTime(1900,1,1,0,0,0);
-		for(int i = 1; i < 65;i++ )
-			for(int j = 1; j < 25;j++ )
+		for(int i = 1; i < MAX_FDS;i++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
 			{
+					m_ADMainDis[i][j].m_ATotalnum = 0;
+					m_ADMainDis[i][j].ATotalV = 0;
+					m_ADMainDis[i][j].ATime = CTime;
+					m_ADMainDis[i][j].BTime = CTime;
+					m_ADMainDis[i][j].NTime = CTime;
+					m_ADMainDis[i][j].RTime = CTime;
 					m_Warnlist[i][j].SFSd = 500;
 				for(int k = 0; k < 65;k++)
 				{
@@ -612,20 +653,6 @@ BOOL CGUI_VisualStudioApp::InitData()
 					m_DABlist[i][j][k].SFSd = 500;
 					m_DFlist[i][j][k].SFSd = 500;
 					m_DCHlist[i][j][k].SFSd = 500;
-					m_ADMainDis[i][j][k].m_ATotalnum = 0;
-					m_ADMainDis[i][j][k].ATotalV = 0;
-					m_ADMainDis[i][j][k].ATime = CTime;
-					m_ADMainDis[i][j][k].BTime = CTime;
-					m_ADMainDis[i][j][k].NTime = CTime;
-					m_ADMainDis[i][j][k].RTime = CTime;
-				}
-				for(int h = 0; h < 266;h++)
-				{
-					m_ADRecord[i][j][h].m_ATotalnum = 0;
-					m_ADRecord[i][j][h].ATotalV = 0;
-					m_ADRecord[i][j][h].duant = 0;
-					m_ADRecord[i][j][h].strlocal = "";
-					m_ADRecord[i][j][h].havev = 0;
 				}
 			}
 	idis =bidis = fidis= dabidis =dfidis = dchidis=0;
@@ -635,6 +662,7 @@ BOOL CGUI_VisualStudioApp::InitData()
 
 void  CGUI_VisualStudioApp::pushDIS(CString  str1,CString  str2,CString  str3)
 {
+//					str1.TrimRight();
         			BuildDIS(str1);
 					str2.TrimRight();
 				if((str2.Find("A")!=-1) || (str2.Find("D")!=-1 )||(str2.Find("C")!=-1) ||(str2.Find("F")!=-1))
@@ -651,37 +679,33 @@ void  CGUI_VisualStudioApp::pushDIS(CString  str1,CString  str2,CString  str3)
 
 void  CGUI_VisualStudioApp::BuildDIS(CString  strItem)
 {
+//		if(strItem =="")
+//			return;
 	CString  strf,strc;
 		int p =strItem.Find("C");
-
     		strf = strItem.Mid(0,2);
     		strc = strItem.Mid(3);
 
 		int nlist = m_DisPoint.m_szDISID;
 		int nfds = m_Str2Data.String2Int(strf);
 		int nchan = m_Str2Data.String2Int(strc);
+    	strc = m_SlaveStation[nfds][nchan].WatchName;
+		if(strc =="")
+			return;
 		  m_DisplayPoint[nlist][idis].fds = nfds;
-		  m_DisplayPoint[nlist][idis].chan = nchan;
-
 			  if(p != -1)
-				  nchan = nchan+15;
-    		  m_DisplayPoint[nlist][idis].ptype = m_SlaveStation[nfds][nchan].ptype;
-    			  strc = m_SlaveStation[nfds][nchan].WatchName;
-				  strc.TrimRight();
-     		  m_DisplayPoint[nlist][idis].CPName = strc;
-			  strItem.TrimRight();
-         	  m_DisplayPoint[nlist][idis].CPpointnum = strItem;
-
-//		  m_DisplayPoint[nlist][60].fds = idis;
-		  idis++;
+				  nchan = nchan+16;
+		  m_DisplayPoint[nlist][idis].chan = nchan;
+       	  m_DisplayPoint[nlist][idis].CPpointnum = strItem;
+	    	  idis++;
 }
 
 BOOL CGUI_VisualStudioApp::InitPointInfo()
 {
 	//初始化点
-		for(int i = 1; i < 65;i++ )
+		for(int i = 1; i < MAX_FDS;i++ )
 		{
-			for(int j = 0; j < 25;j++ )
+			for(int j = 0; j < MAX_CHAN;j++ )
 			{
 					m_SlaveStation[i][j].RangeH8 = 0xff;
 					m_SlaveStation[i][j].RangeL8 = 0xff;
@@ -694,7 +718,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 					m_SlaveStation[i][j].Control_state = 0;
 					m_SlaveStation[i][j].Channel8 = 0xff;
 					m_SlaveStation[i][j].ptype = 0;
-					m_SlaveStation[i][j].Channel_state = 0;
+					m_SlaveStation[i][j].Channel_state = 255;
 					m_SlaveStation[i][j].AValue = 0;
 					m_SlaveStation[i][j].m_RangeH = 0;
 					m_SlaveStation[i][j].m_RangeL = 0;
@@ -703,7 +727,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 					m_SlaveStation[i][j].Apbrk = 0;
 					m_SlaveStation[i][j].Aprtn = 0;
 					m_SlaveStation[i][j].pnValue = 0;
-					m_SlaveStation[i][j].CValue = 0;
+					m_SlaveStation[i][j].CValue = 6;
 					m_SlaveStation[i][j].AlarmState = 0;
 					m_SlaveStation[i][j].falma = "";
 					m_SlaveStation[i][j].WatchName = "";
@@ -748,14 +772,24 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
         		m_ContactSet.MoveFirst();
         		while ( !m_ContactSet.IsEOF() )
 				{
-				if(m_ContactSet.m_szAID == m_PointDes.m_sztypeID)
-					break;
+		    		if(m_ContactSet.m_szAID == m_PointDes.m_sztypeID)
+		    			break;
     			m_ContactSet.MoveNext();
 				}
+          		m_MAlocation.MoveFirst();
+         		while ( !m_MAlocation.IsEOF() )
+				{
+		    		if(m_MAlocation.m_szlocationID == m_PointDes.m_szpositionid)
+		    			break;
+           			m_MAlocation.MoveNext();
+				}
+
   				m_SlaveStation[nfds][nchan].ptype = nptype;
-				strtemp = m_PointDes.m_szName;
-				strtemp.TrimRight();
-				m_SlaveStation[nfds][nchan].WatchName = strtemp;
+     			strtemp = m_MAlocation.m_szName;
+    			strtemp.TrimRight();
+				strtemp1 = m_ContactSet.m_szName;
+				strtemp1.TrimRight();
+				m_SlaveStation[nfds][nchan].WatchName = strtemp+ "|" +strtemp1;
     			m_SlaveStation[nfds][nchan].m_RangeH = m_ContactSet.m_szltop;
     			m_SlaveStation[nfds][nchan].m_RangeL = m_ContactSet.m_szlbom;
     			m_SlaveStation[nfds][nchan].AlarmValueH = m_ContactSet.m_szpalmu;
@@ -773,28 +807,35 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
     			m_SlaveStation[nfds][nchan].falma = strtemp;
 
 				int xxx;
-				if(nptype == 0)
-				    xxx = 1200*m_SlaveStation[nfds][nchan].m_RangeH/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) - 300;
-				else
-				    xxx = 800*m_SlaveStation[nfds][nchan].m_RangeH/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) - 200;
+//				if(nptype == 0)
+				    xxx = (int)m_SlaveStation[nfds][nchan].m_RangeH*10/10;
+//				    xxx = 1200*m_SlaveStation[nfds][nchan].m_RangeH/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) - 300;
+//				else
+//				    xxx = 800*m_SlaveStation[nfds][nchan].m_RangeH/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) - 200;
 				m_SlaveStation[nfds][nchan].RangeH8 = xxx/256;
     			m_SlaveStation[nfds][nchan].RangeL8 = xxx%256;
 				if(nptype == 0)
-				    xxx = 1200*m_SlaveStation[nfds][nchan].AlarmValueH/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) - 300;
-				else
-				    xxx = 800*m_SlaveStation[nfds][nchan].AlarmValueH/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) - 200;
+				    xxx = 1200*m_SlaveStation[nfds][nchan].AlarmValueH/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) + 300;
+				else if (nptype == 1)
+				    xxx = 800*m_SlaveStation[nfds][nchan].AlarmValueH/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) + 200;
+				else if (nptype == 2)
+				    xxx = (int)m_SlaveStation[nfds][nchan].AlarmValueH*10/10 ;
     			m_SlaveStation[nfds][nchan].AValueH8 = xxx/256;
     			m_SlaveStation[nfds][nchan].AValueL8 = xxx%256;
 				if(nptype == 0)
-				    xxx = 1200*m_SlaveStation[nfds][nchan].Apbrk/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) - 300;
-				else
-				    xxx = 800*m_SlaveStation[nfds][nchan].Apbrk/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) - 200;
+				    xxx = 1200*m_SlaveStation[nfds][nchan].Apbrk/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) + 300;
+				else if(nptype == 1)
+				    xxx = 800*m_SlaveStation[nfds][nchan].Apbrk/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) + 200;
+				else if (nptype == 2)
+				    xxx = (int)m_SlaveStation[nfds][nchan].Apbrk*10/10 ;
     			m_SlaveStation[nfds][nchan].ApbrkH8 = xxx/256;
     			m_SlaveStation[nfds][nchan].ApbrkL8 = xxx%256;
 				if(nptype == 0)
-				    xxx = 1200*m_SlaveStation[nfds][nchan].Aprtn/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) - 300;
-				else
-				    xxx = 800*m_SlaveStation[nfds][nchan].Aprtn/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) - 200;
+				    xxx = 1200*m_SlaveStation[nfds][nchan].Aprtn/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) + 300;
+				else if(nptype == 1)
+				    xxx = 800*m_SlaveStation[nfds][nchan].Aprtn/(m_SlaveStation[nfds][nchan].m_RangeH-m_SlaveStation[nfds][nchan].m_RangeL) + 200;
+				else if(nptype == 2)
+				    xxx = (int)m_SlaveStation[nfds][nchan].Aprtn*10/10 ;
     			m_SlaveStation[nfds][nchan].AprtnH8 =xxx/256;
     			m_SlaveStation[nfds][nchan].AprtnL8 = xxx%256;
 				unsigned char chanh;
@@ -815,27 +856,41 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
         		m_AccountSet.MoveFirst();
         		while ( !m_AccountSet.IsEOF() )
 				{
-				if(m_AccountSet.m_szDID == m_PointDes.m_sztypeID)
-					break;
-    			m_AccountSet.MoveNext();
+    				if(m_AccountSet.m_szDID == m_PointDes.m_sztypeID)
+			    		break;
+    	    		m_AccountSet.MoveNext();
 				}
-//            m_AccountSet.MoveFirst();
-			int nptype = m_PointDes.m_szptype;
-					if(nptype == 12)
-						nchan = nchan+16;
-					if(nptype == 11)
-						nchan = 0;
+          		m_MAlocation.MoveFirst();
+         		while ( !m_MAlocation.IsEOF() )
+				{
+		    		if(m_MAlocation.m_szlocationID == m_PointDes.m_szpositionid)
+		    			break;
+           			m_MAlocation.MoveNext();
+				}
+
+				int nptype = m_PointDes.m_szptype;
+//					if(nptype == 12)
+//						nchan = nchan+16;
+//					if(nptype == 11)
+//						nchan = 0;
   				m_SlaveStation[nfds][nchan].ptype = nptype;
-				strtemp = m_PointDes.m_szName;
-				strtemp.TrimRight();
-    			m_SlaveStation[nfds][nchan].WatchName = strtemp;
+     			strtemp = m_MAlocation.m_szName;
+    			strtemp.TrimRight();
+				strtemp1 = m_AccountSet.m_szName;
+				strtemp1.TrimRight();
+				m_SlaveStation[nfds][nchan].WatchName = strtemp+ "|" +strtemp1;
+
     			m_SlaveStation[nfds][nchan].AlarmState = m_AccountSet.m_szpalms;
 				strtemp = m_AccountSet.m_szname0;
 				strtemp.TrimRight();
     			m_SlaveStation[nfds][nchan].ZeroState = strtemp;
+//				if(nptype == 11)
+//    	    		m_SlaveStation[nfds][0].ZeroState = "交流供电";
 				strtemp = m_AccountSet.m_szname1;
 				strtemp.TrimRight();
     			m_SlaveStation[nfds][nchan].OneState = strtemp;
+//				if(nptype == 11)
+//    	    		m_SlaveStation[nfds][0].OneState = "直流供电";
 				strtemp = m_AccountSet.m_szname2;
 				strtemp.TrimRight();
     			m_SlaveStation[nfds][nchan].TwoState = strtemp;
@@ -851,7 +906,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 				unsigned char chanalarm,chanb,chanr,chanalarm1,chanb1,chanr1;
 				if((nptype == 10) ||(nptype == 13)||(nptype == 14))
 				{
-					xxx = m_SlaveStation[nfds][nchan].AlarmState;
+					xxx = m_SlaveStation[nfds][nchan].AlarmState;//palms
 					if(xxx == 0)   //不报警，不断电
 					{
 						chanalarm =0xff;
@@ -917,10 +972,10 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 				if(nptype == 12) 
 				{
 					xxx = m_SlaveStation[nfds][nchan].AlarmState;
-					if(nchan == 17)
+					if(nchan == 17)    // 低两位
 					{
 						chanr1 = 0x00;
-    					chanr =xxx -4;
+    					chanr =xxx -4;   // 1--3   567
 					}
 					else if(nchan == 18)
 					{
@@ -967,22 +1022,21 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 
     		m_PointDes.MoveNext();
 		}
-        m_PointDes.MoveFirst();
 
 		//显示班设置
 		m_CommonSet.MoveFirst();
 		while ( !m_CommonSet.IsEOF() )
 		{
 			//班设置 1
+        	CString  strc = m_CommonSet.m_szstrc1;
+			strc.TrimRight();
+			if(strc == "")
+				break;
 			int coxx = m_CommonSet.m_szCommonID;
 			if(coxx == 1)
-			{
-    			int vcolor = m_CommonSet.m_sznum1;
-	     		m_ClassTime[1].ffds = vcolor;   //班初始时间
-	    		vcolor = m_CommonSet.m_sznum2;
-	       		m_ClassTime[1].fchan = vcolor;  //班次
-				break;
-			}
+	     		m_ClassTime[1].ffds = m_Str2Data.String2Int(strc);   //班初始时间
+            else
+	       		m_ClassTime[1].fchan = m_Str2Data.String2Int(strc);  //班次
 			m_CommonSet.MoveNext();
 		}
 		//显示颜色
@@ -1000,13 +1054,13 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 		//馈电规则
 		if ( !m_AxFeedE._IsEmpty() )
 		{
-			for( i = 1; i < 65;i++ )
+			for( i = 1; i < MAX_FDS;i++ )
 			{
-			for(int j = 1; j < 9;j++ )
-			{
-	       		for(int k = 0; k < 65;k++ )
-					m_CFeed[i][j][k].bFSd = 0;
-			}
+	    		for(int j = 1; j < 9;j++ )
+				{
+	         		for(int k = 0; k < 65;k++ )
+	   	    			m_CFeed[i][j][k].bFSd = 0;
+				}
 			}
 //		    iItem = 0;
 		m_AxFeedE.MoveFirst();
@@ -1042,7 +1096,7 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 		}
 		}
 		//需要故障闭锁分站
-		for( i = 0; i < 65;i++ )
+		for( i = 0; i < MAX_FDS;i++ )
 		{
 			for(int j = 0; j < 65;j++ )
 			{
@@ -1064,9 +1118,9 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 		//通道控制状态
 		if ( !m_Control._IsEmpty())
 		{
-			for( i = 1; i < 65;i++ )
+			for( i = 1; i < MAX_FDS;i++ )
 			{
-		    	for(int j = 1; j < 17;j++ )
+		    	for(int j = 1; j < MAX_CHAN;j++ )
 				{
 	     	    	for(int k = 1; k < 65;k++ )
 					{
@@ -1120,6 +1174,40 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 				m_ADCbreakE[cnfds][cnchan+16][64].bFSd++;
 			m_Control.MoveNext();
 		}
+		}
+
+		if ( !m_Fans._IsEmpty())
+		{
+			for( i = 1; i < MAX_FDS;i++ )
+			{
+		    	for(int j = 1; j < MAX_CHAN;j++ )
+				{
+			    		m_AFans[i][j].cfds = 0;
+			    		m_AFans[i][j].cchan = 0;
+						m_AFans[i][j].SFSd = 0;
+				}
+			}
+    		m_Fans.MoveFirst();
+    		while ( !m_Fans.IsEOF() )
+			{
+				  CString dddd = m_Fans.m_szpointnum1;
+            	dddd.TrimRight();
+            	CString  strf,strc;
+           		strf = dddd.Mid(0,2);
+        		strc = dddd.Mid(3);
+    	    	int nfds = m_Str2Data.String2Int(strf);
+	        	int nchan = m_Str2Data.String2Int(strc);
+				  dddd = m_Fans.m_szpointnum2;
+        		dddd.TrimRight();
+          		strf = dddd.Mid(0,2);
+         		strc = dddd.Mid(3);
+     	    	int cnfds = m_Str2Data.String2Int(strf);
+      	    	int cnchan = m_Str2Data.String2Int(strc);
+			    		m_AFans[nfds][nchan].cfds = cnfds;
+			    		m_AFans[nfds][nchan].cchan = cnchan;
+						m_AFans[nfds][nchan].SFSd = m_Fans.m_szAStatus;
+    			m_Fans.MoveNext();
+			}
 		}
 
 		return TRUE;
@@ -1220,6 +1308,14 @@ BOOL CGUI_VisualStudioApp::InitPointInfo()
 
 BOOL CGUI_VisualStudioApp::InitDisplay()
 {
+		for(int i = 0; i < 32;i++ )
+		{
+			for(int j = 0; j < 64;j++ )
+			{
+					m_DisplayPoint[i][j].fds = 0;
+			}
+		}
+
 	LPCTSTR str1 = "",str2 = "",str3 = "";
     	if ( m_DisPoint._IsEmpty() )
    		    return TRUE;
@@ -1371,6 +1467,20 @@ BOOL CGUI_VisualStudioApp::InitDisplay()
 				m_DisPoint.MoveNext();
 		}
         m_DisPoint.MoveFirst();
+
+		CSampleFormView *psView;
+		CString strTemp;
+		POSITION m_ViewPos = m_Sam.GetStartPosition() ;     //0415
+		for( i = 0; i < 10;i++ )
+		{
+    	   	if(m_ViewPos != NULL)
+			{
+         	    m_Sam.GetNextAssoc(m_ViewPos,strTemp,psView);
+				psView->b_curdis =TRUE;
+			}
+			else
+				break;
+		}
 		return TRUE;
 }
 
@@ -1382,8 +1492,8 @@ void CGUI_VisualStudioApp::OnCloseDB()
       m_AccountSet.Close();
     if ( m_ContactSet._IsOpen() )
       m_ContactSet.Close();
-//    if ( m_MAlocation._IsOpen() )
-//      m_MAlocation.Close();
+    if ( m_MAlocation._IsOpen() )
+      m_MAlocation.Close();
     if ( m_PointDes._IsOpen() )
       m_PointDes.Close();
     if ( m_DisPoint._IsOpen() )
@@ -1398,6 +1508,8 @@ void CGUI_VisualStudioApp::OnCloseDB()
       m_AxFeedE.Close();
     if ( m_CommonSet._IsOpen() )
       m_CommonSet.Close();
+    if ( m_Fans._IsOpen() )
+        m_Fans.Close();
 
     m_Cn.Close();
 
@@ -1438,7 +1550,7 @@ void CGUI_VisualStudioApp::SendMessage(CNDKMessage& message)
 //向主机发送信息
 void CGUI_VisualStudioApp::Sync(CNDKMessage& message)
 {
-	if(m_senddata)
+//	if(m_senddata)
 	{
 		socketClient.SendMessage(message);
 	}
@@ -1456,4 +1568,6 @@ BOOL CGUI_VisualStudioApp::StartServer()
 	}
 	return FALSE;
 }
+
+
 

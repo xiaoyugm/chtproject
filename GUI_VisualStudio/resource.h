@@ -67,8 +67,11 @@
 #define IDD_DIA_CLASS                   168
 #define ID_DEBUG_EXCEPTIONS             169
 #define ID_DEBUG_STEPINTO               170
+#define IDI_STOP                        170
 #define ID_DEBUG_STEPOVER               171
+#define IDD_DLG_A_METHOD                171
 #define ID_TOOLS_OPTIONS                172
+#define IDD_DFANSA                      172
 #define ID_HELP_CONTENTS                174
 #define ID_HELP_INDEX175                175
 #define ID_HELP_SEARCH                  176
@@ -277,6 +280,10 @@
 #define IDC_EDIT_CLASSNUM               1076
 #define IDOKSEARCH                      1077
 #define IDC_COMBLOG                     1078
+#define IDC_LCEXCEL_1                   1079
+#define IDC_LCEXCEL_2                   1080
+#define IDC_BEXCELADD                   1081
+#define IDCANCELEXCEL                   1082
 #define IDC_LIST_POINT1                 1128
 #define IDC_LIST_POINT2                 1129
 #define IDC_LIST_POINT3                 1130
@@ -348,8 +355,8 @@
 #define ID_ADJUST_ALL                   32816
 #define ID_GOTO_URL                     32817
 #define ID_ADJUST_DIS                   32817
-#define ID_WINDOW_AUTOHIDEALL           32818
-#define ID_SAFEMETHOD                   32819
+#define ID_SAFEMETHOD                   32818
+#define ID_WINDOW_AUTOHIDEALL           32819
 #define ID_SELECT_DISD                  32820
 #define ID_WINDOW_CLOSE_ALL             32821
 #define ID_WINDOW_MORE                  32822
@@ -386,6 +393,20 @@
 #define ID_EXCEL_DSCD                   32853
 #define ID_EXCEL_DFE                    32854
 #define ID_EXCEL_DRIVERE                32855
+#define ID_DRAW_CA                      32856
+#define ID_DRAW_CB                      32857
+#define ID_DRAW_CFE                     32858
+#define ID_DRAW_CS                      32859
+#define ID_DRAW_PAERATION               32860
+#define ID_DRAW_PGAS                    32861
+#define ID_DRAW_SYSTEM                  32862
+#define ID_DRAW_STATE                   32863
+#define ID_DRAW_COLUMNIATION            32864
+#define ID_ELREPORT                     32865
+#define ID_ECURVE                       32866
+#define ID_EDRAW                        32867
+#define ID_DLGAM                        32868
+#define ID_FANSA                        32869
 #define ID_OnSimulation                 32905
 #define ID_OnGenus                      32906
 #define ID_MANIPULATE                   32907
@@ -399,9 +420,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        169
-#define _APS_NEXT_COMMAND_VALUE         32856
-#define _APS_NEXT_CONTROL_VALUE         1079
+#define _APS_NEXT_RESOURCE_VALUE        173
+#define _APS_NEXT_COMMAND_VALUE         32871
+#define _APS_NEXT_CONTROL_VALUE         1083
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

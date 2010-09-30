@@ -37,6 +37,7 @@
 #include "SetTimeDlg.h"
 #include "ChildFrm.h"
 #include "MadeCertView.h"
+#include "SettingHostDlg.h"
 
 class CMainFrame : public CXTPMDIFrameWnd
 {
@@ -70,13 +71,19 @@ public:
 	CXTPDockingPane* paneResourceView;
 
 //	CMadeCertView*           m_MadeCert;
+	CommonTools C_Ts;
 
 	CSampleFormView*		m_pSampleFormView;
-
 	CTabbedViewView*        m_pTabbedViewView;
-
 	CSetTimeDlg*		m_pSetTimeDlg;
+	CSettingHostDlg*		m_pSetHostDlg;
 
+    void ModifySystem();
+	void addEqupmentManagerMenuItem();
+	void addCopyDataMenuItem();
+	void setEnableItem();
+
+	void OnMView(int mview);
 	void AddMessage(CString strMessage);
 	void AddUser();
 	void AddEdit();
@@ -93,8 +100,11 @@ public:
 	CAnimateCtrl  m_wndAnimCtrl;
 	CProgressCtrl m_wndProgCtrl;
 	BOOL m_bPlayAnimation;
+	BOOL          m_RepeatFlag;
+    void         DoPlayWarnSound(CString strFileName);
 	UINT m_nPaneID;
 
+	POSITION	m_ViewPos;
 // Operations
 public:
 ///	void RemoveLogo();
@@ -124,6 +134,13 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
+	afx_msg void OnDisAAR();
+	afx_msg void OnDisABR();
+	afx_msg void OnDisAFER();
+	afx_msg void OnDisDABR();
+	afx_msg void OnDisDFER();
+	afx_msg void OnDisDSC();
+
 ///	BOOL ShowWindowEx(int nCmdShow);
 ///	void SetMousePosText(CPoint Logpoint,CPoint Devpoint);
 
@@ -138,6 +155,7 @@ protected:
 	afx_msg void OnWindowMore();
 	afx_msg void OnClose();
 	//}}AFX_MSG
+	afx_msg void OnManipulate();
 
 	afx_msg LRESULT OnDockingPaneNotify(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnShowView(UINT nID);
@@ -166,6 +184,18 @@ protected:
 	afx_msg void OnUpdateDis(CCmdUI* pCmdUI);
 ///	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	afx_msg void OnMadeMade();
+	afx_msg void OnSoundStop();
+
+	afx_msg void OnWAERATION();
+	afx_msg void OnWGAS();
+	afx_msg void OnWSYSTEM();
+
+	afx_msg void OnCDS();
+	afx_msg void OnCDC();
+	afx_msg void OnCASelect();
+	afx_msg void OnCAALARM();
+	afx_msg void OnCABREAK();
+	afx_msg void OnCAFEED();
 
 	afx_msg void OnALARMS();
 	afx_msg void OnBREAKES();
@@ -174,12 +204,7 @@ protected:
 
 	afx_msg void OnSDisA();
 	afx_msg void OnSDisD();
-	afx_msg void OnDisAAR();
-	afx_msg void OnDisABR();
-	afx_msg void OnDisAFER();
-	afx_msg void OnDisDABR();
-	afx_msg void OnDisDSC();
-	afx_msg void OnDisDFER();
+
 	afx_msg void OnDRIVERE();
 	
 	afx_msg void OnRECAAD();
@@ -192,11 +217,23 @@ protected:
 	afx_msg void OnRECDFED();
 	afx_msg void OnRECDRIVERE();
 
+	afx_msg void OnEXCELA();
+	afx_msg void OnEXCELAA();
+	afx_msg void OnEXCELAB();
+	afx_msg void OnEXCELAFE();
+	afx_msg void OnEXCELASR();
+	afx_msg void OnEXCELDA();
+	afx_msg void OnEXCELDAB();
+	afx_msg void OnEXCELDSCD();
+	afx_msg void OnEXCELDFE();
+	afx_msg void OnEXCELDRIVERE();
+
+	afx_msg void OnFansA();
 	afx_msg void OnCLASSTIME();
 	afx_msg void OnAdjustdis();
-	afx_msg void OnSafeMethod();
 	afx_msg void OnLOGOUT();
 	afx_msg void OnLOGIN();
+	afx_msg void OnSafeMethod();
 	afx_msg void OnFDSconfig();
 	afx_msg void OnFAILUREA();
 	afx_msg void OnWINDGASA();
@@ -213,7 +250,6 @@ protected:
 	afx_msg void OnAnalog();
 	afx_msg void OnSimulation();
 	afx_msg void OnGenus();
-	afx_msg void OnManipulate();
 	afx_msg LRESULT OnTabbarMouseMsg(WPARAM wParam,LPARAM lParam);
 	afx_msg void OnSelchangeTabInfo(NMHDR* pNMHDR, LRESULT* pResult);
 

@@ -55,7 +55,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 winmm.lib /nologo /subsystem:windows /debug /machine:I386 /out:"bin/vc60/RSDRAW-YRun.EXE"
+# ADD LINK32 /nologo /subsystem:windows /debug /machine:I386 /out:"bin/vc60/RSDRAW-YRun.EXE"
 
 !ELSEIF  "$(CFG)" == "GUI_VisualStudio - Win32 Debug"
 
@@ -75,13 +75,13 @@ LINK32=link.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x419 /d "_DEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x409 /i "AboutDlg" /d "_DEBUG"
+# ADD RSC /l 0x804 /i "AboutDlg" /d "_DEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 winmm.lib /nologo /subsystem:windows /debug /machine:I386 /out:"bin/vc60/RSDRAW-YRunD.EXE" /pdbtype:sept
+# ADD LINK32 /nologo /subsystem:windows /debug /machine:I386 /out:"bin/vc60/RSDRAW-YRunD.EXE" /pdbtype:sept
 
 !ELSEIF  "$(CFG)" == "GUI_VisualStudio - Win32 Unicode Release"
 
@@ -129,7 +129,7 @@ LINK32=link.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x419 /i "../../../Source" /i "../../AboutDlg" /d "_DEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x409 /i "../../../Source" /i "../../AboutDlg" /d "_DEBUG" /d "_AFXDLL"
+# ADD RSC /l 0x409 /i "AboutDlg" /d "_DEBUG" /d "_AFXDLL"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -183,7 +183,15 @@ SOURCE=.\ClassViewPane.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\DASafeMehod.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DynamicHelpView.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DynamicMenu.cpp
 # End Source File
 # Begin Source File
 
@@ -260,7 +268,15 @@ SOURCE=.\ClassViewPane.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\DASafeMehod.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\DynamicHelpView.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DynamicMenu.h
 # End Source File
 # Begin Source File
 
@@ -413,6 +429,10 @@ SOURCE=.\res\PaneProperties.bmp
 # Begin Source File
 
 SOURCE=.\res\SolutionExplorerPane.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\stop.ico
 # End Source File
 # Begin Source File
 

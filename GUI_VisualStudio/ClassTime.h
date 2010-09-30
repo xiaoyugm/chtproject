@@ -21,8 +21,10 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CClassTime)
 	enum { IDD = IDD_DIA_CLASS };
-	UINT	m_ctrlDayH;
-	UINT    m_classnum;
+	int	   m_cd;
+	int    m_cn;
+//	CString	strcd;
+//	CString    strcn;
 	//}}AFX_DATA
     CCardFileEvents *pCnEvents;
     CAxConnection   m_Cn;
