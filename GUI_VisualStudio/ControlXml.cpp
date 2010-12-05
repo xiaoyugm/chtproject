@@ -10,12 +10,11 @@
 
 using namespace std;
 
-CommonStr        m_CommonStr[11];
 ADTypeTable	     m_ADTypeTable[9];
 OthersSetting    m_OthersSetting;
 ViewWindows      m_ViewWindows[4];
-FormView         m_FormView[20];
-DrawView         m_DrawView[20];
+//FormView         m_FormView[20];
+//DrawView         m_DrawView[20];
 //////////////////////////////////////////////////////////////////////////////
 // Conversion helper functions
 
@@ -120,42 +119,18 @@ bool CControlXml::ParseGroups(CMarkup& xml)
 	}
 	else if ( xml.FindElem(_T("ReportSort")) )
     {
-        m_CommonStr[0].strc[11] = xml.GetAttrib(_T("TABLE"));
+/*        m_CommonStr[0].strc[11] = xml.GetAttrib(_T("TABLE"));
     	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s0")),str1,str2,str3);
-        m_CommonStr[0].strc[0] = str1;
-        m_CommonStr[0].strc[1] = str2;
-        m_CommonStr[0].strc[2] = str3;
-    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s1")),str1,str2,str3);
-        m_CommonStr[0].strc[3] = str1;
-        m_CommonStr[0].strc[4] = str2;
-        m_CommonStr[0].strc[5] = str3;
-    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s2")),str1,str2,str3);
-        m_CommonStr[0].strc[6] = str1;
-        m_CommonStr[0].strc[7] = str2;
-        m_CommonStr[0].strc[8] = str3;
-    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s3")),str1,str2,str3);
-        m_CommonStr[0].strc[9] = str1;
-        m_CommonStr[0].strc[10] = str2;
+*/
         return true;
     }
 	else if ( xml.FindElem(_T("ReportHead")) )
     {
-    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s0")),str1,str2,str3);
+/*    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s0")),str1,str2,str3);
         m_CommonStr[1].strc[0] = str1;
         m_CommonStr[1].strc[1] = str2;
         m_CommonStr[1].strc[2] = str3;
-    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s1")),str1,str2,str3);
-        m_CommonStr[1].strc[3] = str1;
-        m_CommonStr[1].strc[4] = str2;
-        m_CommonStr[1].strc[5] = str3;
-    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s2")),str1,str2,str3);
-        m_CommonStr[1].strc[6] = str1;
-        m_CommonStr[1].strc[7] = str2;
-        m_CommonStr[1].strc[8] = str3;
-    	m_Str2Data.SplittoCString(xml.GetAttrib(_T("s3")),str1,str2,str3);
-        m_CommonStr[1].strc[9] = str1;
-        m_CommonStr[1].strc[10] = str2;
-        m_CommonStr[1].strc[11] = str3;
+*/
         return true;
     }
 	else if ( xml.FindElem(_T("PointsSetting")) )
@@ -238,7 +213,7 @@ bool CControlXml::ParseDrawView(CMarkup& xml)
     CString strnumForm = xml.GetAttrib(_T("numForm"));
 	m_Str2Data.StringToInteger(strnumForm,numForm);
     CString groupName = xml.GetAttrib(_T("Name"));
-	m_DrawView[numForm].DrawViewName = groupName;
+//	m_DrawView[numForm].DrawViewName = groupName;
     
     return true;
 }
@@ -458,7 +433,7 @@ bool CControlXml::ParseGroup(CMarkup& xml)
     CString groupName = xml.GetAttrib(_T("Name"));
     if ( groupName.IsEmpty() )
         return false;
-	m_FormView[numForm].FormViewName = groupName;
+//	m_FormView[numForm].FormViewName = groupName;
     
     // See if this control group has any controls.
     if ( xml.IntoElem() )
@@ -498,7 +473,7 @@ bool CControlXml::ParseControls(CMarkup& xml)
         return false;
 	m_Str2Data.StringToInteger(strnumForm,numList);
 //	m_FormView[numForm].m_ListCtrl[numList] = numForm;
-
+/*
     strnumForm = xml.GetAttrib(_T("Visible"));
 	m_Str2Data.StringToBool(strnumForm,bVisible);
 	m_FormView[numForm].m_ListCtrl[numList].Visible = bVisible;
@@ -537,7 +512,7 @@ bool CControlXml::ParseControls(CMarkup& xml)
 
 	m_Str2Data.Splittoint(xml.GetAttrib(_T("AlarmBackColor")),b0,b1,b2);
 	m_FormView[numForm].m_ListCtrl[numList].AlarmBackColor = RGB(b0,b1,b2);
-
+*/
     return true;
 }
 

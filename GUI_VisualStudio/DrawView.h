@@ -9,6 +9,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include "ZoomView.h"
+#include "QZoomView.h"
 #include "DrawDoc.h"
 #include <String2DataType.h>
 #include "MQClient.h"
@@ -41,7 +43,6 @@ public:
 	//  represent a selection, such as a multiple selection or a selection
 	//  of objects that are not CDrawItem objects.  This selection
 	//  mechanism is provided just to help you get started.
-
 	// TODO: replace this selection mechanism with one appropriate to your app.
 ///	CDrawItem* m_pSelection;
 	BOOL  m_bIsDraw;
@@ -58,11 +59,11 @@ public:
 	void DocToClient(CPoint& point);
 	void ClientToDoc(CPoint& point);
 	void ClientToDoc(CRect& rect);
-///	void Select(CDrawObj* pObj, BOOL bAdd = FALSE);
-///	void SelectGroup(CDrawObj* pObj);
-///	void SelectWithinRect(CRect rect, BOOL bAdd = FALSE);
-///	void Deselect(CDrawObj* pObj);
-///	void CloneSelection();
+//	void Select(CDrawObj* pObj, BOOL bAdd = FALSE);
+//	void SelectGroup(CDrawObj* pObj);
+//	void SelectWithinRect(CRect rect, BOOL bAdd = FALSE);
+//	void Deselect(CDrawObj* pObj);
+//	void CloneSelection();
 	void UpdateActiveItem();
 	void InvalObj(CDrawObj* pObj);
 	void InvalRouteObj(CDrawObj* pObj);
@@ -91,6 +92,7 @@ public:
 	POSITION	m_ViewPos ;
 	UINT        CountView;
 	UINT    	m_Second;
+	int    n_curpoint;
 
 
 	virtual BOOL IsSelected(const CObject* pDocItem) const;// Container support
@@ -139,15 +141,23 @@ public:
 
 public:
 	afx_msg void OnTimeView();
+	void OpenDayRT();
+	void OpenRTChart();
 
 // Generated message map functions
 protected:
 	//{{AFX_MSG(CDrawView)
+	afx_msg void OnFORMPAGESO();
+	afx_msg void OnSetFocus(CWnd* pOldWnd);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnToolHand();
+	afx_msg void OnZoomFull();
 	afx_msg void OnDRAWCA();
 	afx_msg void OnDestroy();
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnRButtonDblClk(UINT nFlags, CPoint point);
+	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

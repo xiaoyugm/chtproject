@@ -14,7 +14,6 @@ static char THIS_FILE[] = __FILE__;
 
 extern ADMainDis         m_ADMainDis[MAX_FDS][MAX_CHAN];          //µ÷ÓÃÏÔÊ¾
 extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
-extern  OthersSetting    m_OthersSetting;
 /////////////////////////////////////////////////////////////////////////////
 // CDASafeMehod dialog
 
@@ -54,7 +53,7 @@ BOOL CDASafeMehod::OnInitDialog()
   CDialog::OnInitDialog();
   CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
                           User ID=sa;Password=sunset;\
-                          Data Source=") +m_OthersSetting.DBname+ _T(";Initial Catalog=BJygjl");
+                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
 
 //All calls to the AxLib should be wrapped in a try / catch block
   try
@@ -71,7 +70,7 @@ BOOL CDASafeMehod::OnInitDialog()
 		m_PointDes.Open(_T("Select * From pointdescription WHERE fdel=0"), &m_Cn);
 		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
 
-	    m_RealtimedataNew = &theApp.socketClient.m_Realtimedata;
+//	    m_RealtimedataNew = &theApp.socketClient.m_Realtimedata;
   }
   catch ( dbAx::CAxException *e )
   {
@@ -105,6 +104,7 @@ BOOL CDASafeMehod::OnInitDialog()
 
 void CDASafeMehod::OnchCB()
 {
+//			strSQL.Format("INSERT INTO uCollectData VALUES(%d,%d,'%s','%s')",unPointNo,unCollectData,strBeginTime,strEndTime);
 /*	CString szConnect;
 		int eyear;	unsigned char emonth;
 		CTime t=CTime::GetCurrentTime();
@@ -138,8 +138,8 @@ void CDASafeMehod::OnClose()
   {
     if ( m_PointDes._IsOpen() )
       m_PointDes.Close();
-    if ( m_Realtimedata._IsOpen() )
-      m_Realtimedata.Close();
+//    if ( m_Realtimedata._IsOpen() )
+//      m_Realtimedata.Close();
 
     m_Cn.Close();
 
@@ -162,7 +162,7 @@ void CDASafeMehod::OnClose()
 void CDASafeMehod::OnBnOkSM()
 {
     CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
-	CString strItem, strf,strc;
+	CString strItem, strf,strc,strSQL;
     CString strstartTime,strname,dddd;
 			UpdateData(TRUE);           //Exchange dialog data
 	int  kkkk = m_ComBoxSM.GetCurSel();
@@ -180,11 +180,41 @@ void CDASafeMehod::OnBnOkSM()
 //		strItem = _T("Select * From realtimedata WHERE ");
 //		strname.Format("fds=%d and chan=%d",nfds,nchan);
 
-			COleDateTime CTime;
+			COleDateTime COTime;
+		CTime t=CTime::GetCurrentTime();
+		CString sztime1,sztime2,sztime;
+		sztime1.Format("rt%d",t.GetYear());
+   		sztime2.Format("%02ddata",t.GetMonth());
+		sztime = sztime1+sztime2;
+		sztime1 = t.Format(_T("%Y-%m-%d %H:%M:%S"));
 //			CString strCTime;
-//			strCTime.Format("%d-%d-%d %d:%d:%d",CTime.GetYear(),CTime.GetMonth(),CTime.GetDay(),CTime.GetHour(),CTime.GetMinute(),CTime.GetSecond());
 	//		strNormalTime.Format("%d-%d-%d %d:%d:%d",NormalTime.GetYear(),NormalTime.GetMonth(),NormalTime.GetDay(),NormalTime.GetHour(),NormalTime.GetMinute(),NormalTime.GetSecond());
-            				try
+							 int m_nptype = m_SlaveStation[afds][achan].ptype;
+					m_SlaveStation[afds][achan].ValueTime = COTime.GetCurrentTime();
+
+
+					theApp.m_resnum = 10;
+					m_SlaveStation[afds][achan].strSafe = strsm;
+					m_SlaveStation[afds][achan].ValueTime = COTime.GetCurrentTime();
+							 if(m_nptype >3)
+							 {
+ 	strSQL.Format("INSERT INTO %s (PID,ptype,fds,chan,CDValue,AValue,ADStatus,recdate,Useridadd,safemtext,ffds,fchan,FeedStatus) VALUES(%d,%d,%d,%d,%d,0,%d,'%s','%s','%s',0,0,'')",sztime,m_SlaveStation[afds][achan].m_PID
+		,m_nptype,afds,achan,m_SlaveStation[afds][achan].CValue,m_SlaveStation[afds][achan].Channel_state
+		,sztime1,theApp.curuser,strsm);
+        	theApp.m_pConnection->Execute(_bstr_t(strSQL),NULL,adCmdText);
+							m_ADMainDis[afds][achan].NTime = COTime.GetCurrentTime();
+                                  pFWnd->m_wndResourceView4.InitLDAB(afds,achan);
+							 }
+							 else
+							 {
+ 	strSQL.Format("INSERT INTO %s (PID,ptype,fds,chan,CDValue,AValue,ADStatus,recdate,Useridadd,safemtext,ffds,fchan,FeedStatus) VALUES(%d,%d,%d,%d,0,%.2f,%d,'%s','%s','%s',0,0,'')",sztime,m_SlaveStation[afds][achan].m_PID
+		,m_nptype,afds,achan,m_SlaveStation[afds][achan].AValue,m_SlaveStation[afds][achan].Channel_state
+		,sztime1,theApp.curuser,strsm);
+        	theApp.m_pConnection->Execute(_bstr_t(strSQL),NULL,adCmdText);
+                                  pFWnd->m_wndResourceView.InitLC(afds,achan);
+							 }
+	
+	/*            				try
 							{
 	         				 m_RealtimedataNew->m_szRTID  = 1;
 		      			     m_RealtimedataNew->m_szPID = m_SlaveStation[afds][achan].m_PID;
@@ -213,17 +243,7 @@ void CDASafeMehod::OnBnOkSM()
      						 m_RealtimedataNew->m_szUseridadd = theApp.curuser;
 //    						 m_RealtimedataNew->m_szsafemdate = CTime.GetCurrentTime();
     						 m_RealtimedataNew->m_szsafemtext = strsm;
-      						m_RealtimedataNew->AddNew();  //Add a new, blank record
-					   	    m_RealtimedataNew->Update();    //Update the recordset
-							//If this is a new record, requery the database table
-							//otherwise we may out-of-sync
-						    m_RealtimedataNew->Requery();
-							}
-		     			    catch (CAxException *e)
-							{
-					        	AfxMessageBox(e->m_szErrorDesc, MB_OK);
-				        		delete e;
-							}
+							}*/
 	OnClose();
     EndDialog(IDOK);
 }

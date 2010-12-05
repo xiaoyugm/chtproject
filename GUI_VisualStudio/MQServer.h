@@ -25,7 +25,8 @@ public:
 	BOOL SendMessage(CNDKMessage& message);
 
 	BOOL SendSQL(CString strSql);
-	BOOL SendStartTime(CTime time);
+	BOOL SendStartTime(int time);
+	void GetClient(CNDKMessage& message);
 
 	void StopServer();
 
@@ -47,7 +48,7 @@ protected:
 	void OnDisconnect(long lUserId, NDKServerDisconnection disconnectionType);
 	BOOL OnIsConnectionAccepted();
 
-	CSQLDirect m_SQLDirect;
+//	CSQLDirect m_SQLDirect;
 	void ConnectDB();
 	void SyncTableCollectData();
 	void SyncTableuWarnCauseRecord();

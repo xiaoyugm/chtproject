@@ -13,7 +13,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern  OthersSetting    m_OthersSetting;
+extern CommonStr             m_CommonStr[20];
 /////////////////////////////////////////////////////////////////////////////
 // CColorSetDlg property page
 
@@ -27,6 +27,8 @@ CColorSetDlg::CColorSetDlg() : CDialog(CColorSetDlg::IDD)
 //	m_color3 = RGB(0x00,0x00,0xff);  //16711680
 //	m_color9 = 65535; //RGB(0xff,0xff,0x00);
 	m_ColorsetNew = &m_Colorset;
+	m_ntrans = 0;
+	m_nlist = 0;
 	//}}AFX_DATA_INIT
 }
 
@@ -87,7 +89,7 @@ BOOL CColorSetDlg::OnInitDialog()
 	//进行初始化
     CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
                           User ID=sa;Password=sunset;\
-                          Data Source=") +m_OthersSetting.DBname+ _T(";Initial Catalog=BJygjl");
+                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
 
 //All calls to the AxLib should be wrapped in a try / catch block
   try
@@ -133,7 +135,6 @@ BOOL CColorSetDlg::OnInitDialog()
 //				  iItem++;
 			m_Colorset.MoveNext();
 		}
-
   }
   catch ( dbAx::CAxException *e )
   {
@@ -141,6 +142,25 @@ BOOL CColorSetDlg::OnInitDialog()
     delete e;
     return (FALSE);
   }
+
+  if(m_ntrans >0)
+  {
+     	GetDlgItem(IDC_STATICN)->SetWindowText(_T("列表"));
+	  if(m_nlist == 1)
+          m_color1 = m_Str2Data.String2Int(m_CommonStr[m_ntrans].strc[9]);  //65280
+	  if(m_nlist == 2)
+          m_color1 = m_Str2Data.String2Int(m_CommonStr[m_ntrans].strc[39]);  //65280
+	  if(m_nlist == 3)
+          m_color1 = m_Str2Data.String2Int(m_CommonStr[m_ntrans].strc[69]);  //65280
+        MoveWindow(CRect(400,300,700,400));
+     	GetDlgItem(IDOK_CSEND)->MoveWindow(30,40,80  ,25);
+     	GetDlgItem(IDCANCEL)->MoveWindow(160,40,80  ,25);
+    	GetDlgItem(IDC_STATICA)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_BUTCOL2)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_STATICB)->ShowWindow(SW_HIDE);;
+    	GetDlgItem(IDC_BUTCOL3)->ShowWindow(SW_HIDE);;
+  }
+
 	UpdateData(FALSE);	
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -196,6 +216,8 @@ void CColorSetDlg::OnButSend()
 {
 	UpdateData();	
 		int coxx;
+	if(m_ntrans == 0)
+	{
 		for(int i=0;i<12;i=i++ )
 		{
 			coxx = i*16;
@@ -232,6 +254,26 @@ void CColorSetDlg::OnButSend()
 							}
 		}//for
 		theApp.InitData();
+	}
+	else
+	{
+	CString strrsy ,strclm,strclm1;
+    CString strSQL,strSQL1,strrsy1;
+	strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\";
+	strrsy1 ="dispoint"+strMetrics;
+	  if(m_nlist == 1)
+          coxx = 19;  //65280
+	  if(m_nlist == 2)
+          coxx = 119;  //65280
+	  if(m_nlist == 3)
+		  coxx = 219;
+
+            strSQL.Format("UPDATE '%s' SET LP%d='%d' WHERE DISID=%d;",
+			    	     strrsy1, m_ntrans ,m_color1 , coxx );
+			theApp.db3.execDML(strSQL);
+        theApp.InitSQLite3();
+    	theApp.InitDisplay();
+	}
         EndDialog(IDOK);
 }
 

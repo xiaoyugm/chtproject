@@ -15,7 +15,6 @@ static char THIS_FILE[] = __FILE__;
 
 extern ADCbreakE             m_CFeed[MAX_FDS][9][65];
 extern ADCbreakE             m_ADCbreakE[MAX_FDS][MAX_CHAN][65];
-extern  OthersSetting    m_OthersSetting;
 extern  SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 /////////////////////////////////////////////////////////////////////////////
 // CAdjustDlg dialog
@@ -125,7 +124,7 @@ BOOL CAdjustDlg::OnInitDialog()
 */
     CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
                           User ID=sa;Password=sunset;\
-                          Data Source=") +m_OthersSetting.DBname+ _T(";Initial Catalog=BJygjl");
+                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
 
 //All calls to the AxLib should be wrapped in a try / catch block
   try
@@ -162,7 +161,7 @@ BOOL CAdjustDlg::OnInitDialog()
 		m_Adjustdata.MoveFirst();
 		while ( !m_Adjustdata.IsEOF() )
 		{
-			eYear = m_Adjustdata.m_szptype;
+			eYear = m_Adjustdata.m_szptype;//AD
 			if(eYear < 3 )
 			{
 						m_cba =66;
@@ -286,6 +285,8 @@ void CAdjustDlg::OnDtimeA(NMHDR* pNMHDR, LRESULT* pResult)
 void CAdjustDlg::OnCB_A() 
 {
    	m_L_A.DeleteAllItems();
+   	m_L_C.DeleteAllItems();
+   	m_L_F.DeleteAllItems();
 	int eYear,eMonth,eDay,m_fds,m_chan;
 	CString   strname,strstartTime,strfc,dddd;
 	UpdateData(TRUE);
@@ -327,6 +328,11 @@ void CAdjustDlg::OnCB_A()
             	eMonth = m_ADCbreakE[m_fds][m_chan][i].bFSd;
                	eDay = m_ADCbreakE[m_fds][m_chan][i].bchanel;
        	m_CB_C.AddString(m_ADCbreakE[m_fds][m_chan][i].cpoint+" " +m_SlaveStation[eMonth][eDay+16].WatchName);
+	}
+	if(i!=0)
+	{
+       	m_CB_C.SetCurSel(0);
+		OnCB_C();
 	}
 }
 
@@ -377,6 +383,11 @@ void CAdjustDlg::OnCB_C()
             	eMonth = m_CFeed[m_fds][m_chan][i].bFSd;
                	eDay = m_CFeed[m_fds][m_chan][i].bchanel;
        	m_CB_F.AddString(m_CFeed[m_fds][m_chan][i].adpoint+" " +m_SlaveStation[eMonth][eDay].WatchName);
+	}
+	if(i!=0)
+	{
+       	m_CB_F.SetCurSel(0);
+		OnCB_F();
 	}
 }
 

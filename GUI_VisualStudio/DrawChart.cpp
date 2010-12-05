@@ -72,9 +72,9 @@ void CDrawChart::Init()
 	Line4Name.Format("点号:%d",m_nPoint4);
 
 	m_Graph.AddALine(m_clrLine1, 10, 20, Line1Name);
-	m_Graph.AddALine(m_clrLine2, 30, 40, Line2Name);
-	m_Graph.AddALine(m_clrLine3, 50, 60, Line3Name);
-	m_Graph.AddALine(m_clrLine4, 70, 80, Line4Name);
+	m_Graph.AddALine(m_clrLine2, 30, 40, "");
+	m_Graph.AddALine(m_clrLine3, 50, 60, "");
+	m_Graph.AddALine(m_clrLine4, 70, 80, "");
 
 	m_Graph.SetBackColor(m_ctlBackColor);
 
@@ -105,6 +105,7 @@ void CDrawChart::Init()
 			m_Graph.m_LineArray[i].m_dMin = fMin;
 			m_Graph.m_LineArray[i].m_dMid = frtn;
 		}
+		fvalue =0;
 
 }
 
@@ -182,8 +183,9 @@ void CDrawChart::Draw(CDC* pDC)
 		{
 			m_Graph.RecalcRects(rect);
 
-				m_Graph.Title("实时曲线" );
-    			m_Graph.YAxisTitle("百分比");
+				m_Graph.Title("实时曲线："+ m_SlaveStation[m_DisplayDraw[m_nPoint1].fds][m_DisplayDraw[m_nPoint1].chan].WatchName
+					+ "|" +m_SlaveStation[m_DisplayDraw[m_nPoint1].fds][m_DisplayDraw[m_nPoint1].chan].strPN);
+//    			m_Graph.YAxisTitle("百分比");
 
 				m_Graph.XAxisTitle("时间" );
 			m_Graph.Axes();
@@ -256,10 +258,11 @@ void CDrawChart::OnTimer()
 			if(i == 3)
         	   nPointNo = m_nPoint4 ;
 
-			unsigned char fvalue = m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].pnValue;
+			fvalue = m_SlaveStation[m_DisplayDraw[nPointNo].fds][m_DisplayDraw[nPointNo].chan].pnValue;
 //   			m_Graph.AddYValue(i, m_CPointInfo[nPointNo].pnValue * 100 );
 			//占值域百分比*100
-   			m_Graph.AddYValue(i, fvalue );
+			if(fvalue <=100 && fvalue >0)
+    			m_Graph.AddYValue(i, fvalue );
 		}
 
 		m_Graph.UpdateTimeRange(mSec);

@@ -46,6 +46,9 @@ BEGIN
         MENUITEM "报警音乐",                    ID_MANIPULATE
         MENUITEM "全列模拟量标校",              ID_ADJUST_ALL
         MENUITEM "取消全列模拟量标校",          ID_DEL_ADJUSTALL
+        MENUITEM "设置模拟图显示页",            ID_DRAWS
+        MENUITEM "数据显示页属性",              ID_FORMPROP
+        MENUITEM "列表",                        ID_ELREPORT
     END
     POPUP "页面编辑"
     BEGIN
@@ -215,6 +218,18 @@ BEGIN
         MENUITEM "P&lay Animation",             ID_STATUSBAR_PLAYANIMATION
         MENUITEM "&Test Progress Bar",          ID_STATUSBAR_TESTPROGRESS
     END
+    POPUP "定义"
+    BEGIN
+        MENUITEM "全列模拟量标校",              ID_ADJUST_ALL
+        MENUITEM "取消全列模拟量标校",          ID_DEL_ADJUSTALL
+        MENUITEM "sqlite3初始化",               ID_DRAW_SYSTEM
+        MENUITEM "放大",                        ID_TOOL_PLUSLOUPE
+        MENUITEM "缩小",                        ID_TOOL_MINUSLOUPE
+        MENUITEM "漫游",                        ID_TOOL_HAND
+        MENUITEM "全部可见",                    ID_ZOOM_FULL
+        MENUITEM "s3数据初始化",                ID_DRTDATA
+        MENUITEM "模拟量当天数据",              ID_ARTDATA
+    END
 END
 
 IDR_DRAWTYPE_CNTR_IP MENU DISCARDABLE 
@@ -275,9 +290,53 @@ IDC_POPLISTCONTROL MENU DISCARDABLE
 BEGIN
     POPUP "列表"
     BEGIN
+        MENUITEM "设为初始页面",                ID_FORMPAGESO
         MENUITEM "选择显示测点",                ID_SELECT_POINT
-        MENUITEM "选择模拟量标校",              ID_ADJUST_POINT
-        MENUITEM "取消选择模拟量标校",          ID_DEL_ADJUST
+        MENUITEM "数据页改名",                  ID_DRAWS
+        MENUITEM "数据页列表颜色设置",          ID_FORMSCOLOR
+        MENUITEM "选择列表显示项",              ID_FORMSLISTEXT
+        MENUITEM SEPARATOR
+        MENUITEM "列表显示",                    ID_SELECT_AD
+        MENUITEM SEPARATOR
+        MENUITEM "模拟图显示",                  2000
+        MENUITEM SEPARATOR
+        POPUP "打印"
+        BEGIN
+            MENUITEM "模拟量日(班)报表",            ID_EXCEL_A
+            MENUITEM "模拟量报警日(班)报表",        ID_EXCEL_AA
+            MENUITEM "模拟量断电日(班)报表",        ID_EXCEL_AB
+            MENUITEM "模拟量馈电异常日(班)报表",    ID_EXCEL_AFE
+            MENUITEM "模拟量统计值日(班)报表",      ID_EXCEL_ASR
+            MENUITEM "开关量报警日(班)报表",        ID_EXCEL_DA
+            MENUITEM "开关量断电日(班)报表",        ID_EXCEL_DAB
+            MENUITEM "开关量状态变动日(班)报表",    ID_EXCEL_DSCD
+            MENUITEM "开关量馈电异常日(班)报表",    ID_EXCEL_DFE
+            MENUITEM "监控设备故障日(班)报表",      ID_EXCEL_DRIVERE
+        END
+        POPUP "参数设置"
+        BEGIN
+            MENUITEM "系统参数",                    ID_CLASSTIME
+            MENUITEM "颜色设置",                    ID_CONTROLF
+        END
+        POPUP "页面编辑"
+        BEGIN
+            MENUITEM "列表",                        ID_FORMPROP
+            MENUITEM "曲线",                        ID_ECURVE
+            MENUITEM "模拟图",                      ID_EDRAW
+        END
+        POPUP "查询"
+        BEGIN
+            MENUITEM "模拟量报警记录",              ID_REC_AAD
+            MENUITEM "模拟量断电记录",              ID_REC_ABD
+            MENUITEM "模拟量馈电异常记录",          ID_REC_AFED
+            MENUITEM "模拟量统计值记录",            ID_REC_ASR
+            MENUITEM "开关量报警记录",              ID_REC_DABD
+            MENUITEM "开关量断电记录",              ID_REC_DABB
+            MENUITEM "开关量状态变动记录",          ID_REC_DSCD
+            MENUITEM "开关量馈电异常记录",          ID_REC_DFED
+            MENUITEM "设备故障记录",                ID_REC_DRIVERE
+        END
+        MENUITEM SEPARATOR
     END
 END
 
@@ -287,6 +346,8 @@ BEGIN
     BEGIN
         MENUITEM "登录",                        ID_LOGIN
         MENUITEM "注销",                        ID_LOGOUT
+        MENUITEM SEPARATOR
+        MENUITEM "保存",                        ID_SAVEFD
     END
     POPUP "参数设置"
     BEGIN
@@ -296,15 +357,20 @@ BEGIN
         MENUITEM "安装地点定义",                ID_LOCALTION
         MENUITEM "测点定义(累计量)",            ID_BROWSERMOD
         MENUITEM "馈电规则定义",                ID_CONTROLS
-        MENUITEM "双风门或主扇备扇定义",        ID_FANSA
+        MENUITEM "双设备报警逻辑管理",          ID_FANSA
         MENUITEM "颜色设置",                    ID_CONTROLF
+        MENUITEM "设置数据显示页",              ID_FORMS
+        MENUITEM SEPARATOR
         MENUITEM "报警音乐",                    ID_MANIPULATE
+        MENUITEM "工具栏",                      ID_VIEW_TOOLBAR
+        MENUITEM "状态栏",                      ID_VIEW_STATUS_BAR
     END
     POPUP "页面编辑"
     BEGIN
-        MENUITEM "列表",                        ID_ELREPORT
+        MENUITEM "列表",                        ID_FORMPROP
         MENUITEM "曲线",                        ID_ECURVE
         MENUITEM "模拟图",                      ID_EDRAW
+        MENUITEM SEPARATOR
     END
     POPUP "控制"
     BEGIN
@@ -347,7 +413,6 @@ BEGIN
     BEGIN
         MENUITEM "通风系统",                    ID_DRAW_PAERATION
         MENUITEM "瓦斯抽采(放)",                ID_DRAW_PGAS
-        MENUITEM "系统自检",                    ID_DRAW_SYSTEM
     END
     POPUP "打印"
     BEGIN
@@ -386,6 +451,9 @@ BEGIN
         MENUITEM "帮助主题(&H)",                ID_HELP_FINDER
         MENUITEM SEPARATOR
         MENUITEM "关于 ...",                    ID_APP_ABOUT
+        MENUITEM SEPARATOR
+        MENUITEM "操作日志",                    ID_OPTXT
+        MENUITEM "中心站运行日志",              ID_WORKTXT
     END
 END
 
@@ -394,6 +462,46 @@ BEGIN
     POPUP "系统"
     BEGIN
         MENUITEM "退出(&X)",                    ID_APP_EXIT
+    END
+END
+
+IDC_POPDRAW MENU DISCARDABLE 
+BEGIN
+    POPUP "list"
+    BEGIN
+        MENUITEM "测点当天数据",                ID_DATADA
+        MENUITEM "实时曲线",                    ID_RCHART
+        MENUITEM "设为初始页面",                ID_FORMPAGESO
+    END
+END
+
+IDC_POPPOINT MENU DISCARDABLE 
+BEGIN
+    POPUP "点列表"
+    BEGIN
+        MENUITEM "测点当天数据",                ID_DATADA
+        MENUITEM "实时曲线",                    ID_RCHART
+        MENUITEM SEPARATOR
+        MENUITEM "状态图显示",                  ID_DRAW_STATE
+        MENUITEM "柱状图显示",                  ID_DRAW_COLUMNIATION
+        POPUP "曲线显示"
+        BEGIN
+            MENUITEM "模拟量调用",                  ID_DRAW_CS
+            MENUITEM "模拟量报警",                  ID_DRAW_CA
+            MENUITEM "模拟量断电控制",              ID_DRAW_CB
+            MENUITEM "模拟量馈电异常",              ID_DRAW_CFE
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "选择模拟量标校",              ID_ADJUST_POINT
+        MENUITEM "取消选择模拟量标校",          ID_DEL_ADJUST
+    END
+END
+
+IDC_POPDRAWNOP MENU DISCARDABLE 
+BEGIN
+    POPUP "page"
+    BEGIN
+        MENUITEM "设为初始页面",                ID_FORMPAGESO
     END
 END
 
@@ -436,11 +544,14 @@ END
 IDD_DIALOG_HOST_SETTING DIALOGEX 0, 0, 534, 219
 STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "设置主机信息"
-FONT 9, "宋体"
+FONT 9, "宋体", 0, 0, 0x1
 BEGIN
+    PUSHBUTTON      "退出",IDCANCEL,448,198,50,14
+    PUSHBUTTON      "保存",IDC_BUTTONDIS5,291,110,50,14
+    PUSHBUTTON      "取消",IDC_BUTTONDIS6,185,89,50,14,NOT WS_VISIBLE
     DEFPUSHBUTTON   "确定(&O)",IDOKADM,163,197,50,14
     PUSHBUTTON      "取消(&C)",IDCANCELADM,335,197,50,14
-    LTEXT           "主机IP地址：",IDC_STATIC,286,44,53,8,NOT WS_VISIBLE
+    LTEXT           "主机IP地址：",IDC_STATIC,288,30,53,8,NOT WS_VISIBLE
     EDITTEXT        IDC_EDIT_HOST_IP,95,7,113,15,ES_AUTOHSCROLL | NOT 
                     WS_VISIBLE
     EDITTEXT        IDC_EDIT_PORT,118,7,113,15,ES_AUTOHSCROLL | ES_NUMBER | 
@@ -456,51 +567,48 @@ BEGIN
     PUSHBUTTON      "删除",IDC_BUT_DEL,255,198,50,14
     PUSHBUTTON      "修改",IDC_BUT_MOD,353,198,50,14
     PUSHBUTTON      "SORTBACK",IDC_CLR_SORTBACK,23,121,50,14,NOT WS_VISIBLE
-    COMBOBOX        IDC_COMBO1,41,177,96,45,CBS_DROPDOWN | CBS_SORT | 
-                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO1,41,177,96,170,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
     LTEXT           "测点位置",IDC_STATIC1,7,180,32,12
-    COMBOBOX        IDC_COMBO2,213,177,76,87,CBS_DROPDOWN | WS_VSCROLL | 
+    COMBOBOX        IDC_COMBO2,213,177,76,117,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
     CTEXT           "传感器型号",IDC_STATIC2,169,180,42,12
-    COMBOBOX        IDC_COMBO3,334,177,27,88,CBS_DROPDOWN | WS_VSCROLL | 
+    COMBOBOX        IDC_COMBO3,334,177,27,183,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
     CTEXT           "分站",IDC_STATIC3,314,180,17,12
-    COMBOBOX        IDC_COMBO4,415,177,23,89,CBS_DROPDOWN | WS_VSCROLL | 
+    COMBOBOX        IDC_COMBO4,415,177,23,89,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
     LTEXT           "通道号",IDC_STATIC4,388,180,25,12
     PUSHBUTTON      "增加开关量",IDC_BUT_ADD2,146,198,50,14
     CONTROL         "List1",IDC_LIST_DISPLAY,"SysListView32",LVS_REPORT | 
                     LVS_SHOWSELALWAYS | WS_TABSTOP,389,7,138,162
-    PUSHBUTTON      "增加",IDC_BUTTONDIS1,291,27,50,14
-    PUSHBUTTON      "删除",IDC_BUTTONDIS2,291,55,50,14
-    PUSHBUTTON      "全部增加",IDC_BUTTONDIS3,291,83,50,14
-    PUSHBUTTON      "全部删除",IDC_BUTTONDIS4,291,115,50,14
-    PUSHBUTTON      "保存",IDC_BUTTONDIS5,291,144,50,14
-    PUSHBUTTON      "取消",IDC_BUTTONDIS6,185,89,50,14,NOT WS_VISIBLE
+    PUSHBUTTON      "增加",IDC_BUTTONDIS1,291,13,50,14
+    PUSHBUTTON      "删除",IDC_BUTTONDIS2,291,39,50,14
+    PUSHBUTTON      "全部增加",IDC_BUTTONDIS3,291,62,50,14
+    PUSHBUTTON      "全部删除",IDC_BUTTONDIS4,291,86,50,14
     CONTROL         "是否报警",IDC_CHECK_ISALM,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,467,177,48,14
-    PUSHBUTTON      "退出",IDCANCEL,448,198,50,14
 END
 
 IDD_DIALOG_SET_TIMER DIALOGEX 0, 0, 446, 261
 STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "校时操作"
-FONT 9, "宋体"
+FONT 9, "宋体", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "保存、发送命令",IDOK_SEND,57,240,66,14
-    PUSHBUTTON      "取消(&C)",IDCANCEL,337,240,50,14
+    PUSHBUTTON      "退出(&C)",IDCANCEL,337,240,50,14
     GROUPBOX        "窗口交替显示的时间(单位：秒)",IDC_STATIC,7,243,190,11,
                     NOT WS_VISIBLE
     LTEXT           "分站:",IDC_STATICV,9,6,21,8
     EDITTEXT        IDC_EDIT_SECOND,138,239,109,14,ES_AUTOHSCROLL | 
                     ES_NUMBER | NOT WS_VISIBLE
-    COMBOBOX        IDC_COMBO_VERIFYT,34,4,33,158,CBS_DROPDOWN | WS_VSCROLL | 
-                    WS_TABSTOP
+    COMBOBOX        IDC_COMBO_VERIFYT,34,4,33,158,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
     LTEXT           "控制端口:",IDC_STATICV1,72,6,37,8
-    COMBOBOX        IDC_COMBO_PORT,115,4,142,209,CBS_DROPDOWN | WS_VSCROLL | 
-                    WS_TABSTOP
+    COMBOBOX        IDC_COMBO_PORT,115,4,142,209,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
     RTEXT           "功能:",IDC_STATICV2,261,6,28,8
-    COMBOBOX        IDC_COMBO_FUNCTION,294,4,142,208,CBS_DROPDOWN | 
+    COMBOBOX        IDC_COMBO_FUNCTION,294,4,142,208,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
     CONTROL         "List1",IDC_LIST_C,"SysListView32",LVS_REPORT | 
                     LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_TABSTOP,7,22,
@@ -513,7 +621,7 @@ END
 
 IDD_FORMVIEW DIALOG DISCARDABLE  0, 0, 187, 94
 STYLE WS_CHILD | WS_BORDER
-FONT 10, "System"
+FONT 12, "宋体"
 BEGIN
     CONTROL         "List1",IDC_LIST_POINT1,"SysListView32",LVS_REPORT | 
                     LVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,7,7,45,38
@@ -548,7 +656,7 @@ BEGIN
     LTEXT           "单位",IDC_STATIC8,25,176,33,12
     EDITTEXT        IDC_EDIT8,71,173,111,14,ES_AUTOHSCROLL | NOT WS_TABSTOP
     LTEXT           "开关量类型",IDC_STATIC10,25,16,38,12
-    COMBOBOX        IDC_COMBO_D,71,15,74,78,CBS_DROPDOWN | WS_VSCROLL
+    COMBOBOX        IDC_COMBO_D,71,15,74,78,CBS_DROPDOWNLIST | WS_VSCROLL
     PUSHBUTTON      "...",IDC_BUT_MUSIC,181,191,13,14,NOT WS_TABSTOP
     LTEXT           "复电值",IDC_STATIC9,25,156,40,12
     EDITTEXT        IDC_EDIT9,70,154,111,14,ES_AUTOHSCROLL | WS_GROUP
@@ -560,7 +668,7 @@ END
 IDD_DLG_LOGIN DIALOGEX 0, 0, 214, 156
 STYLE DS_3DLOOK | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "登录"
-FONT 10, "宋体"
+FONT 10, "宋体", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_EDT_USER,105,25,43,16,ES_AUTOHSCROLL | WS_GROUP
     EDITTEXT        IDC_EDT_PWD,105,49,43,16,ES_PASSWORD | ES_AUTOHSCROLL | 
@@ -576,22 +684,22 @@ BEGIN
     CONTROL         "List1",IDC_LIST_USER,"SysListView32",LVS_REPORT | 
                     LVS_SHOWSELALWAYS | WS_TABSTOP,7,15,202,103,
                     WS_EX_STATICEDGE
-    COMBOBOX        IDC_COMBLOG,18,2,181,150,CBS_DROPDOWN | WS_VSCROLL | 
+    COMBOBOX        IDC_COMBLOG,18,2,181,150,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
 END
 
-IDD_COLORSET DIALOG DISCARDABLE  0, 0, 162, 206
+IDD_COLORSET DIALOG DISCARDABLE  0, 0, 163, 198
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "颜色设置"
 FONT 10, "宋体"
 BEGIN
-    DEFPUSHBUTTON   "保存",IDOK_CSEND,14,185,50,14
-    PUSHBUTTON      "取消",IDCANCEL,88,185,50,14
-    LTEXT           "正常",IDC_STATIC,28,8,38,11
+    DEFPUSHBUTTON   "保存",IDOK_CSEND,22,177,50,14
+    PUSHBUTTON      "取消",IDCANCEL,88,177,50,14
+    LTEXT           "正常",IDC_STATICN,28,8,38,11
     PUSHBUTTON      "",IDC_BUTCOL1,81,5,50,14
-    LTEXT           "报警",IDC_STATIC,28,26,38,11
+    LTEXT           "报警",IDC_STATICA,28,26,38,11
     PUSHBUTTON      "",IDC_BUTCOL2,81,23,50,14
-    LTEXT           "断电",IDC_STATIC,28,44,38,11
+    LTEXT           "断电",IDC_STATICB,28,44,38,11
     PUSHBUTTON      "",IDC_BUTCOL3,81,41,50,14
     LTEXT           "断线",IDC_STATIC,28,62,38,11
     PUSHBUTTON      "",IDC_BUTCOL4,81,59,50,14
@@ -610,18 +718,18 @@ END
 IDD_DIA_ADJUST DIALOGEX 0, 0, 515, 314
 STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "标校浏览"
-FONT 10, "宋体"
+FONT 10, "宋体", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "退出",IDOK,320,293,50,14
     PUSHBUTTON      "取消",IDCANCEL,176,293,31,14,NOT WS_VISIBLE
     CONTROL         "List1",IDC_L_C,"SysListView32",LVS_REPORT | 
                     LVS_SHOWSELALWAYS | WS_TABSTOP,176,25,160,259,
                     WS_EX_STATICEDGE
-    COMBOBOX        IDC_CB_A,54,6,108,78,CBS_DROPDOWN | WS_VSCROLL | 
+    COMBOBOX        IDC_CB_A,54,6,108,78,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
-    COMBOBOX        IDC_CB_C,228,6,108,78,CBS_DROPDOWN | WS_VSCROLL | 
+    COMBOBOX        IDC_CB_C,228,6,108,78,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
-    COMBOBOX        IDC_CB_F,400,6,108,78,CBS_DROPDOWN | WS_VSCROLL | 
+    COMBOBOX        IDC_CB_F,400,6,108,78,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
     CONTROL         "List1",IDC_L_A,"SysListView32",LVS_REPORT | 
                     LVS_SHOWSELALWAYS | WS_TABSTOP,7,25,160,259,
@@ -637,17 +745,23 @@ BEGIN
     LTEXT           "选择时间",IDC_STATIC,21,294,32,8
 END
 
-IDD_DIA_A_METHOD DIALOG DISCARDABLE  0, 0, 219, 182
+IDD_DIA_A_METHOD DIALOG DISCARDABLE  0, 0, 287, 182
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "安全措施"
+CAPTION "开关量状态变动"
 FONT 10, "宋体"
 BEGIN
-    DEFPUSHBUTTON   "确定",IDOK,29,161,50,14
-    PUSHBUTTON      "取消",IDCANCEL,116,161,50,14
-    COMBOBOX        IDC_CB_SAFE_M,20,7,180,144,CBS_DROPDOWN | WS_VSCROLL | 
+    DEFPUSHBUTTON   "确定",IDOK,7,161,50,14
+    PUSHBUTTON      "退出",IDCANCEL,116,161,50,14
+    COMBOBOX        IDC_CB_SAFE_M,69,7,19,144,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
-    EDITTEXT        IDC_EDIT_SM,22,45,174,107,ES_AUTOHSCROLL
-    LTEXT           "安全措施",IDC_STATIC,88,32,50,11
+    EDITTEXT        IDC_EDIT_SM,22,140,174,12,ES_AUTOHSCROLL
+    LTEXT           "点号",IDC_STATIC,99,9,16,9
+    LTEXT           "分站",IDC_STADCH1,48,10,18,8
+    COMBOBOX        IDC_CB_SAFE_M2,118,6,110,144,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "List1",IDC_LDCHD,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_TABSTOP,11,27,
+                    265,129
 END
 
 IDD_FORMVIEW_MADE DIALOGEX 0, 0, 411, 250
@@ -683,16 +797,19 @@ END
 
 IDD_DIA_CLASS DIALOG DISCARDABLE  0, 0, 179, 150
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "班设置"
+CAPTION "系统参数"
 FONT 10, "宋体"
 BEGIN
     DEFPUSHBUTTON   "确定",IDOK,29,129,50,14
     PUSHBUTTON      "取消",IDCANCEL,108,129,50,14
     LTEXT           "初始日报时间",IDC_STATIC,34,40,46,8
     LTEXT           "班次",IDC_STATIC,49,58,16,8
-    EDITTEXT        IDC_EDIT_DAYREPORT,82,38,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_EDIT_CLASSNUM,82,55,40,14,ES_AUTOHSCROLL
-    LTEXT           "小时",IDC_STATIC,125,41,16,8
+    EDITTEXT        IDC_EDIT_DAYREPORT,108,38,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CLASSNUM,108,55,40,14,ES_AUTOHSCROLL
+    LTEXT           "小时",IDC_STATIC,151,41,16,8
+    LTEXT           "模拟图默认分辨率",IDC_STATIC,34,77,60,8
+    COMBOBOX        IDC_CB_FBL,107,75,42,144,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
 END
 
 IDD_DLG_A_METHOD DIALOG DISCARDABLE  0, 0, 221, 194
@@ -702,19 +819,95 @@ FONT 10, "宋体"
 BEGIN
     DEFPUSHBUTTON   "确定",IDOK,29,161,50,14
     PUSHBUTTON      "取消",IDCANCEL,116,161,50,14
-    COMBOBOX        IDC_CB_SAFE_M,20,24,180,144,CBS_DROPDOWN | WS_VSCROLL | 
-                    WS_TABSTOP
+    COMBOBOX        IDC_CB_SAFE_M,20,24,180,144,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_EDIT_SM,22,57,174,95,ES_MULTILINE | ES_AUTOVSCROLL | 
                     WS_VSCROLL
     LTEXT           "安全措施",IDC_STATIC,88,43,50,11
     LTEXT           "选择测点",IDC_STATIC,89,11,50,11
 END
 
-IDD_DFANSA DIALOG DISCARDABLE  0, 0, 164, 153
+IDD_DFANSA DIALOGEX 0, 0, 225, 140
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "双风门、主扇备扇报警"
-FONT 10, "System"
+CAPTION "页框定义"
+FONT 10, "宋体", 0, 0, 0x1
 BEGIN
+    CONTROL         "List1",IDC_LCFD,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | NOT WS_VISIBLE | WS_TABSTOP,32,7,6,
+                    14,WS_EX_STATICEDGE
+    CONTROL         "List1",IDC_LCFDA,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | NOT WS_VISIBLE | WS_TABSTOP,7,127,
+                    127,6,WS_EX_STATICEDGE
+    PUSHBUTTON      "添加",IDCANCELEXCEL,190,14,28,14
+    PUSHBUTTON      "增加",IDC_BEXCELADD,190,57,28,14
+    DEFPUSHBUTTON   "确定",IDOK,191,7,27,14,NOT WS_VISIBLE
+    PUSHBUTTON      "退出",IDCANCEL,190,106,28,14
+    EDITTEXT        IDC_EDITFORM,20,57,152,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_CBDRAW,20,14,153,144,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+END
+
+IDD_DIA_DCH DIALOG DISCARDABLE  0, 0, 310, 280
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "开关量状态变动"
+FONT 10, "宋体"
+BEGIN
+    DEFPUSHBUTTON   "打开",IDOK,87,259,50,14
+    PUSHBUTTON      "退出",IDCANCEL,154,259,50,14
+    RTEXT           "分站",IDC_STADCH1,25,10,44,8
+    COMBOBOX        IDC_DCHCB_FDS,81,8,29,158,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_GROUP | WS_TABSTOP
+    RTEXT           "点号",IDC_STADCH2,135,10,52,10
+    COMBOBOX        IDC_DCHCB_POINT,194,8,111,209,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "List1",IDC_LDCH,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_TABSTOP,5,25,
+                    298,229
+    CONTROL         "DateTimePicker1",IDC_C_END,"SysDateTimePick32",
+                    DTS_RIGHTALIGN | WS_TABSTOP,189,7,56,15
+    CONTROL         "DateTimePicker1",IDC_C_START,"SysDateTimePick32",
+                    DTS_RIGHTALIGN | WS_TABSTOP,72,8,56,15
+END
+
+IDD_DIA_LISTEXT DIALOG DISCARDABLE  0, 0, 190, 218
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "选择列表显示项"
+FONT 10, "宋体"
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,27,197,50,14
+    PUSHBUTTON      "取消",IDCANCEL,110,197,50,14
+    CONTROL         "最大值",IDC_CHECKMAX,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,29,20,38,10
+    CONTROL         "最小值",IDC_CHECKMIN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,29,36,38,10
+    CONTROL         "平均值",IDC_CHECKMEAN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,29,55,38,10
+    CONTROL         "断电时刻",IDC_CHECKBT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,103,20,46,10
+    CONTROL         "断电值",IDC_CHECKB,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,29,73,38,10
+    CONTROL         "复电值",IDC_CHECKR,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,29,92,38,10
+    CONTROL         "报警上限",IDC_CHECKAH,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,29,112,46,10
+    CONTROL         "报警下限",IDC_CHECKAL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,29,130,46,10
+    CONTROL         "量程高值",IDC_CHECKSH,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,29,148,46,10
+    CONTROL         "量程低值",IDC_CHECKSL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,29,168,46,10
+    CONTROL         "复电时刻",IDC_CHECKRT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,103,37,46,10
+    CONTROL         "开停次数",IDC_CHECKWN,"Button",BS_AUTOCHECKBOX | NOT 
+                    WS_VISIBLE | WS_TABSTOP,103,120,46,10
+    CONTROL         "断电范围",IDC_CHECKBS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,103,92,46,10
+    CONTROL         "报警时刻",IDC_CHECKAT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,103,55,46,10
+    CONTROL         "馈电状态及时刻",IDC_CHECKFDT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,103,74,68,10
+    CONTROL         "工作时间",IDC_CHECKWT,"Button",BS_AUTOCHECKBOX | NOT 
+                    WS_VISIBLE | WS_TABSTOP,103,141,46,10
 END
 
 
@@ -777,9 +970,9 @@ BEGIN
     IDD_COLORSET, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 155
+        RIGHTMARGIN, 156
         TOPMARGIN, 7
-        BOTTOMMARGIN, 199
+        BOTTOMMARGIN, 191
     END
 
     IDD_DIA_ADJUST, DIALOG
@@ -793,7 +986,7 @@ BEGIN
     IDD_DIA_A_METHOD, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 212
+        RIGHTMARGIN, 280
         TOPMARGIN, 7
         BOTTOMMARGIN, 175
     END
@@ -825,9 +1018,25 @@ BEGIN
     IDD_DFANSA, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 157
+        RIGHTMARGIN, 218
         TOPMARGIN, 7
-        BOTTOMMARGIN, 146
+        BOTTOMMARGIN, 133
+    END
+
+    IDD_DIA_DCH, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 303
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 273
+    END
+
+    IDD_DIA_LISTEXT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 183
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 211
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -841,6 +1050,7 @@ END
 IDB_COLUMN_0            BITMAP  DISCARDABLE     "res\\col_0.bmp"
 IDB_COLUMN_1            BITMAP  DISCARDABLE     "res\\col_1.bmp"
 IDB_COLUMN_2            BITMAP  DISCARDABLE     "res\\col_2.bmp"
+IDR_TOOLBARY            BITMAP  DISCARDABLE     "res\\toolbary.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -855,6 +1065,7 @@ ID_INDICATOR_OUTLINE    ICON    DISCARDABLE     "res\\msword_outline.ico"
 ID_INDICATOR_PRINT      ICON    DISCARDABLE     "res\\msword_print.ico"
 ID_INDICATOR_WEB        ICON    DISCARDABLE     "res\\msword_web.ico"
 IDI_STOP                ICON    DISCARDABLE     "res\\stop.ico"
+IDI_ICONMA              ICON    DISCARDABLE     "res\\iconMA.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -862,6 +1073,28 @@ IDI_STOP                ICON    DISCARDABLE     "res\\stop.ico"
 //
 
 IDR_HEARTBEAT           AVI     DISCARDABLE     "res\\heartbeat.avi"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_TOOLBARY TOOLBAR DISCARDABLE  25, 17
+BEGIN
+    BUTTON      ID_LOCALTION
+    BUTTON      ID_BROWSERMOD
+    SEPARATOR
+    BUTTON      ID_MANUAL_CONTROL
+    BUTTON      ID_VERIFY_TIMER
+    SEPARATOR
+    BUTTON      ID_EXCEL_A
+    BUTTON      ID_SELECTS
+    BUTTON      2000
+    SEPARATOR
+    BUTTON      ID_HELP_FINDER
+    BUTTON      ID_MAICON
+END
+
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -911,6 +1144,18 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Cursor
+//
+
+IDC_PENCIL              CURSOR  DISCARDABLE     "res\\pencil.cur"
+IDC_GRIPCLOSED          CURSOR  DISCARDABLE     "res\\grip_closed.cur"
+IDC_GRIPOPEN            CURSOR  DISCARDABLE     "res\\grip_open.cur"
+IDC_LOUPE               CURSOR  DISCARDABLE     "res\\loupe.cur"
+IDC_LOUPEMINUS          CURSOR  DISCARDABLE     "res\\loupe_minus.CUR"
+IDC_LOUPEPLUS           CURSOR  DISCARDABLE     "res\\loupe_plus.CUR"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
@@ -957,6 +1202,7 @@ STRINGTABLE DISCARDABLE
 BEGIN
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+    ID_HELP_FINDER          "帮助"
 END
 
 STRINGTABLE DISCARDABLE 
@@ -1083,6 +1329,8 @@ END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
+    ID_VERIFY_TIMER         "校时"
+    ID_MANUAL_CONTROL       "手动控制"
     ID_SELECT_DISA          "模拟量调用显示\n模拟量调用显示"
     ID_EDIT_STATE           "Solution Platforms"
 END
@@ -1172,6 +1420,8 @@ BEGIN
     ID_THEME_VC7            "Visual Studio 2002"
     ID_THEME_VC8            "Visual Studio 2005"
     ID_THEME_VC9            "Visual Studio 2008"
+    ID_LOCALTION            "安装地点"
+    ID_BROWSERMOD           "定义测点"
 END
 
 STRINGTABLE DISCARDABLE 
@@ -1202,7 +1452,62 @@ END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
+    ID_SELECTS              "调用查询"
+    ID_REC_DRIVERE          "设备故障记录"
     ID_DRIVERE              "设备故障显示\n设备故障显示"
+    ID_REC_AAD              "模拟量报警记录"
+    ID_REC_ABD              "模拟量断电记录"
+    ID_REC_AFED             "模拟量馈电异常记录"
+    ID_REC_ASR              "模拟量统计值记录"
+    ID_REC_DABD             "开关量报警记录"
+    ID_REC_DSCD             "开关量状态变动记录"
+    ID_REC_DFED             "开关量馈电异常记录"
+    ID_REC_DABB             "开关量断电记录"
+    ID_EXCEL_A              "模拟量日报表"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    2000                    "模拟图"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_DRAW_COLUMNIATION    "柱状图"
+    ID_ECURVE               "曲线"
+    ID_EDRAW                "模拟图"
+    ID_FORMS                "设置数据(模拟图)显示页"
+    ID_DRAWS                "数据页改名"
+    ID_FORMPROP             "列表"
+    ID_MAICON               "煤安标志"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_DRAW_STATE           "状态图"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_OPTXT                "操作日志"
+    ID                      "中心站运行日志"
+    ID_TOOL_PLUSLOUPE       "放大或按矩形放大\n放大"
+    ID_TOOL_MINUSLOUPE      "缩小或按矩形放大\n缩小"
+    ID_TOOL_HAND            "漫游\n漫游"
+    ID_ZOOM_FULL            "全部可见\n全部可见"
+    ID_CDADA                "测点当天数据"
+    ID_RCHART               "实时曲线"
+    ID_DRTDATA              "开关量当天数据"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_ARTDATA              "模拟量当天数据"
+    ID_FORMSCOLOR           "数据页列表颜色设置"
+    ID_PAGESO               "设为初始页面"
+    ID_FORMPAGESO           "设为初始页面"
+    ID_DRAWPAGESO           "设为初始页面"
+    ID_FORMSLISTEXT         "选择列表显示项"
 END
 
 #endif    // Chinese (P.R.C.) resources
@@ -1308,73 +1613,6 @@ IDR_TOOLBAR_FULLSCREEN  BITMAP  MOVEABLE PURE   "res\\FullScreen.bmp"
 IDR_MAINFRAME           ICON    DISCARDABLE     "res\\CjSample.ico"
 IDR_GUI_WHTYPE          ICON    DISCARDABLE     "res\\GUI_VisualStudioDoc.ico"
 
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
-
-1 TEXTINCLUDE DISCARDABLE 
-BEGIN
-    "resource.h\0"
-END
-
-2 TEXTINCLUDE DISCARDABLE 
-BEGIN
-    "#include ""afxres.h""\r\n"
-    "\0"
-END
-
-3 TEXTINCLUDE DISCARDABLE 
-BEGIN
-    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
-    "#define _AFX_NO_OLE_RESOURCES\r\n"
-    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
-    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
-    "\r\n"
-    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
-    "#ifdef _WIN32\r\n"
-    "LANGUAGE 9, 1\r\n"
-    "#pragma code_page(1252)\r\n"
-    "#endif //_WIN32\r\n"
-    "#include ""res\\GUI_VisualStudio.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
-    "#include ""afxres.rc""         // Standard components\r\n"
-    "#include ""afxprint.rc""       // printing/print preview resources\r\n"
-    "#endif\r\n"
-    "\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// HTML
-//
-
-IDR_DYNAMIC_HELP        HTML    MOVEABLE PURE   "res\\dynamic_help.htm"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// 2110
-//
-
-CLEAR.GIF               2110    MOVEABLE PURE   "res\\clear.gif"
-CTXHELP_HIDE.GIF        2110    MOVEABLE PURE   "res\\ctxhelp_hide.gif"
-CTXHELP_SHOW.GIF        2110    MOVEABLE PURE   "res\\ctxhelp_show.gif"
-CTXSAMPLE_HIDE.GIF      2110    MOVEABLE PURE   "res\\ctxsample_hide.gif"
-CTXSAMPLE_SHOW.GIF      2110    MOVEABLE PURE   "res\\ctxsample_show.gif"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// PNG
-//
-
-IDR_MAINFRAME           PNG     MOVEABLE PURE   "res\\Toolbar.png"
-IDR_TOOLBAR_WEB         PNG     MOVEABLE PURE   "res\\Web.png"
-IDR_TOOLBAR_EXT         PNG     MOVEABLE PURE   "res\\MenuBar.png"
-IDR_TOOLBAR_THEME       PNG     MOVEABLE PURE   "res\\ThemeBar.png"
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // Toolbar
@@ -1477,6 +1715,73 @@ BEGIN
     BUTTON      ID_THEME_SKINFRAMEWORK
 END
 
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\GUI_VisualStudio.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#include ""afxprint.rc""       // printing/print preview resources\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// HTML
+//
+
+IDR_DYNAMIC_HELP        HTML    MOVEABLE PURE   "res\\dynamic_help.htm"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// 2110
+//
+
+CLEAR.GIF               2110    MOVEABLE PURE   "res\\clear.gif"
+CTXHELP_HIDE.GIF        2110    MOVEABLE PURE   "res\\ctxhelp_hide.gif"
+CTXHELP_SHOW.GIF        2110    MOVEABLE PURE   "res\\ctxhelp_show.gif"
+CTXSAMPLE_HIDE.GIF      2110    MOVEABLE PURE   "res\\ctxsample_hide.gif"
+CTXSAMPLE_SHOW.GIF      2110    MOVEABLE PURE   "res\\ctxsample_show.gif"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+IDR_MAINFRAME           PNG     MOVEABLE PURE   "res\\Toolbar.png"
+IDR_TOOLBAR_WEB         PNG     MOVEABLE PURE   "res\\Web.png"
+IDR_TOOLBAR_EXT         PNG     MOVEABLE PURE   "res\\MenuBar.png"
+IDR_TOOLBAR_THEME       PNG     MOVEABLE PURE   "res\\ThemeBar.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //

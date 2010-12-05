@@ -160,6 +160,10 @@ BOOL CSplashWindow::PreTranslateAppMessage(MSG* pMsg)
 
 BOOL CSplashWindow::Create(CWnd* pParentWnd /*= NULL*/)
 {
+//	 int dd = m_bitmap.Attach( (HBITMAP)::LoadImage(NULL, "G:\\App\\SplashMfcDialogExe\\SplashMFCSource\\SplashMfcDialog\\res\\Splash.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
+
+//	 if (!m_bitmap.LoadBitmap(IDB_SPLASH))
+//		return FALSE;
 	CommonTools C_Ts;
 	CString strappPath ;
 	int n_load;

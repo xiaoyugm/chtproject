@@ -12,10 +12,10 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-extern SerialF               m_one[MAX_FDS][17];
+//extern SerialF               m_one[MAX_FDS][MAX_CHAN];
 extern SerialF               m_ClassTime[200];            //班设置
 extern CNDKMessage m_NDKmes[50];
-extern unsigned char *m_ndkRTD;
+extern BYTE     m_ndkRTD[6];
 extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 extern  OthersSetting    m_OthersSetting;
 //////////////////////////////////////////////////////////////////////
@@ -74,16 +74,14 @@ void CMQServer::OnMessage(long lUserId, CNDKMessage& message)
 {
 	switch(message.GetId())
 	{
-/*
-	case uCollectData:
+//	case uCollectData:
 //		SyncTableCollectData();
-		break;
+//		break;
+	case MASTERSLAVER:
 	case SENDSTARTTIME:
+		GetClient(message);
 		break;
-	case uWarnCauseRecord:
-//		SyncTableuWarnCauseRecord();
-		break;
-*///	case SYNC:
+//	case SYNC:
 //		Sync(message);
 //		break;
 
@@ -95,7 +93,11 @@ void CMQServer::OnMessage(long lUserId, CNDKMessage& message)
 void CMQServer::OnConnect(long lUserId)
 {
 	bIsConnect = TRUE;
-	SendStartTime(tHostStartTime);
+//	SendStartTime(555);
+	CString gggg;
+	gggg.Format("%d     ",lUserId);
+//		AfxMessageBox(gggg);
+//	SendStartTime(tHostStartTime);
 	//MessageBox(NULL,"双机热备已经开始!","提示",MB_ICONINFORMATION);
 }
 
@@ -124,13 +126,13 @@ BOOL CMQServer::OnIsConnectionAccepted()
 }
 
 //发送本机开始运行的时间
-BOOL CMQServer::SendStartTime(CTime time)
+BOOL CMQServer::SendStartTime(int time)
 {
-	if(bIsConnect)
+//	if(bIsConnect)
 	{
 		CNDKMessage message(SENDSTARTTIME);
-		message.Add(m_OthersSetting.DBname);
-		message.Add(m_ClassTime[1].ffds);
+		message.Add(time);
+//		message.Add(m_ClassTime[1].ffds);
 //		message.Add(tHostStartTime.GetDay());
 //		message.Add(tHostStartTime.GetHour());
 //		message.Add(tHostStartTime.GetMinute());
@@ -144,12 +146,58 @@ BOOL CMQServer::SendStartTime(CTime time)
 	return FALSE;
 }
 
+void CMQServer::GetClient(CNDKMessage& message)
+{
+	int nYear,nMonth;
+	message.GetAt(0,nYear);
+//	message.GetAt(1,nMonth);
+	CString gggg;
+	gggg.Format("%d  ",nYear);
+//		AfxMessageBox(gggg);
+	if(nYear == 444 && n_CPort != 888)
+	{
+//            		AfxMessageBox(gggg+"C444!");
+		theApp.StartMC();
+//		SendStartTime(333);
+	}
+	if(nYear == 333 && n_CPort != 999)
+	{
+//            		AfxMessageBox(gggg+"C333!");
+		theApp.StartBC();
+//		SendStartTime(444);
+	}
+//	if(nYear == 333 )
+//            AfxMessageBox(gggg+"C333!");
+//	else if(nYear == 333 && n_CPort == 999)//备机有主机启动
+//	{
+//		theApp.StartBC();
+//		theApp.master30 =0;
+//	}
+	if(nYear == 555 )
+	{
+//            		AfxMessageBox(gggg+"C555!");
+		CNDKMessage message(MASTERSLAVER);
+		message.Add(555);
+		SendMessageToAllUsers(message);
+//		SendStartTime(555);
+	}
+	if(nYear == 222 )
+	{
+		CNDKMessage message(MASTERSLAVER);
+		message.Add(222);
+//            		AfxMessageBox(gggg+"C222!");
+		SendMessageToAllUsers(message);
+//		SendStartTime(222);
+	}
+	//if(ConnectTime != StartTime)   
+///	SyncHostAndClient();
+}
 //连接本地SQLSERVER数据库
 void CMQServer::ConnectDB()
 {
-	try
+/*	try
 	{
-		m_SQLDirect.Init();
+//		m_SQLDirect.Init();
 		if(m_SQLDirect.Connect(_T("masterdefine"),_T("kj86"),_T("kj86")))
 			AfxMessageBox("AddUser:无法连接用户参数数据库,请确定SQL SERVER服务是否运行!");
 	}
@@ -157,7 +205,7 @@ void CMQServer::ConnectDB()
 	{
 		e->ReportError();
 		return;
-	}
+	}*/
 }
 
 void CMQServer::SyncTableCollectData()
@@ -258,9 +306,9 @@ void CMQServer::Sync(CNDKMessage &message)
 	int nIndex;
 	CString strTableName, strInSql, strSQL;
 
-	message.GetAt(0, strTableName);
+//	message.GetAt(0, strTableName);
 	message.GetAt(1, nIndex);
-	message.GetAt(2, strInSql);
+//	message.GetAt(2, strInSql);
 	
 	COleDateTime oleData1,oleData2;
 	CString strDBLink = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=kj86;Password=kj86;Initial Catalog=masterdefine;Data Source="
@@ -428,12 +476,13 @@ void CMQServer::Sync(CNDKMessage &message)
 
 void CMQServer::SyncCRTData(unsigned char  afds, unsigned char  achan,int dbtype)
 {
-	if(m_one[afds][achan].SFSd == 1)
-		return;
+//	if(m_one[afds][achan].SFSd == 1)
+//		return;
 	if(!theApp.m_bLogIn)
 		return;
 	if(!theApp.b_SaveRT)
 		return;
+//		AfxMessageBox("eeeeeeeeee");
 
 	CString strTable;
 	int m_nptype = m_SlaveStation[afds][achan].ptype;
@@ -531,8 +580,8 @@ void CMQServer::SyncCRTData(unsigned char  afds, unsigned char  achan,int dbtype
 		message.Add(m_nptype);
 		message.Add(afds);
 		message.Add(achan);  //4
-    		message.Add(m_SlaveStation[afds][achan].AMinValue);
-			float av= m_SlaveStation[afds][achan].ATotalValue/m_SlaveStation[afds][achan].m_Atotal;
+    		message.Add(m_SlaveStation[afds][achan].m5_AMinValue);
+			float av= m_SlaveStation[afds][achan].m5_ATotalValue/m_SlaveStation[afds][achan].m5_Atotal;
     		message.Add(av);
 		message.Add(m_SlaveStation[afds][achan].Channel_state);
 		message.Add(m_ndkRTD[0]);
@@ -543,7 +592,7 @@ void CMQServer::SyncCRTData(unsigned char  afds, unsigned char  achan,int dbtype
 		message.Add(m_ndkRTD[5]);
     	strTable = theApp.curuser;
 		message.Add(strTable);
-		message.Add(m_SlaveStation[afds][achan].AMaxValue);
+		message.Add(m_SlaveStation[afds][achan].m5_AMaxValue);
 		SendMessageToAllUsers(message);
 //		m_NDKmes[theApp.m_message] =message;
 	}

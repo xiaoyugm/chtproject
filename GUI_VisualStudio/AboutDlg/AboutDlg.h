@@ -40,16 +40,17 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // CAboutDlg dialog
+#include "stdafx.h"
 #include "Resource.h"
 
 class CAboutDlg : public CDialog
 {
 // Construction
 public:
-	CAboutDlg(CWnd* pParent = NULL)
-		: CDialog(IDD_ABOUTBOX, pParent)
+	CAboutDlg(CWnd* pParent = NULL);
+/*		: CDialog(IDD_ABOUTBOX, pParent)
 	{
-		NONCLIENTMETRICS ncm;
+/*		NONCLIENTMETRICS ncm;
 		::ZeroMemory(&ncm, sizeof(NONCLIENTMETRICS));
 		ncm.cbSize = sizeof(NONCLIENTMETRICS);
 		
@@ -58,8 +59,9 @@ public:
 
 		ncm.lfMenuFont.lfWeight = FW_BOLD;
 		m_fontBold.CreateFontIndirect(&ncm.lfMenuFont);
+    	BrushHol.CreateStockObject(HOLLOW_BRUSH);
 	}
-
+*/
 // Dialog Data
 	//{{AFX_DATA(CAboutDlg)
 	//enum { IDD = IDD_ABOUTBOX };
@@ -71,6 +73,8 @@ public:
 	CXTHyperLink m_txtEmail;
 	//}}AFX_DATA
 
+	HICON m_hIcon;
+	CBrush BrushHol;
 	CFont m_fontBold;
 
 // Overrides
@@ -78,8 +82,8 @@ public:
 	//{{AFX_VIRTUAL(CAboutDlg)
 	protected:
 
-	virtual void DoDataExchange(CDataExchange* pDX)
-	{
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+/*	{
 		CDialog::DoDataExchange(pDX);
 		//{{AFX_DATA_MAP(CAboutDlg)
 		DDX_Control(pDX, IDC_TXT_TITLE, m_txtPackageVersion);
@@ -89,7 +93,16 @@ public:
 		DDX_Control(pDX, IDC_TXT_URL, m_txtURL);
 		DDX_Control(pDX, IDC_TXT_EMAIL, m_txtEmail);
 		//}}AFX_DATA_MAP
-	}
+	}*/
+	// Generated message map functions
+	//{{AFX_MSG(CSetTimeDlg)
+	afx_msg void OnPaint();
+	afx_msg HCURSOR OnQueryDragIcon();
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg void OnDestroy();
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	//}}AFX_MSG
+	DECLARE_MESSAGE_MAP()
 
 	virtual BOOL OnInitDialog()
 	{
@@ -99,6 +112,7 @@ public:
 		CWinApp* pApp = AfxGetApp( );
 		ASSERT( pApp != NULL );
 
+//	Invalidate(1);
 		// set the sample title.
 		CString csSampleTitle;
 		csSampleTitle.Format(_T("%s 应用"), pApp->m_pszAppName);
@@ -125,7 +139,6 @@ public:
 		// set the title text to bold font.
 		m_txtPackageVersion.SetFont( &m_fontBold );
 
-
 		// define the url for our hyperlinks.
 		m_txtURL.SetURL( _T( "网址: http://www.xxx.com" ) );
 		m_txtURL.SetUnderline( false );
@@ -137,10 +150,143 @@ public:
 		m_btnOk.SetXButtonStyle( BS_XT_SEMIFLAT | BS_XT_HILITEPRESSED | BS_XT_WINXP_COMPAT );
         GetDlgItem(IDOK)->SetWindowText(_T("确定"));
 
+
 		return TRUE;  // return TRUE unless you set the focus to a control
 		              // EXCEPTION: OCX Property Pages should return FALSE
 	}
+
 };
+
+CAboutDlg::CAboutDlg(CWnd* pParent /*=NULL*/)
+	: CDialog(IDD_ABOUTBOX, pParent)
+	{
+/*		NONCLIENTMETRICS ncm;
+		::ZeroMemory(&ncm, sizeof(NONCLIENTMETRICS));
+		ncm.cbSize = sizeof(NONCLIENTMETRICS);
+		
+		VERIFY(::SystemParametersInfo(SPI_GETNONCLIENTMETRICS,
+			sizeof(NONCLIENTMETRICS), &ncm, 0));
+
+		ncm.lfMenuFont.lfWeight = FW_BOLD;
+		m_fontBold.CreateFontIndirect(&ncm.lfMenuFont);*/
+    	BrushHol.CreateStockObject(HOLLOW_BRUSH);
+	}
+
+void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+{
+		CDialog::DoDataExchange(pDX);
+		//{{AFX_DATA_MAP(CAboutDlg)
+		DDX_Control(pDX, IDC_TXT_TITLE, m_txtPackageVersion);
+		DDX_Control(pDX, IDC_TXT_COPYRIGHT, m_txtCopyrightInfo);
+		DDX_Control(pDX, IDC_TXT_APPNAME, m_txtAppName);
+		DDX_Control(pDX, IDOK, m_btnOk);
+		DDX_Control(pDX, IDC_TXT_URL, m_txtURL);
+		DDX_Control(pDX, IDC_TXT_EMAIL, m_txtEmail);
+		//}}AFX_DATA_MAP
+}
+
+BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
+	//{{AFX_MSG_MAP(CSetTimeDlg)
+	ON_WM_PAINT()
+	ON_WM_QUERYDRAGICON()
+	ON_WM_ERASEBKGND()
+	ON_WM_DESTROY()
+	ON_WM_CTLCOLOR()
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+// If you add a minimize button to your dialog, you will need the code below
+//  to draw the icon.  For MFC applications using the document/view model,
+//  this is automatically done for you by the framework.
+
+void CAboutDlg::OnPaint()
+{
+	if (IsIconic())
+	{
+		CPaintDC dc(this); // device context for painting
+
+		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
+
+		// Center icon in client rectangle
+		int cxIcon = GetSystemMetrics(SM_CXICON);
+		int cyIcon = GetSystemMetrics(SM_CYICON);
+		CRect rect;
+		GetClientRect(&rect);
+		int x = (rect.Width() - cxIcon + 1) / 2;
+		int y = (rect.Height() - cyIcon + 1) / 2;
+
+		// Draw the icon
+		dc.DrawIcon(x, y, m_hIcon);
+	}
+	else
+	{
+		CDialog::OnPaint();
+	}
+}
+
+// The system calls this function to obtain the cursor to display while the user drags
+//  the minimized window.
+HCURSOR CAboutDlg::OnQueryDragIcon()
+{
+	return static_cast<HCURSOR>(m_hIcon);
+}
+
+
+BOOL CAboutDlg::OnEraseBkgnd(CDC* pDC)
+{
+/*	CDC dcMemory;
+	dcMemory.CreateCompatibleDC(pDC);
+	CBitmap* pOldBitmap = dcMemory.SelectObject(&Background);
+	CRect rcClient;
+	GetClientRect(&rcClient);
+	const CSize& sBitmap = BitmapSize;
+	pDC->BitBlt(0,0,rcClient.Width(),rcClient.Height(),&dcMemory,0,0,SRCCOPY);
+//	pDC->BitBlt(0,0,sBitmap.cx,sBitmap.cy,&dcMemory,0,0,SRCCOPY);
+	dcMemory.SelectObject(pOldBitmap);
+*/
+	CommonTools C_Ts;
+	CString strappPath ;
+	strappPath = C_Ts.GetAppPath() ;
+	strappPath += "\\Image\\BackGround.bmp";
+	CRect rect;
+	GetClientRect(&rect);
+	Rect GdiRect (rect.TopLeft().x,rect.TopLeft().y,rect.Size().cx,rect.Size().cy); 
+
+	Graphics graphics (pDC->m_hDC);
+        		BSTR strPicPath = strappPath.AllocSysString();
+///        		BSTR strPicPath = _com_util::ConvertStringToBSTR(m_strPictureName);
+        		Image  m_pimage(strPicPath);
+      	       	SysFreeString(strPicPath);
+//            	m_pimage.RotateFlip(Rotate180FlipX);
+           		graphics.DrawImage(&m_pimage, GdiRect);
+	graphics.ReleaseHDC(pDC->m_hDC);
+
+	return TRUE;
+	//return CDialog::OnEraseBkgnd(pDC); Remove and return TRUE
+}
+
+void CAboutDlg::OnDestroy()
+{
+	CDialog::OnDestroy();
+
+	BrushHol.DeleteObject();
+}
+
+HBRUSH CAboutDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+//	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+	
+	pDC->SetBkMode(TRANSPARENT);
+	if( pWnd->GetDlgCtrlID() == IDC_STATIC)
+	{
+		pDC->SetTextColor(RGB(255, 0, 0));
+	}
+	// TODO:  Return a different brush if the default is not desired
+	return BrushHol;
+}
+
+
+
 
 #ifdef ENABLE_MANIFESTEDITOR
 

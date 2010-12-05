@@ -64,6 +64,8 @@ void CDrawButton::Serialize(CArchive& ar)
 		ar >> m_strPictureName;
 		m_TempColor = m_color;
 		m_bIsChangeHide = FALSE;       //0415
+		CString strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\";
+		m_strLinkViewName = strrsy + m_strLinkViewName;
 	}
 }
 
@@ -144,7 +146,8 @@ void CDrawButton::Draw(CDC* pDC)
 		{
        		if(!m_strPictureName.IsEmpty())
 			{
-        		BSTR strPicPath = m_strPictureName.AllocSysString();
+				CString strrsy = theApp.m_strms[18].strl + "Image\\"+m_strPictureName;
+        		BSTR strPicPath = strrsy.AllocSysString();
 ///        		BSTR strPicPath = _com_util::ConvertStringToBSTR(m_strPictureName);
         		Image  m_pimage(strPicPath);
       	       	SysFreeString(strPicPath);

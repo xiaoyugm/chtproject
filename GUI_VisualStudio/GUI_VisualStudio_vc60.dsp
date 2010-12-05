@@ -154,23 +154,6 @@ SOURCE=.\AdjustDlg.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\BasicExcel.cpp
-
-!IF  "$(CFG)" == "GUI_VisualStudio - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "GUI_VisualStudio - Win32 Debug"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "GUI_VisualStudio - Win32 Unicode Release"
-
-!ELSEIF  "$(CFG)" == "GUI_VisualStudio - Win32 Unicode Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=.\ChildFrm.cpp
 # End Source File
 # Begin Source File
@@ -187,6 +170,14 @@ SOURCE=.\DASafeMehod.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\DCH5m.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DListEXT.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DynamicHelpView.cpp
 # End Source File
 # Begin Source File
@@ -195,7 +186,11 @@ SOURCE=.\DynamicMenu.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ExcelFormat.cpp
+SOURCE=.\FormDraw.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\GUI_OutlookView.cpp
 # End Source File
 # Begin Source File
 
@@ -223,6 +218,18 @@ SOURCE=.\MainFrm.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\MFClient.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\MSClient.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\MSServer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\OutputPane.cpp
 # End Source File
 # Begin Source File
@@ -239,6 +246,10 @@ SOURCE=.\SolutionExplorerPane.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SplashWnd.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdAfx.cpp
 # ADD CPP /Yc"stdafx.h"
 # End Source File
@@ -249,10 +260,6 @@ SOURCE=.\StdAfx.cpp
 # Begin Source File
 
 SOURCE=.\AdjustDlg.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\BasicExcel.hpp
 # End Source File
 # Begin Source File
 
@@ -272,6 +279,14 @@ SOURCE=.\DASafeMehod.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\DCH5m.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DListEXT.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\DynamicHelpView.h
 # End Source File
 # Begin Source File
@@ -280,7 +295,11 @@ SOURCE=.\DynamicMenu.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ExcelFormat.h
+SOURCE=.\FormDraw.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\GUI_OutlookView.h
 # End Source File
 # Begin Source File
 
@@ -304,6 +323,18 @@ SOURCE=.\MainFrm.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\MFClient.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MSClient.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MSServer.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\OutputPane.h
 # End Source File
 # Begin Source File
@@ -321,6 +352,10 @@ SOURCE=.\SafeMethod.h
 # Begin Source File
 
 SOURCE=.\SolutionExplorerPane.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SplashWnd.h
 # End Source File
 # Begin Source File
 
@@ -376,6 +411,14 @@ SOURCE=.\res\FullScreen.bmp
 # End Source File
 # Begin Source File
 
+SOURCE=.\res\grip_closed.cur
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\grip_open.cur
+# End Source File
+# Begin Source File
+
 SOURCE=.\res\GUI_VisualStudio.ico
 # End Source File
 # Begin Source File
@@ -388,6 +431,10 @@ SOURCE=.\res\GUI_VisualStudioDoc.ico
 # End Source File
 # Begin Source File
 
+SOURCE=.\res\iconMA.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\res\img_classtree.bmp
 # End Source File
 # Begin Source File
@@ -397,6 +444,18 @@ SOURCE=.\res\img_filetree.bmp
 # Begin Source File
 
 SOURCE=.\res\img_restree.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\loupe.cur
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\loupe_minus.CUR
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\loupe_plus.CUR
 # End Source File
 # Begin Source File
 
@@ -428,6 +487,10 @@ SOURCE=.\res\PaneProperties.bmp
 # End Source File
 # Begin Source File
 
+SOURCE=.\res\pencil.cur
+# End Source File
+# Begin Source File
+
 SOURCE=.\res\SolutionExplorerPane.bmp
 # End Source File
 # Begin Source File
@@ -445,6 +508,10 @@ SOURCE=.\res\Toolbar.bmp
 # Begin Source File
 
 SOURCE=.\res\Toolbar.png
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\toolbary.bmp
 # End Source File
 # Begin Source File
 
@@ -1054,6 +1121,14 @@ SOURCE=.\DrawRotary.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\drawtool.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\drawtool.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\DrawView.cpp
 # End Source File
 # Begin Source File
@@ -1131,6 +1206,14 @@ SOURCE=.\TabbedViewView.cpp
 # Begin Source File
 
 SOURCE=.\TabbedViewView.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ZoomView.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ZoomView.h
 # End Source File
 # End Group
 # Begin Group "RealTime"
@@ -1254,6 +1337,29 @@ SOURCE=.\dbAx\AxSControl.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\BasicExcel.cpp
+
+!IF  "$(CFG)" == "GUI_VisualStudio - Win32 Release"
+
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ELSEIF  "$(CFG)" == "GUI_VisualStudio - Win32 Debug"
+
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ELSEIF  "$(CFG)" == "GUI_VisualStudio - Win32 Unicode Release"
+
+!ELSEIF  "$(CFG)" == "GUI_VisualStudio - Win32 Unicode Debug"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\BasicExcel.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dbAx\CardFileEvents.hpp
 # End Source File
 # Begin Source File
@@ -1286,6 +1392,22 @@ SOURCE=.\dbAx\CppSQLite3.cpp
 # Begin Source File
 
 SOURCE=.\dbAx\CppSQLite3.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\excel2003.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\excel2003.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ExcelFormat.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ExcelFormat.h
 # End Source File
 # Begin Source File
 
@@ -1473,6 +1595,42 @@ SOURCE=.\SettingHostDlg.cpp
 # Begin Source File
 
 SOURCE=.\SettingHostDlg.h
+# End Source File
+# End Group
+# Begin Group "Zoom"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\QBufferDC.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\QBufferDC.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\QSelectTracker.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\QSelectTracker.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\QTracker.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\QTracker.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\QZoomView.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\QZoomView.h
 # End Source File
 # End Group
 # Begin Source File

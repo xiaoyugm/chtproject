@@ -80,19 +80,19 @@
 #define LONGINT_CONST(x) x##LL
 #endif
 
-//#if _MSC_VER>=1400	// VS 2005
-//#define _CRT_SECURE_NO_WARNINGS //MF
-//#define _SCL_SECURE_NO_WARNINGS //MF
-//#endif
+#if _MSC_VER>=1400	// VS 2005
+#define _CRT_SECURE_NO_WARNINGS //MF
+#define _SCL_SECURE_NO_WARNINGS //MF
+#endif
 
 #ifdef __GNUC__
 #define FMT_SIZE_T	  "%zu"
 #define FMT_SSIZE_T   "%zd"
 #define FMT_PTRDIFF_T "%zd"
-//#elif _MSC_VER>=1400	// VS 2005
-//#define FMT_SIZE_T	  "%Iu"
-//#define FMT_SSIZE_T   "%Id"
-//#define FMT_PTRDIFF_T "%Id"
+#elif _MSC_VER>=1400	// VS 2005
+#define FMT_SIZE_T	  "%Iu"
+#define FMT_SSIZE_T   "%Id"
+#define FMT_PTRDIFF_T "%Id"
 #else
 #define FMT_SIZE_T	  "%u"
 #define FMT_SSIZE_T   "%d"
@@ -915,12 +915,15 @@ struct LargeString
 inline std::string narrow_string(const std::wstring& str)
 {
 	std::string ret;
-	ret.resize(str.length());
 
-	typedef std::ctype<wchar_t> CT;
-	CT const& ct = std::_USE(std::locale(), CT);
+	if (!str.empty()) {
+		ret.resize(str.length());
 
-	ct.narrow(&str[0], &*str.begin()+str.size(), '?', &ret[0]);
+		typedef std::ctype<wchar_t> CT;
+		CT const& ct = std::_USE(std::locale(), CT);
+
+		ct.narrow(&str[0], &*str.begin()+str.size(), '?', &ret[0]);
+	}
 
 	return ret;
 }
@@ -934,12 +937,15 @@ inline std::string narrow_string(const vector<wchar_t>& wstr)
 inline std::wstring widen_string(const std::string& str)
 {
 	std::wstring ret;
-	ret.resize(str.length());
 
-	typedef std::ctype<wchar_t> CT;
-	CT const& ct = std::_USE(std::locale(), CT);
+	if (!str.empty()) {
+		ret.resize(str.length());
 
-	ct.widen(&str[0], &*str.begin()+str.size(), &ret[0]);
+		typedef std::ctype<wchar_t> CT;
+		CT const& ct = std::_USE(std::locale(), CT);
+
+		ct.widen(&str[0], &*str.begin()+str.size(), &ret[0]);
+	}
 
 	return ret;
 }

@@ -34,18 +34,55 @@
 #include "DASafeMehod.h"
 #include "MadeCertView.h"
 #include "ClassTime.h"
+#include "FormDraw.h"
+#include "DCH5m.h"
 
-#include "DynamicMenu.h"
+//#include "DynamicMenu.h"
 //#include <CommonTools.h>
+#include  <winable.h> 
 
-#include  <tlhelp32.h>
+//#include  <tlhelp32.h>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern  DrawView         m_DrawView[20];
+/*
+#define ID_COMMAND_0                    2000
+#define ID_COMMAND_1                    2001
+#define ID_COMMAND_2                    2002
+#define ID_COMMAND_3                    2003
+#define ID_COMMAND_4                    2004
+#define ID_COMMAND_5                    2005
+#define ID_COMMAND_6                    2006
+#define ID_COMMAND_7                    2007
+#define ID_COMMAND_8                    2008
+#define ID_COMMAND_9                    2009
+#define ID_COMMAND_10                    2010
+#define ID_COMMAND_11                    2011
+#define ID_COMMAND_12                    2012
+#define ID_COMMAND_13                    2013
+#define ID_COMMAND_14                    2014
+#define ID_COMMAND_15                    2015
+#define ID_COMMAND_16                    2016
+#define ID_COMMAND_17                    2017
+#define ID_COMMAND_18                    2018
+#define ID_COMMAND_19                    2019
+#define ID_COMMAND_20                    2020
+#define ID_COMMAND_21                    2021
+#define ID_COMMAND_22                    2022
+#define ID_COMMAND_23                    2023
+#define ID_COMMAND_24                    2024
+#define ID_COMMAND_25                    2025
+#define ID_COMMAND_26                    2026
+#define ID_COMMAND_27                    2027
+#define ID_COMMAND_28                    2028
+#define ID_COMMAND_29                    2029
+*/
+
+extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
+//SerialF               m_one[MAX_FDS][MAX_CHAN];
 /////////////////////////////////////////////////////////////////////////////
 // CMainFrame
 
@@ -54,14 +91,19 @@ IMPLEMENT_DYNAMIC(CMainFrame, CMDIFrameWnd)
 BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	//{{AFX_MSG_MAP(CMainFrame)   
 	ON_WM_CREATE()
+	ON_WM_TIMER()
 	ON_COMMAND(ID_WINDOW_AUTOHIDEALL, OnWindowAutohideall)
 	ON_COMMAND(ID_WINDOW_MORE, OnWindowMore)
 	ON_WM_CLOSE()
+	ON_COMMAND_RANGE(2000,2050,OnFileMenuItems)
+//	ON_WM_LBUTTONDOWN()	// OnLButtonDown(UINT nFlags, CPoint point)
 	ON_COMMAND(ID_OnSimulation, OnSimulation)
 	ON_COMMAND(ID_OnGenus, OnGenus)
 
 	ON_COMMAND(ID_MANIPULATE, OnSoundPath)
 	ON_UPDATE_COMMAND_UI(ID_MANIPULATE, OnUpdateOnSoundPath)
+
+	ON_COMMAND(ID_FORMS, OnFORMS)
 
 	ON_COMMAND(ID_D_D, OnDigital)
 	ON_COMMAND(ID_A_D, OnAnalog)
@@ -83,6 +125,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_LOGOUT, OnLOGOUT)
 	ON_COMMAND(ID_CLASSTIME, OnCLASSTIME)
 	ON_COMMAND(ID_FANSA, OnFansA)
+	ON_COMMAND(ID_FORMPROP, OnFORMPROP)
+	ON_COMMAND(ID_SAVEFD, OnSAVEFD) //save files
 
 	ON_COMMAND(ID_ADJUST_DIS, OnAdjustdis)
 	ON_COMMAND(ID_ALARMS, OnALARMS)
@@ -101,6 +145,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 
 	ON_COMMAND(ID_DRIVERE, OnDRIVERE)
 	ON_COMMAND(ID_DIS_DSC, OnDisDSC)
+	ON_COMMAND(ID_OPTXT, OnOPTXT)
+	ON_COMMAND(ID_WORKTXT, OnWORKTXT)
 
 		//记录查询显示
 	ON_COMMAND(ID_REC_AAD, OnRECAAD)
@@ -124,9 +170,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_EXCEL_DFE, OnEXCELDFE)
 	ON_COMMAND(ID_EXCEL_DRIVERE, OnEXCELDRIVERE)
 
-	ON_COMMAND(ID_DRAW_PAERATION, OnWAERATION)
+//	ON_COMMAND(ID_DRAW_PAERATION, OnWAERATION)
 	ON_COMMAND(ID_DRAW_PGAS, OnWGAS)
-	ON_COMMAND(ID_DRAW_SYSTEM, OnWSYSTEM)
+	ON_COMMAND(ID_DRAW_SYSTEM, Sqlite3define)
+	ON_COMMAND(ID_DRTDATA, Sqlite3init)
 
 	ON_COMMAND(ID_DRAW_STATE, OnCDS)
 	ON_COMMAND(ID_DRAW_COLUMNIATION, OnCDC)
@@ -134,9 +181,12 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_DRAW_CA, OnCAALARM)
 	ON_COMMAND(ID_DRAW_CB, OnCABREAK)
 	ON_COMMAND(ID_DRAW_CFE, OnCAFEED)
+	ON_COMMAND(ID_ECURVE, OnCASelect)
+	ON_COMMAND(ID_EDRAW, OnEDRAW) //模拟图编辑
 
 	ON_COMMAND(ID_MADE_MADE, OnMadeMade)
 
+	ON_UPDATE_COMMAND_UI(ID_FANSA, OnUpdateDis)
 	ON_UPDATE_COMMAND_UI(ID_D_D, OnUpdateDis)
 	ON_UPDATE_COMMAND_UI(ID_A_D, OnUpdateDis)
 	ON_UPDATE_COMMAND_UI(ID_LOCALTION, OnUpdateDis)
@@ -212,11 +262,14 @@ static UINT indicators[] =
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame()
+//:m_pMenuCommandSet(NULL)
 {
 	m_nState = 1;
 	m_nPlatform = 0;
 	m_bFullScreen = FALSE;
 	m_bSoundPath = TRUE;
+	m_m300 =0;
+	m_bIsDraw =  TRUE;
 
 	// get path of executable
 	TCHAR szBuff[_MAX_PATH];
@@ -231,9 +284,11 @@ CMainFrame::CMainFrame()
 	m_rcMainFrame.SetRectEmpty();
 
 	m_nTheme = ID_THEME_VC9;
-	m_nOtherView = ID_VIEW_CLASSVIEW;
+//	m_nOtherView = ID_VIEW_CLASSVIEW;
 
 	m_pMade=NULL;
+//	m_pMenu=NULL;
+//	m_pMenuCommandSet=	new MenuCommandSet();
 
 #ifdef _XTP_INCLUDE_SKINFRAMEWORK
 	XTPSkinManager()->GetResourceFile()->SetModuleHandle(AfxGetInstanceHandle());
@@ -241,12 +296,16 @@ CMainFrame::CMainFrame()
 
 //	m_pSampleFormView = NULL;
 //	m_ontime =0;
-	m_nPaneID =0;
+	m_nPaneID =1;
 	m_RepeatFlag = FALSE;
+	m_ViewPos = NULL;
+	s_ViewPos = NULL;
 }
 
 CMainFrame::~CMainFrame()
 {
+//	delete m_pMenuCommandSet;
+//    delete m_pMenu;
 	if (m_pFullScreenLayout)
 	{
 		delete m_pFullScreenLayout;
@@ -259,6 +318,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 //	XTThemeManager()->SetTheme(xtThemeOffice2003);
+//	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP
+//		| CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
+//		!m_wndToolBar.LoadToolBar(IDR_TOOLBARY))
 
 	if (!m_wndStatusBar.Create(this) ||
 		!m_wndStatusBar.SetIndicators(indicators,
@@ -270,28 +332,29 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	if (!InitCommandBars())
 		return -1;
-
 	CXTPPaintManager::SetTheme(xtpThemeVisualStudio2008);  //xtpThemeVisualStudio2008
+	pCommandBars = GetCommandBars();
 
-	CXTPCommandBars* pCommandBars = GetCommandBars();
-
-	CXTPCommandBar* pMenuBar;
+	CXTPMenuBar* pMenuBar ;//= pCommandBars->SetMenu(_T("Menu Bar"), IDR_MAINFRAME);
+//	CXTPCommandBar* pMenuBar;
 	CString strmes = theApp.strargc.Mid(0,2);
 	if(strmes == "On")
     	pMenuBar = pCommandBars->SetMenu(_T("Menu Bar"), IDR_MREPORT);
 	else
     	pMenuBar = pCommandBars->SetMenu(_T("Menu Bar"), IDR_MAINFRAME);
-	pMenuBar->SetFlags(xtpFlagIgnoreSetMenuMessage | xtpFlagHideMDIButtons);  //main  IDR_MAINFRAME
+//	pMenuBar->SetFlags(xtpFlagIgnoreSetMenuMessage | xtpFlagHideMDIButtons);  //main  IDR_MAINFRAME
+	pMenuBar->SetFlags(xtpFlagAddMDISysPopup);
 
-/*	CXTPToolBar* pCommandBar = (CXTPToolBar*)pCommandBars->Add(_T("Standard"), xtpBarTop);
-	if (!pCommandBar ||
-		!pCommandBar->LoadToolBar(IDR_MAINFRAME))
+	CXTPToolBar* pCommandBart = (CXTPToolBar*)pCommandBars->Add(_T("工具栏"), xtpBarTop);
+	if (!pCommandBart ||
+		!pCommandBart->LoadToolBar(IDR_TOOLBARY))
 	{
 		TRACE0("Failed to create toolbar\n");
 		return -1;
 	}
+	pCommandBart->SetVisible(FALSE);
 
-	CXTPToolBar* pWebBar = (CXTPToolBar*)pCommandBars->Add(_T("Web"), xtpBarTop);
+	/*	CXTPToolBar* pWebBar = (CXTPToolBar*)pCommandBars->Add(_T("Web"), xtpBarTop);Standard
 	if (!pWebBar ||
 		!pWebBar->LoadToolBar(IDR_TOOLBAR_WEB))
 	{
@@ -308,14 +371,18 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	DockRightOf(pThemeBar, pWebBar);
 
-	CXTPToolBar* pFullScreenBar = (CXTPToolBar*)pCommandBars->Add(_T("Full Screen"), xtpBarTop);
+	CXTPToolBar* pFullScreenBar = (CXTPToolBar*)pCommandBars->Add(_T("工具栏"), xtpBarTop);
+//	CXTPToolBar* pFullScreenBar = (CXTPToolBar*)pCommandBars->Add(_T("Full Screen"), xtpBarTop);
 	if (!pFullScreenBar ||
-		!pFullScreenBar->LoadToolBar(IDR_TOOLBAR_FULLSCREEN))
+		!pFullScreenBar->LoadToolBar(IDR_TOOLBARY))
+//		!pFullScreenBar->LoadToolBar(IDR_TOOLBAR_FULLSCREEN))
 	{
 		TRACE0("Failed to create toolbar\n");
 		return -1;
 	}
 	pFullScreenBar->SetVisible(FALSE);*/
+
+
 
 	XTPPaintManager()->GetIconsInfo()->bUseDisabledIcons = TRUE;
 //	XTPImageManager()->SetIcons(IDR_TOOLBAR_EXT);
@@ -344,14 +411,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 				ID_VIEW_RESOURCEVIEW4, CRect(0, 0, 100, 170), xtpPaneDockBottom);
 			 paneResourceView5 = m_paneManager.CreatePane(
 				ID_VIEW_RESOURCEVIEW5, CRect(0, 0, 100, 170), xtpPaneDockBottom);
-			 paneResourceView6 = m_paneManager.CreatePane(
-				ID_VIEW_RESOURCEVIEW6, CRect(0, 0, 100, 170), xtpPaneDockBottom);
+//			 paneResourceView6 = m_paneManager.CreatePane(
+//				ID_VIEW_RESOURCEVIEW6, CRect(0, 0, 100, 170), xtpPaneDockBottom);
 		
 			m_paneManager.AttachPane(paneResourceView2,paneResourceView );
 			m_paneManager.AttachPane(paneResourceView3,paneResourceView2);
 			m_paneManager.AttachPane(paneResourceView4,paneResourceView3 );
 			m_paneManager.AttachPane(paneResourceView5,paneResourceView4);
-			m_paneManager.AttachPane(paneResourceView6,paneResourceView5 );
+//			m_paneManager.AttachPane(paneResourceView6,paneResourceView5 );
 //			m_paneManager.AttachPane(paneResourceView3,paneResourceView2);
 					if (!m_wndResourceView3.GetSafeHwnd())
 					{
@@ -384,12 +451,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 						m_wndResourceView5.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
 					}
 					paneResourceView5->Attach(&m_wndResourceView5);
-					if (!m_wndResourceView6.GetSafeHwnd())
-					{
-						theApp.m_resnum = 6;
-						m_wndResourceView6.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
-					}
-					paneResourceView6->Attach(&m_wndResourceView6);
+//					if (!m_wndResourceView6.GetSafeHwnd())
+//					{
+//						theApp.m_resnum = 6;
+//						m_wndResourceView6.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
+//					}
+//					paneResourceView6->Attach(&m_wndResourceView6);
 //			paneResourceView->Select();
 	}
 /*
@@ -433,12 +500,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	else
 	{
 		ResetToolboxItems();		
-	}
-*/
-	CXTPImageManager* pImageManager = pCommandBars->GetImageManager();
+	}*/
 
-	pImageManager->InternalAddRef();
-	m_paneManager.SetImageManager(pImageManager);
+	CXTPImageManager* pImageManager = pCommandBars->GetImageManager();
+//m_wndResourceView图标显示控制
+//	pImageManager->InternalAddRef();
+//	m_paneManager.SetImageManager(pImageManager);
 
 	m_paneManager.SetAlphaDockingContext(TRUE);
 //	m_paneManager.UseSplitterTracker(FALSE);
@@ -454,20 +521,24 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	VERIFY(m_MTIClientWnd.Attach(this, TRUE));
 	m_MTIClientWnd.EnableToolTips();
-//	m_MTIClientWnd.SetFlags(xtpWorkspaceHideClose);   //child  关闭按钮
+	if(strmes == "On")
+    	m_MTIClientWnd.SetFlags(xtpWorkspaceHideClose |xtpWorkspaceHideArrowsAlways);   //child  关闭按钮
 //	XTPImageManager()->SetIcons(IDR_DRAWTYPE);
 
 	m_MTIClientWnd.GetPaintManager()->m_bShowIcons = FALSE;  //FALSE
+//	if(strmes == "On")
 //	m_MTIClientWnd.SetNewTabPosition(xtpWorkspaceNewTabLeftMost);
-//	m_MTIClientWnd.SetFlags(xtpWorkspaceHideArrowsAlways | xtpWorkspaceShowActiveFiles);
+//    	m_MTIClientWnd.SetFlags(xtpWorkspaceHideArrowsAlways | xtpWorkspaceShowActiveFiles);
 
 	CXTPOffice2003Theme::LoadModernToolbarIcons(IDR_MAINFRAME);
 //	CXTPOffice2003Theme::LoadModernToolbarIcons(IDR_BORDERS);
 
-	m_wndStatusBar.GetPane(0)->SetBeginGroup(FALSE);
-	AddLogo();
+	if(strmes != "On")
+	{
+    	m_wndStatusBar.GetPane(0)->SetBeginGroup(FALSE);
+    	AddLogo();
 	m_wndStatusBar.SetRibbonDividerIndex(m_wndStatusBar.GetPaneCount() - 1);
-	AddSwitchButtons();
+//	AddSwitchButtons();
 	AddEdit();
 	AddUser();
 	AddMessage("");
@@ -475,15 +546,24 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 //	AddAnimation();
 //	AddZoomButton();
 //	AddZoomSlider();
-	m_wndStatusBar.EnableCustomization();
-	
+    	m_wndStatusBar.EnableCustomization();
+	}
 	// Load the previous state for command bars.
 	LoadCommandBars(_T("CommandBars"));
+
+#ifdef _DEBUG
+#else
+	OnTopWindow();
+#endif //_DEBUG
 
 	if(strmes == "On")
 	{
 		OnMadeMade();
 	}
+	else 
+    	SetTimer(120,1000,NULL);
+
+
 	return 0;
 }
 
@@ -499,7 +579,9 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 //“开始→运行”，键入“Regedit”后回车，在注册表编辑器中展开 [HKEY_CLASSES_ROOT]分支，
 //找到要隐藏的文件扩展名并展开，然后在右侧窗口中新建字符串值“NeverShowExt”，退出注册表
 //编辑器重新启动计算机后，该类型文件的扩展名将会自动隐藏起来。
-
+//\n煤矿安全监控 文件 (*.rsy)\n.rsy\nRsy.Object\nRsy Document
+//	\n\n\n\n.rsf\nRSF.Object\nRSF Document
+//	\nUntitled\nUntitled\n\n\nGUIVisualStudio.Document\nText Document
 	//主窗口的标题
 //    m_strTitle ="煤矿安全监测";
 	if( !CMDIFrameWnd::PreCreateWindow(cs) )
@@ -925,18 +1007,18 @@ int CMainFrame::OnCreateControl(LPCREATECONTROLSTRUCT lpCreateControl)
 			return TRUE;
 		}
 
-		if (lpCreateControl->nID == ID_FILE_NEW_PROJECT && pToolBar->GetBarID() == IDR_MAINFRAME)
+/*		if (lpCreateControl->nID == ID_FILE_NEW_PROJECT && pToolBar->GetBarID() == IDR_MAINFRAME)
 		{
 			lpCreateControl->controlType = xtpControlSplitButtonPopup;
 			return TRUE;
 		}
-		if (lpCreateControl->nID == ID_PROJECT_ADDNEWITEM && pToolBar->GetBarID() == IDR_MAINFRAME)
+/*		if (lpCreateControl->nID == ID_PROJECT_ADDNEWITEM && pToolBar->GetBarID() == IDR_MAINFRAME)
 		{
 			lpCreateControl->controlType = xtpControlSplitButtonPopup;
 			return TRUE;
 		}
 
-		if (lpCreateControl->nID == ID_EDIT_FIND_EX && pToolBar->GetBarID() == IDR_MAINFRAME)
+/*		if (lpCreateControl->nID == ID_EDIT_FIND_EX && pToolBar->GetBarID() == IDR_MAINFRAME)
 		{
 			CXTPControlComboBox* pComboFind = (CXTPControlComboBox*)CXTPControlComboBox::CreateObject();
 			pComboFind->SetDropDownListStyle();
@@ -953,7 +1035,7 @@ int CMainFrame::OnCreateControl(LPCREATECONTROLSTRUCT lpCreateControl)
 			return TRUE;
 		}
 
-		if (lpCreateControl->nID == ID_EDIT_STATE && pToolBar->GetBarID() == IDR_MAINFRAME)
+/*		if (lpCreateControl->nID == ID_EDIT_STATE && pToolBar->GetBarID() == IDR_MAINFRAME)
 		{
 			CXTPControlComboBox* pComboState = (CXTPControlComboBox*)CXTPControlComboBox::CreateObject();
 			pComboState->AddString(_T("Debug"));
@@ -964,7 +1046,7 @@ int CMainFrame::OnCreateControl(LPCREATECONTROLSTRUCT lpCreateControl)
 			return TRUE;
 		}
 
-		if (lpCreateControl->nID == ID_EDIT_PLATFORM && pToolBar->GetBarID() == IDR_MAINFRAME)
+/*		if (lpCreateControl->nID == ID_EDIT_PLATFORM && pToolBar->GetBarID() == IDR_MAINFRAME)
 		{
 			CXTPControlComboBox* pComboState = (CXTPControlComboBox*)CXTPControlComboBox::CreateObject();
 			pComboState->AddString(_T("Win32"));
@@ -972,7 +1054,7 @@ int CMainFrame::OnCreateControl(LPCREATECONTROLSTRUCT lpCreateControl)
 			pComboState->SetDropDownWidth(150);
 			lpCreateControl->pControl = pComboState;
 			return TRUE;
-		}
+		}*/
 
 
 		if (lpCreateControl->nID == ID_GOTO_URL && pToolBar->GetBarID() == IDR_TOOLBAR_WEB)
@@ -1094,8 +1176,41 @@ void CMainFrame::OnUpdateEditPlatform(CCmdUI* pCmdUI)
 
 void CMainFrame::OnClose()
 {
-	//CXTPPropExchangeIniFile px(FALSE, 0, _T("Settings"));    // To serialize to ini file
-	CXTPPropExchangeXMLNode px(FALSE, 0, _T("Settings"));      // To serialize to XML file
+	CString strmes = theApp.strargc.Mid(0,2);
+  CString szMsg;
+         szMsg= "你确定要退出吗？";
+
+#ifdef _DEBUG
+#else
+	if(strmes != "On")
+	{
+		 theApp.m_bLogIn = FALSE;
+			CLoginDlg dlglogin;
+			dlglogin.m_strdism = "login";
+			dlglogin.m_strUser = theApp.curuser;
+			if(dlglogin.DoModal()==IDOK) 
+			{
+//				if(theApp.curuser == "")
+//    				m_bLogIn=false;
+//				else
+//    				m_bLogIn=true;
+			}
+			else
+			{
+         		 theApp.m_bLogIn = TRUE;
+				return ;
+			}
+
+           MessageBeep(MB_ICONEXCLAMATION);
+           int Reply = AfxMessageBox(szMsg, MB_YESNO);
+           if ( Reply != IDYES )
+        		return;
+	}
+#endif //_DEBUG
+
+
+//	CXTPPropExchangeIniFile px(FALSE, 0, _T("Settings"));    // To serialize to ini file
+/*	CXTPPropExchangeXMLNode px(FALSE, 0, _T("Settings"));      // To serialize to XML file
 
 	if (px.OnBeforeExchange()) 
 	{
@@ -1114,30 +1229,43 @@ void CMainFrame::OnClose()
 		px.PutSection(m_pFullScreenLayout);
 
 		px.SaveToFile(m_strIniFileName);
-	}
+	}*/
 
 //	CommonTools CT;
-	CString strmes = theApp.strargc.Mid(0,2);
 	if(strmes == "On")
 	{
 	}
 	else
 	{
-    	theApp.socketClient.Close();
+		if(theApp.socketClient.IsConnected())
+         	theApp.socketClient.Close();
+		if(theApp.sFC.IsConnected())
+         	theApp.sFC.Close();
 
 #ifdef _DEBUG
+//    	theApp.SocketServer.StopServer();
+//    	theApp.sMSb.StopServer();
+		if(n_CPort == 999 || n_CPort == 888 || n_CPort ==111)
+     		if(theApp.sCb.IsConnected())
+ 		    	theApp.sCb.Close();
 #else
+		if(n_CPort == 999 || n_CPort == 888 || n_CPort ==111)
+		{
+     		if(theApp.sCb.IsConnected())
+		    	theApp.sCb.Close();
+		}
     	theApp.SocketServer.StopServer();
+//    	theApp.sMSb.StopServer();
 		C_Ts.KillProcess("RSDRAW-YSDB.EXE");
 #endif //_DEBUG
 
-		m_wndResourceView.m_listCtrl.DestroyWindow();
-	      m_wndResourceView2.m_listCtrl.DestroyWindow();
-	      m_wndResourceView3.m_listCtrl.DestroyWindow();
-	      m_wndResourceView4.m_listCtrl.DestroyWindow();
-	      m_wndResourceView5.m_listCtrl.DestroyWindow();
-	      m_wndResourceView6.m_listCtrl.DestroyWindow();
-	 paneResourceView6->Close();
+//		m_wndResourceView.m_listCtrl.DestroyWindow();
+//	      m_wndResourceView2.m_listCtrl.DestroyWindow();
+//	      m_wndResourceView3.m_listCtrl.DestroyWindow();
+//	      m_wndResourceView4.m_listCtrl.DestroyWindow();
+//	      m_wndResourceView5.m_listCtrl.DestroyWindow();
+//	      m_wndResourceView6.m_listCtrl.DestroyWindow();
+//	 paneResourceView6->Close();
 	 paneResourceView5->Close();
 	 paneResourceView4->Close();
 	 paneResourceView3->Close();
@@ -1330,10 +1458,14 @@ void CMainFrame::OnTheme(UINT nID)
 	switch (nID)
 	{
 	case ID_THEME_VC6:
-		XTPPaintManager()->SetCustomTheme(new CVisualStudio6Theme);
-		m_paneManager.SetTheme(xtpPaneThemeGrippered);
-		m_wndTaskPanel.SetTheme(xtpTaskPanelThemeToolbox);
-		m_wndProperties.m_wndPropertyGrid.SetTheme(xtpGridThemeDefault);
+//		XTPPaintManager()->SetCustomTheme(new CVisualStudio6Theme);
+//		m_paneManager.SetTheme(xtpPaneThemeGrippered);
+//		m_wndTaskPanel.SetTheme(xtpTaskPanelThemeToolbox);
+//		m_wndProperties.m_wndPropertyGrid.SetTheme(xtpGridThemeDefault);
+		XTPPaintManager()->SetTheme(xtpThemeVisualStudio2008);
+		m_paneManager.SetTheme(xtpPaneThemeVisualStudio2008);
+		m_wndTaskPanel.SetTheme(xtpTaskPanelThemeOffice2003Plain);
+		m_wndProperties.m_wndPropertyGrid.SetTheme(xtpGridThemeOffice2007);
 		break;
 
 	case ID_THEME_VC7:
@@ -1410,6 +1542,13 @@ void CMainFrame::OnFeedE()
 	dlg.DoModal();
 }
 
+void CMainFrame::OnFORMS() 
+{
+	CFormDraw dlg;
+	dlg.m_dorf=1;
+	dlg.DoModal();
+}
+
 void CMainFrame::OnColorS() 
 {
 	CColorSetDlg dlg;
@@ -1466,6 +1605,14 @@ void CMainFrame::OnFDSconfig()
 	CSetTimeDlg dlg;
 	dlg.chcommand =  0x41;
 	dlg.m_nSecond =  MAX_FDS-1;
+	dlg.DoModal();
+}
+
+void CMainFrame::OnFORMPROP() 
+{
+	CSetTimeDlg dlg;
+	dlg.chcommand =  0xf1;
+//	dlg.m_nSecond =  64;
 	dlg.DoModal();
 }
 
@@ -1536,10 +1683,26 @@ void CMainFrame::OnDisDFER() //开关量馈电异常
 }
 void CMainFrame::OnDisDSC() //开关量状态变动
 {
+	CDCH5m dlg;
+	dlg.n_select =1;
+	dlg.DoModal();
 //		m_paneManager.ClosePane(211);
 //     if(!paneResourceView6->IsSelected())
-        	paneResourceView6->Select();
+//        	paneResourceView6->Select();
 }
+void CMainFrame::OnOPTXT() //操作日志
+{
+	CDCH5m dlg;
+	dlg.n_select =2;
+	dlg.DoModal();
+}
+void CMainFrame::OnWORKTXT() //中心站运行日志
+{
+	CDCH5m dlg;
+	dlg.n_select =3;
+	dlg.DoModal();
+}
+
 void CMainFrame::OnDRIVERE()    //设备故障
 {
 	CLoginDlg dlg;
@@ -1648,54 +1811,199 @@ void CMainFrame::OnSELECTS()
 }
 ///////////////////////分类查询/////////////////////////////
 ///////////////////////模拟图显示/////////////////////////////
-void CMainFrame::OnWAERATION() 
+//申明只适用于ON_COMMAND消息的函数申明
+//void CMainFrame::OnWAERATION(WPARAM wParam, LPARAM lParam) 
+void CMainFrame::OnFileMenuItems(UINT nID)
 {
-	OnMView(2);
+//switch(wParam)
+//{
+//case IDC_STATIC_OUT1:
+//代码1
+//break;
+	OnMView(nID-2000,1);
 }
 
 void CMainFrame::OnWGAS() 
 {
-	OnMView(1);
+	OnMView(0,1);
 }
 
 void CMainFrame::OnWSYSTEM() 
 {
-	OnMView(0);
-}
-//开关量状态图、柱状图
-void CMainFrame::OnCDS() 
-{
-	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", "OnCDS",5,0x00000001);
-//	OnMView(3);
+//	CMenu* pMenu1 = AfxGetMainWnd()->GetMenu();
+//sysmenu = pFrame->GetSystemMenu(FALSE);
+//	CXTPCommandBars* pCommandBars = GetCommandBars();
+	if (!pCommandBars)
+		return;
+
+//	BOOL bCustomizeMode = pCommandBars->IsCustomizeMode();
+//	pCommandBars->SetCustomizeMode(FALSE);
+//	CDialogMenuGrabber ds(m_pFrame);
+//	if (ds.DoModal() == IDOK)
+	{
+//		if (ds.m_wndMenuBar.GetControls()->GetCount() > 0)
+		{
+
+//			pMenuBar->GetControls()->RemoveAll();
+//			pMenuBar->GetControls()->Copy(ds.m_wndMenuBar.GetControls());
+		}
+	}
+
+//	pCommandBars->SetCustomizeMode(bCustomizeMode);
+			CXTPMenuBar* pMenuBar = pCommandBars->GetMenuBar();
+			if (!pMenuBar)
+				return;
+//			pMenuBar->SetFlags(xtpFlagAddMDISysPopup);
+	for(int i=11; i>6 ;i--)   //总的菜单项
+			pMenuBar->GetControls()->Remove(i);
+//			pMenuBar->GetControls()->RemoveAll();
+//			pMenuBar->GetControls()->Copy(pMenuBar->GetControl(1));
+//			pMenuBar->LoadMenuBar(IDC_POPLISTCONTROL);
+	//Add(CXTPControl* pControl, int nId, LPCTSTR lpszParameter = NULL, int nBefore = -1, BOOL bTemporary = FALSE);
+//			pMenuBar->GetControls()->Add(pMenuBar->,2,"ffff",1,TRUE);
+    //再添加新的
+	CMenu menu;
+		VERIFY(menu.LoadMenu(IDR_MAINFRAME));
+//		menu.AppendMenu(MF_STRING, 2000, "xxx");
+		CMenu* pPopup = menu.GetSubMenu(7);
+        pPopup->RemoveMenu(0,MF_BYPOSITION);
+        pPopup->RemoveMenu(0,MF_BYPOSITION);
+	CString strrsy = theApp.m_strms[18].strl + strMetrics+ "rsy\\";
+    for( i =0; i < 100 ;i++)
+	{
+		CString strclm = theApp.sFC.m_strdf[theApp.Initfbl(strMetrics)][i].strl;
+		strclm.Replace(strrsy,"");
+		if(strclm == "")
+			break;
+		int m_ishave = strclm.GetLength();
+		strclm = strclm.Mid(0 ,m_ishave-4);
+        pPopup->AppendMenu(MF_STRING, i+2000, strclm);
+	}
+//    pPopup->AppendMenu(MF_SEPARATOR);
+//	pPopup->DeleteMenu(11,MF_BYPOSITION);
+//	kkkk=pPopup->GetMenuItemCount();
+#ifdef _DEBUG
+	for( i=7; i<12 ;i++)
+       pMenuBar->GetControls()->AddMenuItem(&menu,i);
+//       pCommandBars->GetMenuBar()->LoadMenu(&menu , TRUE); ;
+#else
+	for( i=7; i<12 ;i++)
+       pMenuBar->GetControls()->AddMenuItem(&menu,i);
+//       pCommandBars->GetMenuBar()->LoadMenu(&menu , TRUE); ;
+#endif //_DEBUG
+//	pPopup->DestroyMenu();
+//	menu.DestroyMenu();
+//	pMenuBar->Invalidate(FALSE);
+//	pMenuBar->RefreshMenu();
+//   CMenu   *pMenu   =   new   CMenu();
+//  HMENU   hMenu   =   pSysMenu->Detach();  
+//  pMenu->Attach(hMenu);  
+//  SetMenu(NULL);   
+//  SetMenu(pMenu);   
+//  m_pMenu = AddSubMenu(pMenuBar->GetFrameSite(), 0, 0, "Dynamic Menu",NULL); 
+//	CMenu* pMenu= _GetDynaPopupMenu1();
+//	m_pMenu = CMenu::FromHandle( m_wndMenuBar.GetHMenu() );
+//	CMenu* pSubMenu = m_pMenu->GetSubMenu(2);
+    OnTheme(ID_THEME_VC6);
+	CXTPPaintManager::SetTheme(xtpThemeVisualStudio2008);  //xtpThemeVisualStudio2008
+
+//    AfxGetMainWnd()->DrawMenuBar(); //重画菜单
 }
 
+/** @brief Return from the menu bar the CMenu with name 'DynaPopupMenu1'
+* @return CMenu* a pointer on the menu found (NULL if failed)
+* @todo should have a more generic implementation
+*/
+CMenu* CMainFrame::_GetDynaPopupMenu1()
+{
+	CMenu* pMenu = NULL;
+//	CMenu* pTopMenu = GetMenu();
+	CMenu* pTopMenu = AfxGetMainWnd()->GetMenu();
+	CMenu* pSubMenu;
+	CString strMenu;
+	int i;
+	int j;
+	int iCount1;
+	int iCount2;
+
+	iCount1= pTopMenu->GetMenuItemCount();
+	for(i= 0; i < iCount1; ++i)
+	{
+		pTopMenu->GetMenuString( i, strMenu, MF_BYPOSITION );
+		if(strMenu == _T("MyDynaMenu"))
+		{
+			pSubMenu = pTopMenu->GetSubMenu(i);
+			if(pSubMenu)
+			{
+				iCount2= pSubMenu->GetMenuItemCount();
+				for(j= 0; j < iCount2; ++j)
+				{
+					pSubMenu->GetMenuString( j, strMenu, MF_BYPOSITION );
+					if(strMenu == "DynaPopupMenu1")
+					{
+						pMenu= pSubMenu->GetSubMenu(j);
+						if(pMenu){
+							return pMenu;
+						}
+					}
+				}
+			}
+		}
+	}
+	ASSERT(pMenu != NULL);
+	return pMenu;
+}
+
+//开关量状态图、
+void CMainFrame::OnCDS() 
+{
+	strCli = "OnCDS|"+strCli;
+	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe",m_Str2Data.CStringtocharp(strCli),5,0x00000001);
+}
+//柱状图
 void CMainFrame::OnCDC() 
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", "OnCDC",5,0x00000001);
-//	OnMView(4);
+	strCli = "OnCDC|"+strCli;
+	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", m_Str2Data.CStringtocharp(strCli),5,0x00000001);
 }
 
 void CMainFrame::OnCASelect() 
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", "OnCASelect",5,0x00000001);
+	strCli = "OnCASelect|"+strCli;
+	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", m_Str2Data.CStringtocharp(strCli),5,0x00000001);
 }
 
 void CMainFrame::OnCAALARM() 
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", "OnCAALARM",5,0x00000001);
+	strCli = "OnCAALARM|"+strCli;
+	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", m_Str2Data.CStringtocharp(strCli),5,0x00000001);
 }
 
 void CMainFrame::OnCABREAK() 
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", "OnCABREAK",5,0x00000001);
+	strCli = "OnCABREAK|"+strCli;
+	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", m_Str2Data.CStringtocharp(strCli),5,0x00000001);
 }
 
 void CMainFrame::OnCAFEED() 
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", "OnCAFEED",5,0x00000001);
+	strCli = "OnCAFEED|"+strCli;
+	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", m_Str2Data.CStringtocharp(strCli),5,0x00000001);
 }
 
-///////////////////////模拟图显示/////////////////////////////
+///////////////////////模拟图编辑显示/////////////////////////////
+void CMainFrame::OnEDRAW() 
+{
+ /*       	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
+         	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
+         	CDrawView *pView = (CDrawView*)pChild->GetActiveView();	
+			if(!pView->IsKindOf(RUNTIME_CLASS(CDrawView)))
+           		return;
+			CDrawDoc* pThisOne = (CDrawDoc *)pChild->GetActiveDocument() ;
+			pThisOne->OnCloseDocument();*/
+
+	C_Ts.CreateP(gstrTimeOut +"\\YDraw.exe", "",5,0x00000001);
+}
 
 void CMainFrame::OnCLASSTIME() 
 {
@@ -1717,6 +2025,7 @@ void CMainFrame::OnAdjustdis()
 
 void CMainFrame::OnLOGIN() 
 {
+	theApp.curuser = "请登陆";
 	CLoginDlg dlg;
 	dlg.m_strdism = "login";
 	dlg.DoModal();
@@ -1727,6 +2036,31 @@ void CMainFrame::OnLOGOUT()
 	CLoginDlg dlg;
 	dlg.m_strdism = "login";
 	dlg.DoModal();
+}
+
+void CMainFrame::OnSAVEFD() 
+{
+	CString strrsy ,strclm,strrsy1,strclm1;
+    // 字符串 buf 表示要遍历的目录名   char dirName[300]; 
+	strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\";
+	strrsy1 ="dispoint"+strMetrics;
+
+		 CppSQLite3Query q;
+
+    		CString strSQL,strSQL1;
+           for(int m =0; m < theApp.m_addfilesy.size() ;m++)
+		   {
+			 strSQL1 = theApp.m_addfilesy[m];
+				strSQL.Format("UPDATE '%s' SET LP0='%s' WHERE DISID = %d;",
+					strrsy1,strSQL1,m+1);
+             q = theApp.db3.execQuery(strSQL);
+		   }
+		     for(int i=theApp.m_addfilesy.size()+1 ;i<100;i++)
+			 {
+				strSQL.Format("UPDATE '%s' SET LP0='' WHERE DISID = %d;",
+					strrsy1,i);
+                q = theApp.db3.execQuery(strSQL);
+			 }
 }
 
 void CMainFrame::OnSimulation() 
@@ -1799,34 +2133,64 @@ void CMainFrame::OnGenus()
 	}
 }
 
-void CMainFrame::OnMView(int sview) 
+void CMainFrame::OnMView(int menun,int myf) 
 {
 	CString strrsy,strTemp1 ;
-	strrsy.Format("%d",GetSystemMetrics(SM_CXSCREEN));
-	strTemp1 = gstrTimeOut + "\\" + strrsy+ "rsy\\" + m_DrawView[sview].DrawViewName ;
+	strrsy = theApp.m_strms[18].strl + strMetrics+ "rsy\\";
+	strTemp1 = theApp.sFC.m_strdf[theApp.Initfbl(strMetrics)][menun].strl;
+	strTemp1.Replace(strrsy,"");
+	strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\" ;
+	if(myf == 1)
+    	strTemp1 = strrsy + strTemp1;
+	else if(myf == 0)
+    	strTemp1 = theApp.m_addfilesy[menun];
+
             	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
               	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
                	CDrawView *pView = (CDrawView*)pChild->GetActiveView();	
-		         	CString strTemp;
-				for(int i=0;i<12;i++)
+				CSampleFormView *sview =(CSampleFormView*)pChild->GetActiveView();
+		        CString strTemp; int m_isdrawf = 0;
+
+				for(int i=0;i<theApp.m_addfilesy.size()+2;i++)
 				{
+                	CString strclm = strTemp1;
+             		int m_ishave = strclm.GetLength();
+             		strclm = strclm.Mid(m_ishave-3,3);
+		           if(strclm == "rsy")
+				   {
     	        		if(m_ViewPos != NULL)
 						{
 			            	theApp.m_map.GetNextAssoc(m_ViewPos,strTemp,pView);
 							if(strTemp == strTemp1)
 							{
+								m_isdrawf =100;
 //       		            	if(pView != NULL)
 			            		pView->GetParentFrame()->ActivateFrame();
 								break;
 							}
 						}
 		            	else 
-						{
 		    	        	m_ViewPos = theApp.m_map.GetStartPosition() ;     //0415
-//			            	theApp.m_map.GetNextAssoc(m_ViewPos,strTemp,pView);
-//       		            	if(pView != NULL)
-//			            		pView->GetParentFrame()->ActivateFrame();
+				   }
+				   else
+				   {
+    	        		if(s_ViewPos != NULL)
+						{
+			            	theApp.m_Sam.GetNextAssoc(s_ViewPos,strTemp,sview);
+							if(strTemp == strTemp1)
+							{
+			            		sview->GetParentFrame()->ActivateFrame();
+								break;
+							}
 						}
+		            	else 
+		    	        	s_ViewPos = theApp.m_Sam.GetStartPosition() ;     //0415
+				   }
+				}
+				if(m_isdrawf ==0 && myf == 1)
+				{
+            		theApp.pDocTemplate->OpenDocumentFile(strTemp1) ;
+         			theApp.m_addfilesy.push_back(strTemp1);
 				}
 }
 
@@ -1972,6 +2336,7 @@ void CMainFrame::AddSwitchButtons()
 	static UINT switches[] =
 	{
 		IDI_STOP,
+//			IDI_ICONMA,
 //		ID_INDICATOR_PRINT,
 //		ID_INDICATOR_FULLSCREEN,
 //		ID_INDICATOR_WEB,
@@ -1979,7 +2344,7 @@ void CMainFrame::AddSwitchButtons()
 //		ID_INDICATOR_DRAFT,
 	};
 
-	CXTPStatusBarSwitchPane* pSwitchPane = (CXTPStatusBarSwitchPane*)m_wndStatusBar.AddIndicator(new CXTPStatusBarSwitchPane(), 2);
+	CXTPStatusBarSwitchPane* pSwitchPane = (CXTPStatusBarSwitchPane*)m_wndStatusBar.AddIndicator(new CXTPStatusBarSwitchPane(), 4);
 //	CXTPStatusBarSwitchPane* pSwitchPane = (CXTPStatusBarSwitchPane*)m_wndStatusBar.AddIndicator(new CXTPStatusBarSwitchPane(), ID_INDICATOR_VIEW);
 	pSwitchPane->SetSwitches(switches, sizeof(switches)/sizeof(UINT));
 	pSwitchPane->SetChecked(IDI_STOP);
@@ -2025,7 +2390,7 @@ void CMainFrame::AddEdit()
 	CString s=time.Format("%Y-%m-%d %H:%M:%S");//转换时间格式
 
 	// add the indicator to the status bar.   ID_INDICATOR_EDIT
-	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_EDIT,3);
+	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_EDIT,2);
 
 	// Initialize the pane info and add the control.
 	int nIndex = m_wndStatusBar.CommandToIndex(ID_INDICATOR_EDIT);
@@ -2042,7 +2407,7 @@ void CMainFrame::AddEdit()
 void CMainFrame::AddUser()
 {
 	// add the indicator to the status bar.   ID_INDICATOR_EDIT
-	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_USER,4);
+	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_USER,3);
 
 	// Initialize the pane info and add the control.
 	int nIndex = m_wndStatusBar.CommandToIndex(ID_INDICATOR_USER);
@@ -2230,7 +2595,7 @@ void CMainFrame::OnSoundPath()
 void CMainFrame::OnUpdateOnSoundPath(CCmdUI* pCmdUI)
 {
 	pCmdUI->SetCheck(m_bSoundPath);
-	pCmdUI->Enable(theApp.m_bLogIn);
+//	pCmdUI->Enable(theApp.m_bLogIn);
 }
 
 void CMainFrame::OnUpdateDis(CCmdUI* pCmdUI)
@@ -2266,35 +2631,35 @@ void CMainFrame::OnMadeMade()
 
 void CMainFrame::ModifySystem()
 {
-	CDynamicMenu  *dmenu;
+//	CDynamicMenu  *dmenu;
 // dmenu->modifyMenuItem("系统(&S)", "登录(&L)", "注销(&Z)");
 // dmenu->addMenuItem("系统(&S)", "用户管理(&U)","注销(&Z)",140002);
-	dmenu->createMenu();
-	dmenu->addMenu("用户管理(&U)","登录(&L)",140003);
+//	dmenu->createMenu();
+//	dmenu->addMenu("用户管理(&U)","登录(&L)",140003);
 }
 
 //////////////////////////////////////////////////////////////////////
 void CMainFrame::addEqupmentManagerMenuItem()
 {
-	CDynamicMenu  *dmenu;
- dmenu->createMenuItemChild();
- dmenu->appendMenuItem(150001, "设备管理(&D)");
- dmenu->appendMenuItem(150002,"用户编号管理(&U)");
- dmenu->addMenu("系统(&S)", "设备管理(&M)", 150000);
+//	CDynamicMenu  *dmenu;
+// dmenu->createMenuItemChild();
+// dmenu->appendMenuItem(150001, "设备管理(&D)");
+// dmenu->appendMenuItem(150002,"用户编号管理(&U)");
+// dmenu->addMenu("系统(&S)", "设备管理(&M)", 150000);
 }
 
 void CMainFrame::addCopyDataMenuItem()
 {
-	CDynamicMenu  *dmenu;
- dmenu->createMenuItemChild();
- dmenu->appendMenuItem(160001, "抄录电表(&R)");
- dmenu->addMenu("设备管理(&M)", "抄录电表(&R)", 160000);
+//	CDynamicMenu  *dmenu;
+// dmenu->createMenuItemChild();
+// dmenu->appendMenuItem(160001, "抄录电表(&R)");
+// dmenu->addMenu("设备管理(&M)", "抄录电表(&R)", 160000);
 }
 
 void CMainFrame::setEnableItem()
 {
-	CDynamicMenu  *dmenu;
- dmenu->setEnable("设备管理(&M)", 150001, 1);
+//	CDynamicMenu  *dmenu;
+// dmenu->setEnable("设备管理(&M)", 150001, 1);
 }
 
 void CMainFrame::OnManipulate() 
@@ -2357,3 +2722,386 @@ addmenu.Detach(); //将资源菜单（IDR_MENU1）和Cmenu对象分离。
 DrawMenuBar(); //重画菜单。 
 */
 }
+
+void CMainFrame::OnLButtonDown(UINT nFlags, CPoint point) 
+{
+    MessageBox("菜单装入失败!","错误",MB_OK|MB_ICONERROR); 
+
+	CMDIFrameWnd::OnLButtonDown(nFlags, point);
+}
+
+void CMainFrame::Sqlite3define() 
+{
+	CString strrsy,strclm ;
+		 CppSQLite3Query q;
+
+//         q = db3.execQuery(temp);
+//		temp.Format("INSERT into dispoint1024 values(0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');");
+//		char  *temp3 = temp.GetBuffer(temp.GetLength());;
+//			db3.execDML("INSERT into dispoint1024 values(0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');");
+//				strSQL.Format("INSERT into dispoint1024 SET DISID = %d;",i);
+//			db3.execDML("INSERT into dispoint1024 values(0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');");
+//		 db3.SQLiteVersion();
+//        remove(strclm);
+		CString  temp;
+        theApp.db3.execDML("create table dispoint1024(DISID int, LP0 char(500), LP1 char(100), LP2 char(100), LP3 char(100), LP4 char(100), LP5 char(100),LP6 char(100), LP7 char(100), LP8 char(100), LP9 char(100), LP10 char(100), LP11 char(100),LP12 char(100), LP13 char(100), LP14 char(100), LP15 char(100), LP16 char(100), LP17 char(100),LP18 char(100), LP19 char(100));");
+        for(int i=0;i<1000;i++)
+		{
+			temp.Format("insert into dispoint1024 values(%d, '', '','', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');",i);
+			theApp.db3.execDML(temp);
+		}
+        theApp.db3.execDML("create table dispoint1280(DISID int, LP0 char(500), LP1 char(100), LP2 char(100), LP3 char(100), LP4 char(100), LP5 char(100),LP6 char(100), LP7 char(100), LP8 char(100), LP9 char(100), LP10 char(100), LP11 char(100),LP12 char(100), LP13 char(100), LP14 char(100), LP15 char(100), LP16 char(100), LP17 char(100),LP18 char(100), LP19 char(100));");
+        for( i=0;i<1000;i++)
+		{
+			temp.Format("insert into dispoint1280 values(%d, '', '','', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');",i);
+			theApp.db3.execDML(temp);
+		}
+        theApp.db3.execDML("create table dispoint1360(DISID int, LP0 char(500), LP1 char(100), LP2 char(100), LP3 char(100), LP4 char(100), LP5 char(100),LP6 char(100), LP7 char(100), LP8 char(100), LP9 char(100), LP10 char(100), LP11 char(100),LP12 char(100), LP13 char(100), LP14 char(100), LP15 char(100), LP16 char(100), LP17 char(100),LP18 char(100), LP19 char(100));");
+        for( i=0;i<1000;i++)
+		{
+			temp.Format("insert into dispoint1360 values(%d, '', '','', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');",i);
+			theApp.db3.execDML(temp);
+		}
+        theApp.db3.execDML("create table dispoint1366(DISID int, LP0 char(500), LP1 char(100), LP2 char(100), LP3 char(100), LP4 char(100), LP5 char(100),LP6 char(100), LP7 char(100), LP8 char(100), LP9 char(100), LP10 char(100), LP11 char(100),LP12 char(100), LP13 char(100), LP14 char(100), LP15 char(100), LP16 char(100), LP17 char(100),LP18 char(100), LP19 char(100));");
+        for( i=0;i<1000;i++)
+		{
+			temp.Format("insert into dispoint1366 values(%d, '', '','', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');",i);
+			theApp.db3.execDML(temp);
+		}
+
+        theApp.db3.execDML("create table dispoint1400(DISID int, LP0 char(500), LP1 char(100), LP2 char(100), LP3 char(100), LP4 char(100), LP5 char(100),LP6 char(100), LP7 char(100), LP8 char(100), LP9 char(100), LP10 char(100), LP11 char(100),LP12 char(100), LP13 char(100), LP14 char(100), LP15 char(100), LP16 char(100), LP17 char(100),LP18 char(100), LP19 char(100));");
+        for( i=0;i<1000;i++)
+		{
+			temp.Format("insert into dispoint1400 values(%d, '', '','', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');",i);
+			theApp.db3.execDML(temp);
+		}
+        theApp.db3.execDML("create table dispoint1440(DISID int, LP0 char(500), LP1 char(100), LP2 char(100), LP3 char(100), LP4 char(100), LP5 char(100),LP6 char(100), LP7 char(100), LP8 char(100), LP9 char(100), LP10 char(100), LP11 char(100),LP12 char(100), LP13 char(100), LP14 char(100), LP15 char(100), LP16 char(100), LP17 char(100),LP18 char(100), LP19 char(100));");
+        for( i=0;i<1000;i++)
+		{
+			temp.Format("insert into dispoint1440 values(%d, '', '','', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');",i);
+			theApp.db3.execDML(temp);
+		}
+        theApp.db3.execDML("create table dispoint1600(DISID int, LP0 char(500), LP1 char(100), LP2 char(100), LP3 char(100), LP4 char(100), LP5 char(100),LP6 char(100), LP7 char(100), LP8 char(100), LP9 char(100), LP10 char(100), LP11 char(100),LP12 char(100), LP13 char(100), LP14 char(100), LP15 char(100), LP16 char(100), LP17 char(100),LP18 char(100), LP19 char(100));");
+        for( i=0;i<1000;i++)
+		{
+			temp.Format("insert into dispoint1600 values(%d, '', '','', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');",i);
+			theApp.db3.execDML(temp);
+		}
+        theApp.db3.execDML("create table dispoint1680(DISID int, LP0 char(500), LP1 char(100), LP2 char(100), LP3 char(100), LP4 char(100), LP5 char(100),LP6 char(100), LP7 char(100), LP8 char(100), LP9 char(100), LP10 char(100), LP11 char(100),LP12 char(100), LP13 char(100), LP14 char(100), LP15 char(100), LP16 char(100), LP17 char(100),LP18 char(100), LP19 char(100));");
+        for( i=0;i<1000;i++)
+		{
+			temp.Format("insert into dispoint1680 values(%d, '', '','', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');",i);
+			theApp.db3.execDML(temp);
+		}
+        theApp.db3.execDML("create table dispoint1920(DISID int, LP0 char(500), LP1 char(100), LP2 char(100), LP3 char(100), LP4 char(100), LP5 char(100),LP6 char(100), LP7 char(100), LP8 char(100), LP9 char(100), LP10 char(100), LP11 char(100),LP12 char(100), LP13 char(100), LP14 char(100), LP15 char(100), LP16 char(100), LP17 char(100),LP18 char(100), LP19 char(100));");
+        for( i=0;i<1000;i++)
+		{
+			temp.Format("insert into dispoint1920 values(%d, '', '','', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');",i);
+			theApp.db3.execDML(temp);
+		}
+        theApp.db3.execDML("create table dispoint2048(DISID int, LP0 char(500), LP1 char(100), LP2 char(100), LP3 char(100), LP4 char(100), LP5 char(100),LP6 char(100), LP7 char(100), LP8 char(100), LP9 char(100), LP10 char(100), LP11 char(100),LP12 char(100), LP13 char(100), LP14 char(100), LP15 char(100), LP16 char(100), LP17 char(100),LP18 char(100), LP19 char(100));");
+        for( i=0;i<1000;i++)
+		{
+			temp.Format("insert into dispoint2048 values(%d, '', '','', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');",i);
+			theApp.db3.execDML(temp);
+		}
+        theApp.db3.execDML("create table dispoint2560(DISID int, LP0 char(500), LP1 char(100), LP2 char(100), LP3 char(100), LP4 char(100), LP5 char(100),LP6 char(100), LP7 char(100), LP8 char(100), LP9 char(100), LP10 char(100), LP11 char(100),LP12 char(100), LP13 char(100), LP14 char(100), LP15 char(100), LP16 char(100), LP17 char(100),LP18 char(100), LP19 char(100));");
+        for( i=0;i<1000;i++)
+		{
+			temp.Format("insert into dispoint2560 values(%d, '', '','', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');",i);
+			theApp.db3.execDML(temp);
+		}
+}
+
+void CMainFrame::Sqlite3init() 
+{
+	CString strrsy ,strclm,strclm1;
+    CString strSQL,strSQL1,strrsy1;
+	strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\";
+	strrsy1 ="dispoint"+strMetrics;
+//		 CppSQLite3Query q;
+
+		CString  temp;
+//        theApp.db3.execDML("create table dispoint1024(DISID int, LP0 char(500), LP1 char(100), LP2 char(100), LP3 char(100), LP4 char(100), LP5 char(100),LP6 char(100), LP7 char(100), LP8 char(100), LP9 char(100), LP10 char(100), LP11 char(100),LP12 char(100), LP13 char(100), LP14 char(100), LP15 char(100), LP16 char(100), LP17 char(100),LP18 char(100), LP19 char(100));");
+        for(int i=1;i<20;i++)
+		{
+            strSQL.Format("UPDATE '%s' SET LP%d='%d' WHERE DISID=10;",
+			    	     strrsy1,i,(i-1)*3+1 );
+//			temp.Format("UPDATE into dispoint1024 values(%d, '', '','', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');",i);
+			theApp.db3.execDML(strSQL);
+            strSQL.Format("UPDATE '%s' SET LP%d='%d' WHERE DISID=110;",
+			    	     strrsy1,i,(i-1)*3+2 );
+			theApp.db3.execDML(strSQL);
+            strSQL.Format("UPDATE '%s' SET LP%d='%d' WHERE DISID=210;",
+			    	     strrsy1,i,(i-1)*3+3 );
+			theApp.db3.execDML(strSQL);
+		}
+}
+void CMainFrame::OnTimer(UINT nIDEvent) 
+{
+//		if(m_nodialog)
+//	 m_nPaneID++;
+//	 if(m_nPaneID == 60)
+//		 m_nPaneID= 1;
+//	 if(theApp.m_FdsScan == 50)
+	 {
+//    	 for( int k =1 ; k<MAX_FDS; k++)
+//        	theApp.socketClient.CalRTdata(1);
+	 }
+
+//	    	theApp.socketClient.m_nodialog = TRUE;
+
+//    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+            	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
+              	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
+               	CSampleFormView *pFView = (CSampleFormView*)pChild->GetActiveView();
+
+            	CTime t = CTime::GetCurrentTime();
+				int m_cnum =t.GetTime()%3600;
+/*				if((m_cnum > 3) &&(m_cnum < 3597) )//开关量整点存数据
+				{
+					if(m_bIsDraw)
+					{
+                 		for(int i = 1; i < MAX_FDS;i++ )
+						{
+                			for(int j = 1; j < MAX_CHAN;j++ )
+							{
+              					m_one[i][j].SFSd =23;
+							}
+						}
+						m_bIsDraw =FALSE;
+					}
+				}*/
+				if( (m_cnum==3599) || (m_cnum==1))
+				{
+                 		for(int i = 1; i < MAX_FDS;i++ )
+                			for(int j = 1; j < MAX_CHAN;j++ )
+              					m_SlaveStation[i][j].AlarmState =0;
+	COleDateTime timetemp(t.GetYear(),t.GetMonth(),t.GetDay(),t.GetHour(),t.GetMinute(),t.GetSecond());
+//	COleDateTime timetemp1;
+//										COleDateTimeSpan olespan(0,0,0,2);
+//										timetemp1 =timetemp+olespan;
+                 		for( i = 1; i < MAX_FDS;i++ )
+						{
+                			for(int j = 0; j < MAX_CHAN;j++ )
+							{
+	        					if(m_SlaveStation[i][j].WatchName != "")
+								{
+                                    CString dddd,strtime2 ;
+                                    strtime2   =   timetemp.Format(_T("%Y-%m-%d %H:%M:%S")); 
+					        		int nptype = m_SlaveStation[i][j].ptype;
+					        		if(nptype ==1 || nptype ==0)
+    			    		      	  dddd.Format("%.2f%s",m_SlaveStation[i][j].AValue,m_SlaveStation[i][j].m_Unit);
+					          		else if(nptype ==2 )
+    			    	        	  	  dddd.Format("%.0f%s",m_SlaveStation[i][j].AValue,m_SlaveStation[i][j].m_Unit);
+					         		else 
+									{
+								int ncvalue = m_SlaveStation[i][j].CValue;
+								if(ncvalue ==0)
+				        		  dddd= m_SlaveStation[i][j].ZeroState;
+			            		else if(ncvalue == 1)
+					        	  dddd= m_SlaveStation[i][j].OneState;
+				         	    else if(ncvalue == 2)
+				          		  dddd= m_SlaveStation[i][j].TwoState;
+									}
+					     		theApp.m_RTData.push_back(DCHm5(m_SlaveStation[i][j].WatchName,
+										m_SlaveStation[i][j].strPN, dddd,strtime2));
+//									if(m_one[i][j].SFSd == 23)
+									{
+                    					theApp.socketClient.CalTime(timetemp);
+    	     							theApp.SocketServer.SyncCRTData(i,j,0); 
+//                    					theApp.socketClient.CalTime(timetemp1);
+//    	     							theApp.SocketServer.SyncCRTData(i,j,0); 
+//										m_one[i][j].SFSd = 1;
+									}
+								}//(m_SlaveStation[i][j].WatchName != "")
+							}
+						}
+//						m_bIsDraw =TRUE;
+				}//if( (m_cnum==3599) ||  (m_cnum==0) ||  (m_cnum==1))
+	CString strrsy,strclm ;
+				int hhh = m_Str2Data.String2Int(theApp.m_strms[15].strl);//主备切换时间
+				theApp.master30++;//备
+				theApp.slave30++;//主
+				if(n_CPort == 111 || n_CPort == 0)
+				{
+    				theApp.master30 = 0;
+	    			theApp.slave30 = 0;
+				}
+				if(theApp.master30>(hhh-2) && n_CPort == 999 && theApp.master30<(hhh+1)) //备机
+				{
+       	            CNDKMessage message1(MASTERSLAVER);
+					message1.Add(555);//心跳
+//		    		theApp.SendMessage(message1);
+		    		theApp.Sync(message1,2);
+				}
+				if(theApp.master30 > (hhh+5) && n_CPort == 999)
+				{
+//					theApp.master30 =0;
+					n_CPort =111;//主机标示
+		    		theApp.sCb.Close();
+                  	theApp.b_SaveRT = TRUE;//备机存数据
+//            		AfxMessageBox("关备机客户端!");
+				}
+				//主机联系备机，确认是否存在
+				if(theApp.slave30>(hhh-2) && n_CPort == 888 && theApp.slave30<(hhh+1)) 
+				{
+       	            CNDKMessage message(MASTERSLAVER);
+					message.Add(222);//心跳
+		    		theApp.sCb.SendMessage(message);
+//		    		theApp.Sync(message1,2);
+				}
+				if(theApp.slave30 >(hhh+5)  && n_CPort == 888)//(hhh+1)
+				{
+//					strclm.Format("%d  ",theApp.slave30);
+					theApp.slave30 = 0;
+					n_CPort =111;//主机标示
+		    		theApp.sCb.Close();
+//            		AfxMessageBox(strclm+"关主机客户端!");
+				}
+
+				m_m300++;
+				if(m_m300 == 300)
+				{
+    				theApp.b_5m =false;
+					m_m300 =0;
+						theApp.m_RDCHm5.clear();
+    				theApp.b_5m =true;
+				}
+
+		if(t.GetHour() == 23 && t.GetMinute() == 59 && t.GetSecond()>57)
+		{//取消标校，24小时最大、最小初始化 建日志
+    		theApp.b_5m =false;
+        	strclm = t.Format(_T("%Y%m%d1")); 
+            g_Log.Init("\\log\\操作日志"+strclm+".ini");
+            g_Log1.Init("\\log\\中心站运行日志"+strclm+".txt");
+            g_Log.StatusOut("操作日志记录：");
+            g_Log1.StatusOut("系统开始运行！");
+	     	theApp.m_RTData.clear();
+    		theApp.b_5m =true;
+
+            for(int i = 1; i < MAX_FDS;i++)
+			{
+                for(int j = 0; j < MAX_CHAN;j++)
+				{
+                	m_SlaveStation[i][j].Adjust_state =0;
+                	m_SlaveStation[i][j].strPN = m_SlaveStation[i][j].strPN.Mid(0,5);
+					m_SlaveStation[i][j].m24_T = 0;
+					m_SlaveStation[i][j].m24_AMaxValue = 0;
+					m_SlaveStation[i][j].m24_AMinValue = 666666;
+					m_SlaveStation[i][j].m24_Atotal =0;
+					m_SlaveStation[i][j].m24_ATotalValue =0;
+				}
+			}
+        	theApp.InitDisplay();
+		}
+//            	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
+//              	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
+//               	CSampleFormView *pFView = (CSampleFormView*)pChild->GetActiveView();
+	if(theApp.m_senddata)
+	{
+//		BlockInput(TRUE);     //屏蔽键盘和鼠标
+		OnWSYSTEM();
+		theApp.m_senddata =false;
+//		BlockInput(FALSE);   //解除屏蔽
+	}
+                	if(pFView == NULL)
+                		return;
+    			if(pFView->IsKindOf(RUNTIME_CLASS(CSampleFormView)))
+				{
+				  	pFView->DisList123();
+				}
+
+				theApp.internet30s++;
+				if( theApp.internet30s == 10 || theApp.internet30s == 25) 
+				{
+					if(m_SlaveStation[1][0].Channel_state == 0xa0 && theApp.m_FdsScan !=50)
+						theApp.StartClient();
+					if(theApp.m_FdsScan ==50)
+					{
+       	            CNDKMessage message1(SENDSTARTTIME);
+					message1.Add(0x7E);
+		    		theApp.Sync(message1,1);
+					}
+				}
+				else if(theApp.internet30s >30)
+				{
+			    		 unsigned char   Warn_state = m_SlaveStation[1][0].Channel_state;
+				       	    if(Warn_state != 0xa0)
+							{
+//			CTime t=CTime::GetCurrentTime();
+//			CString strCTime;
+//            strCTime = t.Format(_T("%Y-%m-%d %H:%M:%S")); 
+//    	                 socketClient.AddWarn( "以太网通讯错误", strCTime, "", "", "", "", "", "");
+                        		 for(int j = 1; j < MAX_FDS;j++)
+								 {
+                             		 for(int i = 0; i < MAX_CHAN;i++)
+									 {
+										 m_SlaveStation[j][i].ValueTime = COleDateTime::GetCurrentTime();
+             		    		    	 m_SlaveStation[j][i].Channel_state = 0xa0;
+									 }
+								 }
+								 theApp.m_FdsScan =0;
+                                 theApp.socketClient.Close();
+							}
+//							else if(Warn_state == 0xa0 && theApp.m_FdsScan ==50)
+//							{
+//								 theApp.m_FdsScan =0;
+//                                 theApp.socketClient.Close();
+//							}
+					theApp.internet30s = 0;
+				}
+
+     	AddEdit();
+
+	CMDIFrameWnd::OnTimer(nIDEvent);
+}
+
+//窗口置顶代码
+void CMainFrame::OnTopWindow() 
+{
+//	::SetWindowPos(AfxGetMainWnd()->m_hWnd,HWND_TOPMOST,
+//    -1,-1,-1,-1,SWP_NOMOVE/SWP_NOSIZE);
+   int i= SetWindowPos(&CWnd::wndTopMost,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE);
+//   if (i==0)
+//    return false;
+//   else
+//    return true;
+}
+//取消窗口置顶
+/*
+bool SetWindowTop(CWnd* pWnd)
+{
+if(!pWnd)
+{
+   return false;
+}
+if(pWnd->GetExStyle()&WS_EX_TOPMOST)
+{
+   return true;
+}
+else
+{
+   int i= pWnd->SetWindowPos(&CWnd::wndTopMost,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE);
+   if (i==0)
+    return false;
+   else
+    return true;
+
+}
+}
+CancelWindowTop(CWnd* pWnd)
+{
+if(pWnd)
+{
+   int x=pWnd->SetWindowPos(&CWnd::wndNoTopMost,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE);
+   if(x==0)
+    return false;
+   else
+    return true;
+}
+else
+{
+   return false;
+}
+}*/

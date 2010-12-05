@@ -927,7 +927,7 @@ void CResourceViewPane::InitLDF(unsigned char  afds, unsigned char  achan)
 void CResourceViewPane::InitLDCH(unsigned char  afds, unsigned char  achan)
 {
     CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
-    pFWnd->paneResourceView6->Select();
+//    pFWnd->paneResourceView6->Select();
     	int m_listnum = m_DCHlist[afds][achan][0].SFSd; //ÁĞ±íÎ»ÖÃid
     	CString strtemp,strtemp1,strtemp2,strfeed;
      	unsigned char	ufData1 = m_SlaveStation[afds][achan].Channel_state;

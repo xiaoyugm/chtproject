@@ -21,13 +21,8 @@ CAccountDlg::CAccountDlg(CWnd* pParent /*=NULL*/)
   m_pParent = pParent;
   m_pContactSet = NULL;
   m_pMAlocation = NULL;
-  str1 ="";
-  fstr9 =0;
-  fstr2 =0;
-  fstr3 =0;
-  fstr4 =0;
-  fstr5 =0;
-  fstr6 =0;
+  str1 ="";  str2="";  str3 ="";  str4 ="";  str5 ="";  str6 ="";  str8 ="";  str9 ="";
+  fstr9 =0;  fstr2 =0;  fstr3 =0;  fstr4 =0;  fstr5 =0;  fstr6 =0;
 }
 
 CAccountDlg::CAccountDlg(BOOL bEditMode, CWnd* pParent /*=NULL*/)
@@ -499,6 +494,7 @@ void CAccountDlg::OnBnClickedOk()
 {
   try
   {
+	 CString strItem;
    	if(m_ADTypeTable[1].TableName ==  strtable)  //开关量
     {
 			COleDateTime CTime;
@@ -527,7 +523,10 @@ void CAccountDlg::OnBnClickedOk()
 		  int D5 = m_ComBoxD5.GetCurSel();
 		  int D6 = m_ComBoxD6.GetCurSel();
 		  if((D5==0)&&(D6==0))  //不报警
+		  {
     		  m_pAccountSet->m_szpalms = 0;
+    		  m_pAccountSet->m_szfalm = "";  //报警音乐
+		  }
 		  else if(D6 ==0)
 		  {   
     		  m_pAccountSet->m_szpalms = D5;
@@ -560,16 +559,22 @@ void CAccountDlg::OnBnClickedOk()
 			  return;
 			  }
 		  }
+		  else
+    		  m_pAccountSet->m_szname2 = "";
 
 		  m_pAccountSet->m_szptype = m_ComBoxD.GetCurSel();
 		  m_pAccountSet->m_szrecdate = CTime.GetCurrentTime();
 		  m_pAccountSet->m_szUseridadd = theApp.curuser;
+		strItem =str1 +"||" +str2 +"||"+str3 +"||"+str4 +"||"+str7 +"||"+ theApp.curuser;
 
 			if ( !m_bEditMode )
 			{
+      g_Log.StatusOut("增加开关量类型：" + strItem );
 			  m_pAccountSet->m_szDID = acdid;
 			  m_pAccountSet->AddNew();  //Add a new, blank record  theApp
 			}
+			else
+      g_Log.StatusOut("修改开关量类型：" + strItem );
 			m_pAccountSet->Update();    //Update the recordset
 			//If this is a new record, requery the database table
 			//otherwise we may out-of-sync
@@ -626,12 +631,16 @@ void CAccountDlg::OnBnClickedOk()
 		  m_pContactSet->m_szpunit = str8;
 		  m_pContactSet->m_szfalm = str7;
 		  m_pContactSet->m_szUseridadd = theApp.curuser;
+		strItem =str1 +"||" + theApp.curuser;
 
 		if ( !m_bEditMode )
 		{
+      g_Log.StatusOut("增加模拟量类型：" + strItem );
 //		  m_pContactSet->m_szAID = acdid;
 		  m_pContactSet->AddNew();  //Add a new, blank record
 		}
+		else
+      g_Log.StatusOut("修改模拟量类型：" + strItem );
 		m_pContactSet->Update();    //Update the recordset
 		//If this is a new record, requery the database table
 		//otherwise we may out-of-sync
@@ -652,11 +661,17 @@ void CAccountDlg::OnBnClickedOk()
 		UpdateData(TRUE);           //Exchange dialog data
 		  pFWnd->m_pSetHostDlg->m_MAlocation.m_szName = str1;
 		pFWnd->m_pSetHostDlg->m_MAlocation.Update();    //Update the recordset
+				  strItem =str1 +"||" + theApp.curuser;
 
 		//If this is a new record, requery the database table
 		//otherwise we may out-of-sync
 		if ( !m_bEditMode )
+		{
     		  pFWnd->m_pSetHostDlg->m_MAlocation.Requery();
+      g_Log.StatusOut("增加安装地点：" + strItem );
+		}
+		else
+      g_Log.StatusOut("修改安装地点：" + strItem );
 		acdid++;
 
 		if (m_bEditMode )
@@ -697,6 +712,7 @@ void CAccountDlg::OnBnClickedCancel()
 	   DestroyWindow(); //销毁对话框 
   }
   else*/
+  if("changepoint" !=  strtable)
 	  pFWnd->m_pSetHostDlg->m_bADD = false;
        EndDialog(IDCANCEL);
 }

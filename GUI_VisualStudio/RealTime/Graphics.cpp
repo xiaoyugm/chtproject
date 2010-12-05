@@ -16,7 +16,7 @@ CGraphics::CGraphics()
 	m_nGridColor	= RGB(192, 192, 192);
 	m_nBorderColor	= RGB(0, 0, 0);
 	m_nTickColor	= RGB(0, 0, 255);
-	m_nTitleColor	= RGB(255, 0, 0);
+	m_nTitleColor	= RGB(27, 3, 157);
 	m_nXDecimal		= 0;
 	m_nYDecimal		= 0;
 	XGridTicks		= 10;
@@ -36,7 +36,7 @@ CGraphics::CGraphics()
 	m_LogFont.lfItalic			= false;
 	m_LogFont.lfUnderline		= false;
 	m_LogFont.lfStrikeOut		= false;
-	m_LogFont.lfCharSet			= ANSI_CHARSET;
+	m_LogFont.lfCharSet			= GB2312_CHARSET;//ANSI_CHARSET;
 	m_LogFont.lfOutPrecision	= OUT_DEFAULT_PRECIS;
 	m_LogFont.lfClipPrecision	= CLIP_DEFAULT_PRECIS;
 	m_LogFont.lfQuality			= PROOF_QUALITY;
@@ -173,12 +173,12 @@ void CGraphics::SetPixelRect(RECT rt)
 
 void CGraphics::Title(const char* Title, int Pos)
 {
-	m_LogFont.lfHeight = (int)(m_Size.cx / -15.0);
+	m_LogFont.lfHeight = (int)(m_Size.cx / -18.0);  //-15
 	if (m_LogFont.lfHeight > -10) 
 		m_LogFont.lfHeight = -10;
-	m_LogFont.lfWeight	   = 700;
-	m_LogFont.lfOrientation= 0;
-	m_LogFont.lfEscapement = 0;
+	m_LogFont.lfWeight	   = 400;//700
+	m_LogFont.lfOrientation= -0;
+	m_LogFont.lfEscapement = -0;
 	m_Font = ::CreateFontIndirect(&m_LogFont);
 	if (m_Font)
 	{
@@ -188,9 +188,9 @@ void CGraphics::Title(const char* Title, int Pos)
 		SetStringAlign(CENTER, CENTER);
 		if (Pos == TOP)
 		{
-			PrintString((GL + GR) / 2,  m_Rect.bottom -15  + 1, 0, Title);  //m_Rect.top +- m_tM/2   GTT
-			::SetTextColor(m_hDC, m_nTitleColor); 
-			PrintString((GL + GR) / 2,  m_Rect.bottom -15  , 0, Title);
+			PrintString((GL + GR) / 2,  m_Rect.bottom -19  + 1, 0, Title);  //m_Rect.top +- m_tM/2   GTT
+//			::SetTextColor(m_hDC, m_nTitleColor); 
+//			PrintString((GL + GR) / 2,  m_Rect.bottom -15  , 0, Title);
 		}
 		else
 		{
@@ -289,11 +289,22 @@ void CGraphics::Legend(COLORREF cr, int Index, const char* Name)
 	m_Font = ::CreateFontIndirect(&m_LogFont);
 	if (m_Font)
 	{
-///		int n  = (m_Rect.right - GR) / 20 + 1;
-///		int xb = GR + 5 * n;        //2
-///		int xe = xb + 4 * n;
-///		int y  = GT - 6 * Index * m_LogFont.lfHeight / 2;    //3
-///		DrawLine(xb, y, xe, y);
+//		int n  = (m_Rect.right - GR) / 20 + 1;
+//		int xb = GR + 5 * n;        //2
+//		int xe = xb + 4 * n;
+//		int y  = GT - 6 * Index * m_LogFont.lfHeight / 2;    //3
+//		DrawLine(xb, y, xe, y);
+		//去掉x=0时的切换线  黑色
+        		COLORREF cr3 = RGB(  0,   0, 0) ;
+            	HPEN hPen3	= ::CreatePen(PS_SOLID, 0, cr3);
+            	HPEN hOldPen3 = (HPEN)::SelectObject(m_hDC, hPen3);
+		int n  = (m_Rect.right - GR) / 20 + 1;
+		int xb = GL;        //2
+		int y2 = GB;
+		int y  = GT;    //3
+		DrawLine(xb, y, xb, y2);
+				::SelectObject(m_hDC, hOldPen3);
+             	::DeleteObject(hPen3);
 	  	int bm  = ::SetBkMode(m_hDC, TRANSPARENT);
 		HFONT hOldFont = (HFONT)::SelectObject(m_hDC, m_Font);
 		::SetTextColor(m_hDC, cr); 
@@ -301,9 +312,10 @@ void CGraphics::Legend(COLORREF cr, int Index, const char* Name)
 ///		PrintString(xe + n, y, 0, Name);
 ///		PrintString(xb, y+15, 0, Name);
     	SetStringAlign(RIGHT, CENTER);
+		//下边第二行数据具体值
 		PrintString(GR - (Index-1) *(GR-GL)/5  , GT - m_bM /1.8 , 0, Name);
 		SetStringAlign(LEFT, CENTER);
-		PrintString(GL , GT - m_bM /1.8 , 0, "点号:值");  //下边数据
+//		PrintString(GL , GT - m_bM /1.8 , 0, "点号:值");  //下边第二行数据
 
 		::SelectObject(m_hDC, hOldFont);
 		::DeleteObject(m_Font);
@@ -491,7 +503,7 @@ void CGraphics::XAxis()
 			DrawLine(xb, yb, xe, ye);
 	}
 }
-//左边y轴
+//左边y轴 百分数 刻度
 void CGraphics::YAxis()
 {
     int	  xb, yb, xe, ye;   
@@ -510,12 +522,12 @@ void CGraphics::YAxis()
 ///			value = (float)(m_Scale.ymax - i * (m_Scale.ymax - m_Scale.ymin) / YTicks);
 			value = (float)(m_Scale.ymin - i * (m_Scale.ymin - m_Scale.ymax) / YTicks);
 			Format(m_nYDecimal, str, value);
-			PrintString(GL - m_lM / 6 , yb+15, 0, str);
+//			PrintString(GL - m_lM / 6 , yb+15, 0, str);
 		}
 		else
 			xb = GL - m_lM / 20;
-		if (i > 0 && i < YTicks)
-			DrawLine(xb, yb, xe, ye);
+//		if (i > 0 && i < YTicks)
+//			DrawLine(xb, yb, xe, ye);
 	}    
 }
 
