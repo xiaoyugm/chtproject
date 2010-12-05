@@ -84,6 +84,13 @@ public:
 	void SendMessage(CNDKMessage& message);     //211
 	void Checked();
 	BOOL ChangeClientToHost();
+	int m1000;
+	int m1500;
+	int m4095;
+	int m8;
+	unsigned char N8;
+	unsigned char N1;
+	unsigned char N2;
 
 	void Sync(CNDKMessage& message);
 // Overrides

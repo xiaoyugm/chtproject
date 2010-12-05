@@ -77,8 +77,8 @@ void CMQServer::OnMessage(long lUserId, CNDKMessage& message)
 	case SENDSTARTTIME:
 		break;
 	case REALTIMEDATA:    //uWarnCauseRecord:
-//		SyncTableuWarnCauseRecord();
-		ManageClientD();
+		SyncTableCollectData();
+//		ManageClientD();
 		break;
 	case VERIFYTIMER:       //:
 	case MANUALCONTROL:       //
@@ -174,51 +174,37 @@ void CMQServer::ConnectDB()
 
 void CMQServer::SyncTableCollectData()
 {
-	CString strTable;
-	CString strDate;
-	strDate.Format("%d/%d/%d",tHostStartTime.GetMonth(), tHostStartTime.GetDay(), tHostStartTime.GetYear());
-	strTable.Format("SELECT unPointNo,unCollectData,strBeginTime,strEndTime FROM uCollectData WHERE (strBeginTime>CONVERT(DATETIME,'%s', 101))",strDate);
-
-	CString strDBLink = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=kj86;Password=kj86;Initial Catalog=masterdefine;Data Source="
-					+ gstrIP;
-	try
+//	for(int k =1; k<61 ;k++)
 	{
-		_RecordsetPtr pRS;
-		pRS.CreateInstance(__uuidof(Recordset));
-		pRS->Open(_bstr_t(strTable),_bstr_t(strDBLink), adOpenStatic ,adLockReadOnly , adCmdText );
-		int unPointNo,unCollectData ;
-		COleDateTime BeginTime,EndTime;
-		CString strBeginTime,strEndTime;
-
-		while(!pRS->EndOfFile)
-		{
-			unPointNo = pRS->Fields->Item["unPointNo"]->Value.lVal;
-			unCollectData = pRS->Fields->Item["unCollectData"]->Value.lVal;
-			BeginTime = pRS->Fields->Item["strBeginTime"]->Value;
-			EndTime = pRS->Fields->Item["strEndTime"]->Value;
-			
-			strBeginTime.Format("%d-%d-%d %d:%d:%d",BeginTime.GetYear(),BeginTime.GetMonth(),BeginTime.GetDay(),BeginTime.GetHour(),BeginTime.GetMinute(),BeginTime.GetSecond());
-			strEndTime.Format("%d-%d-%d %d:%d:%d",EndTime.GetYear(),EndTime.GetMonth(),EndTime.GetDay(),EndTime.GetHour(),EndTime.GetMinute(),EndTime.GetSecond());
-			
-			CString strSQL;
-			strSQL.Format("INSERT INTO uCollectData VALUES(%d,%d,'%s','%s')",unPointNo,unCollectData,strBeginTime,strEndTime);
-
-			SendSQL(strSQL);
-			pRS->MoveNext();
-		}
-		pRS->Close();
-	}
-	catch(_com_error &e)
-	{
-		AfxMessageBox(e.ErrorMessage());
+		if(theApp.m1500>60)
+			theApp.m1500=1;
+    	m_ndkSend = new unsigned char[44];
+    	CNDKMessage message1(REALTIMEDATA);
+		            m_ndkSend[0] = 0x7e;
+		            m_ndkSend[1] = theApp.m1500;
+		            m_ndkSend[2] = 0x44;
+           	for(int i =3; i<44 ;i++)
+		            m_ndkSend[i] = 255;      
+					message1.Add(m_ndkSend ,44);
+//					message1.Add("1222" );
+//					message1.Add(1222 );
+					SendMessage(message1);
+		delete m_ndkSend;
+		m_ndkSend=NULL;
+		theApp.m1500++;
 	}
 }
 
 void CMQServer::ManageClientD()
 {
+//	for(int k =0; k<60 ;k++)
+	{
 	m_ndkSend = new unsigned char[100];
 	CString ggggg,strtemp,strbegin,strPointNo;
     unsigned char  nstation ,nbegin,nend,ncommand ,ufData,nfds;
+					ggggg.Format("%d",m_ndkSend[1]);
+//			AfxMessageBox(ggggg);
+
 //	message.GetAt(0,nbegin);
 //	message.GetAt(1,nstation);
 //	message.GetAt(2,ncommand);
@@ -227,13 +213,56 @@ void CMQServer::ManageClientD()
 
 	srand( (unsigned)time( NULL ) );//srand()函数产生一个以当前时间开始的随机种子.应该放在for等循环语句前面 不然要很长时间等待
 	unsigned char N100 = rand() % 211 +44;
-	unsigned char N8 = rand() % 9;
-	unsigned char N2 = rand() % 3;
+/*	theApp.m8++;
+	if(theApp.m8 == 100)
+	{
+		theApp.m8=0;
+	    theApp.N8++;
+		if(theApp.N8 ==9)
+			theApp.N8 =0;
+	}
+	N8 =theApp.N8 ;*/
+	unsigned char N8 ;
+	unsigned char N1;
+	unsigned char N2;
 	unsigned char N255 = rand() % 256;
 	unsigned char N5 = rand() % 4+1;
 	unsigned char N4 = rand() % 2+1;
-	unsigned char N1 = rand() % 2;
-	CTime t = CTime::GetCurrentTime();
+	if(theApp.m1500 ==1200)
+		theApp.m1500 =0;
+	if(theApp.m1000 ==800)
+	{
+		theApp.N8++;
+		if(theApp.N8 ==9)
+			theApp.N8 =0;
+		theApp.N1++;
+		if(theApp.N1 ==2)
+			theApp.N1 =0;
+		theApp.N2++;
+		if(theApp.N2 ==3)
+			theApp.N2 =0;
+		theApp.m1000 =0;
+	}
+	if(theApp.m1000 ==400)
+	{
+		theApp.N8++;
+		if(theApp.N8 ==9)
+			theApp.N8 =0;
+		theApp.N1++;
+		if(theApp.N1 ==2)
+			theApp.N1 =0;
+		theApp.N2++;
+		if(theApp.N2 ==3)
+			theApp.N2 =0;
+	}
+	if(theApp.m4095 ==4095)
+	{
+		theApp.m4095 =0;
+	}
+	int   N1500 = 300 + theApp.m1500++;
+	int   N1000 = 200 + theApp.m1000++;
+	int   N4095 =  theApp.m4095++;
+//	CTime t = CTime::GetCurrentTime();
 
 //	if(ncommand == 0x44)   //D
 	{
@@ -243,43 +272,44 @@ void CMQServer::ManageClientD()
 		            m_ndkSend[1] = 1;
 		            m_ndkSend[2] = ncommand;
 
-		            m_ndkSend[3] = N8;
-		            m_ndkSend[4] = N1;      //1通道
-		            m_ndkSend[5] = N8;
-		            m_ndkSend[6] = N1;      //2
-		            m_ndkSend[7] = N8;
-		            m_ndkSend[8] = N2;      //3
-		            m_ndkSend[9] = N8;
-		            m_ndkSend[10] = N2;     //4
+		            m_ndkSend[3] = theApp.N8*16;
+		            m_ndkSend[4] = theApp.N1;      //1通道
+		            m_ndkSend[5] = theApp.N8*16;
+		            m_ndkSend[6] = theApp.N1;      //2
+		            m_ndkSend[7] = theApp.N8*16;
+		            m_ndkSend[8] = theApp.N2;      //3
+		            m_ndkSend[9] = theApp.N8*16;
+		            m_ndkSend[10] = theApp.N2;     //4
 
-		            m_ndkSend[11] = N8*16 +N5;
-		            m_ndkSend[12] = N100+100;      //5
-		            m_ndkSend[13] = N8*16 +N5;
-		            m_ndkSend[14] = N100+150;      //6通道
-		            m_ndkSend[15] = N8*16 +N4;
-		            m_ndkSend[16] = N255 +50;      //7
-		            m_ndkSend[17] = N8*16 +N4;
-		            m_ndkSend[18] = N255;          //8
+		            m_ndkSend[11] = theApp.N8*16 +N1500/256;
+		            m_ndkSend[12] = N1500%256;      //5
+		            m_ndkSend[13] = theApp.N8*16 +N1000/256;
+		            m_ndkSend[14] = N1000%256;      //6通道
+		            m_ndkSend[15] = theApp.N8*16 +N4095/256;
+		            m_ndkSend[16] = N4095%256;      //7
+		            m_ndkSend[17] = theApp.N8*16 +N4095/256;
+		            m_ndkSend[18] = N4095%256;          //8
 
 		            m_ndkSend[19] = N8;
-		            m_ndkSend[20] = N8;
+		            m_ndkSend[20] = N8;   //9
 		            m_ndkSend[21] = N8;
-		            m_ndkSend[22] = N8;
+		            m_ndkSend[22] = N8;     //10
 		            m_ndkSend[23] = N8;
-		            m_ndkSend[24] = N1;      //1通道
-		            m_ndkSend[25] = N8;
-		            m_ndkSend[26] = N1;      //2
-		            m_ndkSend[27] = N8;
-		            m_ndkSend[28] = N2;      //3
-		            m_ndkSend[29] = N8;
-		            m_ndkSend[30] = N8;
-		            m_ndkSend[31] = N8;
-		            m_ndkSend[32] = N8;
-		            m_ndkSend[33] = N8;
-		            m_ndkSend[34] = N1;      //1通道
+		            m_ndkSend[24] = N1;      //11通道
+		            m_ndkSend[25] = 0x02;
+		            m_ndkSend[26] = 0x1e;      //12
 
-		            m_ndkSend[35] = N255;
-		            m_ndkSend[36] = N255;      
+		            m_ndkSend[27] = N8;
+		            m_ndkSend[28] = N2;      //13
+		            m_ndkSend[29] = N8;
+		            m_ndkSend[30] = N8;     //14
+		            m_ndkSend[31] = N8;
+		            m_ndkSend[32] = N8;    //15
+		            m_ndkSend[33] = N8;
+		            m_ndkSend[34] = N1;      //16通道
+
+		            m_ndkSend[35] = theApp.N8*16;
+		            m_ndkSend[36] = theApp.N1*16;      
 
     	CTime t=CTime::GetCurrentTime();
 					strPointNo.Format("%d",t.GetYear()-2000);
@@ -309,8 +339,9 @@ void CMQServer::ManageClientD()
 		m_ndkSend=NULL;
 
 	}
-	strbegin.Format("[%d][%d][%d][%d]",nbegin,nstation,ncommand,nend);
-	ggggg = ggggg + strbegin;
+	}
+//	strbegin.Format("[%d][%d][%d][%d]",nbegin,nstation,ncommand,nend);
+//	ggggg = ggggg + strbegin;
 
 //    AfxMessageBox(ggggg);
 }

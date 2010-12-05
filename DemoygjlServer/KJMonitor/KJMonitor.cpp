@@ -62,6 +62,13 @@ CKJMonitorApp::CKJMonitorApp()
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
 	m_bCancel=FALSE;
+	 m1000 = 0;
+	 m1500 = 0;
+	 m4095 = 0;
+	 m8 = 0;
+	 N8 =0;
+	 N1 =0;
+	 N2 =0;
 }
 
 /////////////////////////////////////////////////////////////////////////////
