@@ -33,8 +33,11 @@
 #define IDC_CURVE_SPINEND               1017
 #define IDC_CURVE_COLOR                 1018
 #define IDC_CURVE_SAVE                  1019
+#define IDC_CURVE_MAX                   1020
 #define IDC_MONTHCALENDAR               1021
 #define IDC_PROGRESS_LOADING            1022
+#define IDC_CURVE_MEAN                  1023
+#define IDC_CURVE_MIN                   1024
 #define IDC_LIST_ADDR                   1028
 #define IDC_LIST_REPORTTABLE            1030
 #define IDC_BUTTON_ADD1                 1033
@@ -56,6 +59,9 @@
 #define IDC_BUT_DEL_COLLUN              1053
 #define IDC_BUT_ADDEDIT                 1054
 #define IDC_CHECK_GRID                  1055
+#define IDC_CHECK_MAX                   1056
+#define IDC_CHECK_MEAN                  1057
+#define IDC_CHECK_MIN                   1058
 #define ID_FILE_LOAD                    32773
 #define ID_GRAPHIC_PROPERTY             32774
 #define ID_GRAPHIC_RESTORE              32775

@@ -9,7 +9,7 @@
 #include "CurveProp.h"
 #include "String2DataType.h"
 #include "math.h"
-#include "Report.h"
+//#include "Report.h"
 
 
 #ifdef _DEBUG
@@ -21,9 +21,9 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 // CMainFrame
 
-IMPLEMENT_DYNCREATE(CMainFrame, CXTFrameWnd)
+IMPLEMENT_DYNCREATE(CMainFrame, CXTPFrameWnd)
 
-BEGIN_MESSAGE_MAP(CMainFrame, CXTFrameWnd)
+BEGIN_MESSAGE_MAP(CMainFrame, CXTPFrameWnd)
 	//{{AFX_MSG_MAP(CMainFrame)
 	ON_WM_CREATE()
 ///	ON_COMMAND(ID_FILE_LOAD, OnFileLoad)
@@ -45,8 +45,8 @@ static UINT indicators[] =
 
 CMainFrame::CMainFrame()
 {
-    xtAfxData.bXPMode = FALSE;
-    xtAfxData.bMenuShadows = FALSE;
+//    xtAfxData.bXPMode = FALSE;
+//    xtAfxData.bMenuShadows = FALSE;
 }
 
 CMainFrame::~CMainFrame()
@@ -54,7 +54,7 @@ CMainFrame::~CMainFrame()
 	try
 	{
 		m_PointMap.RemoveAll();
-		m_sql.Close();
+//		m_sql.Close();
 	}
 	catch(...)
 	{
@@ -63,22 +63,29 @@ CMainFrame::~CMainFrame()
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	if (CXTFrameWnd::OnCreate(lpCreateStruct) == -1)
+	if (CXTPFrameWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
     // Enable/Disable XP GUI Mode
-    xtAfxData.bXPMode = TRUE;
+//    xtAfxData.bXPMode = TRUE;
 
     // Enable/Disable Menu Shadows
-    xtAfxData.bMenuShadows = TRUE;
+//    xtAfxData.bMenuShadows = TRUE;
 
-	if (!m_wndMenuBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP
+	if (!InitCommandBars())
+		return -1;
+	CXTPPaintManager::SetTheme(xtpThemeOffice2003);  //xtpThemeVisualStudio2008
+	CXTPCommandBars* pCommandBars = GetCommandBars();
+	CXTPCommandBar* pMenuBar;
+    	pMenuBar = pCommandBars->SetMenu(_T("Menu Bar"), IDR_MAINFRAME);
+	pMenuBar->SetFlags(xtpFlagIgnoreSetMenuMessage | xtpFlagHideMDIButtons);  //main  IDR_MAINFRAME
+/*	if (!m_wndMenuBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP
 		| CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
 		!m_wndMenuBar.LoadMenuBar(IDR_MAINFRAME))
 	{
 		TRACE0("Failed to create menubar\n");
 		return -1;      // fail to create  m_wndMenuBar
-	}
+	}*/
 	
 	if (!m_wndStatusBar.Create(this) ||
 		!m_wndStatusBar.SetIndicators(indicators,
@@ -88,28 +95,28 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 
-	m_wndMenuBar.EnableDockingEx(CBRS_ALIGN_ANY, CBRS_XT_SEMIFLAT);
+//	m_wndMenuBar.EnableDockingEx(CBRS_ALIGN_ANY, CBRS_XT_SEMIFLAT);
 //	m_wndToolBar.EnableDockingEx(CBRS_ALIGN_ANY, CBRS_XT_SEMIFLAT);
-	EnableDockingEx(CBRS_ALIGN_ANY, CBRS_XT_SEMIFLAT);
-	DockControlBar(&m_wndMenuBar);
+//	EnableDockingEx(CBRS_ALIGN_ANY, CBRS_XT_SEMIFLAT);
+//	DockControlBar(&m_wndMenuBar);
 //	DockControlBar(&m_wndToolBar);
 
-	InstallCoolMenus(IDR_MAINFRAME);
+//	InstallCoolMenus(IDR_MAINFRAME);
 	///////////////装入数据库信息////////////////
-	m_sql.Init();
-	if(m_sql.Connect(_T("masterdefine"),_T("kj86"),_T("kj86")))
+//	m_sql.Init();
+//	if(m_sql.Connect(_T("masterdefine"),_T("kj86"),_T("kj86")))
 	{
-		AfxMessageBox("NetThread:无法连接用户参数数据库,请确定SQL SERVER服务是否运行!");
-		return 0;
+//		AfxMessageBox("NetThread:无法连接用户参数数据库,请确定SQL SERVER服务是否运行!");
+//		return 0;
 	}
-	LoadPointInfo();
+//	LoadPointInfo();
 
 	return 0;
 }
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 {
-	if( !CXTFrameWnd::PreCreateWindow(cs) )
+	if( !CXTPFrameWnd::PreCreateWindow(cs) )
 		return FALSE;
 	cs.style = WS_OVERLAPPED | WS_CAPTION | FWS_ADDTOTITLE
 		| WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_MAXIMIZE;
@@ -126,12 +133,12 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 #ifdef _DEBUG
 void CMainFrame::AssertValid() const
 {
-	CXTFrameWnd::AssertValid();
+	CXTPFrameWnd::AssertValid();
 }
 
 void CMainFrame::Dump(CDumpContext& dc) const
 {
-	CXTFrameWnd::Dump(dc);
+	CXTPFrameWnd::Dump(dc);
 }
 
 #endif //_DEBUG
@@ -142,7 +149,7 @@ void CMainFrame::Dump(CDumpContext& dc) const
 ///////////装入点信息/////////////
 void CMainFrame::LoadPointInfo()
 {
-	int nRet;
+/*	int nRet;
 	if(m_PointMap.GetCount()>0)
 		m_PointMap.RemoveAll();
 	CSQLDirect SwitchSql,AnalogSql ;
@@ -274,7 +281,7 @@ void CMainFrame::LoadPointInfo()
 	{
 		e->ReportError();
 		return;
-	}
+	}*/
 }
 
 void CMainFrame::OnFileLoad() 
@@ -285,8 +292,8 @@ void CMainFrame::OnFileLoad()
 void CMainFrame::OnMenuEditReport() 
 {
 	// TODO: Add your command handler code here
-	CReport ReportDlg;
-	ReportDlg.DoModal();
+//	CReport ReportDlg;
+//	ReportDlg.DoModal();
 }
 
 void CMainFrame::OnGraphicProperty() 

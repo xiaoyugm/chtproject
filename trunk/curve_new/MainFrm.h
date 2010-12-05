@@ -14,9 +14,8 @@
 
 #include "CurveDoc.h"
 
-class CMainFrame : public CXTFrameWnd
+class CMainFrame : public CXTPFrameWnd
 {
-	
 protected: // create from serialization only
 	CMainFrame();
 	DECLARE_DYNCREATE(CMainFrame)
@@ -44,10 +43,12 @@ public:
 #endif
 
 public:  // control bar embedded members
-	CXTStatusBar     m_wndStatusBar;
+	CXTPStatusBar     m_wndStatusBar;
 //	CXTToolBar       m_wndToolBar;
-	CSQLDirect		m_sql;		//数据库
-	CMap <__int64,__int64,StructPoint,StructPoint>	m_PointMap;///modified by xizheng	
+//	CSQLDirect		m_sql;		//数据库
+//    typedef CMap <__int64,__int64,StructPoint,StructPoint>	m_PointMap;///modified by xizheng
+    CMap <__int64,__int64,StructPoint,StructPoint>	m_PointMap;///modified by xizheng
+	
 	void LoadPointInfo();
 // Generated message map functions
 protected:

@@ -169,7 +169,11 @@ void CCurveView::OnInitialUpdate()
 	pDoc->m_pRtCurve->m_pointArray[0].y = 0;//rect.top;
 	pDoc->m_pRtCurve->m_pointArray[1].x = m_screenx;//rect.right;
 	pDoc->m_pRtCurve->m_pointArray[1].y = m_screeny;//rect.bottom;	
+
+	OnGraphicProperty();
+
 	CView::OnInitialUpdate();
+
 }
 
 void CCurveView::OnRButtonDown(UINT nFlags, CPoint point) 
@@ -204,7 +208,7 @@ void CCurveView::OnGraphicProperty()
 	CCurveProp	curveProp;
 	CCurveDoc* pDoc = GetDocument();
 	curveProp.m_pCurveProp = pDoc->m_pRtCurve->m_curveProp;
-	curveProp.m_colorBg = pDoc->m_pRtCurve->m_colorBrush;
+//	curveProp.m_colorBg = pDoc->m_pRtCurve->m_colorBrush;
 	curveProp.m_sCheckGrid = pDoc->m_pRtCurve->m_sCheckGrid ;
     curveProp.m_sPoint = pDoc->m_pRtCurve->m_curveProp[0].point ;
 			curveProp.m_sStartHour = pDoc->m_pRtCurve->m_sStartHour ;
@@ -213,16 +217,16 @@ void CCurveView::OnGraphicProperty()
 			curveProp.m_endMin = pDoc->m_pRtCurve->m_sEndMin ;
 	if(curveProp.DoModal() == IDOK)
 	{
-		pDoc->m_pRtCurve->m_colorBrush = curveProp.m_colorBg;
+//		pDoc->m_pRtCurve->m_colorBrush = curveProp.m_colorBg;
 		pDoc->m_pRtCurve->m_sCheckGrid = curveProp.m_sCheckGrid;
 		if(pDoc->m_pRtCurve->m_bHistory)
 		{
-			pDoc->m_pRtCurve->m_strStartDate.Format("%d-%d-%d",curveProp.m_startDate.GetYear(),curveProp.m_startDate.GetMonth(),curveProp.m_startDate.GetDay());
-			pDoc->m_pRtCurve->m_strEndDate.Format("%d-%d-%d",curveProp.m_endDate.GetYear(),curveProp.m_endDate.GetMonth(),curveProp.m_endDate.GetDay());
-			pDoc->m_pRtCurve->m_sStartHour = curveProp.m_sStartHour;
-			pDoc->m_pRtCurve->m_sEndHour = curveProp.m_sEndHour;
-			pDoc->m_pRtCurve->m_sStartMin = curveProp.m_startMin;
-			pDoc->m_pRtCurve->m_sEndMin = curveProp.m_endMin;
+//			pDoc->m_pRtCurve->m_strStartDate.Format("%d-%d-%d",curveProp.m_startDate.GetYear(),curveProp.m_startDate.GetMonth(),curveProp.m_startDate.GetDay());
+//			pDoc->m_pRtCurve->m_strEndDate.Format("%d-%d-%d",curveProp.m_endDate.GetYear(),curveProp.m_endDate.GetMonth(),curveProp.m_endDate.GetDay());
+//			pDoc->m_pRtCurve->m_sStartHour = curveProp.m_sStartHour;
+//			pDoc->m_pRtCurve->m_sEndHour = curveProp.m_sEndHour;
+//			pDoc->m_pRtCurve->m_sStartMin = curveProp.m_startMin;
+//			pDoc->m_pRtCurve->m_sEndMin = curveProp.m_endMin;
 			pDoc->m_pRtCurve->InsertHistoryData();
 			InvalidateRect(pDoc->m_pRtCurve->GetRect());
 		}

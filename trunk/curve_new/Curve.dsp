@@ -47,13 +47,13 @@ RSC=rc.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x804 /d "NDEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x804 /d "NDEBUG"
+# ADD RSC /l 0x804 /i "AboutDlg" /d "NDEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 /nologo /subsystem:windows /machine:I386
+# ADD LINK32 /nologo /subsystem:windows /machine:I386 /out:"lib/Curve.exe"
 
 !ELSEIF  "$(CFG)" == "Curve - Win32 Debug"
 
@@ -62,24 +62,24 @@ LINK32=link.exe
 # PROP BASE Output_Dir "Debug"
 # PROP BASE Intermediate_Dir "Debug"
 # PROP BASE Target_Dir ""
-# PROP Use_MFC 2
+# PROP Use_MFC 1
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_AFXDLL" /Yu"stdafx.h" /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "MARKUP_MBCS" /FR /Yu"stdafx.h" /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x804 /d "_DEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x804 /d "_DEBUG" /d "_AFXDLL"
+# ADD RSC /l 0x804 /i "AboutDlg" /d "_DEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 /nologo /subsystem:windows /debug /machine:I386 /out:"lib/RS-Curve.exe" /pdbtype:sept
 
 !ENDIF 
 
@@ -136,20 +136,8 @@ SOURCE=.\RtCurve.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SQLColumn.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SQLDirect.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\StdAfx.cpp
 # ADD CPP /Yc"stdafx.h"
-# End Source File
-# Begin Source File
-
-SOURCE=.\String2DataType.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -185,10 +173,6 @@ SOURCE=.\Datetime.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\excel9.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Graphic.h
 # End Source File
 # Begin Source File
@@ -201,10 +185,6 @@ SOURCE=.\MainFrm.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Report.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Resource.h
 # End Source File
 # Begin Source File
@@ -213,31 +193,11 @@ SOURCE=.\RtCurve.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\SQLColumn.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SQLDirect.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\StdAfx.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\String2DataType.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\SystemData.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ThemeHelperST.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\XPStyleButtonST.cpp
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -293,19 +253,7 @@ SOURCE=.\res\excel.ico
 # End Source File
 # Begin Source File
 
-SOURCE=.\excel9.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\res\OK.ICO
-# End Source File
-# Begin Source File
-
-SOURCE=.\Report.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ThemeHelperST.h
 # End Source File
 # Begin Source File
 
@@ -315,9 +263,17 @@ SOURCE=.\res\Toolbar.bmp
 
 SOURCE=.\res\toolbar1.bmp
 # End Source File
+# End Group
+# Begin Group "dbAx"
+
+# PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\XPStyleButtonST.h
+SOURCE=.\ADOConn.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ADOConn.h
 # End Source File
 # End Group
 # End Target

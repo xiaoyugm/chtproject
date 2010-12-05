@@ -6,6 +6,13 @@
 	#error this file is not editable by Microsoft Visual C++
 #endif //APSTUDIO_INVOKED
 
+#include "Common/XTPVersion.h"
+
+#include "CodejockSample.rc"
+
+#ifdef _XTP_INCLUDE_SKINFRAMEWORK
+#include "SkinFramework\Styles\Vista\Vista.rc"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // Add manually edited resources here...
