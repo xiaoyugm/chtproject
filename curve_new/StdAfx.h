@@ -23,14 +23,26 @@
 #include <afxtempl.h>
 #include <afxsock.h>
 #include <afxdb.h>
+
 //#define AUTO_SUBCLASS       //added 
 //#define MFCX_PROJ           //added 
-//#include <CJ60Lib.h>
-#include "XTToolkit.h"
-#include "gdiplus.h"
+//#include "XTToolkit.h"
+#include <SqlDirect.h>
+#pragma comment(lib,"CommonTools.lib")
+
+#include <XTToolkitPro.h>   // Codejock Software Components
+//#include <AboutDlg.h>       // Sample About Dialog
+
+#include <GdiPlus.h>		//GDI+
+#pragma comment(lib,"gdiplus.lib")
 using namespace Gdiplus;
+
+
+//#import "MSADO15.DLL" rename_namespace("ADOCust") rename("EOF","EndOfFile") 
 //#define DEBUG_VER
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+//#import "C:\Program Files\Common Files\System\ADO\MSADO15.DLL" rename_namespace("ADOCust") rename("EOF","EndOfFile") 
+//using namespace ADOCust;
 
 #endif // !defined(AFX_STDAFX_H__206B92CF_8EC7_412C_B52A_D254F5853948__INCLUDED_)

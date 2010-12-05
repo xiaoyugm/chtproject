@@ -36,7 +36,16 @@ CRtCurve::CRtCurve()
 	m_nZoom = 0;
 	m_sStartSecond = 0;
 	m_sEndSecond = 0;
-    m_sCheckGrid = FALSE;
+//    m_sCheckGrid = FALSE;
+	m_strStartDate = CTime::GetCurrentTime().Format(_T("%Y-%m-%d"));
+	m_strEndDate = CTime::GetCurrentTime().Format(_T("%Y-%m-%d"));
+	m_startDateTime = CTime::GetCurrentTime();
+	m_endDateTime = CTime::GetCurrentTime();
+    m_sStartHour  = 0;
+    m_sStartMin  =0;
+    m_sStartSecond =0;
+	m_sEndHour =3;
+	m_sEndMin = 0;
 }
 
 void CRtCurve::Serialize(CArchive &ar)
@@ -334,7 +343,7 @@ void CRtCurve::Draw(CDC *pDC)
 //			curvePen.CreatePen(PS_SOLID,1,m_curveProp[i].lineColor);
 			CPen   *pOldPen = pDC->SelectObject(&curvePen);
 			CPoint point;
-			CCurveData dd = m_curveData[i].GetAt(0);
+			CCurveData dd = m_curveData[i].GetAt(0);//0划圈
 			point.x = dd.x;
 			point.y = dd.y;
 			pDC->MoveTo(point);
@@ -350,7 +359,7 @@ void CRtCurve::Draw(CDC *pDC)
 			pDC->SelectObject(pOldPen);
 		}
 	}
-///	font.DeleteObject();
+	font.DeleteObject();
 	font.CreateFont(15,6,0,0,FW_NORMAL,0,0,0,ANSI_CHARSET,0,0,0,0,"Times New Roman");
 	CFont *pOldFont1 = pDC->SelectObject(&font);
 	if(m_bHistory)
@@ -553,7 +562,7 @@ CRect CRtCurve::SetRtRect()
 	}
 	return m_rect;
 }
-
+//显示当前值
 void CRtCurve::ShowValue(CPoint &point)
 {
 ///	if(!m_bLock)
@@ -622,7 +631,7 @@ void CRtCurve::InsertHistoryData()
 		return;
 	m_nTime = timelen;
 
-      try
+/*      try
 	  {
 		sql.Init();
 		if(sql.Connect(_T("masterdefine"),_T("kj86"),_T("kj86")))
@@ -669,7 +678,7 @@ void CRtCurve::InsertHistoryData()
 	  {
 		e->ReportError();
 		return;
-	  }
+	  }*/
 
 }
 

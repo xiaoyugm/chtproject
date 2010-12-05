@@ -81,14 +81,14 @@ BOOL CCurveApp::InitInstance()
 	if (!ProcessShellCommand(cmdInfo))
 		return FALSE;
 
-	LOGFONT lf;
+/*	LOGFONT lf;
 	xtAfxData.font.GetLogFont(&lf);
 	lf.lfHeight = 12;
 	strcpy(lf.lfFaceName,_T("ËÎÌו"));
 	CFont font;
 	font.CreateFontIndirect(&lf);
 	xtAfxData.SetGlobalFont(&font);
-
+*/
 	m_pMainWnd->ShowWindow(SW_SHOWMAXIMIZED);
 	m_pMainWnd->UpdateWindow();
 

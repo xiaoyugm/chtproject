@@ -7,6 +7,8 @@
 #include "datetime.h"
 #include "MainFrm.h"
 //#include "SystemData.h"
+//Support for AxLib library
+//#include "dbAx\AxLib.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -27,13 +29,18 @@ CCurveProp::CCurveProp(CWnd* pParent /*=NULL*/)
 	m_sStartHour = 0;
 	m_endDate = 0;
 	m_startDate = 0;
-	m_endMin = 0;
+	m_endMin = 59;
 	m_startMin = 0;
-	m_colorBg = RGB(0,0,0);
-	m_colorCurve = RGB(0,255,0);
+//	m_colorBg = RGB(0,0,0);
+//	m_colorCurve = RGB(0,255,0);
+	         	m_Bgcolor=RGB(  0,   0,   0);
+				m_Ccolor =RGB(  0, 255,   0);
+		    	m_Maxc =RGB(255,   0, 255);
+				m_Meanc=RGB(  0, 255, 255);
+				m_Minc =RGB(128, 128, 0);
 	//}}AFX_DATA_INIT
 	m_pCurveProp = NULL;
-    m_sCheckGrid = FALSE;
+    m_sCheckGrid = TRUE;
 }
 
 
@@ -41,19 +48,32 @@ void CCurveProp::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCurveProp)
+	DDX_Control(pDX, IDC_CURVE_BGCOLOR, m_ctlBgColor);
+	DDX_XTColorPicker(pDX, IDC_CURVE_BGCOLOR, m_Bgcolor);
+	DDX_Control(pDX, IDC_CURVE_COLOR, m_ctlCColor);
+	DDX_XTColorPicker(pDX, IDC_CURVE_COLOR, m_Ccolor);
+	DDX_Control(pDX, IDC_CURVE_MAX, m_MaxColor);
+	DDX_XTColorPicker(pDX, IDC_CURVE_MAX, m_Maxc);
+	DDX_Control(pDX, IDC_CURVE_MEAN, m_MeanColor);
+	DDX_XTColorPicker(pDX, IDC_CURVE_MEAN, m_Meanc);
+	DDX_Control(pDX, IDC_CURVE_MIN, m_MinColor);
+	DDX_XTColorPicker(pDX, IDC_CURVE_MIN, m_Minc);
 	DDX_Control(pDX, IDC_CHECK_GRID, m_ctrlCheckGrid);
+	DDX_Control(pDX, IDC_CHECK_MAX, m_BCheckMax);
+	DDX_Control(pDX, IDC_CHECK_MEAN, m_BCheckMean);
+	DDX_Control(pDX, IDC_CHECK_MIN, m_BCheckMin);
 	DDX_Control(pDX, IDC_CURVE_STARTDATEPICKER, m_startDateCtrl);
 	DDX_Control(pDX, IDC_CURVE_ENDDATEPICKER, m_endDateCtrl);
 	DDX_Control(pDX, IDC_CURVE_COMBO, m_comboNo);
-	DDX_Control(pDX, IDC_CURVE_COLOR, m_btnCurveColor);
-	DDX_Control(pDX, IDC_CURVE_BGCOLOR, m_btnBgColor);
-	DDX_Text(pDX, IDC_CURVE_POINT, m_sPoint);
+//	DDX_Control(pDX, IDC_CURVE_COLOR, m_btnCurveColor);
+//	DDX_Control(pDX, IDC_CURVE_BGCOLOR, m_btnBgColor);
+//	DDX_Text(pDX, IDC_CURVE_POINT, m_sPoint);
 	DDX_Text(pDX, IDC_CURVE_ENDHOUR, m_sEndHour);
 	DDX_Text(pDX, IDC_CURVE_STARTHOUR, m_sStartHour);
-	DDX_Text(pDX, IDC_CURVE_ENDMIN, m_endMin);
-	DDV_MinMaxInt(pDX, m_endMin, 0, 60);
-	DDX_Text(pDX, IDC_CURVE_STARTMIN, m_startMin);
-	DDV_MinMaxInt(pDX, m_startMin, 0, 59);
+//	DDX_Text(pDX, IDC_CURVE_ENDMIN, m_endMin);
+//	DDV_MinMaxInt(pDX, m_endMin, 0, 60);
+//	DDX_Text(pDX, IDC_CURVE_STARTMIN, m_startMin);
+//	DDV_MinMaxInt(pDX, m_startMin, 0, 59);
 	//}}AFX_DATA_MAP
 }
 
@@ -62,15 +82,15 @@ BEGIN_MESSAGE_MAP(CCurveProp, CDialog)
 	//{{AFX_MSG_MAP(CCurveProp)
 	ON_CBN_SELCHANGE(IDC_CURVE_COMBO, OnSelchangeCurveCombo)
 	ON_BN_CLICKED(IDC_CURVE_SAVE, OnCurveSave)
-	ON_BN_CLICKED(IDC_CURVE_BGCOLOR, OnCurveBgcolor)
-	ON_BN_CLICKED(IDC_CURVE_COLOR, OnCurveColor)
+//	ON_BN_CLICKED(IDC_CURVE_BGCOLOR, OnCurveBgcolor)
+//	ON_BN_CLICKED(IDC_CURVE_COLOR, OnCurveColor)
 	ON_NOTIFY(UDN_DELTAPOS, IDC_CURVE_SPINSTART, OnDeltaposCurveSpinstart)
 	ON_NOTIFY(UDN_DELTAPOS, IDC_CURVE_SPINEND, OnDeltaposCurveSpinend)
 	ON_NOTIFY(DTN_CLOSEUP, IDC_CURVE_ENDDATEPICKER, OnCloseupCurveEnddatepicker)
 	ON_NOTIFY(DTN_CLOSEUP, IDC_CURVE_STARTDATEPICKER, OnCloseupCurveStartdatepicker)
-	ON_EN_CHANGE(IDC_CURVE_STARTMIN, OnChangeCurveStartmin)
+//	ON_EN_CHANGE(IDC_CURVE_STARTMIN, OnChangeCurveStartmin)
 	ON_BN_CLICKED(IDC_CHECK_GRID, OnCheckGrid)
-	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_CURVE_STARTDATEPICKER, OnDatetimechangeCurveStartdatepicker)
+//	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_CURVE_STARTDATEPICKER, OnDatetimechangeCurveStartdatepicker)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -82,8 +102,8 @@ BOOL CCurveProp::OnInitDialog()
 	CDialog::OnInitDialog();
 	
 //	UpdateData(TRUE);  //0115
-    m_btnBgColor.SetColorFace(m_colorBg);
-	m_btnCurveColor.SetColorFace(m_colorCurve);
+//    m_btnBgColor.SetColorFace(m_colorBg);
+//	m_btnCurveColor.SetColorFace(m_colorCurve);
 	m_comboNo.SetCurSel(0);
 
     if(m_sCheckGrid)
@@ -91,6 +111,9 @@ BOOL CCurveProp::OnInitDialog()
 	else
     	m_ctrlCheckGrid.SetCheck(0);
 
+    	m_BCheckMax.SetCheck(1);
+    	m_BCheckMean.SetCheck(1);
+    	m_BCheckMin.SetCheck(1);
 //	if(m_pCurveProp != NULL)
 //	{
 ///		m_colorCurve = RGB(0,255,0);
@@ -107,11 +130,11 @@ BOOL CCurveProp::OnInitDialog()
 void CCurveProp::OnSelchangeCurveCombo() 
 {
   	UpdateData(TRUE);  //0115
-    int no = m_comboNo.GetCurSel();
+//    int no = m_comboNo.GetCurSel();
 
-    m_sPoint = (m_pCurveProp+no)->point;
-    m_colorCurve = (m_pCurveProp+no)->lineColor;
-    m_btnCurveColor.SetColorFace(m_colorCurve);
+//    m_sPoint = (m_pCurveProp+no)->point;
+//    m_colorCurve = (m_pCurveProp+no)->lineColor;
+//    m_btnCurveColor.SetColorFace(m_colorCurve);
 
     UpdateData(FALSE);
     Invalidate();
@@ -124,7 +147,7 @@ void CCurveProp::OnCurveSave()
 	memset((m_pCurveProp+no),0,sizeof(CURVEPROP));
 
 	(m_pCurveProp+no)->point = m_sPoint;
-	(m_pCurveProp+no)->lineColor = m_colorCurve;
+//	(m_pCurveProp+no)->lineColor = m_colorCurve;
 
 	CMainFrame *pMainFrame = (CMainFrame *)(AfxGetApp()->m_pMainWnd);
 	if(pMainFrame)
@@ -156,8 +179,8 @@ void CCurveProp::OnCurveBgcolor()
 	CColorDialog color;
 	if(color.DoModal() == IDOK)
 	{
-		m_colorBg = color.GetColor();
-		m_btnBgColor.SetColorFace(m_colorBg);
+//		m_colorBg = color.GetColor();
+//		m_btnBgColor.SetColorFace(m_colorBg);
 		Invalidate();
 	}
 }
@@ -167,8 +190,8 @@ void CCurveProp::OnCurveColor()
    CColorDialog color;
    if(color.DoModal() == IDOK)
    {
-	   m_colorCurve = color.GetColor();
-	   m_btnCurveColor.SetColorFace(m_colorCurve);
+//	   m_colorCurve = color.GetColor();
+//	   m_btnCurveColor.SetColorFace(m_colorCurve);
 	   Invalidate();
    }
 }
@@ -225,7 +248,9 @@ void CCurveProp::OnDeltaposCurveSpinend(NMHDR* pNMHDR, LRESULT* pResult)
 
 void CCurveProp::OnCloseupCurveEnddatepicker(NMHDR* pNMHDR, LRESULT* pResult) 
 {
+	UpdateData(TRUE);  //0115
      m_endDateCtrl.GetTime(m_endDate);	
+	UpdateData(FALSE);
 	*pResult = 0;
 }
 
@@ -233,7 +258,6 @@ void CCurveProp::OnCloseupCurveStartdatepicker(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	UpdateData(TRUE);  //0115
 	m_startDateCtrl.GetTime(m_startDate);
-
 	UpdateData(FALSE);
 	*pResult = 0;
 }

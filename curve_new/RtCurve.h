@@ -82,4 +82,6 @@ public:     //±‰¡ø
 	short   m_sEndSecond;
 	CURVEPROP  m_curveProp[CURVENUM];
 	
+	CTime m_endDateTime;
+	CTime m_startDateTime;
 };

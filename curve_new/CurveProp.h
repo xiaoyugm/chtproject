@@ -7,6 +7,10 @@
 // CurveProp.h : header file
 //
 
+//#include "dbAx\AxSControl.hpp"
+//#include "dbAx\AxContactCmd.hpp"
+//#include "dbAx\CardFileEvents.hpp"
+//#include "dbAx\AccountSetEvents.hpp"
 /////////////////////////////////////////////////////////////////////////////
 // CCurveProp dialog
 #include "RtCurve.h"
@@ -23,11 +27,24 @@ public:
 	//{{AFX_DATA(CCurveProp)
 	enum { IDD = IDD_DLG_RTCURVE };
 	CButton	m_ctrlCheckGrid;
+	CButton	m_BCheckMax;
+	CButton	m_BCheckMean;
+	CButton	m_BCheckMin;
 	CDateTimeCtrl	m_startDateCtrl;
 	CDateTimeCtrl	m_endDateCtrl;
 	CComboBox	m_comboNo;
-	CXTButton	m_btnCurveColor;
-	CXTButton	m_btnBgColor;
+//	CXTButton	m_btnCurveColor;
+//	CXTButton	m_btnBgColor;
+	CXTColorPicker	m_ctlBgColor;
+	CXTColorPicker	m_ctlCColor;
+	CXTColorPicker	m_MaxColor;
+	CXTColorPicker	m_MeanColor;
+	CXTColorPicker	m_MinColor;
+	COLORREF			m_Bgcolor;
+	COLORREF			m_Ccolor;
+	COLORREF			m_Maxc;
+	COLORREF			m_Meanc;
+	COLORREF			m_Minc;
 	short	m_sPoint;
 	short	m_sEndHour;
 	short	m_sStartHour;
@@ -36,8 +53,8 @@ public:
 	short	m_endMin;
 	short	m_startMin;
 	//}}AFX_DATA
-	COLORREF	m_colorCurve;
-	COLORREF	m_colorBg;
+//	COLORREF	m_colorCurve;
+//	COLORREF	m_colorBg;
 	PCURVEPROP	m_pCurveProp;
 	//	CString		m_strStartDate;
 	//	CString		m_strEndDate;
