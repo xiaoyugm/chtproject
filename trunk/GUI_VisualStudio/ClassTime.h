@@ -23,6 +23,7 @@ public:
 	enum { IDD = IDD_DIA_CLASS };
 	int	   m_cd;
 	int    m_cn;
+	CXTFlatComboBox     m_ComDraw;
 //	CString	strcd;
 //	CString    strcn;
 	//}}AFX_DATA
@@ -30,6 +31,7 @@ public:
     CAxConnection   m_Cn;
     CAxCommonSet        m_CommonSet;
     CAxCommonSet        *m_CommonSetNew;
+	CXTFlatComboBox	    m_CB_FBL;
 
     void    ConnectDB();
 	CString2DataType m_Str2Data;
@@ -51,6 +53,7 @@ protected:
 	afx_msg void OnChadayr();
 	afx_msg void OnChaclass();
 	virtual void OnCancel();
+	afx_msg void OnCB_FBL();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

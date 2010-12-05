@@ -26,29 +26,27 @@ LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 239, 177
+IDD_ABOUTBOX DIALOGEX 0, 0, 199, 211
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "关于"
 FONT 10, "宋体"
 BEGIN
-    CTEXT           "<< package version >>",IDC_TXT_TITLE,7,126,225,8,
+    CTEXT           "<< package version >>",IDC_TXT_TITLE,26,168,140,8,
                     SS_NOPREFIX,WS_EX_TRANSPARENT
-    CTEXT           "<< sample name >>",IDC_TXT_APPNAME,45,132,133,8,NOT 
+    CTEXT           "<< sample name >>",IDC_TXT_APPNAME,43,80,102,8,NOT 
                     WS_VISIBLE,WS_EX_TRANSPARENT
-    CTEXT           "<< copyright info >>",IDC_TXT_COPYRIGHT,7,112,225,8,0,
+    CTEXT           "<< copyright info >>",IDC_TXT_COPYRIGHT,23,156,147,8,0,
                     WS_EX_TRANSPARENT
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME | NOT WS_VISIBLE,7,
-                    115,225,30
-    RTEXT           "邮箱:",IDC_STATIC,13,120,37,8,NOT WS_VISIBLE,
+                    68,185,30
+    RTEXT           "邮箱:",IDC_STATIC,30,181,20,8,NOT WS_VISIBLE,
                     WS_EX_TRANSPARENT
-    RTEXT           "网址:",IDC_STATIC,14,132,36,8,NOT WS_VISIBLE,
+    RTEXT           "网址:",IDC_STATIC,30,192,20,8,NOT WS_VISIBLE,
                     WS_EX_TRANSPARENT
-    LTEXT           "robustwellcao@gmail.com",IDC_TXT_EMAIL,79,151,91,8,0,
+    LTEXT           "robustwellcao@gmail.com",IDC_TXT_EMAIL,55,180,91,8,0,
                     WS_EX_TRANSPARENT
-    LTEXT           "http://www.xxx.com",IDC_TXT_URL,79,162,108,8,0,
+    LTEXT           "http://www.xxx.com",IDC_TXT_URL,55,191,76,8,0,
                     WS_EX_TRANSPARENT
-    DEFPUSHBUTTON   "确定",IDOK,21,156,25,14,WS_GROUP
-    CONTROL         101,IDC_STATIC,"Static",SS_BITMAP,34,7,198,102
+    DEFPUSHBUTTON   "确定",IDOK,159,188,25,14,WS_GROUP
 END
 
 
@@ -63,9 +61,9 @@ BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 232
+        RIGHTMARGIN, 192
         TOPMARGIN, 7
-        BOTTOMMARGIN, 170
+        BOTTOMMARGIN, 204
     END
 END
 #endif    // APSTUDIO_INVOKED

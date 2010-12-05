@@ -44,9 +44,11 @@ public:
 	CString2DataType    m_Str2Data;
 	UINT	m_nchangev;
     unsigned char *m_ndkSend;
+	UINT	m_nchange;
 
 	void ComDisMes(CString strmes);
 	void OnButRESre();
+	void InitWGas(int gasfds);
 
   CAxConnection   m_Cn;
   CAxContactCmd   m_ContactCmd;
@@ -54,9 +56,12 @@ public:
   CAxSControl     *m_SControlNew;
   CAxPointDescription  m_PointDes;
   CAxFans         m_Fans;
+    CAxCommonSet        m_CommonSet;
+
 
 	vector<CString> m_Records1;
 	vector<CString> m_Records2;
+	ListV  m_wgas[6];
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -71,6 +76,7 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CSetTimeDlg)
+	afx_msg void OnChCBF();
 	afx_msg void OnChCBP();
 	afx_msg void OnChCBV();
 	afx_msg void OnButSend();

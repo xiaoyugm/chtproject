@@ -31,6 +31,9 @@
 
 #include "resource.h"       // main symbols
 
+#include "MFClient.h"
+#include "MSServer.h"
+#include "MSClient.h"
 #include "MQServer.h"
 #include "MQClient.h"
 #include "drawview.h"
@@ -59,35 +62,42 @@ class CGUI_VisualStudioApp : public CWinApp
 public:
 	CGUI_VisualStudioApp();
 
+    CMFClient sFC;
+    CMSServer  sMSb;
+    CMSClient sCb;
 	BOOL   ProcessShellCommand(CCommandLineInfo& rCmdInfo);
     CMQServer  SocketServer;
     CMQClient socketClient;
+	BOOL   StartServerB();
 	BOOL   StartServer();
 	BOOL   StartClient();
+	BOOL   StartFC();
+	BOOL   StartBC();
+	BOOL   StartMC();
 	void   SendMessage(CNDKMessage& message);     //211
-	void   Sync(CNDKMessage& message);
+	void   Sync(CNDKMessage& message,int uuu);
 	CNDKMessage m_sendmessage;
 
 	ULONG_PTR           gdiplusToken;
 	CString2DataType    m_Str2Data;
 	CommonTools         C_Ts;
 
+	BOOL   InitSQLite3();
 	BOOL   InitUIInfo();
 	BOOL   InitData();
+	int    Initfbl(CString strfbl);
+	CString SplitPath(CString strpath);
 	
 	void   OnCloseDB();
 	BOOL   ConnectDB();
 	BOOL   InitPointInfo();
 	BOOL   InitDisplay();
-    void   pushDIS(CString  str1,CString  str2,CString  str3);
-	void   BuildDIS(CString  strItem);
 
     CCardFileEvents *pCnEvents;
     CAxConnection   m_Cn;
     CAxPointDescription  m_PointDes;
     CAxAccountSet    m_AccountSet;
     CAxContactSet    m_ContactSet;
-    CAxDisPoint      m_DisPoint;
     CAxSControl      m_SControl;
     CAxControl       m_Control;
     CAxColorset      m_Colorset;
@@ -96,19 +106,30 @@ public:
     CAxMAlocationSet   m_MAlocation;
     CAxFans         m_Fans;
 
+	ADOCust::_ConnectionPtr m_pConnection;
+    CppSQLite3DB db3;
+
+	vector<DCHm5> m_RTData;
+	vector<DCHm5> m_RDCHm5;
+	CSearchDir m_sdir;
+	vector<CString> m_addfilesy;
+	ListV m_strl[100];
+	ListV m_strms[20];
+//	vector<CString> m_addfiles;
 	//	CSQLDirect		m_sqlD;		//Êý¾Ý¿â
-	int DocNum ,idis,internet30s,m_resnum,bidis,fidis,dabidis,dfidis,dchidis;
+	int DocNum ,idis,internet30s,m_resnum,bidis,fidis,dabidis,dfidis,dchidis,master30,slave30;
 	CString curuser,strargc;
 	BOOL m_bsuper,b_SaveRT;
 	int  m_message;
 	UINT    	m_FdsScan;
 
-	bool m_senddata , m_sendcom,m_bLogIn;
+	bool m_senddata , b_5m,m_bLogIn;
 
 ///	CPointInfo      *pPointInfo;
 	CMultiDocTemplate* pDocTemplate;
 	CMultiDocTemplate* pNewDocTemplate;
-//	CMultiDocTemplate* pTabViewDocTemplate;
+	CMultiDocTemplate* pOutlookViewDocTemplate;
+	CMenu* pMainMenu;
 
 	CTypedPtrMap<CMapStringToOb,CString,CDrawView *> m_map;
 	CTypedPtrMap<CMapStringToOb,CString,CSampleFormView *> m_Sam;
@@ -133,7 +154,9 @@ public:
 };
 
 extern CGUI_VisualStudioApp theApp;
-extern CString gstrTimeOut;
+extern CString gstrTimeOut,strMetrics,strSer,strCli,strDBname;
+extern long n_SPort,n_CPort;
+extern CSAStatusLog g_Log,g_Log1;
 
 AFX_INLINE BOOL CreateImageList(CImageList& il, UINT nID)
 {

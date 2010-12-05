@@ -11,7 +11,6 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern  OthersSetting    m_OthersSetting;
 /////////////////////////////////////////////////////////////////////////////
 // CClassTime dialog
 
@@ -34,6 +33,7 @@ void CClassTime::DoDataExchange(CDataExchange* pDX)
 //	DDV_MaxChars(pDX, strcd, 2);
 //	DDV_MinMaxUInt(pDX, m_cd, 0, 23);
 	DDX_Text(pDX, IDC_EDIT_CLASSNUM, m_cn);
+	DDX_Control(pDX, IDC_CB_FBL, m_CB_FBL);
 //	DDV_MinMaxUInt(pDX, m_cn, 0, 4);
 //	DDV_MaxChars(pDX, strcd, 1);
 	//}}AFX_DATA_MAP
@@ -44,6 +44,7 @@ BEGIN_MESSAGE_MAP(CClassTime, CXTResizeDialog)
 	//{{AFX_MSG_MAP(CClassTime)
 	ON_EN_CHANGE(IDC_EDIT_DAYREPORT, OnChadayr)
 	ON_EN_CHANGE(IDC_EDIT_CLASSNUM, OnChaclass)
+	ON_CBN_SELCHANGE(IDC_CB_FBL, OnCB_FBL)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -59,6 +60,7 @@ BOOL CClassTime::OnInitDialog()
 //	m_listUser.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_SHOWSELALWAYS | LVS_EX_GRIDLINES);
 //	SetResize(IDC_LIST_USER,         SZ_TOP_LEFT,    SZ_BOTTOM_RIGHT);
 
+	int coxx ;
 		m_CommonSet.MoveFirst();
 		while ( !m_CommonSet.IsEOF() )
 		{
@@ -67,7 +69,7 @@ BOOL CClassTime::OnInitDialog()
 			strc.TrimRight();
 			if(strc == "")
 				break;
-			int coxx = m_CommonSet.m_szCommonID;
+			coxx = m_CommonSet.m_szCommonID;
 			if(coxx == 1)
 	     		GetDlgItem(IDC_EDIT_DAYREPORT)->SetWindowText(strc);   //班初始时间
             else
@@ -75,6 +77,19 @@ BOOL CClassTime::OnInitDialog()
 //	UpdateData(FALSE);
 			m_CommonSet.MoveNext();
 		}
+       	m_CB_FBL.AddString("1024");
+       	m_CB_FBL.AddString("1280");
+       	m_CB_FBL.AddString("1360");
+       	m_CB_FBL.AddString("1366");
+       	m_CB_FBL.AddString("1400");
+       	m_CB_FBL.AddString("1440");
+       	m_CB_FBL.AddString("1600");
+       	m_CB_FBL.AddString("1680");
+       	m_CB_FBL.AddString("1920");
+       	m_CB_FBL.AddString("2048");
+       	m_CB_FBL.AddString("2560");
+		m_CB_FBL.SetCurSel(theApp.Initfbl(theApp.m_strms[3].strl));
+
 //		szFind.Format("%d",m_CommonSet.m_sznum2);
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -84,7 +99,7 @@ void CClassTime::ConnectDB()
 {
   CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
                           User ID=sa;Password=sunset;\
-                          Data Source=") +m_OthersSetting.DBname+ _T(";Initial Catalog=BJygjl");
+                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
 	try
 	{
        dbAx::Init();
@@ -194,4 +209,24 @@ void CClassTime::OnCancel()
     m_Cn.Close();
     dbAx::Term();
 	CDialog::OnCancel();
+}
+
+
+void CClassTime::OnCB_FBL() 
+{
+	int eYear,eMonth,eDay,m_fds,m_chan;
+	CString   strname,strSQL,strrsy1;
+	strrsy1 ="dispoint"+strMetrics;
+	UpdateData(TRUE);
+	int  kkkk = m_CB_FBL.GetCurSel();
+	if(kkkk ==-1)
+	{
+          	AfxMessageBox("请选择正确的分辨率！", MB_OK);
+	    	return;
+	}
+	m_CB_FBL.GetLBText(kkkk,strname);
+            strSQL.Format("UPDATE '%s' SET LP0='%s' WHERE DISID=102;",
+			    	     strrsy1,strname );
+			theApp.db3.execDML(strSQL);
+	theApp.m_strms[3].strl = strname;
 }

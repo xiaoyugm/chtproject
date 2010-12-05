@@ -52,6 +52,7 @@ public:
 	double CyclesPerSec;
 
 	int		SpeedLevel;
+	unsigned char fvalue;
 
 	COLORREF	m_ctlBackColor;
 	int    nMinx,nMiny,nMaxx,nMaxy;

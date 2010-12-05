@@ -27,6 +27,9 @@ public:
 	enum { IDD = IDD_DIA_A_METHOD };
 		// NOTE: the ClassWizard will add data members here
 	CXTFlatComboBox     m_ComBoxSM;
+	CXTFlatComboBox     m_ComBoxSM2;
+	CXTListCtrl         m_LDCH;
+	CXTHeaderCtrl   m_header;
     CString    strsm;
 	//}}AFX_DATA
     CAxConnection   m_Cn;
@@ -53,7 +56,7 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CSafeMethod)
-//    afx_msg void OnBndemo();
+    afx_msg void OnBfds();
     afx_msg void OnBnOkSM();
 	virtual void OnCancel();
 	//}}AFX_MSG

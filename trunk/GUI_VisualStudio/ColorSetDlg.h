@@ -52,8 +52,8 @@ public:
 	CXTColorPicker	m_ctlColor9;
 //	CString	m_strButton;
 //	BYTE	m_fontSize;
-///	UINT	m_ntrans;
-//	UINT	m_nPointNo;
+	UINT	m_ntrans;
+	UINT	m_nlist;
 //	BOOL	m_bIsRunShowValue;
 //	CString	m_strLinkViewName;
 	//}}AFX_DATA
@@ -78,6 +78,7 @@ public:
 	COLORREF			m_color8;
 	COLORREF			m_color9;
 
+	CString2DataType m_Str2Data;
 public:
 	void InitSelectViewCombo();
 // Overrides

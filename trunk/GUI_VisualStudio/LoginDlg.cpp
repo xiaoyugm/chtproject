@@ -19,7 +19,6 @@ static char THIS_FILE[] = __FILE__;
 static BOOL bIsLoggin = FALSE;
 extern ADMainDis         m_ADMainDis[MAX_FDS][MAX_CHAN];          //调用显示
 extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
-extern  OthersSetting    m_OthersSetting;
 /////////////////////////////////////////////////////////////////////////////
 // CLoginDlg dialog
 
@@ -120,9 +119,12 @@ void CLoginDlg::OnOK()
 							if(m_SLogin.m_szclasser == 1)
 								theApp.m_bsuper = true;
 							else
+							{
 								theApp.m_bsuper = false;
-           					if("主机" == m_strUser)
 								theApp.b_SaveRT = TRUE;
+							}
+       g_Log1.StatusOut("用户：" +m_strUser +"登陆。");
+//           					if("主机" == m_strUser)
 							break;
 						}
 					}
@@ -169,9 +171,11 @@ void CLoginDlg::OnOK()
       						m_SLoginNew->AddNew();  //Add a new, blank record
 					   	    m_SLoginNew->Update();    //Update the recordset
 						    m_SLoginNew->Requery();
+       g_Log1.StatusOut("超级用户建立新操作员：" +m_strUser);
 	}
 	else if(theApp.m_bLogIn)
 	{
+       g_Log1.StatusOut("用户：" +theApp.curuser +"注销。");
 				theApp.b_SaveRT = FALSE;
 				theApp.m_bsuper = false;
                	theApp.m_bLogIn=false;
@@ -260,6 +264,8 @@ BOOL CLoginDlg::OnInitDialog()
 			}
 			else
 			{
+				if(theApp.curuser == m_strUser)
+         			GetDlgItem(IDC_EDT_USER)->EnableWindow(FALSE);;
     			GetDlgItem(IDC_LIST_USER)->ShowWindow(SW_HIDE);
     			GetDlgItem(ID_DELUSER)->ShowWindow(SW_HIDE);
     			GetDlgItem(IDC_BUTADD)->ShowWindow(SW_HIDE);
@@ -418,7 +424,7 @@ void CLoginDlg::ConnectDB()
 {
   CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
                           User ID=sa;Password=sunset;\
-                          Data Source=") +m_OthersSetting.DBname+ _T(";Initial Catalog=BJygjl");
+                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
 	try
 	{
        dbAx::Init();
@@ -492,12 +498,15 @@ void CLoginDlg::OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CLoginDlg::DelUser()
 {
+	CString strname;
 	bool isselect = false;
 	int nItemCount=m_listUser.GetItemCount();
     for(int nItem=0;nItem<nItemCount;nItem++)
 	{
 		if(m_listUser.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
 		{
+        	 strname=m_listUser.GetItemText(nItem,0);
+       g_Log1.StatusOut("超级用户删除操作员：" + strname );
     		isselect = true;
 			m_listUser.DeleteItem(nItem);
 			break;

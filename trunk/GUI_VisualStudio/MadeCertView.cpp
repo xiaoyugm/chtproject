@@ -11,6 +11,7 @@
 
 #include "ExcelFormat.h"
 using namespace ExcelFormat;
+#include "excel2003.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -18,9 +19,9 @@ using namespace ExcelFormat;
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern CommonStr        m_CommonStr[11];
+#define BoolType(b) b?true:false
+
 extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
-extern  OthersSetting    m_OthersSetting;
 extern SerialF               m_ClassTime[200];            //班设置
 /////////////////////////////////////////////////////////////////////////////
 // CMadeCertView
@@ -52,7 +53,10 @@ CMadeCertView::CMadeCertView()
 //	m_bitMadeViewUser.LoadBitmap(IDB_BITMAPVIEWUSER);
 //	m_bitMadeCert.LoadBitmap(IDB_BITMAPMADECERT);
 	//}}AFX_DATA_INIT
+	m_bExcelInit=false;
 
+	m_nSortedCol = 1;
+	m_bAscending = true;
 }
 
 CMadeCertView::~CMadeCertView()
@@ -80,6 +84,9 @@ void CMadeCertView::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CMadeCertView, CFormView)
 	//{{AFX_MSG_MAP(CMadeCertView)
+//	ON_WM_SYSCOMMAND()
+//	ON_WM_PAINT()
+//	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDOKSEARCH, OnBOKSEARCH)
 	ON_CBN_SELCHANGE(IDC_COMBMADE, OnchangeComboSM)
 //	ON_BN_CLICKED(IDC_BUTTON_VIEWINFO, OnButtonViewinfo)
@@ -122,8 +129,6 @@ void CMadeCertView::OnInitialUpdate()
 //	((CButton*)GetDlgItem(IDC_BUTTON_AUT_MADE))->SetBitmap(m_bitMadeCert);
 //    	GetParentFrame()->MoveWindow(CRect(50,100,960,700));
 //	GetParentFrame()->SetWindowPos(NULL,0,0,GetSystemMetrics(SM_CXSCREEN)-8,140,SWP_NOMOVE|SWP_NOZORDER | SWP_NOACTIVATE|SWP_SHOWWINDOW);
-	m_LCEXCEL1.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_SHOWSELALWAYS | LVS_EX_GRIDLINES);
-	m_LCEXCEL2.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_SHOWSELALWAYS | LVS_EX_GRIDLINES);
 
 	CString strna[3];
 	strna[0] = "安装地点|名称";
@@ -143,7 +148,7 @@ void CMadeCertView::OnInitialUpdate()
 	
 	CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
                           User ID=sa;Password=sunset;\
-                          Data Source=") +m_OthersSetting.DBname+ _T(";Initial Catalog=BJygjl");
+                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
 //All calls to the AxLib should be wrapped in a try / catch block
   try
   {
@@ -418,6 +423,29 @@ void CMadeCertView::OnInitialUpdate()
 			}
 		}
 
+	HWND hWndHeader = m_LCEXCEL2.GetDlgItem(IDC_LCEXCEL_2)->GetSafeHwnd();
+	m_header.SubclassWindow(hWndHeader);
+	// enable auto sizing.
+	m_header.EnableAutoSize(TRUE);
+//	m_header.ResizeColumnsToFit();
+
+	
+	SortColumn(m_nSortedCol, m_bAscending);
+
+	m_LCEXCEL1.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_SHOWSELALWAYS | LVS_EX_GRIDLINES);
+	m_LCEXCEL2.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_SHOWSELALWAYS | LVS_EX_GRIDLINES);
+//	m_LCEXCEL2.EnableUserSortColor(BoolType(m_bSortColor));
+//	m_LCEXCEL2.EnableUserListColor(BoolType(m_bListColor));
+//	m_LCEXCEL2.EnableUserRowColor(BoolType(m_bRowColor));
+
+
+/*	if (::CoInitialize(NULL)!=0)   //EXCEL
+	{ 
+		AfxMessageBox("初始化COM支持库失败,无法输出EXCEL报表!");
+		m_bExcelInit=false;
+	} 
+	else
+		m_bExcelInit=true;*/
 }
 
 void CMadeCertView::OnBOKSEARCH() 
@@ -603,7 +631,7 @@ void CMadeCertView::OnBOKSEARCH()
 
 void CMadeCertView::OnSABFE() 
 {
-	CString sztime,strtime;
+	CString sztime,strtime,stnames;
 	if(m_Realtimedata1._IsOpen())
 	{
 		m_Realtimedata1.MoveFirst();
@@ -676,35 +704,43 @@ void CMadeCertView::OnSABFE()
 		}
 	}
 
-	BasicExcel xls;
-//	xls.Load(gstrTimeOut +"\\report\\example.xls");
-	xls.New(1);
-	BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
-	XLSFormatManager fmt_mgr(xls);
+	if(theApp.strargc == "OnALARMS")
+       	stnames= "报警查询";
+	else if(theApp.strargc == "OnBREAKES")
+      	stnames= "断电查询";
+	else if(theApp.strargc == "OnFEEDES")
+       	stnames= "馈电异常查询";
+	else if(theApp.strargc == "OnSELECTS")
+    	stnames= "调用查询";
 
-	 // Create a table containing an header row in bold and four rows below.
-	ExcelFont font_bold;
-	font_bold._weight = FW_BOLD; // 700
-	CellFormat fmt_bold(fmt_mgr);
-	fmt_bold.set_font(font_bold);
-
-    WCHAR * buf=new WCHAR[50];
+	_Application ExcelApp; 
+	Workbooks wbsMyBooks; 
+	_Workbook wbMyBook; 
+	Worksheets wssMysheets; 
+	_Worksheet wsMysheet; 
+	Range rgMyRge; 
+	//创建Excel 2000服务器(启动Excel) 
+ 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
+	{ 
+		AfxMessageBox("创建Excel服务失败!"); 
+		return; 
+	} 
+	//利用模板文件建立新文档 
+	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
+	//CreateDirectory( str1, NULL );
+//	if(!SetCurrentDirectory(str1))
+//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
+	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
+	//得到Worksheets 
+	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
+	//得到sheet1 
+	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
+	//得到全部Cells，此时,rgMyRge是cells的集合 
+	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
+	//设置1行1列的单元的值 
+	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
 	size_t col = 0;
-	for(col=0; col<4; col++) {
-		BasicExcelCell* cell = sheet->Cell(0, col);
-		if(col==0)
-             m_Str2Data.GB2312ToUnicode("安装地点|名称",buf);
-		else if(col==1)
-             m_Str2Data.GB2312ToUnicode("测点值",buf);
-		else if(col==2)
-             m_Str2Data.GB2312ToUnicode("状态",buf);
-		else if(col==3)
-             m_Str2Data.GB2312ToUnicode("时间",buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt_bold);
-	}
-
-		int iItem = 1;
+		int iItem = 3;
 		for(int h = 0; h < m_tnum;h++)
 		{
       		for(int i = 1; i < 1000;i++)
@@ -712,32 +748,44 @@ void CMadeCertView::OnSABFE()
 				if(m_ADP[h][i].strsafetext =="")
 					break;
 			    for(col=0; col<4; col++) {
-         	     	BasicExcelCell* cell = sheet->Cell(iItem, col);
+//         	     	BasicExcelCell* cell = sheet->Cell(iItem, col);
          	    	if(col==0)
-                      m_Str2Data.GB2312ToUnicode(m_ADP[h][i].strsafetext,buf);
+							strtime =m_ADP[h][i].strsafetext;
+//                      m_Str2Data.GB2312ToUnicode(m_ADP[h][i].strsafetext,buf);
         	     	else if(col==1)
-                      m_Str2Data.GB2312ToUnicode(m_ADP[h][i].strlocal ,buf);
+							strtime =m_ADP[h][i].strlocal;
+//                      m_Str2Data.GB2312ToUnicode(m_ADP[h][i].strlocal ,buf);
          	     	else if(col==2)
 					{
 				    	int nstatus = m_ADP[h][i].m_ATotalnum;
 				    	strtime= theApp.socketClient.strstatus(nstatus);
-                        m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//                        m_Str2Data.GB2312ToUnicode(strtime ,buf);
 					}
          	     	else if(col==3)
 					{
 				  COleDateTime oleDateTime=m_ADP[h][i].NTime;
-				  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                      m_Str2Data.GB2312ToUnicode(strtime,buf);
+				  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                      m_Str2Data.GB2312ToUnicode(strtime,buf);
 					}
-        	    	cell->Set(buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
 				}
 				iItem++;
 			}
 		}
-    delete [] buf;
-	xls.SaveAs(gstrTimeOut +"\\report\\example.xls");
-	copy_sheet(gstrTimeOut +"\\report\\example.xls",gstrTimeOut +"\\report\\sexample.xls");
-	ShellExecute(0, NULL, gstrTimeOut +"\\report\\sexample.xls", NULL, NULL, SW_NORMAL);
+	//保存为文件
+	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
+	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
+		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
+    ExcelApp.Quit();
+	//释放对象 
+	rgMyRge.ReleaseDispatch(); 
+	wsMysheet.ReleaseDispatch(); 
+	wssMysheets.ReleaseDispatch(); 
+	wbMyBook.ReleaseDispatch(); 
+	wbsMyBooks.ReleaseDispatch(); 
+	ExcelApp.ReleaseDispatch(); 
+	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
+
 
 /*
 	for(size_t row=0; row<8; ++row) {
@@ -887,27 +935,7 @@ void CMadeCertView::OnRECAAD()
 			m_Realtimedata.MoveNext();
 		}
 	}
-	BasicExcel xls;
-//	xls.Load(gstrTimeOut +"\\report\\example.xls");
-	xls.New(1);
-	BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
-	XLSFormatManager fmt_mgr(xls);
-
-	 // Create a table containing an header row in bold and four rows below.
-	ExcelFont font_bold;
-	font_bold._weight = FW_BOLD; // 700
-	CellFormat fmt_bold(fmt_mgr);
-	fmt_bold.set_font(font_bold);
-
-		ExcelFont font;
-//		font.set_color_index(color);
-		font.set_weight(500);
-		font.set_height(500);
-		font.set_font_name(L"Times New Roman");
-		CellFormat fmt(fmt_mgr, font);
-    WCHAR * buf=new WCHAR[1000];
-
-	CString strtime1,strtime3,strtime4;
+	CString strtime1,strtime3,strtime4,stnames;
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -919,55 +947,45 @@ void CMadeCertView::OnRECAAD()
 		else
 	     	strtime4 = t1.Format(_T("%Y-%m-%d"))+ "班报表:";
 
-		BasicExcelCell* cell = sheet->Cell(0, 2);
 		if(theApp.strargc == "OnEXCELAA")
 		{
 			if(m_hours >20)
-             m_Str2Data.GB2312ToUnicode("模拟量报警日报表" ,buf);
+				stnames = "模拟量报警日报表";
 			else
-             m_Str2Data.GB2312ToUnicode("模拟量报警班报表" ,buf);
+				stnames = "模拟量报警班报表";
 		}
 		else
-             m_Str2Data.GB2312ToUnicode("模拟量报警记录查询显示" ,buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt);
-
-        cell = sheet->Cell(1, 1);
-		strtime += "    "+strtime1+"                    "+strtime2;
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-		cell->Set(buf);
-//		cell->SetFormat(fmt_bold);
-		if(theApp.strargc == "OnEXCELAA")
-		{
-             cell = sheet->Cell(2, 0);
-       		strtime4 += "                                                  "+strtime3;
-             m_Str2Data.GB2312ToUnicode(strtime4 ,buf);
-       		cell->Set(buf);
-		}
+				stnames = "模拟量报警记录查询显示";
+		strtime += "    "+strtime1+"    "+strtime2;
+	_Application ExcelApp; 
+	Workbooks wbsMyBooks; 
+	_Workbook wbMyBook; 
+	Worksheets wssMysheets; 
+	_Worksheet wsMysheet; 
+	Range rgMyRge; 
+	//创建Excel 2000服务器(启动Excel) 
+ 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
+	{ 
+		AfxMessageBox("创建Excel服务失败!"); 
+		return; 
+	} 
+	//利用模板文件建立新文档 
+	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
+	//CreateDirectory( str1, NULL );
+//	if(!SetCurrentDirectory(str1))
+//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
+	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
+	//得到Worksheets 
+	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
+	//得到sheet1 
+	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
+	//得到全部Cells，此时,rgMyRge是cells的集合 
+	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
+	//设置1行1列的单元的值 
+	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
 
 	size_t col = 0;
-	for(col=0; col<8; col++) {
-		BasicExcelCell* cell = sheet->Cell(3, col);
-		if(col==0)
-             m_Str2Data.GB2312ToUnicode("安装地点|名称",buf);
-		else if(col==1)
-             m_Str2Data.GB2312ToUnicode("报警次数",buf);
-		else if(col==2)
-             m_Str2Data.GB2312ToUnicode("报警时间",buf);
-		else if(col==3)
-             m_Str2Data.GB2312ToUnicode("最大值",buf);
-		else if(col==4)
-             m_Str2Data.GB2312ToUnicode("最大值时刻",buf);
-		else if(col==5)
-             m_Str2Data.GB2312ToUnicode("起始时刻",buf);
-		else if(col==6)
-             m_Str2Data.GB2312ToUnicode("终止时刻",buf);
-		else if(col==7)
-             m_Str2Data.GB2312ToUnicode("安全措施|时刻",buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt_bold);
-	}
-		int iItem = 4;
+		int iItem = 3;
 		for (int i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
@@ -977,67 +995,68 @@ void CMadeCertView::OnRECAAD()
     				if(m_ADRecord[i][j][k].strlocal!="ddd")
 						break;
                        	for(col=0; col<8; col++) {
-                		BasicExcelCell* cell = sheet->Cell(iItem, col);
+//                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
+							strtime =m_SlaveStation[i][j].WatchName;
+//                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
 //					  if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x70))
 //						  strtime= theApp.socketClient.strstatus(nstatus);
-                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+							strtime ="1";
+//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
                 		else if(col==2)
 						{
 							COleDateTime o =m_ADRecord[i][j][k].NTime;
 							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
 				         	COleDateTimeSpan t = o1-o;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
-                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
                  		else if(col==3)
 						{
 				    	  strtime.Format("%.2f",m_ADRecord[i][j][k].AMaxValue);
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==4)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].AMaxTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==5)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==6)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==7)
-                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
-
-						cell->Set(buf);
+							strtime =m_ADRecord[i][j][k].strsafetext;
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
 						}
 		            	iItem++;
 				}//k
 			}//j
 		}//i
-
-		if(theApp.strargc == "OnEXCELAA")
-		{
-            cell = sheet->Cell(iItem+1, 0);
-    		strtime = m_CommonStr[1].strc[6]+ "      "+m_CommonStr[1].strc[7]+ "      "+m_CommonStr[1].strc[8]+ "      "+m_CommonStr[1].strc[9]+ "      "+m_CommonStr[1].strc[10]+ "      ";
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-    		cell->Set(buf);
-    		cell->SetFormat(fmt_bold);
-		}
-
-    delete [] buf;
-	xls.SaveAs(gstrTimeOut +"\\report\\example.xls");
-	copy_sheet(gstrTimeOut +"\\report\\example.xls",gstrTimeOut +"\\report\\sexample.xls");
-	ShellExecute(0, NULL, gstrTimeOut +"\\report\\sexample.xls", NULL, NULL, SW_NORMAL);
+	//保存为文件
+	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
+	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
+		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
+    ExcelApp.Quit();
+	//释放对象 
+	rgMyRge.ReleaseDispatch(); 
+	wsMysheet.ReleaseDispatch(); 
+	wssMysheets.ReleaseDispatch(); 
+	wbMyBook.ReleaseDispatch(); 
+	wbsMyBooks.ReleaseDispatch(); 
+	ExcelApp.ReleaseDispatch(); 
+	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
 }
 
 void CMadeCertView::OnRECABD() 
@@ -1158,27 +1177,7 @@ void CMadeCertView::OnRECABD()
 			m_Realtimedata.MoveNext();
 		}
 	}
-	BasicExcel xls;
-//	xls.Load(gstrTimeOut +"\\report\\example.xls");
-	xls.New(1);
-	BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
-	XLSFormatManager fmt_mgr(xls);
-
-	 // Create a table containing an header row in bold and four rows below.
-	ExcelFont font_bold;
-	font_bold._weight = FW_BOLD; // 700
-	CellFormat fmt_bold(fmt_mgr);
-	fmt_bold.set_font(font_bold);
-
-		ExcelFont font;
-//		font.set_color_index(color);
-		font.set_weight(500);
-		font.set_height(500);
-		font.set_font_name(L"Times New Roman");
-		CellFormat fmt(fmt_mgr, font);
-    WCHAR * buf=new WCHAR[5000];
-
-	CString strtime1,strtime3,strtime4;
+	CString strtime1,strtime3,strtime4,stnames;
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -1190,60 +1189,46 @@ void CMadeCertView::OnRECABD()
 		else
 	     	strtime4 = t1.Format(_T("%Y-%m-%d"))+ "班报表:";
 
-		BasicExcelCell* cell = sheet->Cell(0, 2);
 		if(theApp.strargc == "OnEXCELAB")
 		{
 			if(m_hours >20)
-             m_Str2Data.GB2312ToUnicode("模拟量断电日报表" ,buf);
+				stnames = "模拟量断电日报表";
 			else
-             m_Str2Data.GB2312ToUnicode("模拟量断电班报表" ,buf);
+				stnames = "模拟量断电班报表";
 		}
 		else
-             m_Str2Data.GB2312ToUnicode("模拟量断电记录查询显示" ,buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt);
+				stnames = "模拟量断电记录查询显示";
 
-        cell = sheet->Cell(1, 1);
-		strtime += "    "+strtime1+"                    "+strtime2;
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-		cell->Set(buf);
-//		cell->SetFormat(fmt_bold);
-		if(theApp.strargc == "OnEXCELAB")
-		{
-             cell = sheet->Cell(2, 0);
-       		strtime4 += "                                                  "+strtime3;
-             m_Str2Data.GB2312ToUnicode(strtime4 ,buf);
-       		cell->Set(buf);
-		}
-
+		strtime += "    "+strtime1+"    "+strtime2;
+	_Application ExcelApp; 
+	Workbooks wbsMyBooks; 
+	_Workbook wbMyBook; 
+	Worksheets wssMysheets; 
+	_Worksheet wsMysheet; 
+	Range rgMyRge; 
+	//创建Excel 2000服务器(启动Excel) 
+ 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
+	{ 
+		AfxMessageBox("创建Excel服务失败!"); 
+		return; 
+	} 
+	//利用模板文件建立新文档 
+	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
+	//CreateDirectory( str1, NULL );
+//	if(!SetCurrentDirectory(str1))
+//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
+	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
+	//得到Worksheets 
+	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
+	//得到sheet1 
+	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
+	//得到全部Cells，此时,rgMyRge是cells的集合 
+	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
+	//设置1行1列的单元的值 
+	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
 
 	size_t col = 0;
-	for(col=0; col<9; col++) {
-		BasicExcelCell* cell = sheet->Cell(4, col);
-		if(col==0)
-             m_Str2Data.GB2312ToUnicode("安装地点|名称",buf);
-		else if(col==1)
-             m_Str2Data.GB2312ToUnicode("断电次数",buf);
-		else if(col==2)
-             m_Str2Data.GB2312ToUnicode("断电时间",buf);
-		else if(col==3)
-             m_Str2Data.GB2312ToUnicode("最大值",buf);
-		else if(col==4)
-             m_Str2Data.GB2312ToUnicode("最大值时刻",buf);
-		else if(col==5)
-             m_Str2Data.GB2312ToUnicode("起始时刻",buf);
-		else if(col==6)
-             m_Str2Data.GB2312ToUnicode("终止时刻",buf);
-		else if(col==7)
-             m_Str2Data.GB2312ToUnicode("安全措施|时刻",buf);
-		else if(col==8)
-             m_Str2Data.GB2312ToUnicode("断电区域|馈电状态|时刻",buf);
-//		else if(col==10)
-//             m_Str2Data.GB2312ToUnicode("馈电状态|时刻",buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt_bold);
-	}
-		int iItem = 5;
+		int iItem = 3;
 		for (int i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
@@ -1254,69 +1239,73 @@ void CMadeCertView::OnRECABD()
 						break;
 					{
                        	for(col=0; col<9; col++) {
-                		BasicExcelCell* cell = sheet->Cell(iItem, col);
+//                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
+							strtime =m_SlaveStation[i][j].WatchName;
+//                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
 //					  if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x70))
 //						  strtime= theApp.socketClient.strstatus(nstatus);
-                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+							strtime ="1";
                 		else if(col==2)
 						{
 							COleDateTime o =m_ADRecord[i][j][k].NTime;
 							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
 				         	COleDateTimeSpan t = o1-o;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
-                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
                  		else if(col==3)
 						{
 				    	  strtime.Format("%.2f",m_ADRecord[i][j][k].AMaxValue);
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==4)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].AMaxTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==5)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==6)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==7)
-                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
+							strtime =m_ADRecord[i][j][k].strsafetext;
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
                  		else if(col==8)
-                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
-
-						cell->Set(buf);
+							strtime =m_ADRecord[i][j][k].strlocal;
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//						cell->Set(buf);
 						}
 		            	iItem++;
 					}//if
 				}//k
 			}//j
 		}//i
-		if(theApp.strargc == "OnEXCELAB")
-		{
-            cell = sheet->Cell(iItem+1, 0);
-    		strtime = m_CommonStr[1].strc[6]+ "      "+m_CommonStr[1].strc[7]+ "      "+m_CommonStr[1].strc[8]+ "      "+m_CommonStr[1].strc[9]+ "      "+m_CommonStr[1].strc[10]+ "      ";
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-    		cell->Set(buf);
-    		cell->SetFormat(fmt_bold);
-		}
-
-    delete [] buf;
-	xls.SaveAs(gstrTimeOut +"\\report\\example.xls");
-	copy_sheet(gstrTimeOut +"\\report\\example.xls",gstrTimeOut +"\\report\\sexample.xls");
-	ShellExecute(0, NULL, gstrTimeOut +"\\report\\sexample.xls", NULL, NULL, SW_NORMAL);
+	//保存为文件
+	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
+	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
+		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
+    ExcelApp.Quit();
+	//释放对象 
+	rgMyRge.ReleaseDispatch(); 
+	wsMysheet.ReleaseDispatch(); 
+	wssMysheets.ReleaseDispatch(); 
+	wbMyBook.ReleaseDispatch(); 
+	wbsMyBooks.ReleaseDispatch(); 
+	ExcelApp.ReleaseDispatch(); 
+	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
 }
 
 void CMadeCertView::OnRECAFED() 
@@ -1426,28 +1415,8 @@ void CMadeCertView::OnRECAFED()
 			m_Realtimedata.MoveNext();
 		}
 	}
-	BasicExcel xls;
-//	xls.Load(gstrTimeOut +"\\report\\example.xls");
-	xls.New(1);
-	BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
-	XLSFormatManager fmt_mgr(xls);
 
-	char buffer[100];
-	 // Create a table containing an header row in bold and four rows below.
-	ExcelFont font_bold;
-	font_bold._weight = FW_BOLD; // 700
-	CellFormat fmt_bold(fmt_mgr);
-	fmt_bold.set_font(font_bold);
-
-		ExcelFont font;
-//		font.set_color_index(color);
-		font.set_weight(500);
-		font.set_height(500);
-		font.set_font_name(L"Times New Roman");
-		CellFormat fmt(fmt_mgr, font);
-    WCHAR * buf=new WCHAR[5000];
-
-	CString strtime1,strtime3,strtime4;
+	CString strtime1,strtime3,strtime4,stnames;
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -1459,53 +1428,47 @@ void CMadeCertView::OnRECAFED()
 		else
 	     	strtime4 = t1.Format(_T("%Y-%m-%d"))+ "班报表:";
 
-		BasicExcelCell* cell = sheet->Cell(0, 2);
 		if(theApp.strargc == "OnEXCELAFE")
 		{
 			if(m_hours >20)
-             m_Str2Data.GB2312ToUnicode("模拟量馈电异常日报表" ,buf);
+				stnames = "模拟量馈电异常日报表";
 			else
-             m_Str2Data.GB2312ToUnicode("模拟量馈电异常班报表" ,buf);
+ 				stnames = "模拟量馈电异常班报表";
 		}
 		else
-             m_Str2Data.GB2312ToUnicode("模拟量馈电异常记录查询显示" ,buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt);
+				stnames = "模拟量馈电异常记录查询显示";
 
-        cell = sheet->Cell(1, 1);
-		strtime += "    "+strtime1+"                    "+strtime2;
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-		cell->Set(buf);
-//		cell->SetFormat(fmt_bold);
-		if(theApp.strargc == "OnEXCELAFE")
-		{
-             cell = sheet->Cell(2, 0);
-       		strtime4 += "                                                  "+strtime3;
-             m_Str2Data.GB2312ToUnicode(strtime4 ,buf);
-       		cell->Set(buf);
-		}
+		strtime += "    "+strtime1+"     "+strtime2;
+
+	_Application ExcelApp; 
+	Workbooks wbsMyBooks; 
+	_Workbook wbMyBook; 
+	Worksheets wssMysheets; 
+	_Worksheet wsMysheet; 
+	Range rgMyRge; 
+	//创建Excel 2000服务器(启动Excel) 
+ 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
+	{ 
+		AfxMessageBox("创建Excel服务失败!"); 
+		return; 
+	} 
+	//利用模板文件建立新文档 
+	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
+	//CreateDirectory( str1, NULL );
+//	if(!SetCurrentDirectory(str1))
+//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
+	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
+	//得到Worksheets 
+	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
+	//得到sheet1 
+	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
+	//得到全部Cells，此时,rgMyRge是cells的集合 
+	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
+	//设置1行1列的单元的值 
+	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
 
 	size_t col = 0;
-	for(col=0; col<7; col++) {
-		BasicExcelCell* cell = sheet->Cell(4, col);
-		if(col==0)
-             m_Str2Data.GB2312ToUnicode("安装地点|名称",buf);
-		else if(col==1)
-             m_Str2Data.GB2312ToUnicode("异常次数",buf);
-		else if(col==2)
-             m_Str2Data.GB2312ToUnicode("异常时间",buf);
-		else if(col==3)
-             m_Str2Data.GB2312ToUnicode("起始时刻",buf);
-		else if(col==4)
-             m_Str2Data.GB2312ToUnicode("终止时刻",buf);
-		else if(col==5)
-             m_Str2Data.GB2312ToUnicode("安全措施|时刻",buf);
-		else if(col==6)
-             m_Str2Data.GB2312ToUnicode("断电区域|馈电状态|时刻",buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt_bold);
-	}
-		int iItem = 5;
+		int iItem = 3;
 		for (int i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
@@ -1516,56 +1479,60 @@ void CMadeCertView::OnRECAFED()
 						break;
 					{
                        	for(col=0; col<7; col++) {
-                		BasicExcelCell* cell = sheet->Cell(iItem, col);
+//                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
+							strtime =m_SlaveStation[i][j].WatchName;
+//                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
-                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+							strtime ="1";
+//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
                 		else if(col==2)
 						{
 							COleDateTime o =m_ADRecord[i][j][k].NTime;
 							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
 				         	COleDateTimeSpan t = o1-o;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
-                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
                  		else if(col==3)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==4)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==5)
-                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
+							strtime =m_ADRecord[i][j][k].strsafetext;
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
                  		else if(col==6)
-                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
-
-						cell->Set(buf);
+							strtime =m_ADRecord[i][j][k].strlocal;
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//						cell->Set(buf);
 						}
 		            	iItem++;
 					}//if
 				}//k
 			}//j
 		}//i
-		if(theApp.strargc == "OnEXCELAFE")
-		{
-            cell = sheet->Cell(iItem+1, 0);
-    		strtime = m_CommonStr[1].strc[6]+ "      "+m_CommonStr[1].strc[7]+ "      "+m_CommonStr[1].strc[8]+ "      "+m_CommonStr[1].strc[9]+ "      "+m_CommonStr[1].strc[10]+ "      ";
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-    		cell->Set(buf);
-    		cell->SetFormat(fmt_bold);
-		}
-
-    delete [] buf;
-	xls.SaveAs(gstrTimeOut +"\\report\\example.xls");
-	copy_sheet(gstrTimeOut +"\\report\\example.xls",gstrTimeOut +"\\report\\sexample.xls");
-	ShellExecute(0, NULL, gstrTimeOut +"\\report\\sexample.xls", NULL, NULL, SW_NORMAL);
+	//保存为文件
+	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
+	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
+		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
+    ExcelApp.Quit();
+	//释放对象 
+	rgMyRge.ReleaseDispatch(); 
+	wsMysheet.ReleaseDispatch(); 
+	wssMysheets.ReleaseDispatch(); 
+	wbMyBook.ReleaseDispatch(); 
+	wbsMyBooks.ReleaseDispatch(); 
+	ExcelApp.ReleaseDispatch(); 
+	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
 }
 
 void CMadeCertView::OnRECASR() 
@@ -1604,27 +1571,7 @@ void CMadeCertView::OnRECASR()
 			m_Rt5mdata.MoveNext();
 		}
 	}
-	BasicExcel xls;
-//	xls.Load(gstrTimeOut +"\\report\\example.xls");
-	xls.New(1);
-	BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
-	XLSFormatManager fmt_mgr(xls);
-
-	 // Create a table containing an header row in bold and four rows below.
-	ExcelFont font_bold;
-	font_bold._weight = FW_BOLD; // 700
-	CellFormat fmt_bold(fmt_mgr);
-	fmt_bold.set_font(font_bold);
-
-		ExcelFont font;
-//		font.set_color_index(color);
-		font.set_weight(500);
-		font.set_height(500);
-		font.set_font_name(L"Times New Roman");
-		CellFormat fmt(fmt_mgr, font);
-    WCHAR * buf=new WCHAR[500];
-
-	CString strtime1,strtime3,strtime4;
+	CString strtime1,strtime3,strtime4,stnames;
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -1636,49 +1583,47 @@ void CMadeCertView::OnRECASR()
 		else
 	     	strtime4 = t1.Format(_T("%Y-%m-%d"))+ "班报表:";
 
-		BasicExcelCell* cell = sheet->Cell(0, 2);
 		if(theApp.strargc == "OnEXCELASR")
 		{
 			if(m_hours >20)
-             m_Str2Data.GB2312ToUnicode("模拟量统计值日报表" ,buf);
+				stnames = "模拟量统计值日报表";
 			else
-             m_Str2Data.GB2312ToUnicode("模拟量统计值班报表" ,buf);
+				stnames = "模拟量统计值班报表";
 		}
 		else
-             m_Str2Data.GB2312ToUnicode("模拟量统计值记录查询显示" ,buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt);
+				stnames = "模拟量统计值记录查询显示";
 
-        cell = sheet->Cell(1, 1);
-		strtime += "    "+strtime1+"                    "+strtime2;
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-		cell->Set(buf);
-//		cell->SetFormat(fmt_bold);
-		if(theApp.strargc == "OnEXCELASR")
-		{
-             cell = sheet->Cell(2, 0);
-       		strtime4 += "                                                  "+strtime3;
-             m_Str2Data.GB2312ToUnicode(strtime4 ,buf);
-       		cell->Set(buf);
-		}
+		strtime += "    "+strtime1+"    "+strtime2;
+
+	_Application ExcelApp; 
+	Workbooks wbsMyBooks; 
+	_Workbook wbMyBook; 
+	Worksheets wssMysheets; 
+	_Worksheet wsMysheet; 
+	Range rgMyRge; 
+	//创建Excel 2000服务器(启动Excel) 
+ 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
+	{ 
+		AfxMessageBox("创建Excel服务失败!"); 
+		return; 
+	} 
+	//利用模板文件建立新文档 
+	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
+	//CreateDirectory( str1, NULL );
+//	if(!SetCurrentDirectory(str1))
+//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
+	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
+	//得到Worksheets 
+	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
+	//得到sheet1 
+	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
+	//得到全部Cells，此时,rgMyRge是cells的集合 
+	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
+	//设置1行1列的单元的值 
+	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
 
 	size_t col = 0;
-	for(col=0; col<5; col++) {
-		BasicExcelCell* cell = sheet->Cell(4, col);
-		if(col==0)
-             m_Str2Data.GB2312ToUnicode("安装地点|名称",buf);
-		else if(col==1)
-             m_Str2Data.GB2312ToUnicode("(每五分)最大值",buf);
-		else if(col==2)
-             m_Str2Data.GB2312ToUnicode("(每五分)最大值时刻",buf);
-		else if(col==3)
-             m_Str2Data.GB2312ToUnicode("(每五分)平均值",buf);
-		else if(col==4)
-             m_Str2Data.GB2312ToUnicode("(每五分)平均值时刻",buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt_bold);
-	}
-		int iItem = 5;
+		int iItem = 3;
 		for (int i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
@@ -1688,27 +1633,28 @@ void CMadeCertView::OnRECASR()
 					if(m_ADRecord[i][j][k].ATotalV <= 0.0001)
 						break;
                     for(col=0; col<5; col++) {
-             		BasicExcelCell* cell = sheet->Cell(iItem, col);
+//             		BasicExcelCell* cell = sheet->Cell(iItem, col);
             	    if(col==0)
-                        m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
+							strtime =m_SlaveStation[i][j].WatchName;
+//                        m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
               		else if(col==1)
 					{
-			    		strtime1.Format(_T("%.2f"), m_ADRecord[i][j][k].AMaxValue);
-                        m_Str2Data.GB2312ToUnicode(strtime1,buf);
+			    		strtime.Format(_T("%.2f"), m_ADRecord[i][j][k].AMaxValue);
+//                        m_Str2Data.GB2312ToUnicode(strtime1,buf);
 					}
               		else if(col==2)
 					{
 						t2 =m_ADRecord[i][j][k].NTime;
-						 strtime   =   t2.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                         m_Str2Data.GB2312ToUnicode(strtime ,buf);
+						 strtime   =   t2.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                         m_Str2Data.GB2312ToUnicode(strtime ,buf);
 					}
                		else if(col==3)
 					{
 						if(k == 0)
-    			    		strtime1.Format(_T("%.2f"), m_ADRecord[i][j][0].ATotalV/(m_ADRecord[i][j][0].m_ATotalnum-1));
+    			    		strtime.Format(_T("%.2f"), m_ADRecord[i][j][0].ATotalV/(m_ADRecord[i][j][0].m_ATotalnum-1));
 						else
-    			    		strtime1.Format(_T("%.2f"), m_ADRecord[i][j][k].ATotalV);
-                        m_Str2Data.GB2312ToUnicode(strtime1 ,buf);
+    			    		strtime.Format(_T("%.2f"), m_ADRecord[i][j][k].ATotalV);
+//                        m_Str2Data.GB2312ToUnicode(strtime1 ,buf);
 					}
               		else if(col==4)
 					{
@@ -1717,28 +1663,30 @@ void CMadeCertView::OnRECASR()
 						else
 						{
 			    			t2 =m_ADRecord[i][j][k].NTime;
-						 strtime   =   t2.Format(_T("%Y-%m-%d %H:%M:%S")); 
+						 strtime   =   t2.Format(_T("%Y:%m:%d %H:%M:%S")); 
 						}
-                         m_Str2Data.GB2312ToUnicode(strtime,buf);
+//                         m_Str2Data.GB2312ToUnicode(strtime,buf);
 					}
-					cell->Set(buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//					cell->Set(buf);
 					}
 		          iItem++;
 				}
 			}
 		}
-		if(theApp.strargc == "OnEXCELASR")
-		{
-            cell = sheet->Cell(iItem+1, 0);
-    		strtime = m_CommonStr[1].strc[6]+ "      "+m_CommonStr[1].strc[7]+ "      "+m_CommonStr[1].strc[8]+ "      "+m_CommonStr[1].strc[9]+ "      "+m_CommonStr[1].strc[10]+ "      ";
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-    		cell->Set(buf);
-    		cell->SetFormat(fmt_bold);
-		}
-    delete [] buf;
-	xls.SaveAs(gstrTimeOut +"\\report\\example.xls");
-	copy_sheet(gstrTimeOut +"\\report\\example.xls",gstrTimeOut +"\\report\\sexample.xls");
-	ShellExecute(0, NULL, gstrTimeOut +"\\report\\sexample.xls", NULL, NULL, SW_NORMAL);
+	//保存为文件
+	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
+	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
+		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
+    ExcelApp.Quit();
+	//释放对象 
+	rgMyRge.ReleaseDispatch(); 
+	wsMysheet.ReleaseDispatch(); 
+	wssMysheets.ReleaseDispatch(); 
+	wbMyBook.ReleaseDispatch(); 
+	wbsMyBooks.ReleaseDispatch(); 
+	ExcelApp.ReleaseDispatch(); 
+	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
 }
 
 void CMadeCertView::OnRECDABD() 
@@ -1840,27 +1788,7 @@ void CMadeCertView::OnRECDABD()
 			m_Realtimedata.MoveNext();
 		}
 	}
-	BasicExcel xls;
-//	xls.Load(gstrTimeOut +"\\report\\example.xls");
-	xls.New(1);
-	BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
-	XLSFormatManager fmt_mgr(xls);
-
-	 // Create a table containing an header row in bold and four rows below.
-	ExcelFont font_bold;
-	font_bold._weight = FW_BOLD; // 700
-	CellFormat fmt_bold(fmt_mgr);
-	fmt_bold.set_font(font_bold);
-
-		ExcelFont font;
-//		font.set_color_index(color);
-		font.set_weight(500);
-		font.set_height(500);
-		font.set_font_name(L"Times New Roman");
-		CellFormat fmt(fmt_mgr, font);
-    WCHAR * buf=new WCHAR[500];
-
-	CString strtime1,strtime3,strtime4;
+	CString strtime1,strtime3,strtime4,stnames;
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -1872,53 +1800,46 @@ void CMadeCertView::OnRECDABD()
 		else
 	     	strtime4 = t1.Format(_T("%Y-%m-%d"))+ "班报表:";
 
-		BasicExcelCell* cell = sheet->Cell(0, 2);
 		if(theApp.strargc == "OnEXCELDA")
 		{
 			if(m_hours >20)
-             m_Str2Data.GB2312ToUnicode("开关量报警日报表" ,buf);
+				stnames = "开关量报警日报表";
 			else
-             m_Str2Data.GB2312ToUnicode("开关量报警班报表" ,buf);
+				stnames = "开关量报警班报表";
 		}
 		else
-             m_Str2Data.GB2312ToUnicode("开关量报警记录查询显示" ,buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt);
+				stnames = "开关量报警记录查询显示";
+		strtime += "    "+strtime1+"    "+strtime2;
 
-        cell = sheet->Cell(1, 1);
-		strtime += "    "+strtime1+"                    "+strtime2;
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-		cell->Set(buf);
-//		cell->SetFormat(fmt_bold);
-		if(theApp.strargc == "OnEXCELDA")
-		{
-             cell = sheet->Cell(2, 0);
-       		strtime4 += "                                                  "+strtime3;
-             m_Str2Data.GB2312ToUnicode(strtime4 ,buf);
-       		cell->Set(buf);
-		}
+	_Application ExcelApp; 
+	Workbooks wbsMyBooks; 
+	_Workbook wbMyBook; 
+	Worksheets wssMysheets; 
+	_Worksheet wsMysheet; 
+	Range rgMyRge; 
+	//创建Excel 2000服务器(启动Excel) 
+ 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
+	{ 
+		AfxMessageBox("创建Excel服务失败!"); 
+		return; 
+	} 
+	//利用模板文件建立新文档 
+	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
+	//CreateDirectory( str1, NULL );
+//	if(!SetCurrentDirectory(str1))
+//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
+	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
+	//得到Worksheets 
+	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
+	//得到sheet1 
+	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
+	//得到全部Cells，此时,rgMyRge是cells的集合 
+	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
+	//设置1行1列的单元的值 
+	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
 
-	size_t col = 0;
-	for(col=0; col<7; col++) {
-		BasicExcelCell* cell = sheet->Cell(4, col);
-		if(col==0)
-             m_Str2Data.GB2312ToUnicode("安装地点|名称",buf);
-		else if(col==1)
-             m_Str2Data.GB2312ToUnicode("报警次数",buf);
-		else if(col==2)
-             m_Str2Data.GB2312ToUnicode("报警时间",buf);
-		else if(col==3)
-             m_Str2Data.GB2312ToUnicode("报警状态",buf);
-		else if(col==4)
-             m_Str2Data.GB2312ToUnicode("起始时刻",buf);
-		else if(col==5)
-             m_Str2Data.GB2312ToUnicode("终止时刻",buf);
-		else if(col==6)
-             m_Str2Data.GB2312ToUnicode("安全措施|时刻",buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt_bold);
-	}
-		int iItem = 5;
+	   size_t col = 0;
+		int iItem = 3;
 		for (int i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
@@ -1929,54 +1850,60 @@ void CMadeCertView::OnRECDABD()
 						break;
 					{
                        	for(col=0; col<7; col++) {
-                		BasicExcelCell* cell = sheet->Cell(iItem, col);
+//                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
+							strtime =m_SlaveStation[i][j].WatchName;
+//                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
-                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+							strtime = "1";
+//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
                 		else if(col==2)
 						{
 							COleDateTime o =m_ADRecord[i][j][k].NTime;
 							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
 				         	COleDateTimeSpan t = o1-o;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
-                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
                  		else if(col==3)
-                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
+							strtime =m_ADRecord[i][j][k].strlocal;
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
                  		else if(col==4)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==5)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==6)
-                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
-						cell->Set(buf);
+							strtime =m_ADRecord[i][j][k].strsafetext;
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//						cell->Set(buf);
 						}
 		            	iItem++;
 					}//if
 				}//k
 			}//j
 		}//i
-		if(theApp.strargc == "OnEXCELDA")
-		{
-            cell = sheet->Cell(iItem+1, 0);
-    		strtime = m_CommonStr[1].strc[6]+ "      "+m_CommonStr[1].strc[7]+ "      "+m_CommonStr[1].strc[8]+ "      "+m_CommonStr[1].strc[9]+ "      "+m_CommonStr[1].strc[10]+ "      ";
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-    		cell->Set(buf);
-    		cell->SetFormat(fmt_bold);
-		}
-    delete [] buf;
-	xls.SaveAs(gstrTimeOut +"\\report\\example.xls");
-	copy_sheet(gstrTimeOut +"\\report\\example.xls",gstrTimeOut +"\\report\\sexample.xls");
-	ShellExecute(0, NULL, gstrTimeOut +"\\report\\sexample.xls", NULL, NULL, SW_NORMAL);
+	//保存为文件
+	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
+	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
+		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
+    ExcelApp.Quit();
+	//释放对象 
+	rgMyRge.ReleaseDispatch(); 
+	wsMysheet.ReleaseDispatch(); 
+	wssMysheets.ReleaseDispatch(); 
+	wbMyBook.ReleaseDispatch(); 
+	wbsMyBooks.ReleaseDispatch(); 
+	ExcelApp.ReleaseDispatch(); 
+	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
 }
 
 void CMadeCertView::OnRECDABB() //开关量断电
@@ -2042,7 +1969,7 @@ void CMadeCertView::OnRECDABB() //开关量断电
              if(dbp != 6666)
 			 {
 			int m_alarm = m_Realtimedata.m_szADStatus;
-			if(m_alarm == 16)
+			if(m_alarm == 32)
 			{
 				if(m_ADRecord[afds][achan][0].duant == 0)
 					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata.m_szrecdate;
@@ -2078,27 +2005,7 @@ void CMadeCertView::OnRECDABB() //开关量断电
 			m_Realtimedata.MoveNext();
 		}
 	}
-	BasicExcel xls;
-//	xls.Load(gstrTimeOut +"\\report\\example.xls");
-	xls.New(1);
-	BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
-	XLSFormatManager fmt_mgr(xls);
-
-	 // Create a table containing an header row in bold and four rows below.
-	ExcelFont font_bold;
-	font_bold._weight = FW_BOLD; // 700
-	CellFormat fmt_bold(fmt_mgr);
-	fmt_bold.set_font(font_bold);
-
-		ExcelFont font;
-//		font.set_color_index(color);
-		font.set_weight(500);
-		font.set_height(500);
-		font.set_font_name(L"Times New Roman");
-		CellFormat fmt(fmt_mgr, font);
-    WCHAR * buf=new WCHAR[500];
-
-	CString strtime1,strtime3,strtime4;
+	CString strtime1,strtime3,strtime4,stnames;
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -2110,53 +2017,46 @@ void CMadeCertView::OnRECDABB() //开关量断电
 		else
 	     	strtime4 = t1.Format(_T("%Y-%m-%d"))+ "班报表:";
 
-		BasicExcelCell* cell = sheet->Cell(0, 2);
 		if(theApp.strargc == "OnEXCELDAB")
 		{
 			if(m_hours >20)
-             m_Str2Data.GB2312ToUnicode("开关量断电日报表" ,buf);
+				stnames = "开关量断电日报表";
 			else
-             m_Str2Data.GB2312ToUnicode("开关量断电班报表" ,buf);
+				stnames = "开关量断电班报表";
 		}
 		else
-             m_Str2Data.GB2312ToUnicode("开关量断电记录查询显示" ,buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt);
+				stnames = "开关量断电记录查询显示";
 
-        cell = sheet->Cell(1, 1);
-		strtime += "    "+strtime1+"                    "+strtime2;
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-		cell->Set(buf);
-//		cell->SetFormat(fmt_bold);
-		if(theApp.strargc == "OnEXCELDAB")
-		{
-             cell = sheet->Cell(2, 0);
-       		strtime4 += "                                                  "+strtime3;
-             m_Str2Data.GB2312ToUnicode(strtime4 ,buf);
-       		cell->Set(buf);
-		}
+		strtime += "    "+strtime1+"    "+strtime2;
+	_Application ExcelApp; 
+	Workbooks wbsMyBooks; 
+	_Workbook wbMyBook; 
+	Worksheets wssMysheets; 
+	_Worksheet wsMysheet; 
+	Range rgMyRge; 
+	//创建Excel 2000服务器(启动Excel) 
+ 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
+	{ 
+		AfxMessageBox("创建Excel服务失败!"); 
+		return; 
+	} 
+	//利用模板文件建立新文档 
+	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
+	//CreateDirectory( str1, NULL );
+//	if(!SetCurrentDirectory(str1))
+//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
+	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
+	//得到Worksheets 
+	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
+	//得到sheet1 
+	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
+	//得到全部Cells，此时,rgMyRge是cells的集合 
+	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
+	//设置1行1列的单元的值 
+	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
 
 	size_t col = 0;
-	for(col=0; col<7; col++) {
-		BasicExcelCell* cell = sheet->Cell(4, col);
-		if(col==0)
-             m_Str2Data.GB2312ToUnicode("安装地点|名称",buf);
-		else if(col==1)
-             m_Str2Data.GB2312ToUnicode("断电次数",buf);
-		else if(col==2)
-             m_Str2Data.GB2312ToUnicode("断电时间",buf);
-		else if(col==3)
-             m_Str2Data.GB2312ToUnicode("断电状态",buf);
-		else if(col==4)
-             m_Str2Data.GB2312ToUnicode("起始时刻",buf);
-		else if(col==5)
-             m_Str2Data.GB2312ToUnicode("终止时刻",buf);
-		else if(col==6)
-             m_Str2Data.GB2312ToUnicode("安全措施|时刻",buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt_bold);
-	}
-		int iItem = 5;
+		int iItem = 3;
 		for (int i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
@@ -2167,54 +2067,60 @@ void CMadeCertView::OnRECDABB() //开关量断电
 						break;
 					{
                        	for(col=0; col<7; col++) {
-                		BasicExcelCell* cell = sheet->Cell(iItem, col);
+//                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
+		        		  strtime   =   m_SlaveStation[i][j].WatchName; 
+//                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
-                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+		        		  strtime   =  "1"; 
+//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
                 		else if(col==2)
 						{
 							COleDateTime o =m_ADRecord[i][j][k].NTime;
 							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
 				         	COleDateTimeSpan t = o1-o;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
-                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
                  		else if(col==3)
-                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
+		        		  strtime   =   m_ADRecord[i][j][k].strlocal; 
+ //                         m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
                  		else if(col==4)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==5)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==6)
-                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
-						cell->Set(buf);
+		        		  strtime   =   m_ADRecord[i][j][k].strsafetext; 
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//						cell->Set(buf);
 						}
 		            	iItem++;
 					}//if
 				}//k
 			}//j
 		}//i
-		if(theApp.strargc == "OnEXCELDAB")
-		{
-            cell = sheet->Cell(iItem+1, 0);
-    		strtime = m_CommonStr[1].strc[6]+ "      "+m_CommonStr[1].strc[7]+ "      "+m_CommonStr[1].strc[8]+ "      "+m_CommonStr[1].strc[9]+ "      "+m_CommonStr[1].strc[10]+ "      ";
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-    		cell->Set(buf);
-    		cell->SetFormat(fmt_bold);
-		}
-    delete [] buf;
-	xls.SaveAs(gstrTimeOut +"\\report\\example.xls");
-	copy_sheet(gstrTimeOut +"\\report\\example.xls",gstrTimeOut +"\\report\\sexample.xls");
-	ShellExecute(0, NULL, gstrTimeOut +"\\report\\sexample.xls", NULL, NULL, SW_NORMAL);
+	//保存为文件
+	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
+	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
+		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
+    ExcelApp.Quit();
+	//释放对象 
+	rgMyRge.ReleaseDispatch(); 
+	wsMysheet.ReleaseDispatch(); 
+	wssMysheets.ReleaseDispatch(); 
+	wbMyBook.ReleaseDispatch(); 
+	wbsMyBooks.ReleaseDispatch(); 
+	ExcelApp.ReleaseDispatch(); 
+	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
 }
 
 void CMadeCertView::OnRECDFED() //开关量馈电异常
@@ -2286,9 +2192,13 @@ void CMadeCertView::OnRECDFED() //开关量馈电异常
 			strtime.TrimRight();
 			if(strtime == "异常")
 			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
+//				m_ADRecord[afds][achan][1].duant=100;
+//				if()
+				{
+					m_ADRecord[afds][achan][2].duant =10;
+    				if(m_ADRecord[afds][achan][0].duant == 0)
+     					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata.m_szrecdate;
+	      			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
 
 					strtime = m_Realtimedata.m_szsafemtext;
 					strtime.TrimRight();
@@ -2298,18 +2208,19 @@ void CMadeCertView::OnRECDFED() //开关量馈电异常
 		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
 					}
-				int ffds = m_Realtimedata.m_szffds;
-				int fchan = m_Realtimedata.m_szfchan;
-				if(ffds>0)
-				{
+		     		int ffds = m_Realtimedata.m_szffds;
+		    		int fchan = m_Realtimedata.m_szfchan;
+		    		if(ffds>0)
+					{
           				  COleDateTime oleDateTime=m_Realtimedata.m_szrecdate;
 		        		  strtime2   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
 					strtime = m_Realtimedata.m_szFeedStatus;
 					strtime.TrimRight();
 					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal +=m_SlaveStation[ffds][fchan].WatchName+"|"
 						+strtime+"|"+strtime2+"|";
+					}
+			      	m_ADRecord[afds][achan][0].duant++;//n个馈电异常记录值
 				}
-				m_ADRecord[afds][achan][0].duant++;//n个馈电异常记录值
 			}
 			else if(strtime == "正常")
 			{
@@ -2324,27 +2235,7 @@ void CMadeCertView::OnRECDFED() //开关量馈电异常
 			m_Realtimedata.MoveNext();
 		}
 	}
-	BasicExcel xls;
-//	xls.Load(gstrTimeOut +"\\report\\example.xls");
-	xls.New(1);
-	BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
-	XLSFormatManager fmt_mgr(xls);
-
-	 // Create a table containing an header row in bold and four rows below.
-	ExcelFont font_bold;
-	font_bold._weight = FW_BOLD; // 700
-	CellFormat fmt_bold(fmt_mgr);
-	fmt_bold.set_font(font_bold);
-
-		ExcelFont font;
-//		font.set_color_index(color);
-		font.set_weight(500);
-		font.set_height(500);
-		font.set_font_name(L"Times New Roman");
-		CellFormat fmt(fmt_mgr, font);
-    WCHAR * buf=new WCHAR[5000];
-
-	CString strtime1,strtime3,strtime4;
+	CString strtime1,strtime3,strtime4,stnames;
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -2356,53 +2247,46 @@ void CMadeCertView::OnRECDFED() //开关量馈电异常
 		else
 	     	strtime4 = t1.Format(_T("%Y-%m-%d"))+ "班报表:";
 
-		BasicExcelCell* cell = sheet->Cell(0, 2);
 		if(theApp.strargc == "OnEXCELDFE")
 		{
 			if(m_hours >20)
-             m_Str2Data.GB2312ToUnicode("开关量馈电异常日报表" ,buf);
+				stnames = "开关量馈电异常日报表";
 			else
-             m_Str2Data.GB2312ToUnicode("开关量馈电异常班报表" ,buf);
+				stnames = "开关量馈电异常班报表";
 		}
 		else
-             m_Str2Data.GB2312ToUnicode("开关量馈电异常记录查询显示" ,buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt);
+				stnames = "开关量馈电异常记录查询显示";
 
-        cell = sheet->Cell(1, 1);
-		strtime += "    "+strtime1+"                    "+strtime2;
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-		cell->Set(buf);
-//		cell->SetFormat(fmt_bold);
-		if(theApp.strargc == "OnEXCELDFE")
-		{
-             cell = sheet->Cell(2, 0);
-       		strtime4 += "                                                  "+strtime3;
-             m_Str2Data.GB2312ToUnicode(strtime4 ,buf);
-       		cell->Set(buf);
-		}
+		strtime += "    "+strtime1+"     "+strtime2;
+	_Application ExcelApp; 
+	Workbooks wbsMyBooks; 
+	_Workbook wbMyBook; 
+	Worksheets wssMysheets; 
+	_Worksheet wsMysheet; 
+	Range rgMyRge; 
+	//创建Excel 2000服务器(启动Excel) 
+ 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
+	{ 
+		AfxMessageBox("创建Excel服务失败!"); 
+		return; 
+	} 
+	//利用模板文件建立新文档 
+	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
+	//CreateDirectory( str1, NULL );
+//	if(!SetCurrentDirectory(str1))
+//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
+	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
+	//得到Worksheets 
+	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
+	//得到sheet1 
+	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
+	//得到全部Cells，此时,rgMyRge是cells的集合 
+	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
+	//设置1行1列的单元的值 
+	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
 
 	size_t col = 0;
-	for(col=0; col<7; col++) {
-		BasicExcelCell* cell = sheet->Cell(4, col);
-		if(col==0)
-             m_Str2Data.GB2312ToUnicode("安装地点|名称",buf);
-		else if(col==1)
-             m_Str2Data.GB2312ToUnicode("异常次数",buf);
-		else if(col==2)
-             m_Str2Data.GB2312ToUnicode("异常时间",buf);
-		else if(col==3)
-             m_Str2Data.GB2312ToUnicode("起始时刻",buf);
-		else if(col==4)
-             m_Str2Data.GB2312ToUnicode("终止时刻",buf);
-		else if(col==5)
-             m_Str2Data.GB2312ToUnicode("安全措施|时刻",buf);
-		else if(col==6)
-             m_Str2Data.GB2312ToUnicode("断电区域|馈电状态|时刻",buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt_bold);
-	}
-		int iItem = 5;
+		int iItem = 3;
 		for (int i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
@@ -2413,55 +2297,61 @@ void CMadeCertView::OnRECDFED() //开关量馈电异常
 						break;
 					{
                        	for(col=0; col<7; col++) {
-                		BasicExcelCell* cell = sheet->Cell(iItem, col);
+//                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
+		        		  strtime   =  m_SlaveStation[i][j].WatchName; 
+//                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
-                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+		        		  strtime   =   "1" ; 
+//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
                 		else if(col==2)
 						{
 							COleDateTime o =m_ADRecord[i][j][k].NTime;
 							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
 				         	COleDateTimeSpan t = o1-o;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
-                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
                  		else if(col==3)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==4)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==5)
-                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
+		        		  strtime   =   m_ADRecord[i][j][k].strsafetext; 
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
                  		else if(col==6)
-                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
+		        		  strtime   =   m_ADRecord[i][j][k].strlocal; 
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
 
-						cell->Set(buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//						cell->Set(buf);
 						}
 		            	iItem++;
 					}//if
 				}//k
 			}//j
 		}//i
-		if(theApp.strargc == "OnEXCELDFE")
-		{
-            cell = sheet->Cell(iItem+1, 0);
-    		strtime = m_CommonStr[1].strc[6]+ "      "+m_CommonStr[1].strc[7]+ "      "+m_CommonStr[1].strc[8]+ "      "+m_CommonStr[1].strc[9]+ "      "+m_CommonStr[1].strc[10]+ "      ";
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-    		cell->Set(buf);
-    		cell->SetFormat(fmt_bold);
-		}
-    delete [] buf;
-	xls.SaveAs(gstrTimeOut +"\\report\\example.xls");
-	copy_sheet(gstrTimeOut +"\\report\\example.xls",gstrTimeOut +"\\report\\sexample.xls");
-	ShellExecute(0, NULL, gstrTimeOut +"\\report\\sexample.xls", NULL, NULL, SW_NORMAL);
+	//保存为文件
+	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
+	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
+		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
+    ExcelApp.Quit();
+	//释放对象 
+	rgMyRge.ReleaseDispatch(); 
+	wsMysheet.ReleaseDispatch(); 
+	wssMysheets.ReleaseDispatch(); 
+	wbMyBook.ReleaseDispatch(); 
+	wbsMyBooks.ReleaseDispatch(); 
+	ExcelApp.ReleaseDispatch(); 
+	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
 }
 
 void CMadeCertView::OnRECDSCD() //开关量状态变动记录
@@ -2511,27 +2401,8 @@ void CMadeCertView::OnRECDSCD() //开关量状态变动记录
 			m_Realtimedata.MoveNext();
 		}
 	}
-	BasicExcel xls;
-//	xls.Load(gstrTimeOut +"\\report\\example.xls");
-	xls.New(1);
-	BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
-	XLSFormatManager fmt_mgr(xls);
 
-	CString strtime,strtime1;
-	 // Create a table containing an header row in bold and four rows below.
-	ExcelFont font_bold;
-	font_bold._weight = FW_BOLD; // 700
-	CellFormat fmt_bold(fmt_mgr);
-	fmt_bold.set_font(font_bold);
-
-		ExcelFont font;
-//		font.set_color_index(color);
-		font.set_weight(500);
-		font.set_height(500);
-		font.set_font_name(L"Times New Roman");
-		CellFormat fmt(fmt_mgr, font);
-    WCHAR * buf=new WCHAR[500];
-
+	CString strtime,strtime1,stnames;
 	CString strtime2,strtime3,strtime4;
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
@@ -2544,49 +2415,56 @@ void CMadeCertView::OnRECDSCD() //开关量状态变动记录
 		else
 	     	strtime4 = t1.Format(_T("%Y-%m-%d"))+ "班报表:";
 
-		BasicExcelCell* cell = sheet->Cell(0, 2);
+//		BasicExcelCell* cell = sheet->Cell(0, 2);
 		if(theApp.strargc == "OnEXCELDSCD")
 		{
 			if(m_hours >20)
-             m_Str2Data.GB2312ToUnicode("开关量状态变动日报表" ,buf);
+				stnames = "开关量状态变动日报表";
+//             m_Str2Data.GB2312ToUnicode("开关量状态变动日报表" ,buf);
 			else
-             m_Str2Data.GB2312ToUnicode("开关量状态变动班报表" ,buf);
+				stnames = "开关量状态变动班报表";
+//             m_Str2Data.GB2312ToUnicode("开关量状态变动班报表" ,buf);
 		}
 		else
-             m_Str2Data.GB2312ToUnicode("开关量状态变动记录查询显示" ,buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt);
+				stnames = "开关量状态变动记录查询显示";
+//             m_Str2Data.GB2312ToUnicode("开关量状态变动记录查询显示" ,buf);
+//		cell->Set(buf);
+//		cell->SetFormat(fmt);
 
-        cell = sheet->Cell(1, 1);
-		strtime += "    "+strtime1+"                    "+strtime2;
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-		cell->Set(buf);
+//        cell = sheet->Cell(1, 1);
+		strtime += "    "+strtime1+"    "+strtime2;
+//             m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//		cell->Set(buf);
 //		cell->SetFormat(fmt_bold);
-		if(theApp.strargc == "OnEXCELDSCD")
-		{
-             cell = sheet->Cell(2, 0);
-       		strtime4 += "                                                  "+strtime3;
-             m_Str2Data.GB2312ToUnicode(strtime4 ,buf);
-       		cell->Set(buf);
-		}
+	_Application ExcelApp; 
+	Workbooks wbsMyBooks; 
+	_Workbook wbMyBook; 
+	Worksheets wssMysheets; 
+	_Worksheet wsMysheet; 
+	Range rgMyRge; 
+	//创建Excel 2000服务器(启动Excel) 
+ 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
+	{ 
+		AfxMessageBox("创建Excel服务失败!"); 
+		return; 
+	} 
+	//利用模板文件建立新文档 
+	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
+	//CreateDirectory( str1, NULL );
+//	if(!SetCurrentDirectory(str1))
+//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
+	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
+	//得到Worksheets 
+	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
+	//得到sheet1 
+	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
+	//得到全部Cells，此时,rgMyRge是cells的集合 
+	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
+	//设置1行1列的单元的值 
+	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
 
 	size_t col = 0;
-	for(col=0; col<5; col++) {
-		BasicExcelCell* cell = sheet->Cell(4, col);
-		if(col==0)
-             m_Str2Data.GB2312ToUnicode("安装地点|名称",buf);
-		else if(col==1)
-             m_Str2Data.GB2312ToUnicode("动作次数",buf);
-		else if(col==2)
-             m_Str2Data.GB2312ToUnicode("动作状态",buf);
-		else if(col==3)
-             m_Str2Data.GB2312ToUnicode("起始时刻",buf);
-		else if(col==4)
-             m_Str2Data.GB2312ToUnicode("累计时间",buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt_bold);
-	}
-		int iItem = 5;
+		int iItem = 3;
 		for (int i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
@@ -2599,11 +2477,13 @@ void CMadeCertView::OnRECDSCD() //开关量状态变动记录
 						break;
 
                 	for(col=0; col<5; col++) {
-              		BasicExcelCell* cell = sheet->Cell(iItem, col);
+//              		BasicExcelCell* cell = sheet->Cell(iItem, col);
          	      	if(col==0)
-                      m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(m_SlaveStation[i][j].WatchName)); 
+//                      m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                  	else if(col==1)
-                      m_Str2Data.GB2312ToUnicode("1" ,buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t("1")); 
+//                      m_Str2Data.GB2312ToUnicode("1" ,buf);
          	      	else if(col==2)
 					{
 					  int nstatus = m_ADRecord[i][j][k].m_ATotalnum;
@@ -2613,45 +2493,49 @@ void CMadeCertView::OnRECDSCD() //开关量状态变动记录
 						  strtime= m_SlaveStation[i][j].OneState;
 					  else if(nstatus == 2)
 						  strtime= m_SlaveStation[i][j].TwoState;
-                      m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//                      m_Str2Data.GB2312ToUnicode(strtime ,buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
 					}
          	      	else if(col==3)
 					{
 			     	  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-			    	  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                      m_Str2Data.GB2312ToUnicode(strtime,buf);
+			    	  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                      m_Str2Data.GB2312ToUnicode(strtime,buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
 					}
                 		else if(col==4)
 						{
 			        		if(k > 1)
 							{
-				    			cell = sheet->Cell(iItem-1, col);
+//				    			cell = sheet->Cell(iItem-1, col);
 				    			COleDateTime o =m_ADRecord[i][j][k-1].NTime;
 					    		COleDateTime o1 =m_ADRecord[i][j][k].NTime;
 				             	COleDateTimeSpan t = o1-o;
 			                	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
-                                m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//                                m_Str2Data.GB2312ToUnicode(strtime ,buf);
+					rgMyRge.SetItem(_variant_t((long)(iItem-1)),_variant_t((long)(col+1)),_variant_t(strtime)); 
 							}
 						}
-            		cell->Set(buf);
+//            		cell->Set(buf);
 					}
 	           		iItem++;
 				}
 				}
 			}
 		}
-		if(theApp.strargc == "OnEXCELDSCD")
-		{
-            cell = sheet->Cell(iItem+1, 0);
-    		strtime = m_CommonStr[1].strc[6]+ "      "+m_CommonStr[1].strc[7]+ "      "+m_CommonStr[1].strc[8]+ "      "+m_CommonStr[1].strc[9]+ "      "+m_CommonStr[1].strc[10]+ "      ";
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-    		cell->Set(buf);
-    		cell->SetFormat(fmt_bold);
-		}
-    delete [] buf;
-	xls.SaveAs(gstrTimeOut +"\\report\\example.xls");
-	copy_sheet(gstrTimeOut +"\\report\\example.xls",gstrTimeOut +"\\report\\sexample.xls");
-	ShellExecute(0, NULL, gstrTimeOut +"\\report\\sexample.xls", NULL, NULL, SW_NORMAL);
+	//保存为文件
+	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
+	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
+		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
+    ExcelApp.Quit();
+	//释放对象 
+	rgMyRge.ReleaseDispatch(); 
+	wsMysheet.ReleaseDispatch(); 
+	wssMysheets.ReleaseDispatch(); 
+	wbMyBook.ReleaseDispatch(); 
+	wbsMyBooks.ReleaseDispatch(); 
+	ExcelApp.ReleaseDispatch(); 
+	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
 }
 
 void CMadeCertView::OnRECDRIVERE()   //设备故障记录
@@ -2668,7 +2552,7 @@ void CMadeCertView::OnRECDRIVERE()   //设备故障记录
              if(dbp != 6666)
 			 {
 			int m_alarm = m_Realtimedata1.m_szADStatus;
-			if(m_alarm > 63)
+			if(m_alarm > 47)
 			{
 				if(m_ADRecord[afds][achan][0].duant == 0)
 					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata1.m_szrecdate;
@@ -2710,7 +2594,7 @@ void CMadeCertView::OnRECDRIVERE()   //设备故障记录
              if(dbp != 6666)
 			 {
 			int m_alarm = m_Realtimedata.m_szADStatus;
-			if(m_alarm > 63)
+			if(m_alarm > 47)
 			{
 				if(m_ADRecord[afds][achan][0].duant == 0)
 					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata.m_szrecdate;
@@ -2740,27 +2624,7 @@ void CMadeCertView::OnRECDRIVERE()   //设备故障记录
 			m_Realtimedata.MoveNext();
 		}
 	}
-	BasicExcel xls;
-//	xls.Load(gstrTimeOut +"\\report\\example.xls");
-	xls.New(1);
-	BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
-	XLSFormatManager fmt_mgr(xls);
-
-	 // Create a table containing an header row in bold and four rows below.
-	ExcelFont font_bold;
-	font_bold._weight = FW_BOLD; // 700
-	CellFormat fmt_bold(fmt_mgr);
-	fmt_bold.set_font(font_bold);
-
-		ExcelFont font;
-//		font.set_color_index(color);
-		font.set_weight(500);
-		font.set_height(500);
-		font.set_font_name(L"Times New Roman");
-		CellFormat fmt(fmt_mgr, font);
-    WCHAR * buf=new WCHAR[500];
-
-	CString strtime1,strtime3,strtime4;
+	CString strtime1,strtime3,strtime4,stnames;
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -2772,53 +2636,56 @@ void CMadeCertView::OnRECDRIVERE()   //设备故障记录
 		else
 	     	strtime4 = t1.Format(_T("%Y-%m-%d"))+ "班报表:";
 
-		BasicExcelCell* cell = sheet->Cell(0, 2);
+//		BasicExcelCell* cell = sheet->Cell(0, 2);
 		if(theApp.strargc == "OnEXCELDRIVERE")
 		{
 			if(m_hours >20)
-             m_Str2Data.GB2312ToUnicode("监控设备故障日报表" ,buf);
+				stnames = "监控设备故障日报表";
+//             m_Str2Data.GB2312ToUnicode("监控设备故障日报表" ,buf);
 			else
-             m_Str2Data.GB2312ToUnicode("监控设备故障班报表" ,buf);
+				stnames = "监控设备故障班报表";
+//             m_Str2Data.GB2312ToUnicode("监控设备故障班报表" ,buf);
 		}
 		else
-             m_Str2Data.GB2312ToUnicode("监控设备故障记录查询显示" ,buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt);
+				stnames = "监控设备故障记录查询显示";
+//             m_Str2Data.GB2312ToUnicode("监控设备故障记录查询显示" ,buf);
+//		cell->Set(buf);
+//		cell->SetFormat(fmt);
 
-        cell = sheet->Cell(1, 1);
-		strtime += "    "+strtime1+"                    "+strtime2;
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-		cell->Set(buf);
+//        cell = sheet->Cell(1, 1);
+		strtime += "    "+strtime1+"    "+strtime2;
+//             m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//		cell->Set(buf);
 //		cell->SetFormat(fmt_bold);
-		if(theApp.strargc == "OnEXCELDRIVERE")
-		{
-             cell = sheet->Cell(2, 0);
-       		strtime4 += "                                                  "+strtime3;
-             m_Str2Data.GB2312ToUnicode(strtime4 ,buf);
-       		cell->Set(buf);
-		}
+	_Application ExcelApp; 
+	Workbooks wbsMyBooks; 
+	_Workbook wbMyBook; 
+	Worksheets wssMysheets; 
+	_Worksheet wsMysheet; 
+	Range rgMyRge; 
+	//创建Excel 2000服务器(启动Excel) 
+ 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
+	{ 
+		AfxMessageBox("创建Excel服务失败!"); 
+		return; 
+	} 
+	//利用模板文件建立新文档 
+	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
+	//CreateDirectory( str1, NULL );
+//	if(!SetCurrentDirectory(str1))
+//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
+	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
+	//得到Worksheets 
+	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
+	//得到sheet1 
+	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
+	//得到全部Cells，此时,rgMyRge是cells的集合 
+	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
+	//设置1行1列的单元的值 
+	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
 
 	size_t col = 0;
-	for(col=0; col<7; col++) {
-		BasicExcelCell* cell = sheet->Cell(4, col);
-		if(col==0)
-             m_Str2Data.GB2312ToUnicode("安装地点|名称",buf);
-		else if(col==1)
-             m_Str2Data.GB2312ToUnicode("累计次数",buf);
-		else if(col==2)
-             m_Str2Data.GB2312ToUnicode("累计时间",buf);
-		else if(col==3)
-             m_Str2Data.GB2312ToUnicode("起始时刻",buf);
-		else if(col==4)
-             m_Str2Data.GB2312ToUnicode("终止时刻",buf);
-		else if(col==5)
-             m_Str2Data.GB2312ToUnicode("安全措施|时刻",buf);
-		else if(col==6)
-             m_Str2Data.GB2312ToUnicode("状态",buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt_bold);
-	}
-		int iItem = 5;
+		int iItem = 3;
 		for (int i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < MAX_CHAN;j++ )
@@ -2829,57 +2696,61 @@ void CMadeCertView::OnRECDRIVERE()   //设备故障记录
 						break;
 
 					    for(col=0; col<7; col++) {
-                		BasicExcelCell* cell = sheet->Cell(iItem, col);
+//                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
+							strtime =m_SlaveStation[i][j].WatchName;
+//                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
-                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+							strtime ="1" ;
+//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
                 		else if(col==2)
 						{
 							COleDateTime o =m_ADRecord[i][j][k].NTime;
 							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
 				         	COleDateTimeSpan t = o1-o;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
-                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
                  		else if(col==3)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==4)
 						{
           				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==5)
-                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
+		        		  strtime   =   m_ADRecord[i][j][k].strsafetext; 
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
                  		else if(col==6)
 						{
 							strtime= theApp.socketClient.strstatus(m_ADRecord[i][j][k].havev);
-                            m_Str2Data.GB2312ToUnicode(strtime,buf);
+//                            m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
-
-						cell->Set(buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//						cell->Set(buf);
 						}
 		            	iItem++;
 				}//k
 			}//j
 		}//i
-		if(theApp.strargc == "OnEXCELDRIVERE")
-		{
-            cell = sheet->Cell(iItem+1, 0);
-    		strtime = m_CommonStr[1].strc[6]+ "      "+m_CommonStr[1].strc[7]+ "      "+m_CommonStr[1].strc[8]+ "      "+m_CommonStr[1].strc[9]+ "      "+m_CommonStr[1].strc[10]+ "      ";
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-    		cell->Set(buf);
-    		cell->SetFormat(fmt_bold);
-		}
-    delete [] buf;
-	xls.SaveAs(gstrTimeOut +"\\report\\example.xls");
-	copy_sheet(gstrTimeOut +"\\report\\example.xls",gstrTimeOut +"\\report\\sexample.xls");
-	ShellExecute(0, NULL, gstrTimeOut +"\\report\\sexample.xls", NULL, NULL, SW_NORMAL);
+	//保存为文件
+	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
+	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
+		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
+    ExcelApp.Quit();
+	//释放对象 
+	rgMyRge.ReleaseDispatch(); 
+	wsMysheet.ReleaseDispatch(); 
+	wssMysheets.ReleaseDispatch(); 
+	wbMyBook.ReleaseDispatch(); 
+	wbsMyBooks.ReleaseDispatch(); 
+	ExcelApp.ReleaseDispatch(); 
+	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
 }
 
 void CMadeCertView::OnEXCELA() 
@@ -3071,9 +2942,35 @@ void CMadeCertView::OnEXCELA()
 		}
 	}
 
-	BasicExcel xls;
+	CString stnames;
+	CString strtime1,strtime3,strtime4;
+		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
+		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
+		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
+		if(theApp.strargc == "OnEXCELA")
+		{
+			if(m_hours >20)
+				stnames = "模拟量日报表";
+			else
+				stnames = "模拟量班报表";
+		}
+		else
+				stnames = "模拟量记录查询显示";
+
+//	BasicExcel xls;
+//		USES_CONVERSION;
+//		LPCTSTR lpName =A2W(stnames);
+//	strtime2 =gstrTimeOut +"\\report\\" + stnames + ".xlt";
+/*	const char* cxls=strtime2.GetBuffer(sizeof(strtime2));
+	BasicExcel xls;//(cxls);
+//	cls.Open(gstrTimeOut +"\\report\\" + stnames + ".xls");
+    if (!xls.Load(cxls))
+    {
+        AfxMessageBox(_T("Program cannot open example.xls"));
+    }
+//	xls.Load(cxls);
 //	xls.Load(gstrTimeOut +"\\report\\example.xls");
-	xls.New(1);
+//	xls.New(1);
 	BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
 	XLSFormatManager fmt_mgr(xls);
 
@@ -3088,13 +2985,9 @@ void CMadeCertView::OnEXCELA()
 		font.set_weight(500);
 		font.set_height(500);
 		font.set_font_name(L"Times New Roman");
-		CellFormat fmt(fmt_mgr, font);
-    WCHAR * buf=new WCHAR[1000];
+		CellFormat fmt(fmt_mgr, font);*/
+//    WCHAR * buf=new WCHAR[1000];
 
-	CString strtime1,strtime3,strtime4;
-		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
-		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
-		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
 		strtime2.Format("%d",m_hours); 
 		strtime2 = "时间间隔:" +strtime2+"小时";
 		strtime3 = "打印时间:" + CTime::GetCurrentTime().Format(_T("%Y-%m-%d %H:%M:%S"));
@@ -3103,34 +2996,26 @@ void CMadeCertView::OnEXCELA()
 		else
 	     	strtime4 = t1.Format(_T("%Y-%m-%d"))+ "班报表:";
 
-		BasicExcelCell* cell = sheet->Cell(0, 2);
-		if(theApp.strargc == "OnEXCELA")
-		{
-			if(m_hours >20)
-             m_Str2Data.GB2312ToUnicode("模拟量日报表" ,buf);
-			else
-             m_Str2Data.GB2312ToUnicode("模拟量班报表" ,buf);
-		}
-		else
-             m_Str2Data.GB2312ToUnicode("模拟量记录查询显示" ,buf);
-		cell->Set(buf);
-		cell->SetFormat(fmt);
+//		BasicExcelCell* cell = sheet->Cell(0, 2);
+//        m_Str2Data.GB2312ToUnicode(stnames ,buf);
+//		cell->Set(buf);
+//		cell->SetFormat(fmt);
 
-        cell = sheet->Cell(1, 1);
-		strtime += "    "+strtime1+"                    "+strtime2;
-             m_Str2Data.GB2312ToUnicode(strtime ,buf);
-		cell->Set(buf);
+//        BasicExcelCell* cell = sheet->Cell(0, 1);
+		strtime += "    "+strtime1+"     "+strtime2;
+//             m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//		cell->Set(buf);
 //		cell->SetFormat(fmt_bold);
 		if(theApp.strargc == "OnEXCELA")
 		{
-             cell = sheet->Cell(2, 0);
-       		strtime4 += "                                                  "+strtime3;
-             m_Str2Data.GB2312ToUnicode(strtime4 ,buf);
-       		cell->Set(buf);
+//             cell = sheet->Cell(2, 0);
+//       		strtime4 += "                                                  "+strtime3;
+//             m_Str2Data.GB2312ToUnicode(strtime4 ,buf);
+//       		cell->Set(buf);
 		}
 
 	size_t col = 0;
-	for(col=0; col<10; col++) {
+/*	for(col=0; col<10; col++) {
 		BasicExcelCell* cell = sheet->Cell(3, col);
 		if(col==0)
              m_Str2Data.GB2312ToUnicode("安装地点|名称",buf);
@@ -3154,8 +3039,36 @@ void CMadeCertView::OnEXCELA()
              m_Str2Data.GB2312ToUnicode("馈电异常累计时间",buf);
 		cell->Set(buf);
 		cell->SetFormat(fmt_bold);
-	}
-		int iItem = 4;
+	}*/
+
+	_Application ExcelApp; 
+	Workbooks wbsMyBooks; 
+	_Workbook wbMyBook; 
+	Worksheets wssMysheets; 
+	_Worksheet wsMysheet; 
+	Range rgMyRge; 
+	//创建Excel 2000服务器(启动Excel) 
+ 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
+	{ 
+		AfxMessageBox("创建Excel服务失败!"); 
+		return; 
+	} 
+	//利用模板文件建立新文档 
+	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
+	//CreateDirectory( str1, NULL );
+//	if(!SetCurrentDirectory(str1))
+//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
+	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
+	//得到Worksheets 
+	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
+	//得到sheet1 
+	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
+	//得到全部Cells，此时,rgMyRge是cells的集合 
+	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
+	//设置1行1列的单元的值 
+	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
+
+		int iItem = 3;//4
 		for ( i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
@@ -3166,61 +3079,63 @@ void CMadeCertView::OnEXCELA()
 					{
                     for(col=0; col<10; col++) 
 					{
-                		BasicExcelCell* cell = sheet->Cell(iItem, col);
+//                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
+							strtime =m_SlaveStation[i][j].WatchName;
+//                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
 						{
 							float m_fm = (m_ADRecord[i][j][0].ATotalV+m_ADRecord[i][j][10].ATotalV)/(m_ADRecord[i][j][0].m_ATotalnum+m_ADRecord[i][j][10].m_ATotalnum);
 				        	  strtime.Format("%.2f",m_fm);
-                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
                 		else if(col==2)
 						{
 				        	  strtime.Format("%.2f",m_ADRecord[i][j][1].ATotalV);
-                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
                  		else if(col==3)
 						{
 //          				  COleDateTime oleDateTime=m_ADRecord[i][j][1].ATime;
-		        		  strtime   =   m_ADRecord[i][j][1].ATime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+		        		  strtime   =   m_ADRecord[i][j][1].ATime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==4)
 						{
 				        	  strtime.Format("%d",m_ADRecord[i][j][6].m_ATotalnum+m_ADRecord[i][j][15].m_ATotalnum);
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==5)
 						{
           			    	  COleDateTimeSpan t =m_ADRecord[i][j][8].tmid +m_ADRecord[i][j][17].tmid;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
-                            m_Str2Data.GB2312ToUnicode(strtime,buf);
+//                            m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==6)
 						{
 				        	  strtime.Format("%d",m_ADRecord[i][j][7].m_ATotalnum+m_ADRecord[i][j][16].m_ATotalnum);
-                              m_Str2Data.GB2312ToUnicode(strtime,buf);
+//                              m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==7)
 						{
           			    	  COleDateTimeSpan t =m_ADRecord[i][j][9].tmid +m_ADRecord[i][j][18].tmid;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
-                            m_Str2Data.GB2312ToUnicode(strtime,buf);
+//                            m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
 						else if(col==8) 
 						{
 				        	  strtime.Format("%d",m_ADRecord[i][j][3].m_ATotalnum+m_ADRecord[i][j][12].m_ATotalnum);
-                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==9)
 						{
 							COleDateTimeSpan t=0;
           			    	t =m_ADRecord[i][j][5].tmid +m_ADRecord[i][j][14].tmid;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
-                            m_Str2Data.GB2312ToUnicode(strtime,buf);
+//                            m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
-						cell->Set(buf);
+					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//						cell->Set(buf);
 					}
 	             	iItem++;
 					}
@@ -3228,19 +3143,68 @@ void CMadeCertView::OnEXCELA()
 			}//j
 		}//i
 
-		if(theApp.strargc == "OnEXCELA")
+/*		if(theApp.strargc == "OnEXCELA")
 		{
             cell = sheet->Cell(iItem+1, 0);
     		strtime = m_CommonStr[1].strc[6]+ "      "+m_CommonStr[1].strc[7]+ "      "+m_CommonStr[1].strc[8]+ "      "+m_CommonStr[1].strc[9]+ "      "+m_CommonStr[1].strc[10]+ "      ";
              m_Str2Data.GB2312ToUnicode(strtime ,buf);
     		cell->Set(buf);
     		cell->SetFormat(fmt_bold);
-		}
+		}*/
 
-    delete [] buf;
-	xls.SaveAs(gstrTimeOut +"\\report\\example.xls");
-	copy_sheet(gstrTimeOut +"\\report\\example.xls",gstrTimeOut +"\\report\\sexample.xls");
-	ShellExecute(0, NULL, gstrTimeOut +"\\report\\sexample.xls", NULL, NULL, SW_NORMAL);
+	//rgMyRge.SetItem(_variant_t((long)2),_variant_t((long)1),_variant_t("龚建伟")); 
+	//rgMyRge.SetItem(_variant_t((long)20),_variant_t((long)3),_variant_t("ewerwr")); 
+	//得到所有的列 
+/*	rgMyRge.AttachDispatch(wsMysheet.GetColumns(),true); 
+	//得到第一列 
+	for(int iCollum=1;iCollum<=9;iCollum++)
+	{
+		int iWidth;
+		if(iCollum==5)
+			iWidth=20;
+		else
+			iWidth=10;
+		rgMyRge.AttachDispatch(rgMyRge.GetItem(_variant_t((long)iCollum),vtMissing).pdispVal,true); 
+		//设置列宽 
+		rgMyRge.SetColumnWidth(_variant_t((long)iWidth)); 
+	}
+*/
+	/*
+	//调用模板中预先存放的宏 
+	ExcelApp.Run(_variant_t("CopyRow"),_variant_t((long)10),vtMissing,vtMissing, 
+	vtMissing,vtMissing,vtMissing,vtMissing,vtMissing,vtMissing,vtMissing, 
+	vtMissing,vtMissing,vtMissing,vtMissing,vtMissing,vtMissing,vtMissing, 
+	vtMissing,vtMissing,vtMissing,vtMissing,vtMissing,vtMissing,vtMissing, 
+	vtMissing,vtMissing,vtMissing,vtMissing,vtMissing,vtMissing); 
+	*/
+	  //打印预览 
+//	wbMyBook.SetSaved(true); 
+//	ExcelApp.SetVisible(true); 
+	//wbMyBook.PrintPreview(_variant_t(false)); 
+	//保存为文件
+	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
+	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
+//	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,vtMissing,vtMissing,
+		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
+    ExcelApp.Quit();
+	//释放对象 
+	rgMyRge.ReleaseDispatch(); 
+	wsMysheet.ReleaseDispatch(); 
+	wssMysheets.ReleaseDispatch(); 
+	wbMyBook.ReleaseDispatch(); 
+	wbsMyBooks.ReleaseDispatch(); 
+	ExcelApp.ReleaseDispatch(); 
+	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls",NULL, NULL, SW_NORMAL);
+//book.AttachDispatch(books.Open(ExtPath, covOptional,covOptional, covOptional,
+//COleVariant("123456"),covOptional, covOptional,covOptional, covOptional, 
+//covOptional, covOptional, covOptional, covOptional, covOptional, covOptional));
+//    delete [] buf;
+//	xls.Save();
+//	xls.SaveAs(gstrTimeOut +"\\report\\example.xls");
+//	xls.SaveAs(gstrTimeOut +"\\report\\"+stnames+".xls");
+//	xls.Close();
+//	copy_sheet(gstrTimeOut +"\\report\\example.xls",gstrTimeOut +"\\report\\"+stnames+".xls");
+//	ShellExecute(0, NULL, gstrTimeOut +"\\report\\sexample.xls", NULL, NULL, SW_NORMAL);
 }
 
 void CMadeCertView::copy_sheet(const char* from, const char* to)
@@ -3310,6 +3274,8 @@ void CMadeCertView::OnDestroy()
     MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
     delete e;
   }
+//	if(m_bExcelInit)
+//		::CoUninitialize();  //EXCEL
 
 	CFormView::OnDestroy();
 	((CMainFrame*)AfxGetMainWnd())->m_pMade=NULL; // 清空窗口指针
@@ -3585,4 +3551,45 @@ void CMadeCertView::InitStr()
 		}
 
 
+}
+
+//bool CMadeCertView::SortList(int /*nCol*/, bool /*bAscending*/)
+/*{
+	CXTSortClass csc (&m_LCEXCEL2, m_nSortedCol);
+    	csc.Sort (m_bAscending, xtSortInt);
+
+//	if(m_Planting ==4)
+//    	csc.Sort (m_bAscending, xtSortDateTime);
+//	else
+    	//csc.Sort (0, xtSortInt);          //max>> min
+//    	csc.Sort (m_bAscending, xtSortString);
+	return true;
+}*/
+
+void CMadeCertView::SortColumn(int iCol, bool bAsc)
+{
+	m_bAscending = bAsc;
+	m_nSortedCol = iCol;
+
+	// set sort image for header and sort column.
+//	m_listCtrl.SetSortImage(m_nSortedCol, m_bAscending);
+
+	CXTSortClass csc(&m_LCEXCEL2, m_nSortedCol);
+	csc.Sort(m_bAscending, xtSortString);
+}
+
+BOOL CMadeCertView::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
+{
+	HD_NOTIFY *pHDNotify = (HD_NOTIFY*)lParam;
+
+	if (pHDNotify->hdr.code == HDN_ITEMCLICKA ||
+		pHDNotify->hdr.code == HDN_ITEMCLICKW)
+	{
+		if (pHDNotify->iItem == m_nSortedCol)
+			SortColumn(pHDNotify->iItem, !m_bAscending);
+		else
+			SortColumn(pHDNotify->iItem, BoolType(m_header.GetAscending()));
+	}
+
+	return CFormView::OnNotify(wParam, lParam, pResult);
 }

@@ -111,7 +111,8 @@ void CDrawCar::DrawFill(CDC *pDC, Rect rc)
 	}
 	else
 	{	
-        		BSTR strPicPath = m_strPicPath.AllocSysString();
+		CString strrsy = theApp.m_strms[18].strl + "Image\\"+m_strPicPath;
+        		BSTR strPicPath = strrsy.AllocSysString();
 ///		BSTR strPicPath = _com_util::ConvertStringToBSTR(m_strPicPath);
 		Image m_pimage(strPicPath);
        	SysFreeString(strPicPath);

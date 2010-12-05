@@ -51,7 +51,6 @@ static char THIS_FILE[] = __FILE__;
 using namespace dbAx;
 
 extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
-extern  OthersSetting    m_OthersSetting;
 extern  ADTypeTable	     m_ADTypeTable[9];
 #define BoolType(b) b?true:false
 /////////////////////////////////////////////////////////////////////////////
@@ -68,10 +67,10 @@ CSettingHostDlg::CSettingHostDlg(CWnd* pParent /*=NULL*/)
 	m_bRowColor = TRUE;
 	m_bSortColor = TRUE;
 	sqlid = 0;
+	nlist =10;
 	PointDesid = 0;
 	m_strtable = _T("");
 	m_PointDesNew = &m_PointDes;
-	m_DisPointNew = &m_DisPoint;
 	m_ControlNew = &m_Control;
 	m_SControlNew = &m_SControl;
 	m_AxFeedENew = &m_AxFeedE;
@@ -121,7 +120,8 @@ BEGIN_MESSAGE_MAP(CSettingHostDlg, CXTResizeDialog)
 //	ON_BN_CLICKED(IDC_BUTTONDIS6, OnButtonCANCEL)
 	ON_CBN_SELCHANGE(IDC_COMBO3, OnchangeComboF)
 	ON_CBN_SELCHANGE(IDC_COMBO2, OnchangeCombo2)
-	ON_CBN_EDITCHANGE(IDC_COMBO3, OnChCB03)
+	ON_CBN_SELCHANGE(IDC_COMBO1, OnchangeCombo1)
+//	ON_CBN_EDITCHANGE(IDC_COMBO3, OnChCB03)
 	ON_CBN_EDITCHANGE(IDC_COMBO4, OnChCB04)
 //	ON_CBN_EDITCHANGE(IDC_COMBO2, OnChCB02)
 	//}}AFX_MSG_MAP
@@ -162,10 +162,12 @@ BOOL CSettingHostDlg::OnInitDialog()
 		if(m_strtable == "AddControl"  || m_strtable == "AddFeedE" ||m_ADTypeTable[4].TableName == m_strtable)  //加控制策略
 		{
         	GetDlgItem(IDC_LIST_DISPLAY)->MoveWindow(nWidth/2+150,5,nWidth/2-168  ,nHeight-20);
-        	GetDlgItem(IDC_COMBO3)->MoveWindow(nWidth/2 + 88,nHeight-84,40 ,20);
-        	GetDlgItem(IDC_STATIC3)->MoveWindow(nWidth/2 + 35,nHeight-80,50 ,20);
+        	GetDlgItem(IDC_COMBO1)->MoveWindow(nWidth/2 + 35,nHeight-112,90 ,20);
+        	GetDlgItem(IDC_STATIC1)->MoveWindow(nWidth/2 + 40,nHeight-130,60 ,15);
+        	GetDlgItem(IDC_COMBO3)->MoveWindow(nWidth/2 + 77,nHeight-84,48 ,20);
+        	GetDlgItem(IDC_STATIC3)->MoveWindow(nWidth/2 + 28,nHeight-80,50 ,20);
         	GetDlgItem(IDC_COMBO2)->MoveWindow(nWidth/2 + 35,nHeight-35,90 ,20);
-        	GetDlgItem(IDC_STATIC2)->MoveWindow(nWidth/2 + 35,nHeight-50,50 ,15);
+        	GetDlgItem(IDC_STATIC2)->MoveWindow(nWidth/2 + 35,nHeight-50,60 ,15);
         	GetDlgItem(IDC_CHECK_ISALM)->MoveWindow(nWidth/2 + 40,nHeight-160,100 ,20);
 		}
 		else
@@ -225,6 +227,8 @@ BOOL CSettingHostDlg::OnInitDialog()
 
 	if(m_ADTypeTable[4].TableName == m_strtable)
 	{
+		m_wndComboSize2.ResetContent();
+    	m_wndComboSize2.AddString(_T("不选"));
     	m_wndComboSize2.AddString(_T("电流电压型"));
     	m_wndComboSize2.AddString(_T("频率型"));
     	m_wndComboSize2.AddString(_T("频率型(累计)"));
@@ -233,15 +237,50 @@ BOOL CSettingHostDlg::OnInitDialog()
         m_wndComboSize2.AddString("控制量");     //12
         m_wndComboSize2.AddString("三态开关量");     //13
         m_wndComboSize2.AddString("通断量");         //14
+
+		m_wndComboSize1.ResetContent();
+		m_wndComboSize1.AddString(_T("不选"));
+		CString dddd;
+		m_ContactSet.MoveFirst();
+		while ( !m_ContactSet.IsEOF() )
+		{
+				  dddd = m_ContactSet.m_szName;
+				  dddd.TrimRight();
+				  m_wndComboSize1.AddString(dddd);
+			m_ContactSet.MoveNext();
+		}
+		m_AccountSet.MoveFirst();
+		while ( !m_AccountSet.IsEOF() )
+		{
+				  dddd = m_AccountSet.m_szName;
+				  dddd.TrimRight();
+				  m_wndComboSize1.AddString(dddd);
+			m_AccountSet.MoveNext();
+		}
+				  m_wndComboSize1.SetCurSel(0);
+
+
+		m_wndComboSize3.ResetContent();
+		m_wndComboSize3.AddString(_T("不选"));
+	for(int i = 01; i < MAX_FDS; i++)
+	{
+		strItem.Format(_T("%d"), i);
+    	m_wndComboSize3.AddString(strItem);
+	}
+		m_wndComboSize3.SetCurSel(0);
+
 	}
 	else
 	{
+		m_wndComboSize2.ResetContent();
     	m_wndComboSize2.AddString(_T("电流电压型"));
     	m_wndComboSize2.AddString(_T("频率型"));
     	m_wndComboSize2.AddString(_T("频率型(累计)"));
 	}
 		m_wndComboSize2.SetCurSel(0);
 
+	if(m_ADTypeTable[4].TableName != m_strtable)
+	{
 		m_MAlocation.MoveFirst();
 		while ( !m_MAlocation.IsEOF() )
 		{
@@ -252,7 +291,7 @@ BOOL CSettingHostDlg::OnInitDialog()
 		}
         m_MAlocation.MoveFirst();
 		m_wndComboSize1.SetCurSel(0);
-
+	}
 		m_ctrlCheckAlm.SetCheck(1);
 
 	// Enable Office XP themes.
@@ -512,166 +551,6 @@ void CSettingHostDlg::BuildAccountList()
 	  }
 	  else if(m_ADTypeTable[4].TableName ==  m_strtable)    //选择测点显示
 	  {
-    	if ( m_DisPoint._IsEmpty() )
-		{
-      		m_bADD =true;
-   		    return;
-		}
-//		m_listDis.SetItemCount(m_DisPoint.RecordCount());
-        m_Records.clear();
-		m_DisPoint.MoveFirst();
-		while ( !m_DisPoint.IsEOF() )
-		{
-			if( m_DisPoint.m_szDISID == PointDesid)
-			{
-    			m_bADD =false;
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr0.TrimRight();
-				if(m_DisPoint.m_szstr0 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr0,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr1.TrimRight();
-				if(m_DisPoint.m_szstr1 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr1,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr2.TrimRight();
-				if(m_DisPoint.m_szstr2 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr2,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr3.TrimRight();
-				if(m_DisPoint.m_szstr3 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr3,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr4.TrimRight();
-				if(m_DisPoint.m_szstr4 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr4,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr5.TrimRight();
-				if(m_DisPoint.m_szstr5 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr5,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr6.TrimRight();
-				if(m_DisPoint.m_szstr6 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr6,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr7.TrimRight();
-				if(m_DisPoint.m_szstr7 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr7,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr8.TrimRight();
-				if(m_DisPoint.m_szstr8 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr8,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr9.TrimRight();
-				if(m_DisPoint.m_szstr9 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr9,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr10.TrimRight();
-				if(m_DisPoint.m_szstr10 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr10,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr11.TrimRight();
-				if(m_DisPoint.m_szstr11 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr11,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr12.TrimRight();
-				if(m_DisPoint.m_szstr12 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr12,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr13.TrimRight();
-				if(m_DisPoint.m_szstr13 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr13,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr14.TrimRight();
-				if(m_DisPoint.m_szstr14 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr14,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr15.TrimRight();
-				if(m_DisPoint.m_szstr15 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr15,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr16.TrimRight();
-				if(m_DisPoint.m_szstr16 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr16,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr17.TrimRight();
-				if(m_DisPoint.m_szstr17 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr17,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr18.TrimRight();
-				if(m_DisPoint.m_szstr18 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr18,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				str1 = "",str2 = "",str3 = "";
-					m_DisPoint.m_szstr19.TrimRight();
-				if(m_DisPoint.m_szstr19 != "")
-				{
-                	m_Str2Data.SplittoCString(m_DisPoint.m_szstr19,str1,str2,str3);
-					pushDIS(str1);  pushDIS(str2);   pushDIS(str3);
-				}
-				break;
-			}
-			else
-        		m_bADD =true;
-			m_DisPoint.MoveNext();
-		}
-
 		if ( m_PointDes._IsEmpty() )
 		  return;
 		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
@@ -694,9 +573,54 @@ void CSettingHostDlg::BuildAccountList()
 			iItem++;
 			m_PointDes.MoveNext();
 		}
+    	  m_bADD =false;
+		  for(int k=0;k<100;k++)
+     		  m_strl[k].strl= "";
+    	CString  strf,strc;
+      	CString strrsy ,strclm,strrsy1,strclm1,strSQL;
+		int n_isdata =0;
+     	strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\";
+     	strrsy1 ="dispoint"+strMetrics;
+		if(nlist ==1)
+    		strSQL.Format("select * from '%s' WHERE DISID>500 and DISID<600;",strrsy1);
+		else if(nlist ==2)
+    		strSQL.Format("select * from '%s' WHERE DISID>600 and DISID<700;",strrsy1);
+		else if(nlist ==3)
+    		strSQL.Format("select * from '%s' WHERE DISID>700 and DISID<800;",strrsy1);
+        CppSQLite3Query q = theApp.db3.execQuery(strSQL);
+        while (!q.eof()) 
+        {
+			n_isdata = q.getIntField(0);
+			strclm = q.getStringField(PointDesid+1);
+			strclm.TrimRight();
+			if(strclm != "")
+			{
+          		strf = strclm.Mid(0,2);
+         		strc = strclm.Mid(3,2);
+        		int nfds = m_Str2Data.String2Int(strf);
+         		int nchan = m_Str2Data.String2Int(strc);
+            	strc = m_SlaveStation[nfds][nchan].WatchName;
+				if(strc != "")
+				{
+               		if(nlist ==1)
+		    			m_strl[n_isdata-501].strl=strclm.Mid(0,5);
+            		else if(nlist ==2)
+		      			m_strl[n_isdata-601].strl=strclm.Mid(0,5);
+            		else if(nlist ==3)
+			     		m_strl[n_isdata-701].strl=strclm.Mid(0,5);
+				}
+			}
+            q.nextRow();
+        }
+   		q.finalize();
 
-		for ( int i = 0 ; i < m_Records.size() ; i++ )
-            	m_listDis.InsertItem(i, m_Records[i]);
+		for ( int i = 0 ; i < 100 ; i++ )
+		{
+			if(m_strl[i].strl == "")
+				break;
+            m_listDis.InsertItem(i, m_strl[i].strl);
+		}
+
 	  }
 	  else if(m_ADTypeTable[5].TableName ==  m_strtable)  //控制策略显示
 	  {
@@ -871,27 +795,66 @@ void CSettingHostDlg::BuildAccountList()
     delete e;
   }
 }
-
-void  CSettingHostDlg::pushDIS(CString str1)
+//删除测点后，同步更新控制表、馈电表、双风门、主扇备扇连锁表
+void  CSettingHostDlg::DelConFeedFan(CString strdel)
 {
-         	str1.TrimRight();
-			if(str1 == "")
-				return;
-    	CString  strf,strc;
-    		strf = str1.Mid(0,2);
-    		strc = str1.Mid(3);
-		int nfds = m_Str2Data.String2Int(strf);
-		int nchan = m_Str2Data.String2Int(strc);
-    	strc = m_SlaveStation[nfds][nchan].WatchName;
-			if(strc == "")
-				return;
-		m_Records.push_back(str1);
-//				if((str3.Find("A")!=-1) || (str3.Find("D")!=-1) ||(str3.Find("C")!=-1) ||(str3.Find("F")!=-1) )
-}
+        	CString  strf,strc,strSQL;
+			int nID;
+		m_Control.MoveFirst();
+		while ( !m_Control.IsEOF() )
+		{
+			strf = m_Control.m_szpointnum;
+			strf.TrimRight();
+			strc = m_Control.m_szcpointnum;
+			strc.TrimRight();
 
-void  CSettingHostDlg::BuildDisList()
-{
-
+			if(strdel == strf || strdel == strc )
+			{
+     			nID = m_Control.m_szCID;
+         	strSQL.Format("UPDATE control SET fdel=1 WHERE CID=%d;",nID);
+        	theApp.m_pConnection->Execute(_bstr_t(strSQL),NULL,adCmdText);
+			}
+			m_Control.MoveNext();
+		}
+		m_AxFeedE.MoveFirst();
+		while ( !m_AxFeedE.IsEOF() )
+		{
+			strf = m_AxFeedE.m_szcpointnum;
+			strf.TrimRight();
+			strc = m_AxFeedE.m_szecpointnum;
+			strc.TrimRight();
+			strc = strc.Mid(5,5);
+			if(strdel == strf || strdel == strc )
+			{
+     			nID = m_AxFeedE.m_szEID;
+         	strSQL.Format("UPDATE feedelectricity SET fdel=1 WHERE EID=%d;",nID);
+        	theApp.m_pConnection->Execute(_bstr_t(strSQL),NULL,adCmdText);
+			}
+			m_AxFeedE.MoveNext();
+		}
+		m_Fans.Create();
+		m_Fans.CursorType(adOpenDynamic);
+		m_Fans.CacheSize(50);
+		m_Fans._SetRecordsetEvents(new CAccountSetEvents);
+		m_Fans.Open(_T("Select * From fanscon"), &m_Cn);
+		m_Fans.MarshalOptions(adMarshalModifiedOnly);
+		m_Fans.MoveFirst();
+		while ( !m_Fans.IsEOF() )
+		{
+			strf = m_Fans.m_szpointnum1;
+			strf.TrimRight();
+			strc = m_Fans.m_szpointnum2;
+			strc.TrimRight();
+			if(strdel == strf || strdel == strc )
+			{
+     			nID = m_Fans.m_szFansID;
+         	strSQL.Format("Delete From fanscon WHERE FansID=%d;",nID);
+        	theApp.m_pConnection->Execute(_bstr_t(strSQL),NULL,adCmdText);
+			}
+			m_Fans.MoveNext();
+		}
+        if ( m_Fans._IsOpen() )
+           m_Fans.Close();
 }
 
 void CSettingHostDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -946,7 +909,7 @@ BOOL CSettingHostDlg::ConnectToProvider()
 //                          Data Source=(local)\\SQLEXPRESS;Initial Catalog=BJygjl");
   CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
                           User ID=sa;Password=sunset;\
-                          Data Source=") +m_OthersSetting.DBname+ _T(";Initial Catalog=BJygjl");
+                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
 
 //All calls to the AxLib should be wrapped in a try / catch block
   try
@@ -1031,13 +994,6 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_PointDes.Open(_T("Select * From pointdescription WHERE fdel=0"), &m_Cn);
 		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
 
-		m_DisPoint.Create();
-		m_DisPoint.CursorType(adOpenDynamic);
-		m_DisPoint.CacheSize(50);
-		m_DisPoint._SetRecordsetEvents(new CAccountSetEvents);
-		m_DisPoint.Open(_T("Select * From dispoint"), &m_Cn);
-		m_DisPoint.MarshalOptions(adMarshalModifiedOnly);
-
 		m_Control.Create();
 		m_Control.CursorType(adOpenDynamic);
 		m_Control.CacheSize(50);
@@ -1116,6 +1072,7 @@ void CSettingHostDlg::OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult)
            m_SControl.AbsolutePosition(pNMLV->iItem + 1);
 	  else if("feedelectricity" ==  m_strtable && !m_AxFeedE._IsEmpty() )  //馈电规则显示
            m_AxFeedE.AbsolutePosition(pNMLV->iItem + 1);
+	  int finditem =pNMLV->iItem;
   }
 }
 
@@ -1134,8 +1091,6 @@ void CSettingHostDlg::OnClose()
       m_MAlocation.Close();
     if ( m_PointDes._IsOpen() )
       m_PointDes.Close();
-    if ( m_DisPoint._IsOpen() )
-      m_DisPoint.Close();
     if ( m_Control._IsOpen() )
       m_Control.Close();
     if ( m_SControl._IsOpen() )
@@ -1364,6 +1319,8 @@ void CSettingHostDlg::OnBtnADD2()
 
 void CSettingHostDlg::OnBtnOK()
 {
+   if(m_ADTypeTable[4].TableName != m_strtable)
+   {
   try
   {
 	vector<CString>::iterator  iter;
@@ -1372,9 +1329,10 @@ void CSettingHostDlg::OnBtnOK()
 
 	UpdateData(TRUE);           //Exchange dialog data
 	COleDateTime CTime;
-	CString  m_strsel,dddd,szFind;
+	CString  m_strsel,dddd,szFind,strItem;
 
 	m_wndComboSize1.GetWindowText(m_strsel);
+	strItem +="安装地点："+ m_strsel+"|";
 
 		m_MAlocation.MoveFirst();
 		while ( !m_MAlocation.IsEOF() )
@@ -1396,8 +1354,10 @@ void CSettingHostDlg::OnBtnOK()
 //	else
 //    	m_PointDesNew->m_szName = m_strsel +"|" + m_ContactSet.m_szName;
 	m_wndComboSize3.GetWindowText(m_strsel);
+	strItem +="分站："+ m_strsel+"|";
 	m_PointDesNew->m_szfds = m_Str2Data.String2Int(m_strsel);
 	m_wndComboSize4.GetWindowText(dddd);
+	strItem +="通道："+ dddd+"|";
 	m_PointDesNew->m_szchan = m_Str2Data.String2Int(dddd);
 
 	if(m_strsel.GetLength() ==1)
@@ -1457,7 +1417,7 @@ void CSettingHostDlg::OnBtnOK()
 			return;
 		}
 	}
-	UpdateData(TRUE);           //Exchange dialog data
+//	UpdateData(TRUE);           //Exchange dialog data
 	m_wndComboSize2.GetWindowText(m_strsel);
 	int s = m_wndComboSize2.GetCurSel();
 	if(m_bSwitch)
@@ -1472,6 +1432,7 @@ void CSettingHostDlg::OnBtnOK()
 					  dddd = "三态开关量";
 				  else if(m_AccountSet.m_szptype == 4)
 					  dddd = "通断量";
+	strItem +="类型："+ dddd+"|";
 		m_PointDesNew->m_szutype = dddd;
     	m_PointDesNew->m_szptype = 10+m_AccountSet.m_szptype;     //开关量
     	m_PointDesNew->m_sztypeID = m_AccountSet.m_szDID;
@@ -1479,12 +1440,22 @@ void CSettingHostDlg::OnBtnOK()
 	else
 	{
     	m_PointDesNew->m_szutype = m_strsel;
-		if(s == 0)
-        	m_PointDesNew->m_szptype = 0;     //电流电压
-		if(s == 1)
+		if(s == 0 && m_strsel == "电流电压型")
+		{
+					  dddd = "电流电压";
+        	m_PointDesNew->m_szptype = 0; 
+		}//电流电压
+		if(s == 1 && m_strsel == "频率型")
+		{
+					  dddd = "频率";
         	m_PointDesNew->m_szptype = 1;     //频率
-		if(s == 2)
+		}
+		if(s == 2 && m_strsel == "频率型(累计)")
+		{
+					  dddd = "频率(累计)";
         	m_PointDesNew->m_szptype = 2;     //频率(累计)
+		}
+	strItem +="类型："+ dddd+"|";
     	m_PointDesNew->m_sztypeID = m_ContactSet.m_szAID;
 	}
 	if(m_ctrlCheckAlm.GetCheck())
@@ -1494,9 +1465,15 @@ void CSettingHostDlg::OnBtnOK()
 	m_PointDesNew->m_szfdel = false;
 	m_PointDesNew->m_szrecdate = CTime.GetCurrentTime();
    	m_PointDesNew->m_szUseridadd = theApp.curuser;
+	strItem +="用户名："+ theApp.curuser+"|";
 
 	if(m_bADD)
+	{
+      g_Log.StatusOut("增加测点：" + strItem );
         m_PointDesNew->AddNew();  //Add a new, blank record
+	}
+	else
+      g_Log.StatusOut("修改测点：" + strItem);
 	m_PointDesNew->Update();    //Update the recordset
 		//If this is a new record, requery the database table
 		//otherwise we may out-of-sync
@@ -1515,6 +1492,7 @@ void CSettingHostDlg::OnBtnOK()
 		  ShowAMD();
 		  m_strtable = m_ADTypeTable[3].TableName;  
 		  BuildAccountList();
+	 }
 
 }
 //回到浏览测点状态
@@ -1743,7 +1721,10 @@ void CSettingHostDlg::InsDIS()
         GetDlgItem(IDC_STATIC3)->ShowWindow(SW_SHOW);
         GetDlgItem(IDC_COMBO2)->ShowWindow(SW_SHOW);
         GetDlgItem(IDC_STATIC2)->ShowWindow(SW_SHOW);
-        GetDlgItem(IDC_STATIC2)->SetWindowText(_T("类型"));
+        GetDlgItem(IDC_COMBO1)->ShowWindow(SW_SHOW);
+        GetDlgItem(IDC_STATIC1)->ShowWindow(SW_SHOW);
+        GetDlgItem(IDC_STATIC2)->SetWindowText(_T("传感器制式"));
+        GetDlgItem(IDC_STATIC1)->SetWindowText(_T("传感器名称"));
 //    	MoveWindow(CRect(50,100,960,700));
 		m_listCtrl.InsertColumn(0,_T("安装地点/名称"),LVCFMT_LEFT,180);
 		m_listCtrl.InsertColumn(1,_T("点号"),LVCFMT_LEFT,80);
@@ -1751,7 +1732,7 @@ void CSettingHostDlg::InsDIS()
 
 		m_listDis.InsertColumn(0,m_ADTypeTable[4].m_DTypeTFD.pointnum,LVCFMT_LEFT,100);
 		m_listDis.InsertColumn(1,"",LVCFMT_LEFT,100);
-	// TODO: Add extra initialization here
+		GetDlgItem(IDC_BUTTONDIS5)->SetFocus();
 //	for (int iItem = 0; iItem < 80; ++iItem)
 	{
 //		CString strItem;
@@ -1791,16 +1772,22 @@ void CSettingHostDlg::OnBtnDEL()
 			COleDateTime CTime;
 
 	int nItemCount=m_listCtrl.GetItemCount();
+	CString strPointNo,strItem,strn0,strn2,strn3;
     for(int nItem=0;nItem<nItemCount;nItem++)
 	{
 		if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
 		{
+			strn0 =m_listCtrl.GetItemText(nItem,0);
+        	 strPointNo=m_listCtrl.GetItemText(nItem,1);
+			strn2 =m_listCtrl.GetItemText(nItem,2);
 			m_listCtrl.DeleteItem(nItem);
 			break;
 		}
 	}
 			  if(m_ADTypeTable[1].TableName ==  m_strtable ) //开关量
 			  {
+				  strItem =strn0 +"||"+strPointNo +"||"+strn2 +"||";
+      g_Log.StatusOut("删除开关量类型：" + strItem + theApp.curuser);
                 	m_AccountSet.m_szUseriddel = theApp.curuser;
         			m_AccountSet.m_szfdel = true;
         			m_AccountSet.m_szdeldate = CTime.GetCurrentTime();
@@ -1808,30 +1795,43 @@ void CSettingHostDlg::OnBtnDEL()
 			  }
 			  else if(m_ADTypeTable[0].TableName ==  m_strtable )//模拟量
 			  {
+				  strItem =strn0 +"||"+strPointNo +"||"+strn2 +"||";
+      g_Log.StatusOut("删除模拟量类型：" + strItem + theApp.curuser);
                 	m_ContactSet.m_szUseriddel = theApp.curuser;
         			m_ContactSet.m_szfdel = true;
         			m_ContactSet.m_szdeldate = CTime.GetCurrentTime();
 				   m_ContactSet.Update();    //Update the recordset
 			  }
 			  else if(m_ADTypeTable[2].TableName ==  m_strtable )//安装地点
+			  {
+				  strItem =strn0 +"||"+strPointNo +"||"+strn2 +"||";
+      g_Log.StatusOut("删除安装地点：" + strItem + theApp.curuser);
 				 m_MAlocation.Delete();
+			  }
 			  else if(m_ADTypeTable[3].TableName ==  m_strtable )  //pointdescription
 			  {
-                	m_PointDes.m_szUseriddel = theApp.curuser;
+				  strItem =strn0 +"||"+strPointNo +strn2 +"||";
+      g_Log.StatusOut("删除测点：" + strItem + theApp.curuser);
+               	m_PointDes.m_szUseriddel = theApp.curuser;
         			m_PointDes.m_szfdel = true;
         			m_PointDes.m_szdeldate = CTime.GetCurrentTime();
 				   m_PointDes.Update();    //Update the recordset
 //				 m_PointDes.Delete();
+     			DelConFeedFan(strPointNo);
 			  }
 			  else if(m_ADTypeTable[5].TableName ==  m_strtable )  //控制策略显示
 			  {
+				  strItem =strn0 +"||"+strPointNo +"||"+strn2 +"||";
+      g_Log.StatusOut("删除控制策略：" + strItem + theApp.curuser);
                 	m_Control.m_szUseriddel = theApp.curuser;
         			m_Control.m_szfdel = true;
         			m_Control.m_szdeldate = CTime.GetCurrentTime();
 				   m_Control.Update();    //Update the recordset
 			  }
-			  else if("feedelectricity" ==  m_strtable )  //控制策略显示
+			  else if("feedelectricity" ==  m_strtable )  //馈电策略显示
 			  {
+				  strItem =strn0 +"||"+strPointNo +"||"+strn2 +"||";
+      g_Log.StatusOut("删除馈电策略：" + strItem + theApp.curuser);
                 	m_AxFeedE.m_szUseriddel = theApp.curuser;
         			m_AxFeedE.m_szfdel = true;
         			m_AxFeedE.m_szdeldate = CTime.GetCurrentTime();
@@ -1973,6 +1973,7 @@ void CSettingHostDlg::OnButtonSelect()
 
 void CSettingHostDlg::OnButtonDeselect() 
 {
+	CString strItem;
 	if(m_strtable == "AddControl")   //加控制策略
 	{
 //		UpdateData(TRUE);           //Exchange dialog data
@@ -2063,6 +2064,8 @@ void CSettingHostDlg::OnButtonDeselect()
 				             strP1=m_listDis.GetItemText(ndis,0);
 				             strP2=m_listDis.GetItemText(ndis,1);
       			    		 m_ControlNew->m_szcpointnum = strP1;
+				  strItem =strPoint1 +"||"+strPoint2 +"||"+strP1 +"||";
+
 		    			     m_ControlNew->m_szcPID = m_Str2Data.String2Int(strP2);
 							 strPoint2.TrimRight();
 							 strP1.TrimRight();
@@ -2089,6 +2092,7 @@ void CSettingHostDlg::OnButtonDeselect()
 					        	AfxMessageBox(e->m_szErrorDesc, MB_OK);
 				        		delete e;
 							}
+      g_Log.StatusOut("增加控制策略：" + strItem + theApp.curuser);
 						}//if
 					}//for
             }//if
@@ -2196,6 +2200,8 @@ void CSettingHostDlg::OnButtonDeselect()
 			             	 strP1.TrimRight();
 		      			     m_AxFeedENew->m_szepointnum = strP1;
 		    			     m_AxFeedENew->m_szecpointnum = strPoint2 +strP1;
+				  strItem =strPoint1 +"||"+strPoint2 +"||"+strP1 +"||";
+
     						 m_AxFeedENew->m_szrecdate = CTime.GetCurrentTime();
      						 m_AxFeedENew->m_szUseridadd = theApp.curuser;
       						m_AxFeedENew->AddNew();  //Add a new, blank record
@@ -2210,6 +2216,7 @@ void CSettingHostDlg::OnButtonDeselect()
 					        	AfxMessageBox(e->m_szErrorDesc, MB_OK);
 				        		delete e;
 							}
+      g_Log.StatusOut("增加馈电策略：" + strItem + theApp.curuser);
 						}//if
 					}//for
             }//if
@@ -2303,128 +2310,81 @@ void CSettingHostDlg::OnButtonDeselectall()
 
 void CSettingHostDlg::OnButtonSave() 
 {
+	if(m_ADTypeTable[4].TableName == m_strtable)
+	{
+	UpdateData(TRUE);           //Exchange dialog data
+      	CString strrsy ,strclm,strrsy1,strclm1,strSQL;
+		int n_isdata =0;
+     	strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\";
+     	strrsy1 ="dispoint"+strMetrics;
+		
+		strclm.Format("LP%d",PointDesid);
+         	int nItemlist=m_listDis.GetItemCount();
   try
   {
-	if(!m_bADD)
-	{
-        if ( m_DisPoint._IsOpen() )
-               m_DisPoint.Close();
-		m_DisPoint.Create();
-		m_DisPoint.CursorType(adOpenDynamic);
-		m_DisPoint.CacheSize(50);
-		m_DisPoint._SetRecordsetEvents(new CAccountSetEvents);
-		CString strPointNo; 
-		strPointNo.Format(_T("SELECT * From dispoint WHERE DISID = %d"),PointDesid);
-		m_DisPoint.Open(strPointNo, &m_Cn);
-		m_DisPoint.MarshalOptions(adMarshalModifiedOnly);
+	  CppSQLite3Query q;
+    		if(nlist ==1)
+			{
+                for(int nItem=0;nItem<nItemlist;nItem++)
+				{
+            		strSQL.Format("UPDATE '%s' SET '%s'='%s' WHERE DISID =%d;",
+			    	     strrsy1,strclm,m_listDis.GetItemText(nItem,0),nItem+501);
+					q = theApp.db3.execQuery(strSQL);
+				}
+                for( nItem=nItemlist;nItem<100;nItem++)
+				{
+            		strSQL.Format("UPDATE '%s' SET '%s'='' WHERE DISID =%d;",
+			    	     strrsy1,strclm,nItem+501);
+				q = theApp.db3.execQuery(strSQL);
+				}
+			}
+    		else if(nlist ==2)
+			{
+                for(int nItem=0;nItem<nItemlist;nItem++)
+				{
+            		strSQL.Format("UPDATE '%s' SET '%s'='%s' WHERE DISID =%d;",
+			    	     strrsy1,strclm,m_listDis.GetItemText(nItem,0),nItem+601);
+					q = theApp.db3.execQuery(strSQL);
+				}
+                for( nItem=nItemlist;nItem<100;nItem++)
+				{
+            		strSQL.Format("UPDATE '%s' SET '%s'='' WHERE DISID =%d;",
+			    	     strrsy1,strclm,nItem+601);
+					q = theApp.db3.execQuery(strSQL);
+				}
+			}
+    		else if(nlist ==3)
+			{
+                for(int nItem=0;nItem<nItemlist;nItem++)
+				{
+            		strSQL.Format("UPDATE '%s' SET '%s'='%s' WHERE DISID =%d;",
+			    	     strrsy1,strclm,m_listDis.GetItemText(nItem,0),nItem+701);
+					q = theApp.db3.execQuery(strSQL);
+				}
+                for( nItem=nItemlist;nItem<100;nItem++)
+				{
+            		strSQL.Format("UPDATE '%s' SET '%s'='' WHERE DISID =%d;",
+			    	     strrsy1,strclm,nItem+701);
+					q = theApp.db3.execQuery(strSQL);
+				}
+			}
+   		q.finalize();
 	}
-
-	UpdateData(TRUE);           //Exchange dialog data
-       m_DisPointNew->m_szDISID  = PointDesid;
-
-	   if(m_listDis.GetItemText(0,0) != _T(""))
-    	   m_DisPointNew->m_szstr0 = m_listDis.GetItemText(0,0)+_T("|")+m_listDis.GetItemText(1,0)+"|"+m_listDis.GetItemText(2,0);
-	   else
-    	   m_DisPointNew->m_szstr0 = _T("");
-	   if(m_listDis.GetItemText(3,0) != _T(""))
-    	   m_DisPointNew->m_szstr1 = m_listDis.GetItemText(3,0)+_T("|")+m_listDis.GetItemText(4,0)+"|"+m_listDis.GetItemText(5,0);
-	   else
-    	   m_DisPointNew->m_szstr1 = _T("");
-	   if(m_listDis.GetItemText(6,0) != _T(""))
-    	   m_DisPointNew->m_szstr2 = m_listDis.GetItemText(6,0)+_T("|")+m_listDis.GetItemText(7,0)+"|"+m_listDis.GetItemText(8,0);
-	   else
-    	   m_DisPointNew->m_szstr2 = _T("");
-	   if(m_listDis.GetItemText(9,0) != _T(""))
-    	   m_DisPointNew->m_szstr3 = m_listDis.GetItemText(9,0)+_T("|")+m_listDis.GetItemText(10,0)+"|"+m_listDis.GetItemText(11,0);
-	   else
-    	   m_DisPointNew->m_szstr3 = _T("");
-	   if(m_listDis.GetItemText(12,0) != _T(""))
-    	   m_DisPointNew->m_szstr4 = m_listDis.GetItemText(12,0)+_T("|")+m_listDis.GetItemText(13,0)+"|"+m_listDis.GetItemText(14,0);
-	   else
-    	   m_DisPointNew->m_szstr4 = _T("");
-	   if(m_listDis.GetItemText(15,0) != _T(""))
-    	   m_DisPointNew->m_szstr5 = m_listDis.GetItemText(15,0)+_T("|")+m_listDis.GetItemText(16,0)+"|"+m_listDis.GetItemText(17,0);
-	   else
-    	   m_DisPointNew->m_szstr5 = _T("");
-	   if(m_listDis.GetItemText(18,0) != _T(""))
-    	   m_DisPointNew->m_szstr6 = m_listDis.GetItemText(18,0)+_T("|")+m_listDis.GetItemText(19,0)+"|"+m_listDis.GetItemText(20,0);
-	   else
-    	   m_DisPointNew->m_szstr6 = _T("");
-	   if(m_listDis.GetItemText(21,0) != _T(""))
-    	   m_DisPointNew->m_szstr7 = m_listDis.GetItemText(21,0)+_T("|")+m_listDis.GetItemText(22,0)+"|"+m_listDis.GetItemText(23,0);
-	   else
-    	   m_DisPointNew->m_szstr7 = _T("");
-	   if(m_listDis.GetItemText(24,0) != _T(""))
-    	   m_DisPointNew->m_szstr8 = m_listDis.GetItemText(24,0)+_T("|")+m_listDis.GetItemText(25,0)+"|"+m_listDis.GetItemText(26,0);
-	   else
-    	   m_DisPointNew->m_szstr8 = _T("");
-	   if(m_listDis.GetItemText(27,0) != _T(""))
-	       m_DisPointNew->m_szstr9 = m_listDis.GetItemText(27,0)+_T("|")+m_listDis.GetItemText(28,0)+"|"+m_listDis.GetItemText(29,0);
-	   else
-    	   m_DisPointNew->m_szstr9 = _T("");
-	   if(m_listDis.GetItemText(30,0) != _T(""))
-    	   m_DisPointNew->m_szstr10 = m_listDis.GetItemText(30,0)+_T("|")+m_listDis.GetItemText(31,0)+"|"+m_listDis.GetItemText(32,0);
-	   else
-    	   m_DisPointNew->m_szstr10 = _T("");
-	   if(m_listDis.GetItemText(33,0) != _T(""))
-    	   m_DisPointNew->m_szstr11 = m_listDis.GetItemText(33,0)+_T("|")+m_listDis.GetItemText(34,0)+"|"+m_listDis.GetItemText(35,0);
-	   else
-    	   m_DisPointNew->m_szstr11 = _T("");
-	   if(m_listDis.GetItemText(36,0) != _T(""))
-    	   m_DisPointNew->m_szstr12 = m_listDis.GetItemText(36,0)+_T("|")+m_listDis.GetItemText(37,0)+"|"+m_listDis.GetItemText(38,0);
-	   else
-    	   m_DisPointNew->m_szstr12 = "";
-	   if(m_listDis.GetItemText(39,0) != "")
-    	   m_DisPointNew->m_szstr13 = m_listDis.GetItemText(39,0)+"|"+m_listDis.GetItemText(40,0)+"|"+m_listDis.GetItemText(41,0);
-	   else
-    	   m_DisPointNew->m_szstr13 = "";
-	   if(m_listDis.GetItemText(42,0) != "")
-    	   m_DisPointNew->m_szstr14 = m_listDis.GetItemText(42,0)+"|"+m_listDis.GetItemText(43,0)+"|"+m_listDis.GetItemText(44,0);
-	   else
-    	   m_DisPointNew->m_szstr14 = "";
-	   if(m_listDis.GetItemText(45,0) != "")
-    	   m_DisPointNew->m_szstr15 = m_listDis.GetItemText(45,0)+"|"+m_listDis.GetItemText(46,0)+"|"+m_listDis.GetItemText(47,0);
-	   else
-    	   m_DisPointNew->m_szstr15 = "";
-	   if(m_listDis.GetItemText(48,0) != "")
-    	   m_DisPointNew->m_szstr16 = m_listDis.GetItemText(48,0)+"|"+m_listDis.GetItemText(49,0)+"|"+m_listDis.GetItemText(50,0);
-	   else
-    	   m_DisPointNew->m_szstr16 = "";
-	   if(m_listDis.GetItemText(51,0) != "")
-    	   m_DisPointNew->m_szstr17 = m_listDis.GetItemText(51,0)+"|"+m_listDis.GetItemText(52,0)+"|"+m_listDis.GetItemText(53,0);
-	   else
-    	   m_DisPointNew->m_szstr17 = "";
-	   if(m_listDis.GetItemText(54,0) != "")
-    	   m_DisPointNew->m_szstr18 = m_listDis.GetItemText(54,0)+"|"+m_listDis.GetItemText(55,0)+"|"+m_listDis.GetItemText(56,0);
-	   else
-    	   m_DisPointNew->m_szstr18 = "";
-	   if(m_listDis.GetItemText(57,0) != "")
-    	   m_DisPointNew->m_szstr19 = m_listDis.GetItemText(57,0)+"|"+m_listDis.GetItemText(58,0)+"|"+m_listDis.GetItemText(59,0);
-	   else
-    	   m_DisPointNew->m_szstr19 = "";
-
-	if(m_bADD)
-        m_DisPoint.AddNew();  //Add a new, blank record
-	m_DisPoint.Update();    //Update the recordset
-		//If this is a new record, requery the database table
-		//otherwise we may out-of-sync
-	if(m_bADD)
-        m_DisPoint.Requery();
-
-//	AfxMessageBox("需要显示的测点已保存", MB_OK);
-  }
-  catch (CAxException *e)
-  {
-    AfxMessageBox(e->m_szErrorDesc, MB_OK);
-    delete e;
-  }
+    catch (CppSQLite3Exception& e)
+    {
+		strclm = e.errorCode() + ":" ;
+		strclm += e.errorMessage();
+        AfxMessageBox(strclm, MB_OK);
+        return ;
+    }
 
   theApp.InitData();
   MessageBeep(MB_OK);
   EndDialog(IDOK);
+	}
 }
 
-void CSettingHostDlg::OnchangeComboF() 
+void CSettingHostDlg::OnchangeComboF() //COMBO3
 {
 	UpdateData(TRUE);           //Exchange dialog data
 	if("AddControl" ==  m_strtable)   //加控制策略
@@ -2483,24 +2443,44 @@ void CSettingHostDlg::OnchangeComboF()
 			m_PointDes.MoveNext();
 		}
 	}
-	else if(m_ADTypeTable[4].TableName ==  m_strtable)    //选择测点显示
+	else if(m_ADTypeTable[4].TableName ==  m_strtable)    //选择测点显示 
 	{
 		if ( m_PointDes._IsEmpty() )
 		  return;
      	m_listCtrl.DeleteAllItems();
 //     	m_listDis.DeleteAllItems();
-		CString dddd,cccc;
-		int iItem = 0;
-		int nfds3 = m_wndComboSize3.GetCurSel();
+		CString dddd,cccc,strname;
+		int iItem = 0;		int n_sfds = 0;		int n_sfds2 = 0;
+		int nfds3 = m_wndComboSize3.GetCurSel();  //分站
+		int nfds2 = m_wndComboSize2.GetCurSel(); //传感器制式
+		int kkkk = m_wndComboSize1.GetCurSel(); //传感器名称
+    	m_wndComboSize1.GetLBText(kkkk,strname);
+      	LPCTSTR str1 = "",str2 = "",str3 = "";
 		m_PointDes.MoveFirst();
 		while ( !m_PointDes.IsEOF() )
 		{
-    		dddd = m_PointDes.m_szpointnum;
-			dddd.TrimRight();
-			if(m_PointDes.m_szfds == nfds3+1 )
-			{
              		int nfds = m_PointDes.m_szfds;
               		int nchan = m_PointDes.m_szchan;
+					if(nfds3 == 0)
+						n_sfds = nfds;
+					else
+						n_sfds = nfds3;
+    		cccc = m_SlaveStation[nfds][nchan].WatchName;
+         	m_Str2Data.SplittoCString(cccc,str1,str2,str3);
+			cccc = str2;
+			if(kkkk == 0)
+				strname =cccc;
+			if(nfds2 >3)
+				n_sfds2 = 6+nfds2;
+			else
+				n_sfds2 = nfds2-1;
+			if(n_sfds2 == -1)
+				n_sfds2 = m_PointDes.m_szptype;
+
+    		dddd = m_PointDes.m_szpointnum;
+			dddd.TrimRight();
+			if(n_sfds == nfds && cccc==strname && n_sfds2==m_PointDes.m_szptype)
+			{
          		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds][nchan].WatchName);
         		m_listCtrl.SetItemText(iItem, 1, dddd);
          		dddd = m_PointDes.m_szutype;
@@ -2538,20 +2518,41 @@ void CSettingHostDlg::OnchangeCombo2()
 		if ( m_PointDes._IsEmpty() )
 		  return;
      	m_listCtrl.DeleteAllItems();
-		CString dddd,cccc;
+		CString dddd,cccc,strname;
 		int iItem = 0;
-		int nfds3 = m_wndComboSize2.GetCurSel();
-			if(nfds3 >2)
-				nfds3 = 7+nfds3;
+		int n_sfds = 0;
+		int n_sfds2 = 0;
+		int nfds2 = m_wndComboSize2.GetCurSel(); //传感器制式
+		int nfds3 = m_wndComboSize3.GetCurSel();  //分站
+		int kkkk = m_wndComboSize1.GetCurSel(); //传感器名称
+    	m_wndComboSize1.GetLBText(kkkk,strname);
+      	LPCTSTR str1 = "",str2 = "",str3 = "";
+
 		m_PointDes.MoveFirst();
 		while ( !m_PointDes.IsEOF() )
 		{
-    		dddd = m_PointDes.m_szpointnum;
-			dddd.TrimRight();
-			if(m_PointDes.m_szptype == nfds3 )
-			{
              		int nfds = m_PointDes.m_szfds;
               		int nchan = m_PointDes.m_szchan;
+					if(nfds3 == 0)
+						n_sfds = nfds;
+					else
+						n_sfds = nfds3;
+			if(nfds2 >3)
+				n_sfds2 = 6+nfds2;
+			else
+				n_sfds2 = nfds2-1;
+			if(n_sfds2 == -1)
+				n_sfds2 = m_PointDes.m_szptype;
+    		cccc = m_SlaveStation[nfds][nchan].WatchName;
+         	m_Str2Data.SplittoCString(cccc,str1,str2,str3);
+			cccc = str2;
+			if(kkkk == 0)
+				strname =cccc;
+
+    		dddd = m_PointDes.m_szpointnum;
+			dddd.TrimRight();
+			if(m_PointDes.m_szptype == n_sfds2 && n_sfds==nfds && cccc==strname)
+			{
          		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds][nchan].WatchName);
         		m_listCtrl.SetItemText(iItem, 1, dddd);
          		dddd = m_PointDes.m_szutype;
@@ -2564,7 +2565,68 @@ void CSettingHostDlg::OnchangeCombo2()
 	}
 }
 
-void CSettingHostDlg::OnChCB03() 
+void CSettingHostDlg::OnchangeCombo1() 
+{
+	if(m_ADTypeTable[4].TableName ==  m_strtable)    //选择测点显示
+	{
+		if ( m_PointDes._IsEmpty() )
+		  return;
+     	m_listCtrl.DeleteAllItems();
+		CString dddd,cccc,strname;
+		int iItem = 0;
+		int n_sfds = 0;
+		int n_sfds2 = 0;
+		int kkkk = m_wndComboSize1.GetCurSel(); //传感器名称
+    	if(kkkk == -1 )
+		{
+            AfxMessageBox("请选择正确的传感器名称！");
+      		return;
+		}
+		int nfds3 = m_wndComboSize3.GetCurSel();  //分站
+		int nfds2 = m_wndComboSize2.GetCurSel();  //传感器制式
+
+    	m_wndComboSize1.GetLBText(kkkk,strname);
+      	LPCTSTR str1 = "",str2 = "",str3 = "";
+
+		m_PointDes.MoveFirst();
+		while ( !m_PointDes.IsEOF() )
+		{
+             		int nfds = m_PointDes.m_szfds;
+              		int nchan = m_PointDes.m_szchan;
+					if(nfds3 == 0)
+						n_sfds = nfds;
+					else
+						n_sfds = nfds3;
+			if(nfds2 >3)
+				n_sfds2 = 6+nfds2;
+			else
+				n_sfds2 = nfds2-1;
+			if(n_sfds2 == -1)
+				n_sfds2 = m_PointDes.m_szptype;
+
+    		dddd = m_SlaveStation[nfds][nchan].WatchName;
+         	m_Str2Data.SplittoCString(dddd,str1,str2,str3);
+			dddd = str2;
+			if(kkkk == 0)
+				strname =dddd;
+
+			if(dddd==strname && n_sfds==nfds && n_sfds2==m_PointDes.m_szptype)
+			{
+         		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds][nchan].WatchName);
+        		dddd = m_PointDes.m_szpointnum;
+     			dddd.TrimRight();
+         		m_listCtrl.SetItemText(iItem, 1, dddd);
+         		dddd = m_PointDes.m_szutype;
+    			dddd.TrimRight();
+        		m_listCtrl.SetItemText(iItem, 2, dddd);
+    			iItem++;
+			}
+			m_PointDes.MoveNext();
+		}
+	}
+}
+
+void CSettingHostDlg::OnChCB03() //COMBO3
 {
 	UpdateData(TRUE);
 		CString dddd,cccc;
@@ -2573,7 +2635,7 @@ void CSettingHostDlg::OnChCB03()
 		if(nfds3 <1 || nfds3>60)
 		{
           	AfxMessageBox("分站号在1-60间选择！", MB_OK);
-    		GetDlgItem(IDC_COMBO3)->SetWindowText("1");
+//    		GetDlgItem(IDC_COMBO3)->SetWindowText("1");
 	    	  return;
 		}
 	if(m_ADTypeTable[4].TableName ==  m_strtable)    //选择测点显示
@@ -2588,7 +2650,7 @@ void CSettingHostDlg::OnChCB03()
 		{
     		dddd = m_PointDes.m_szpointnum;
     			dddd.TrimRight();
-			if(m_PointDes.m_szfds == nfds3 )
+			if(m_PointDes.m_szfds == nfds3 ) //分站
 			{
              		int nfds = m_PointDes.m_szfds;
               		int nchan = m_PointDes.m_szchan;

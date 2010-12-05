@@ -13,8 +13,8 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+extern CommonStr             m_CommonStr[20];
 extern  ADCbreakE             m_ADCbreakE[MAX_FDS][MAX_CHAN][65];
-extern  OthersSetting    m_OthersSetting;
 extern  SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 /////////////////////////////////////////////////////////////////////////////
 // CSetTimeDlg dialog
@@ -28,6 +28,7 @@ CSetTimeDlg::CSetTimeDlg(CWnd* pParent /*=NULL*/)
 	chcommand = 0x00;
 	m_nchangev = 0;
 	m_SControlNew = &m_SControl;
+	m_nchange=0;
 	//}}AFX_DATA_INIT
 }
 
@@ -55,6 +56,9 @@ BEGIN_MESSAGE_MAP(CSetTimeDlg, CXTResizeDialog)
 	ON_BN_CLICKED(IDC_BUT_RES, OnButRES)
 	ON_CBN_EDITCHANGE(IDC_COMBO_VERIFYT, OnChCBV)
 	ON_CBN_EDITCHANGE(IDC_COMBO_PORT, OnChCBP)
+	ON_CBN_EDITCHANGE(IDC_COMBO_FUNCTION, OnChCBF)
+	ON_CBN_SELCHANGE(IDC_COMBO_PORT, OnChCBP)
+	ON_CBN_SELCHANGE(IDC_COMBO_FUNCTION, OnChCBF)
     ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_C, OnItemChangedList)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
@@ -124,7 +128,7 @@ BOOL CSetTimeDlg::OnInitDialog()
 
     CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
                           User ID=sa;Password=sunset;\
-                          Data Source=") +m_OthersSetting.DBname+ _T(";Initial Catalog=BJygjl");
+                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
 
 //All calls to the AxLib should be wrapped in a try / catch block
   try
@@ -151,11 +155,11 @@ BOOL CSetTimeDlg::OnInitDialog()
     	GetDlgItem(IDC_LIST_C2)->ShowWindow(SW_HIDE);;
 		SetWindowText("手动控制操作");
 
-		m_listC.InsertColumn(0,"安装地点/名称",LVCFMT_LEFT,300);
-		m_listC.InsertColumn(1,"控制量",LVCFMT_LEFT,80);
-		m_listC.InsertColumn(2,"关联量",LVCFMT_LEFT,80);
+		m_listC.InsertColumn(0,"命令返回信息",LVCFMT_LEFT,450);
+//		m_listC.InsertColumn(1,"控制量",LVCFMT_LEFT,80);
+//		m_listC.InsertColumn(2,"关联量",LVCFMT_LEFT,80);
 
-		int xxx = 0;
+/*		int xxx = 0;
 		int yyy = 0;
 		unsigned char nfds = m_VERIFYT.GetCurSel()+1;
     	for( int iItem = 0; iItem < 8 ; iItem++)
@@ -172,7 +176,7 @@ BOOL CSetTimeDlg::OnInitDialog()
 				}
 			}
 		}
-		m_nSecond = xxx;
+		m_nSecond = xxx;*/
 	}
 	else if(chcommand == 0x43)       //配置测点 
 	{
@@ -297,78 +301,15 @@ BOOL CSetTimeDlg::OnInitDialog()
     	GetDlgItem(IDC_COMBO_PORT)->ShowWindow(SW_HIDE);
     	GetDlgItem(IDC_STATICV2)->ShowWindow(SW_HIDE);
     	GetDlgItem(IDC_COMBO_FUNCTION)->ShowWindow(SW_HIDE);
-    	GetDlgItem(IDC_BUT_RES)->ShowWindow(SW_HIDE);;
-
-    	m_listC.InsertHiddenLabelColumn();	// Requires one never uses column 0
-    	for(int col = 0; col < 2 ; ++col)
-		{
-		CString title;  int kkk;
-		CGridColumnTrait* pTrait = NULL;
-		if (col==0)	// Country
-		{
-			kkk = 300;
-			title ="传感器位置";
-		}
-		if (col==1)	// Year won
-		{
-			int k=0;
-			kkk = 150;
-			title ="通道号";
-			unsigned char nfds = m_VERIFYT.GetCurSel()+1;
-			CGridColumnTraitCombo* pComboTrait = new CGridColumnTraitCombo;
-         	for(int i = 01; i < MAX_CHAN; i++)
-			{
-         		CString strfds,strtemp,strchan;
-				strtemp = m_SlaveStation[nfds][i].WatchName;
-				if(strtemp != "")
-				{
-					int n=i;
-					if(i>16)
-						n = i-16;
-                	strfds.Format(_T("%02d"), nfds);
-                	strchan.Format(_T("%02d"), n);
-					int n_ptype = m_SlaveStation[nfds][i].ptype;
-					if(n_ptype < 3)
-					{
-                    	pComboTrait->AddItem(k, strfds+"A"+strchan+"|"+strtemp);
-					    k++;
-					}
-					else if(n_ptype==10 || n_ptype==13 ||n_ptype==14)
-					{
-                    	pComboTrait->AddItem(k, strfds+"D"+strchan+"|"+strtemp);
-					    k++;
-					}
-					else if(n_ptype == 12)
-					{
-                    	pComboTrait->AddItem(k, strfds+"C"+strchan+"|"+strtemp);
-					    k++;
-					}
-				}
-			}
-			pTrait = pComboTrait;
-		}
-		m_listC.InsertColumnTrait(col+1, title, LVCFMT_LEFT, kkk, col, pTrait);
-		}
-
-    	for( int iItem = 0; iItem < 6 ; iItem++)
-		{
-				  m_listC.InsertItem(iItem, "通断");
-				  m_listC.SetItemText(iItem, 2, "");
-		}
-				  m_listC.SetItemText(0, 1, "进风瓦斯");
-				  m_listC.SetItemText(1, 1, "回风瓦斯");
-				  m_listC.SetItemText(2, 1, "串联通风");
-				  m_listC.SetItemText(3, 1, "局扇");
-				  m_listC.SetItemText(4, 1, "风筒风量");
-				  m_listC.SetItemText(5, 1, "控制量通道");
-				  
+    	GetDlgItem(IDC_BUT_RES)->ShowWindow(SW_HIDE);
+		InitWGas(0);
 	}
 	else if(chcommand == 0xf0)        //双风门、主扇备扇报警
 	{
 		m_Records1.clear();
 		m_Records2.clear();
     	GetDlgItem(IDC_LIST_C2)->ShowWindow(SW_HIDE);
-		SetWindowText("双风门、主扇备扇报警");
+		SetWindowText("双设备报警逻辑管理");
     	GetDlgItem(IDOK_SEND)->SetWindowText("添加");
     	GetDlgItem(IDC_BUT_RES)->SetWindowText("删除");
     	GetDlgItem(IDC_STATICV1)->SetWindowText("开关量1");
@@ -447,7 +388,92 @@ BOOL CSetTimeDlg::OnInitDialog()
 			m_Fans.MoveNext();
 		}
 	}
+	else if(chcommand == 0xf1)            //数据显示页属性
+	{
+		m_Records1.clear();
+    	GetDlgItem(IDC_LIST_C2)->ShowWindow(SW_HIDE);
+		SetWindowText("数据显示页属性");
+    	GetDlgItem(IDOK_SEND)->SetWindowText("保存");
+    	GetDlgItem(IDC_BUT_RES)->ShowWindow(SW_HIDE);
+    	GetDlgItem(IDC_STATICV1)->SetWindowText("文件名");
+    	GetDlgItem(IDC_STATICV2)->SetWindowText("列表");
+    	GetDlgItem(IDC_STATICV)->SetWindowText(_T("存表"));
+    	GetDlgItem(IDC_COMBO_VERIFYT)->EnableWindow(FALSE);
 
+		CString strPointNo,cccc,strrsy,strrsy1;
+    	strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\";
+	 	    m_PORT.ResetContent();
+	 	    m_FUNCTION.ResetContent();
+			m_VERIFYT.ResetContent();
+
+        for(int i =0; i < theApp.m_addfilesy.size() ;i++)
+		{
+    		strPointNo = theApp.m_addfilesy[i];
+       		int m_ishave = strPointNo.GetLength();
+    		cccc = strPointNo.Mid(m_ishave-3,3);
+    		strPointNo.Replace(strrsy,"");
+    		if(cccc =="rsf")
+			{
+				m_Records1.push_back(strPointNo);
+    			m_PORT.AddString(strPointNo);
+			}
+		}
+//          	m_VERIFYT.SetCurSel(0);
+        for(int k =1; k < 4 ;k++)
+		{
+	    		cccc.Format("%d",k);
+    	 	    m_FUNCTION.AddString(cccc);
+            	m_FUNCTION.SetCurSel(0);
+		}
+
+	// Give better margin to editors
+     	m_listC.SetCellMargin(1.2);
+    	CGridRowTraitXP* pRowTrait = new CGridRowTraitXP;
+    	m_listC.SetDefaultRowTrait(pRowTrait);
+	// Create Columns
+     	m_listC.InsertHiddenLabelColumn();	// Requires one never uses column 0
+    	for(int col = 0; col < 2 ; ++col)
+		{
+    		CString title;  int kkk;
+			CGridColumnTrait* pTrait = NULL;
+      		if (col==0)	// Country
+			{
+		    	kkk = 350;
+	    		title ="数据显示页属性";
+			}
+	    	if (col==1)	// City
+			{
+		    	kkk = 100;
+	    		title ="参数(整数)";
+      			pTrait = new CGridColumnTraitEdit;
+			}
+    		m_listC.InsertColumnTrait(col+1, title, LVCFMT_LEFT, kkk, col, pTrait);
+		}
+		CString strl[35];
+//		strl[0] = "是否可见(1可见|0隐藏)";		strl[1] = "子类头控制(1或0)";
+//		strl[2] = "列表左上顶点x坐标";
+//		strl[3] = "列表宽度";		strl[4] = "列表高度";		strl[5] = "第一列名字";
+//		strl[6] = "第一列宽度";		strl[7] = "第二列名字";		strl[8] = "第二列宽度";
+//		strl[9] = "第三列名字";		strl[10] = "第三列宽度";		strl[11] = "行数";
+		strl[0] = "是否可见(1可见|0隐藏)";		strl[1] = "子类头控制(1或0)";
+		strl[2] = "列表左上顶点x坐标";
+		strl[3] = "列表宽度";		strl[4] = "列表高度";		strl[5] = "第一列宽度";
+		strl[6] = "第二列宽度";
+		strl[7] = "第三列宽度";		//strl[8] = "行数";
+
+		strl[8] = "最大值列宽度";		strl[9] = "最小值列宽度";		strl[10] = "平均值列宽度";
+		strl[11] = "断电值列宽度";		strl[12] = "复电值列宽度";		strl[13] = "报警上限列宽度";
+		strl[14] = "报警下限列宽度";		strl[15] = "量程高值列宽度";		strl[16] = "量程低值列宽度";
+		strl[17] = "断电时刻列宽度";		strl[18] = "复电时刻列宽度";		strl[19] = "报警时刻列宽度";
+		strl[20] = "馈电状态及时刻列宽度";		strl[21] = "断电范围列宽度";		strl[22] = "开停次数列宽度";	
+		strl[23] = "工作时间列宽度";
+		for( k =0; k < 22 ;k++)
+		{
+				  m_listC.InsertItem(k, "通断");
+				  m_listC.SetItemText(k, 1, strl[k]);
+				  m_listC.SetItemText(k, 2, "");
+		}
+	}
   }
   catch ( dbAx::CAxException *e )
   {
@@ -472,8 +498,6 @@ void CSetTimeDlg::OnClose()
       m_AccountSet.Close();
     if ( m_ContactSet._IsOpen() )
       m_ContactSet.Close();
-    if ( m_DisPoint._IsOpen() )
-      m_DisPoint.Close();
     if ( m_Control._IsOpen() )
       m_Control.Close();*/
     if ( m_SControl._IsOpen() )
@@ -482,6 +506,8 @@ void CSetTimeDlg::OnClose()
       m_PointDes.Close();
     if ( m_Fans._IsOpen() )
       m_Fans.Close();
+    if ( m_CommonSet._IsOpen() )
+       m_CommonSet.Close();
 
     m_Cn.Close();
 
@@ -497,12 +523,54 @@ void CSetTimeDlg::OnClose()
 //  CDialog::OnClose();
 }
 
+void CSetTimeDlg::OnChCBF() 
+{
+	UpdateData(TRUE);
+		CString cccc; int nfds3;
+	if(chcommand == 0xf1)            //数据显示页属性
+	{
+    	int  mp = m_FUNCTION.GetCurSel()+1;
+//		GetDlgItem(IDC_COMBO_FUNCTION)->GetWindowText(cccc);
+//		nfds3 = m_Str2Data.String2Int(cccc);
+		 if(mp ==1)
+		 {
+            for(int k =0; k < 25 ;k++)
+			{
+			 if(k < 8)
+    			m_listC.SetItemText(k, 2, m_CommonStr[m_nSecond].strc[k+1]);
+			 else
+    			m_listC.SetItemText(k, 2, m_CommonStr[m_nSecond].strc[k+2]);
+			}
+		 }
+		 else if(mp ==2)
+		 {
+            for(int k =0; k < 25 ;k++)
+			{
+			 if(k < 8)
+    			m_listC.SetItemText(k, 2, m_CommonStr[m_nSecond].strc[k+31]);
+			 else
+    			m_listC.SetItemText(k, 2, m_CommonStr[m_nSecond].strc[k+32]);
+			}
+		 }
+		 else if(mp ==3)
+		 {
+            for(int k =0; k < 25 ;k++)
+			{
+			 if(k < 8)
+    			m_listC.SetItemText(k, 2, m_CommonStr[m_nSecond].strc[k+61]);
+			 else
+    			m_listC.SetItemText(k, 2, m_CommonStr[m_nSecond].strc[k+62]);
+			}
+		 }
+	}
+}
+
 void CSetTimeDlg::OnChCBV() 
 {
 	UpdateData(TRUE);
-		CString cccc;
+		CString cccc; int nfds3;
 		GetDlgItem(IDC_COMBO_VERIFYT)->GetWindowText(cccc);
-		int nfds3 = m_Str2Data.String2Int(cccc);
+		nfds3 = m_Str2Data.String2Int(cccc);
 		if(nfds3 <1 || nfds3>60)
 		{
           	AfxMessageBox("分站号在1-60间选择！", MB_OK);
@@ -510,75 +578,9 @@ void CSetTimeDlg::OnChCBV()
 	    	  return;
 		}
 
-    if(chcommand == 0x46)          //风电瓦斯闭锁
+	if(chcommand == 0x46)          //风电瓦斯闭锁
 	{
-		m_nSecond =  6;
-     	m_listC.DeleteAllItems();
-	    for (int iItem1 = 2; iItem1 >= 0; iItem1--)
-    		m_listC.DeleteColumn(iItem1);
-
-    	m_listC.InsertHiddenLabelColumn();	// Requires one never uses column 0
-    	for(int col = 0; col < 2 ; ++col)
-		{
-		CString title;  int kkk;
-		CGridColumnTrait* pTrait = NULL;
-		if (col==0)	// Country
-		{
-			kkk = 200;
-			title ="传感器位置";
-		}
-		if (col==1)	// Year won
-		{
-			kkk = 150;
-			title ="通道号";
-			int k=0;
-			unsigned char nfds = nfds3;
-			CGridColumnTraitCombo* pComboTrait = new CGridColumnTraitCombo;
-         	for(int i = 1; i < MAX_CHAN; i++)
-			{
-         		CString strfds,strtemp,strchan;
-				strtemp = m_SlaveStation[nfds][i].WatchName;
-				if(strtemp != "")
-				{
-					int n=i;
-					if(i>16)
-						n = i-16;
-                	strfds.Format(_T("%02d"), nfds);
-                	strchan.Format(_T("%02d"), n);
-					int n_ptype = m_SlaveStation[nfds][i].ptype;
-					if(n_ptype < 3)
-					{
-                    	pComboTrait->AddItem(k, strfds+"A"+strchan+"|"+strtemp);
-					    k++;
-					}
-					else if(n_ptype==10 || n_ptype==13 ||n_ptype==14)
-					{
-                    	pComboTrait->AddItem(k, strfds+"D"+strchan+"|"+strtemp);
-					    k++;
-					}
-					else if(n_ptype == 12)
-					{
-                    	pComboTrait->AddItem(k, strfds+"C"+strchan+"|"+strtemp);
-					    k++;
-					}
-				}
-			}
-			pTrait = pComboTrait;
-		}
-		m_listC.InsertColumnTrait(col+1, title, LVCFMT_LEFT, kkk, col, pTrait);
-		}
-
-    	for( int iItem = 0; iItem < 6 ; iItem++)
-		{
-				  m_listC.InsertItem(iItem, "通断");
-				  m_listC.SetItemText(iItem, 2, "");
-		}
-				  m_listC.SetItemText(0, 1, "进风瓦斯");
-				  m_listC.SetItemText(1, 1, "回风瓦斯");
-				  m_listC.SetItemText(2, 1, "串联通风");
-				  m_listC.SetItemText(3, 1, "局扇");
-				  m_listC.SetItemText(4, 1, "风筒风量");
-				  m_listC.SetItemText(5, 1, "控制量通道");
+		InitWGas(nfds3);
 	}
 	else if(chcommand == 0x4B)   //手动控制
 	{
@@ -605,6 +607,7 @@ void CSetTimeDlg::OnChCBV()
 		m_nSecond = xxx;
 	}
 
+
 	UpdateData(FALSE);
 }
 
@@ -614,12 +617,81 @@ void CSetTimeDlg::OnChCBP()
 		CString cccc;
 		GetDlgItem(IDC_COMBO_PORT)->GetWindowText(cccc);
 		int nfds3 = m_Str2Data.String2Int(cccc);
+	if(chcommand != 0xf1)            //数据显示页属性
+	{
 		if(nfds3 <1 || nfds3>8)
 		{
           	AfxMessageBox("通道号在1-8间选择！", MB_OK);
     		GetDlgItem(IDC_COMBO_PORT)->SetWindowText("1");
 	    	  return;
 		}
+	}
+	if(chcommand == 0xf1)            //数据显示页属性
+	{
+		m_VERIFYT.ResetContent();
+    	int  mp = m_PORT.GetCurSel();
+		cccc = m_Records1[mp];
+//    	GetDlgItem(IDC_COMBO_VERIFYT)->EnableWindow(TRUE);
+    	CString strPointNo,strrsy,strrsy1;
+    	strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\";
+		int ishave=0;
+
+		strrsy1 ="dispoint"+strMetrics;
+		CppSQLite3Query q;
+				strPointNo.Format("select * from '%s' WHERE DISID=1;",strrsy1);
+         q = theApp.db3.execQuery(strPointNo);
+
+        for(int k =2; k < 21 ;k++)
+		{
+            strPointNo = q.getStringField(k);
+			strPointNo.TrimRight();
+			if(cccc == strPointNo)
+			{
+				m_nSecond =k-1;
+				ishave =k;
+	    		cccc.Format("%d",k-1);
+    	 	    m_VERIFYT.AddString(cccc);
+            	m_VERIFYT.SetCurSel(0);
+				break;
+			}
+		}
+		if(ishave == 0)
+		{
+           for(int k =2; k < 21 ;k++)
+		   {
+            strPointNo = q.getStringField(k);
+			strPointNo.TrimRight();
+			if(strPointNo == "")
+			{
+				m_nSecond =k-1;
+	    		cccc.Format("%d",k-1);
+    	 	    m_VERIFYT.AddString(cccc);
+            	m_VERIFYT.SetCurSel(0);
+				break;
+			}
+		   }
+		}
+		m_FUNCTION.SetCurSel(0);
+//		GetDlgItem(IDC_COMBO_FUNCTION)->GetWindowText(cccc);
+//		nfds3 = m_Str2Data.String2Int(cccc);
+//		 if(cccc =="1")
+//	        m_cChWT.SetCheck(m_Str2Data.String2Int(m_CommonStr[m_ntrans].strc[105+20*(m_nlist-1)]));
+         for( k =0; k < 25 ;k++)
+		 {
+			 if(k < 8)
+    			m_listC.SetItemText(k, 2, m_CommonStr[m_nSecond].strc[k+1]);
+			 else
+    			m_listC.SetItemText(k, 2, m_CommonStr[m_nSecond].strc[k+2]);
+		 }
+/*		 else if(cccc =="2")
+		 strPointNo.Format("select * from '%s' WHERE DISID>110 and DISID<120;",strrsy1);
+    				  m_listC.SetItemText(ishave-111, 2, strPointNo);
+		 strPointNo.Format("select * from '%s' WHERE DISID>210 and DISID<220;",strrsy1);
+    				  m_listC.SetItemText(ishave-211, 2, strPointNo);
+		 }*/
+		q.finalize();
+	}
+
 	UpdateData(FALSE);
 }
 
@@ -627,51 +699,7 @@ void CSetTimeDlg::OnchangeComboD()
 {
 	if(chcommand == 0x46)          //风电瓦斯闭锁
 	{
-		m_nSecond =  6;
-     	m_listC.DeleteAllItems();
-	    for (int iItem1 = 2; iItem1 >= 0; iItem1--)
-    		m_listC.DeleteColumn(iItem1);
-
-    	m_listC.InsertHiddenLabelColumn();	// Requires one never uses column 0
-    	for(int col = 0; col < 2 ; ++col)
-		{
-		CString title;  int kkk;
-		CGridColumnTrait* pTrait = NULL;
-		if (col==0)	// Country
-		{
-			kkk = 200;
-			title ="传感器位置";
-		}
-		if (col==1)	// Year won
-		{
-			kkk = 150;
-			title ="通道号";
-			unsigned char nfds = m_VERIFYT.GetCurSel()+1;
-			CGridColumnTraitCombo* pComboTrait = new CGridColumnTraitCombo;
-         	for(int i = 01; i < 17; i++)
-			{
-         		CString strItem,strtemp;
-				strtemp = m_SlaveStation[nfds][i].WatchName;
-				strtemp.TrimRight();
-          		strItem.Format(_T("%d"), i);
-              	pComboTrait->AddItem(i, strItem+strtemp);
-			}
-			pTrait = pComboTrait;
-		}
-		m_listC.InsertColumnTrait(col+1, title, LVCFMT_LEFT, kkk, col, pTrait);
-		}
-
-    	for( int iItem = 0; iItem < 6 ; iItem++)
-		{
-				  m_listC.InsertItem(iItem, "通断");
-				  m_listC.SetItemText(iItem, 2, "");
-		}
-				  m_listC.SetItemText(0, 1, "进风瓦斯");
-				  m_listC.SetItemText(1, 1, "回风瓦斯");
-				  m_listC.SetItemText(2, 1, "串联通风");
-				  m_listC.SetItemText(3, 1, "局扇");
-				  m_listC.SetItemText(4, 1, "风筒风量");
-				  m_listC.SetItemText(5, 1, "控制量通道");
+		InitWGas(0);
 	}
 	else if(chcommand == 0x4B)   //手动控制
 	{
@@ -701,10 +729,13 @@ void CSetTimeDlg::OnchangeComboD()
 
 void CSetTimeDlg::OnButSend() 
 {
+//        swprintf(pTTTW->szText,L"%s",strB); 
+ //      swprintf((wchar_t *)pTTTW->szText,L"%s",tooltip.AllocSysString()); 
+//			 _stprintf((LPTSTR)word,_T("%s"),strB); 
+
 	m_ndkSend = new  unsigned char[200];
-	CString strPointNo;
+	CString strPointNo,cccc,strim2;
 	UpdateData(TRUE);
-		CString cccc;
 		GetDlgItem(IDC_COMBO_VERIFYT)->GetWindowText(cccc);
 		unsigned char nfds3 = m_Str2Data.String2Int(cccc);
 		GetDlgItem(IDC_COMBO_PORT)->GetWindowText(cccc);
@@ -741,7 +772,8 @@ void CSetTimeDlg::OnButSend()
 		            m_ndkSend[10] = 0x21;
     	CNDKMessage message1(VERIFYTIMER);
 					message1.Add(m_ndkSend , 200);
-					theApp.Sync(message1);
+					theApp.Sync(message1,1);
+       g_Log.StatusOut("校时完成。" );
 	}
 	else if(chcommand == 0x4B)            //手动控制
 	{
@@ -761,19 +793,21 @@ void CSetTimeDlg::OnButSend()
 		            m_ndkSend[5] = 0x21;
     	CNDKMessage message1(MANUALCONTROL);
 					message1.Add(m_ndkSend , 200);
-					theApp.Sync(message1);
+					theApp.Sync(message1,1);
 
 					m_nchangev = chcommand;
         GetDlgItem(IDC_BUT_RES)->ShowWindow(SW_SHOW);
+					strim2.Format("%x|%x|%x",nfds3,nfdsP,nfds);
+       g_Log.StatusOut("手动控制：" +strim2);
 	}
 	else if(chcommand == 0x43)       //配置测点
 	{
 //		int nptype;
-    	CString strim2;
 		            m_ndkSend[0] = 0x7E;
 		            m_ndkSend[1] = nfds3;
 		            m_ndkSend[2] = chcommand;
 					strim2.Format("%x|%x|%x",m_ndkSend[0],m_ndkSend[1],m_ndkSend[2]);
+       g_Log.StatusOut("配置测点：" + strim2 );
 			ComDisMes(strim2);
 
         for(int i=1;i<17 ;i++)
@@ -794,17 +828,18 @@ void CSetTimeDlg::OnButSend()
 				m_ndkSend[i*10-7],m_ndkSend[i*10-6],m_ndkSend[i*10-5],m_ndkSend[i*10-4],m_ndkSend[i*10-3],m_ndkSend[i*10-2],m_ndkSend[i*10-1],
 				m_ndkSend[i*10],m_ndkSend[i*10+1],m_ndkSend[i*10+2]);
 			ComDisMes(strim2);
+       g_Log.StatusOut("配置测点：" + strim2 );
 //			strim1 +=strim2;
 		}
-		            m_ndkSend[163] = m_SlaveStation[nfds][0].RangeH8;      //
+		            m_ndkSend[163] = m_SlaveStation[nfds][0].RangeH8;      //控制量类型
 		            m_ndkSend[164] = m_SlaveStation[nfds][0].RangeL8;      //
 		            m_ndkSend[165] = 0x21;      //
 					strim2.Format("%x|%x|%x",m_ndkSend[163],m_ndkSend[164],m_ndkSend[165]);
-			ComDisMes(strim2);
-
     	CNDKMessage message1(SENDCONFIG);
 					message1.Add(m_ndkSend , 200);
-					theApp.Sync(message1);
+					theApp.Sync(message1,1);
+			ComDisMes(strim2);
+       g_Log.StatusOut("配置测点：" + strim2 );
 	}
 	else if(chcommand == 0x41)            //配置分站
 	{
@@ -832,7 +867,7 @@ void CSetTimeDlg::OnButSend()
 		            m_ndkSend[63] = 0x21;
     	CNDKMessage message1(INFODEFINE);
 					message1.Add(m_ndkSend , 200);
-					theApp.Sync(message1);
+					theApp.Sync(message1,1);
         for( nItem=0;nItem<60;nItem++)
 		{
             				try
@@ -847,8 +882,11 @@ void CSetTimeDlg::OnButSend()
 					        	AfxMessageBox(e->m_szErrorDesc, MB_OK);
 				        		delete e;
 							}
+					strPointNo.Format("%x|",m_ndkSend[nItem+3]);
+					strim2 +=strPointNo;
 		}//for
 		theApp.InitData();
+       g_Log.StatusOut("配置分站：" +strim2);
 	}
 	else if(chcommand == 0x47)            //通讯测试
 	{
@@ -858,7 +896,9 @@ void CSetTimeDlg::OnButSend()
 		            m_ndkSend[3] = 0x21;
     	CNDKMessage message1(TESTCOMMUNICATION);
 					message1.Add(m_ndkSend , 200);
-					theApp.Sync(message1);
+					theApp.Sync(message1,1);
+ 	  strim2.Format("%x",nfds3);
+      g_Log.StatusOut("通讯测试:分站：" +strim2);
 	}
 	else if(chcommand == 0x5A)            //故障闭锁
 	{
@@ -877,7 +917,7 @@ void CSetTimeDlg::OnButSend()
 		            m_ndkSend[4] = 0x21;
     	CNDKMessage message1(FAULTATRESIA);
 					message1.Add(m_ndkSend , 200);
-					theApp.Sync(message1);
+					theApp.Sync(message1,1);
 
             				try
 							{
@@ -891,6 +931,9 @@ void CSetTimeDlg::OnButSend()
 					        	AfxMessageBox(e->m_szErrorDesc, MB_OK);
 				        		delete e;
 							}
+ 	  strim2.Format("%x||%x",nfds3,m_ndkSend[3]);
+      g_Log.StatusOut("故障闭锁:分站：" +strim2);
+
      	m_listC.DeleteAllItems();
         if ( m_SControl._IsOpen() )
             m_SControl.Close();
@@ -926,12 +969,12 @@ void CSetTimeDlg::OnButSend()
         for(int nItem=0;nItem<6;nItem++)
 		{
     		strPointNo=m_listC.GetItemText(nItem,2);
-			strPointNo = strPointNo.Mid(3,2);
 			if(strPointNo == "")
 			{
 				b_gas =false;
 				break;
 			}
+			strPointNo = strPointNo.Mid(3,2);
 			nfds = m_Str2Data.String2Int(strPointNo);
 	        		m_ndkSend[nItem+3] = nfds;
 		}
@@ -940,7 +983,18 @@ void CSetTimeDlg::OnButSend()
 		            m_ndkSend[9] = 0x21;
                 	CNDKMessage message1(WINDGASATRESIA);
 					message1.Add(m_ndkSend , 200);
-					theApp.Sync(message1);
+					theApp.Sync(message1,1);
+
+        	CString strSQL;
+        	for(int i =0;i<6;i++)
+			{
+    		strPointNo=m_listC.GetItemText(i,2);
+				int k = nfds3*6 +i+1;
+	strSQL.Format("UPDATE commonset SET strc30='%s' WHERE CommonID=%d;",strPointNo,k);
+        	theApp.m_pConnection->Execute(_bstr_t(strSQL),NULL,adCmdText);
+			strim2 +="["+ strPointNo+"]";
+			}
+      g_Log.StatusOut("风电瓦斯闭锁：" +strim2);
 		}
 		else
 		{
@@ -997,7 +1051,9 @@ void CSetTimeDlg::OnButSend()
     			  m_listC.SetItemText(kkk, 1, m_strsel);
     			  m_listC.SetItemText(kkk, 2, str12);
     			  m_listC.SetItemText(kkk, 3, m_strsel2);
+		strim2 = str11 +"|"+m_strsel+"||||"+str12 + "|"+m_strsel2+ "|";  
             m_strsel.Format(_T("%d态"), m_VERIFYT.GetCurSel());
+			strim2 += m_strsel;
     			  m_listC.SetItemText(kkk, 4, m_strsel);
             m_strsel.Format(_T("%d"), m_nSecond);
     			  m_listC.SetItemText(kkk, 5, m_strsel);
@@ -1019,6 +1075,70 @@ void CSetTimeDlg::OnButSend()
 							}
 
 		theApp.InitData();
+      g_Log.StatusOut("双设备报警关系添加：" +strim2);
+	}
+	else if(chcommand == 0xf1)            //数据显示页属性
+	{
+		if(m_nSecond <1)
+		{
+                 	AfxMessageBox("请选择文件名！", MB_OK);
+          			return;
+		}
+    	CString strPointNo,strrsy,strrsy1,strSQL;
+		int ishave=0;
+		strrsy1 ="dispoint"+strMetrics;
+		strrsy.Format("LP%d",m_nSecond);
+		CppSQLite3Query q;
+		GetDlgItem(IDC_COMBO_PORT)->GetWindowText(cccc);
+//				strSQL.Format("UPDATE '%s' SET LP1='' WHERE DISID =0;",
+//					strrsy1);
+				strSQL.Format("UPDATE '%s' SET '%s'='%s' WHERE DISID =1;",
+					strrsy1,strrsy,cccc);
+             q = theApp.db3.execQuery(strSQL);
+		GetDlgItem(IDC_COMBO_FUNCTION)->GetWindowText(cccc);
+
+		 if(cccc =="1")
+		 {
+           for(int m =0; m < 25 ;m++)
+		   {
+			   if(m < 8)
+				strSQL.Format("UPDATE '%s' SET '%s'='%s' WHERE DISID = %d;",
+					strrsy1,strrsy,m_listC.GetItemText(m,2),m+11);
+			   else
+				strSQL.Format("UPDATE '%s' SET '%s'='%s' WHERE DISID = %d;",
+					strrsy1,strrsy,m_listC.GetItemText(m,2),m+12);
+                q = theApp.db3.execQuery(strSQL);
+		   }
+		 }
+		 else if(cccc =="2")
+		 {
+           for(int m =0; m < 25 ;m++)
+		   {
+			   if(m < 8)
+				strSQL.Format("UPDATE '%s' SET '%s'='%s' WHERE DISID = %d;",
+					strrsy1,strrsy,m_listC.GetItemText(m,2),m+111);
+			   else
+				strSQL.Format("UPDATE '%s' SET '%s'='%s' WHERE DISID = %d;",
+					strrsy1,strrsy,m_listC.GetItemText(m,2),m+112);
+             q = theApp.db3.execQuery(strSQL);
+		   }
+		 }
+		 else if(cccc =="3")
+		 {
+           for(int m =0; m < 25 ;m++)
+		   {
+			   if(m < 8)
+				strSQL.Format("UPDATE '%s' SET '%s'='%s' WHERE DISID = %d;",
+					strrsy1,strrsy,m_listC.GetItemText(m,2),m+211);
+			   else
+				strSQL.Format("UPDATE '%s' SET '%s'='%s' WHERE DISID = %d;",
+					strrsy1,strrsy,m_listC.GetItemText(m,2),m+212);
+             q = theApp.db3.execQuery(strSQL);
+		   }
+		 }
+    	q.finalize();
+       AfxMessageBox("保存成功！", MB_OK);
+		m_nchange =1000;
 	}
 	delete m_ndkSend;
 }
@@ -1037,7 +1157,7 @@ void CSetTimeDlg::OnButRES()
 		            m_ndkSend[5] = 0x21;
     	CNDKMessage message1(MANUALCONTROL);
 					message1.Add(m_ndkSend , 100);
-					theApp.Sync(message1);
+					theApp.Sync(message1,1);
 //		m_nchangev = 0;
 	}
     if(chcommand == 0xf0)   //双风门、主扇备扇报警
@@ -1047,9 +1167,12 @@ void CSetTimeDlg::OnButRES()
 		{
     		if(m_listC.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
 			{
-//           		CString strPointNo=m_listC.GetItemText(nItem,5);
+				  CString dddd = "";
+				  dddd += m_listC.GetItemText(nItem,0) +"|||"+m_listC.GetItemText(nItem,1) +"|||"
+					  +m_listC.GetItemText(nItem,2) +"|||"+m_listC.GetItemText(nItem,3) +"|||";
 	    		m_listC.DeleteItem(nItem);
 //       			nItem = m_Str2Data.String2Int(strPointNo);
+      g_Log.StatusOut("双设备报警关系删除" + dddd);
 	     		break;
 			}
 		}
@@ -1122,6 +1245,11 @@ void CSetTimeDlg::OnButCancel()
 	if(m_nchangev == 0)
 	{
 		OnClose();
+		if(m_nchange == 1000)
+		{
+			theApp.InitSQLite3();
+        	theApp.InitDisplay();
+		}
         EndDialog(IDCANCEL);
 	}
 	else
@@ -1135,4 +1263,101 @@ void CSetTimeDlg::ComDisMes(CString strmes)
 //		if(chcommand == 0x46)            //风电瓦斯闭锁
         	m_listC.SetItemText(m_nSecond, 1, strmes);
 		m_nSecond++;
+}
+
+void CSetTimeDlg::InitWGas(int gasfds)
+{
+    if ( m_CommonSet._IsOpen() )
+       m_CommonSet.Close();
+		m_nSecond =  6;
+		m_CommonSet.Create();
+		m_CommonSet.CursorType(adOpenDynamic);
+		m_CommonSet.CacheSize(50);
+		m_CommonSet._SetRecordsetEvents(new CAccountSetEvents);
+		m_CommonSet.Open(_T("Select * From commonset"), &m_Cn);
+		m_CommonSet.MarshalOptions(adMarshalModifiedOnly);
+		unsigned char nfds;
+		if(gasfds == 0)
+    		nfds= m_VERIFYT.GetCurSel()+1;
+		else
+    		nfds= gasfds;
+
+		m_CommonSet.MoveFirst();
+		while ( !m_CommonSet.IsEOF() )
+		{
+			int sfds = m_CommonSet.m_szCommonID;
+			if(sfds >(nfds*6) && sfds <( (nfds+1)*6+1 ) )
+			{
+        		CString dddd = m_CommonSet.m_szstrc30;
+				dddd.TrimRight();
+				m_wgas[sfds-nfds*6-1].strl = dddd;
+			}
+			m_CommonSet.MoveNext();
+		}
+
+     	m_listC.DeleteAllItems();
+	    for (int iItem1 = 2; iItem1 >= 0; iItem1--)
+    		m_listC.DeleteColumn(iItem1);
+
+    	m_listC.InsertHiddenLabelColumn();	// Requires one never uses column 0
+    	for(int col = 0; col < 2 ; ++col)
+		{
+		CString title;  int kkk;
+		CGridColumnTrait* pTrait = NULL;
+		if (col==0)	// Country
+		{
+			kkk = 200;
+			title ="传感器位置";
+		}
+		if (col==1)	// Year won
+		{
+			int k=0;
+			kkk = 250;
+			title ="通道号";
+			CGridColumnTraitCombo* pComboTrait = new CGridColumnTraitCombo;
+         	for(int i = 01; i < MAX_CHAN; i++)
+			{
+         		CString strfds,strtemp,strchan;
+				strtemp = m_SlaveStation[nfds][i].WatchName;
+				if(strtemp != "")
+				{
+					int n=i;
+					if(i>16)
+						n = i-16;
+                	strfds.Format(_T("%02d"), nfds);
+                	strchan.Format(_T("%02d"), n);
+					int n_ptype = m_SlaveStation[nfds][i].ptype;
+					if(n_ptype < 3)
+					{
+                    	pComboTrait->AddItem(k, strfds+"A"+strchan+"|"+strtemp);
+					    k++;
+					}
+					else if(n_ptype==10 || n_ptype==13 ||n_ptype==14)
+					{
+                    	pComboTrait->AddItem(k, strfds+"D"+strchan+"|"+strtemp);
+					    k++;
+					}
+					else if(n_ptype == 12)
+					{
+                    	pComboTrait->AddItem(k, strfds+"C"+strchan+"|"+strtemp);
+					    k++;
+					}
+				}
+			}
+			pTrait = pComboTrait;
+		}
+		m_listC.InsertColumnTrait(col+1, title, LVCFMT_LEFT, kkk, col, pTrait);
+		}
+
+    	for( int iItem = 0; iItem < 6 ; iItem++)
+		{
+				  m_listC.InsertItem(iItem, "通断");
+				  m_listC.SetItemText(iItem, 2, m_wgas[iItem].strl);
+		}
+				  m_listC.SetItemText(0, 1, "进风瓦斯");
+				  m_listC.SetItemText(1, 1, "回风瓦斯");
+				  m_listC.SetItemText(2, 1, "串联通风");
+				  m_listC.SetItemText(3, 1, "局扇");
+				  m_listC.SetItemText(4, 1, "风筒风量");
+				  m_listC.SetItemText(5, 1, "控制量通道");
 }

@@ -31,7 +31,7 @@ public:
 	void GetHostStartTime(CNDKMessage& message);
 ///	CDrawDoc* GetDocument();
 	BOOL SendMessage(CNDKMessage& message);
-	BOOL ConnectServer(CString strIp,long lPort);
+	BOOL ConnectServer(CString strIp,UINT lPort);
 	BOOL Ping();
 	void Close();
     void AddWarn(CString strtemp, CString strtemp1, CString strtemp2, CString strtemp3, CString strtemp4, CString strtemp5, CString strtemp6, CString strtemp7);
@@ -43,22 +43,28 @@ public:
 	void handbr(unsigned char  hfds, unsigned char  hchan, unsigned char hbr);
 	void SaveAdjust(unsigned char  afds, unsigned char  achan);
 	void SaveRtdata(unsigned char  afds, unsigned char  achan);
-    unsigned char *m_ndkSend;
-    unsigned char *m_ndkSend1;
+//    unsigned char *m_ndkSend;
+//    unsigned char *m_ndkSend1;
+//	unsigned char* m_ndkSend2;
 	BOOL m_nodialog;
 	long m_adjustnum; 
+	BYTE     m_ndkSend[2001];//44BUFFER_SIZE
+	BYTE     m_ndkSend1[6];//6
+	BYTE     m_ndkSend2[44];//44
 	
 
-    CAxConnection   m_Cn;
-    CAxContactCmd   m_ContactCmd;
-    CAdjustdata     m_Adjustdata;
-    CAdjustdata     *m_AdjustdataNew;
-	CRealtimedata   m_Realtimedata;
-	CRealtimedata   *m_RealtimedataNew;
+//    CAxConnection   m_Cn;
+//    CAxContactCmd   m_ContactCmd;
+//    CAdjustdata     m_Adjustdata;
+//    CAdjustdata     *m_AdjustdataNew;
+//	CRealtimedata   m_Realtimedata;
+//	CRealtimedata   *m_RealtimedataNew;
 	void CalRtDB(CTime time ,int &eYear, unsigned char  &eMonth);
 	void CalTime(COleDateTime time);
+	void CalRTdata(int fds);
 
 	void ConnectDB();
+	UINT		   m_unBufferLength;
 
 protected:
 
@@ -67,7 +73,7 @@ protected:
 	void OnPing(long lNbMilliseconds);
 
 	void WriteSQL(CNDKMessage& message);
-	CSQLDirect m_SQLDirect;
+//	CSQLDirect m_SQLDirect;
 
 	CTime StartTime, ConnectTime;
 	

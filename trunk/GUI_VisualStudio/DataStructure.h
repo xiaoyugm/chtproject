@@ -21,6 +21,10 @@
 #define COLOR_MASK	RGB(0x00,0x80,0x80)
 #define MAX_FDS      61                  //最大分站  60 +1
 #define MAX_CHAN     25                  //每分站最大通道  24 +1   16AD 8C
+// Define use when allocating the buffer to send a file part
+#define BUFFER_SIZE 1024
+
+#define MAX_ROW     400  //最大行数 50
 
 struct CPointInfo
 {
@@ -154,6 +158,7 @@ struct ADMainDis	 {
 	float   ATotalV;	        	         //模拟量0-24点总值
 	int     duant;                           //是否某段时间
 	float   AavV;	        	             //模拟量平均值
+	float   AMinValue;	                     //模拟量最小值     
 	float   AMaxValue;	                     //模拟量最大值                   第n次最大值
 	COleDateTime  AMaxTime;                  //模拟量最大值时间               第n次最大值时间
 	COleDateTime  ATime;                     //最后报警测点值时间             累计报警时间/馈电异常时刻
@@ -168,7 +173,33 @@ struct ADMainDis	 {
 
 //日报/班报表头字符串
 struct CommonStr	 {
-	CString strc[12];                               
+	CString strc[150];                               
+};
+
+//开关量5分钟变化
+struct DCHm5	 {
+	DCHm5(const CString& str1, const CString& str2,const CString& str3, const CString& str4 )
+		:str1(str1)
+		,str2(str2)
+		,str3(str3)
+		,str4(str4)
+	{}
+	CString str1;
+	CString str2;
+	CString str3;
+	CString str4;
+};
+
+
+struct ListV {
+	CString   strl;          // list dian hao
+};
+struct DIDVer {
+	int   n_iddf;          // list dian hao
+};
+
+struct SListstatus {
+	unsigned char   oldstate;          // list zhuangtai
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -189,7 +220,9 @@ struct SerialF	 {
 	int     ffds;	                        //分站 
 	int     fchan;	                        //馈电通道
 };
-
+struct RT60DATA	 {
+	unsigned char   rtdata[44]; 
+};
 //通道号
 //struct NumChannel {
 //	int EFeed;                  	//馈电状态
@@ -202,6 +235,7 @@ struct SlaveStation {
 	COleDateTime  ValueTime;              //采集测点值时间   
 	CString falma;                  //报警音乐
 	CString WatchName;              //测点安装地点名称   
+	CString strPN;                  //测点点号 01A01  
 	CString         utype;           //开关量/模拟量类型名称
     unsigned char   Channel_state;        //通道状态   0000 正常 0001:报警      
 
@@ -220,8 +254,10 @@ struct SlaveStation {
 	CString ZeroState;          //0态   开关量
 	CString OneState;           //1态   开关量
 	CString TwoState;           //2态   开关量
+
 	CString FeedState;           //馈电状态
 	CString strSafe;             //安全措施
+	CString strBS;		             // 断电范围
 
 	unsigned char  RangeH8;                    //0通道控制量高四位
 	unsigned char  RangeL8;                    //0通道控制量低四位
@@ -239,11 +275,17 @@ struct SlaveStation {
     unsigned char   m_ffds;              //馈电分站
     unsigned char   m_fchan;             //馈电通道
 
-    CTime   m_5m;                //五分钟数据存储时间
-	float AMaxValue;	                 //模拟量最大值
-	float AMinValue;	                 //模拟量最小值
-	float ATotalValue;	                 //模拟量五分钟数据存储值
-    int   m_Atotal;                      //五分钟数据存储次数
+    CTime   m5_T;                //五分钟数据存储时间
+	float m5_AMaxValue;	                 //模拟量最大值
+	float m5_AMinValue;	                 //模拟量最小值
+	float m5_ATotalValue;	                 //模拟量五分钟数据存储值
+    int   m5_Atotal;                      //五分钟数据存储次数
+
+    CTime   m24_T;                //24小时数据存储时间
+	float m24_AMaxValue;	                 //24小时模拟量最大值
+	float m24_AMinValue;	                 //24小时模拟量最小值
+	float m24_ATotalValue;	                 //模拟量24小时数据存储值
+    int   m24_Atotal;                      //24小时数据存储次数
 };
 
 //IP

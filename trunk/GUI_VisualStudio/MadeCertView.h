@@ -61,6 +61,11 @@ public:
 	int m_tnum;
 // Attributes
 public:
+	int             m_nSortedCol;
+	bool            m_bAscending;
+	CXTHeaderCtrl   m_header;
+
+	BOOL m_bExcelInit;
 	int m_select;
 	CString m_stragrv;
 	CString m_num;
@@ -84,6 +89,7 @@ public:
 	void L2upDB();
 	void InitStr();
 
+	void SortColumn(int iCol, bool bAsc);
 // Operations
 public:
 
@@ -92,6 +98,8 @@ public:
 	//{{AFX_VIRTUAL(CMadeCertView)
 	public:
 	virtual void OnInitialUpdate();
+	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
+//	virtual bool SortList(int nCol, bool bAscending);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL

@@ -47,7 +47,9 @@ public:
 
 // Attributes
 public:
+//    CMenu *m_pMenu;
 	CChildFrame    *m_pMade;
+	CXTPToolBar    m_wndToolBar;
 
 	CXTPDockingPaneManager m_paneManager;
 	CXTPTabClientWnd m_MTIClientWnd;
@@ -62,13 +64,16 @@ public:
 	CResourceViewPane       m_wndResourceView3;
 	CResourceViewPane       m_wndResourceView4;
 	CResourceViewPane       m_wndResourceView5;
-	CResourceViewPane       m_wndResourceView6;
-	CXTPDockingPane* paneResourceView6;
+//	CResourceViewPane       m_wndResourceView6;
+//	CXTPDockingPane* paneResourceView6;
 	CXTPDockingPane* paneResourceView5;
 	CXTPDockingPane* paneResourceView4;
 	CXTPDockingPane* paneResourceView3;
 	CXTPDockingPane* paneResourceView2;
 	CXTPDockingPane* paneResourceView;
+
+	CXTPCommandBars* pCommandBars;
+//	CXTPMenuBar* pMenuBar;
 
 //	CMadeCertView*           m_MadeCert;
 	CommonTools C_Ts;
@@ -83,7 +88,7 @@ public:
 	void addCopyDataMenuItem();
 	void setEnableItem();
 
-	void OnMView(int mview);
+	void OnMView(int menun,int myf);
 	void AddMessage(CString strMessage);
 	void AddUser();
 	void AddEdit();
@@ -103,7 +108,11 @@ public:
 	BOOL          m_RepeatFlag;
     void         DoPlayWarnSound(CString strFileName);
 	UINT m_nPaneID;
+	CString2DataType    m_Str2Data;
+	int  m_m300;
+	BOOL  m_bIsDraw;
 
+	POSITION	s_ViewPos;
 	POSITION	m_ViewPos;
 // Operations
 public:
@@ -122,6 +131,9 @@ protected:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	void OnSetPreviewMode(BOOL bPreview, CPrintPreviewState* pState);
 	//}}AFX_VIRTUAL	
+	CMenu* _GetDynaPopupMenu1();
+//	CMenu* _GetDynaPopupMenu2();
+//	MenuCommandSet* m_pMenuCommandSet;
 	
 	void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 	void ShowDockingPanePopupMenu(CXTPDockingPane* pPopupPane, CPoint pt, LPRECT lprcExclude);
@@ -134,14 +146,21 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
+	afx_msg void OnTopWindow();
+
 	afx_msg void OnDisAAR();
 	afx_msg void OnDisABR();
 	afx_msg void OnDisAFER();
 	afx_msg void OnDisDABR();
 	afx_msg void OnDisDFER();
 	afx_msg void OnDisDSC();
+	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnOPTXT();
+	afx_msg void OnWORKTXT();
 
-///	BOOL ShowWindowEx(int nCmdShow);
+	void OnWSYSTEM();
+
+//	BOOL ShowWindowEx(int nCmdShow);
 ///	void SetMousePosText(CPoint Logpoint,CPoint Devpoint);
 
 protected:  // control bar embedded members
@@ -154,9 +173,12 @@ protected:
 	afx_msg void OnWindowAutohideall();
 	afx_msg void OnWindowMore();
 	afx_msg void OnClose();
-	//}}AFX_MSG
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+//}}AFX_MSG
+	afx_msg void Sqlite3init();
+	afx_msg void Sqlite3define();
 	afx_msg void OnManipulate();
-
+	afx_msg void OnFileMenuItems(UINT nID) ;
 	afx_msg LRESULT OnDockingPaneNotify(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnShowView(UINT nID);
 	afx_msg void OnShowViewOther(UINT nID);
@@ -186,10 +208,10 @@ protected:
 	afx_msg void OnMadeMade();
 	afx_msg void OnSoundStop();
 
-	afx_msg void OnWAERATION();
+//	afx_msg void OnWAERATION();
 	afx_msg void OnWGAS();
-	afx_msg void OnWSYSTEM();
 
+	afx_msg void OnEDRAW();
 	afx_msg void OnCDS();
 	afx_msg void OnCDC();
 	afx_msg void OnCASelect();
@@ -228,6 +250,10 @@ protected:
 	afx_msg void OnEXCELDFE();
 	afx_msg void OnEXCELDRIVERE();
 
+	afx_msg void OnFORMS();
+
+	afx_msg void OnSAVEFD();
+	afx_msg void OnFORMPROP();
 	afx_msg void OnFansA();
 	afx_msg void OnCLASSTIME();
 	afx_msg void OnAdjustdis();

@@ -5,6 +5,7 @@
 #include "GUI_VisualStudio.h"
 #include "FlatTabViewDoc.h"
 #include "SampleFormView.h"
+#include "MainFrm.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -101,3 +102,28 @@ void CFlatTabViewDoc::Dump(CDumpContext& dc) const
 
 /////////////////////////////////////////////////////////////////////////////
 // CFlatTabViewDoc commands
+void CFlatTabViewDoc::OnCloseDocument() 
+{
+	CString pString,strpo,strSQL;
+	pString = GetTitle();
+       		int m_ishave = pString.GetLength();
+    		strpo = pString.Mid(m_ishave-3,3);
+	if(strpo != "rsf")
+	    pString += ".rsf";
+	CString strrsy ,strrsy1;
+	strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\";
+	pString = strrsy+pString;
+	theApp.m_Sam.RemoveKey(pString);
+
+    		for(vector<CString>::iterator iter=theApp.m_addfilesy.begin(); iter!=theApp.m_addfilesy.end(); )
+			{
+	    		strpo = *iter;
+				if(strpo == pString)
+				{
+	        		iter = theApp.m_addfilesy.erase(iter);
+				}
+		    	else
+			    	iter++;
+			}
+	CDocument::OnCloseDocument();
+}

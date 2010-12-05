@@ -1,6 +1,7 @@
 #include "stdafx.h"
 //#include <windows.h>
 //#include <stdio.h>
+#include "..\\GUI_VisualStudio.h"
 #include "RealTime.h"
 
 CALine::CALine()
@@ -144,7 +145,7 @@ bool CRealTime::InitialSetting(double CycsPerSec, DWORD StartTime, DWORD TimeSpa
 
 	m_nMaxPages			= MaxSeconds / TimeSpan;
 	m_nTimeSpan			= TimeSpan;
-	m_nXTicks			= XTick;
+	m_nXTicks			= XTick;     //竖虚线条数
 	m_nCyclesPerSec		= CycsPerSec;
 	m_nCounter			= (int)CycsPerSec;
 	m_bIsForwardDrawing	= IsForward;
@@ -341,14 +342,19 @@ void CRealTime::Grid()
 			DrawLine(xb, GT + 1, xe, GB - 1);
 	}
 
-	for(i = 1; i < YGridTicks; i ++) 
+	for(i = 1; i < YGridTicks; i ++) //横虚线
 	{
 		yb = ye = GT + (int)(1.0 * i * (GB-GT) / YGridTicks);
 		DrawLine(GL + 1, yb, GR - 1, ye);
 	}
+	HPEN hPen1	= ::CreatePen(PS_SOLID, 0, m_nGridColor);
+	HPEN hOldPen1 = (HPEN)::SelectObject(m_hDC, hPen1);
+			DrawLine(xb-1, GT + 1, xe-1, GB - 1);
 
 	::SelectObject(m_hDC, hOldPen);
 	::DeleteObject(hPen);
+	::SelectObject(m_hDC, hOldPen1);
+	::DeleteObject(hPen1);
 }
 //右边值域 4条直线
 void CRealTime::RightYTick()
@@ -385,25 +391,68 @@ void CRealTime::RightYTick()
 				m = i/5 ;
 				if(m < 4)
 				{
+					if(m == 0)
+					{
         		COLORREF cr = m_LineArray[m].m_nColor ;
           		::SetTextColor(m_hDC, cr); 
 
                 SetStringAlign(LEFT, CENTER);
 				value = (float)(m_LineArray[m].m_dScaleLow + m * (m_LineArray[m].m_dScaleHigh - m_LineArray[m].m_dScaleLow) / 10);
 				Format( 2 , str, value);
-				PrintString(GR + m_rM / 4, yb+35, 0, str);
+				PrintString(GR + m_rM / 4, yb+8, 0, str);  //下边 右边值域值35
+	
+				value = (float)(m_LineArray[m].m_dScaleLow + (m +1)* (m_LineArray[m].m_dScaleHigh - m_LineArray[m].m_dScaleLow) / 10);
+				Format( 2 , str, value);
+	    		yt = (int)(GT + 1.0 * PY * (i+5) / YTicks );    
+				PrintString(GR + m_rM / 4, yt+8, 0, str);//右边值域值
+				value = (float)(m_LineArray[m].m_dScaleLow + (m +2)* (m_LineArray[m].m_dScaleHigh - m_LineArray[m].m_dScaleLow) / 10);
+				Format( 2 , str, value);
+	    		yt = (int)(GT + 1.0 * PY * (i+10) / YTicks );    
+				PrintString(GR + m_rM / 4, yt+8, 0, str);//右边值域值
+				value = (float)(m_LineArray[m].m_dScaleLow + (m +3)* (m_LineArray[m].m_dScaleHigh - m_LineArray[m].m_dScaleLow) / 10);
+				Format( 2 , str, value);
+	    		yt = (int)(GT + 1.0 * PY * (i+15) / YTicks );    
+				PrintString(GR + m_rM / 4, yt+8, 0, str);//右边值域值
 				value = (float)(m_LineArray[m].m_dScaleLow + (m +4)* (m_LineArray[m].m_dScaleHigh - m_LineArray[m].m_dScaleLow) / 10);
 				Format( 2 , str, value);
 	    		yt = (int)(GT + 1.0 * PY * (i+20) / YTicks );    
-				PrintString(GR + m_rM / 4, yt+35, 0, str);
+				PrintString(GR + m_rM / 4, yt+8, 0, str);//右边值域值
+				value = (float)(m_LineArray[m].m_dScaleLow + (m +5)* (m_LineArray[m].m_dScaleHigh - m_LineArray[m].m_dScaleLow) / 10);
+				Format( 2 , str, value);
+	    		yt = (int)(GT + 1.0 * PY * (i+25) / YTicks );    
+				PrintString(GR + m_rM / 4, yt+8, 0, str);//右边值域值
+				value = (float)(m_LineArray[m].m_dScaleLow + (m +6)* (m_LineArray[m].m_dScaleHigh - m_LineArray[m].m_dScaleLow) / 10);
+				Format( 2 , str, value);
+	    		yt = (int)(GT + 1.0 * PY * (i+30) / YTicks );    
+				PrintString(GR + m_rM / 4, yt+8, 0, str);//右边值域值
+				value = (float)(m_LineArray[m].m_dScaleLow + (m +7)* (m_LineArray[m].m_dScaleHigh - m_LineArray[m].m_dScaleLow) / 10);
+				Format( 2 , str, value);
+	    		yt = (int)(GT + 1.0 * PY * (i+35) / YTicks );    
+				PrintString(GR + m_rM / 4, yt+8, 0, str);//右边值域值
+				value = (float)(m_LineArray[m].m_dScaleLow + (m +8)* (m_LineArray[m].m_dScaleHigh - m_LineArray[m].m_dScaleLow) / 10);
+				Format( 2 , str, value);
+	    		yt = (int)(GT + 1.0 * PY * (i+40) / YTicks );    
+				PrintString(GR + m_rM / 4, yt+8, 0, str);//右边值域值
+				value = (float)(m_LineArray[m].m_dScaleLow + (m +9)* (m_LineArray[m].m_dScaleHigh - m_LineArray[m].m_dScaleLow) / 10);
+				Format( 2 , str, value);
+	    		yt = (int)(GT + 1.0 * PY * (i+45) / YTicks );    
+				PrintString(GR + m_rM / 4, yt+8, 0, str);//右边值域值
+				value = (float)(m_LineArray[m].m_dScaleLow + (m +10)* (m_LineArray[m].m_dScaleHigh - m_LineArray[m].m_dScaleLow) / 10);
+				Format( 2 , str, value);
+	    		yt = (int)(GT + 1.0 * PY * (i+50) / YTicks );    
+				PrintString(GR + m_rM / 4, yt+8, 0, str);//右边值域值
+
+					}
 
              	SetStringAlign(RIGHT, CENTER);
 	           	valueL = (float)(m_LineArray[m].m_dScaleLow );
 	        	Format( 2 , strL, valueL);
-	        	PrintString(GR - m *(GR-GL)/5, GT - m_bM /1.2, 0, strL);
+//最下边一行值
+//	        	PrintString(GR - m *(GR-GL)/5, GT - m_bM /1.2, 0, strL);
            		valueH = (float)( m_LineArray[m].m_dScaleHigh  );
          		Format( 2 , strH, valueH);
-        		PrintString(GR - m *(GR-GL)/5 - 80, GT - m_bM /1.2, 0, strH);
+//最下边一行值
+//        		PrintString(GR - m *(GR-GL)/5 - 80, GT - m_bM /1.2, 0, strH);
 
 //	crTable[2]  = RGB(255,   0,   0);     // Red
 //	crTable[4]  = RGB(  0,   0, 255);     // Blue
@@ -412,48 +461,54 @@ void CRealTime::RightYTick()
         		COLORREF cr1 = RGB(255, 255,   0) ;
         		COLORREF cr2 = RGB(255,   0,   0) ;
         		COLORREF cr3 = RGB(  0,   0, 255) ;
-            	HPEN hPen1	= ::CreatePen(PS_DASHDOT, 0, cr1);
-            	HPEN hOldPen1 = (HPEN)::SelectObject(m_hDC, hPen1);
 
+            	HPEN hPen3	= ::CreatePen(PS_SOLID, 0, cr3);
+            	HPEN hOldPen3 = (HPEN)::SelectObject(m_hDC, hPen3);
+					if(m == 0)
+					{
+				value2 = (float)( m_LineArray[m].m_dMid );
+				Format( 2 , strwarnH, value2);
+				valueH = (float)(  (m_LineArray[m].m_dMid)/(m_LineArray[m].m_dScaleHigh ) );
+				yH = GT + (int)(1.0 * valueH * (GB-GT)) ;
+				DrawLine(GL + 1, yH, GR - 1, yH);  //复电 yh高
+//				PrintString(GR + m_rM /2, yH+8, 0, strwarnH);//17
+					}
+				::SelectObject(m_hDC, hOldPen3);
+             	::DeleteObject(hPen3);
+
+            	HPEN hPen1	= ::CreatePen(PS_SOLID, 0, cr1);
+            	HPEN hOldPen1 = (HPEN)::SelectObject(m_hDC, hPen1);
+					if(m == 0)
+					{
 				value1 = (float)(  m_LineArray[m].m_dMin );
 				Format( 2 , strwarnL, value1);
 //				valueL = (float)(  (m_LineArray[m].m_dMin -m_LineArray[m].m_dScaleLow)/(m_LineArray[m].m_dScaleHigh -m_LineArray[m].m_dScaleLow) );
 				valueL = (float)(  (m_LineArray[m].m_dMin)/(m_LineArray[m].m_dScaleHigh) );
 				yL = GT + (int)(1.0 * valueL * (GB-GT)) ;
 				DrawLine(GL + 1, yL, GR - 1, yL);  //报警线
-				PrintString((GR + GL) / 2 + 30*m, yL+17, 0, strwarnL);
+//				PrintString(GR + m_rM /2 , yL+18, 0, strwarnL);//17
 //				PrintString((GR + GL) / 2 + 30*m, yL+35, 0, strwarnL);
-
+					}
 				::SelectObject(m_hDC, hOldPen1);
              	::DeleteObject(hPen1);
-            	HPEN hPen2	= ::CreatePen(PS_DASHDOT, 0, cr2);
-            	HPEN hOldPen2 = (HPEN)::SelectObject(m_hDC, hPen2);
 
+            	HPEN hPen2	= ::CreatePen(PS_SOLID, 0, cr2);
+            	HPEN hOldPen2 = (HPEN)::SelectObject(m_hDC, hPen2);
+					if(m == 0)
+					{
 				value2 = (float)( m_LineArray[m].m_dMax );
 				Format( 2 , strwarnH, value2);
 //				valueH = (float)(  (m_LineArray[m].m_dMax -m_LineArray[m].m_dScaleLow)/(m_LineArray[m].m_dScaleHigh -m_LineArray[m].m_dScaleLow) );
 				valueH = (float)(  (m_LineArray[m].m_dMax )/(m_LineArray[m].m_dScaleHigh ) );
 				yH = GT + (int)(1.0 * valueH * (GB-GT)) ;
 				DrawLine(GL + 1, yH, GR - 1, yH);  //断电
-				PrintString((GR + GL) / 2 + 30*m, yH+17, 0, strwarnH);
-
+//				PrintString(GR + m_rM/2 , yH+8, 0, strwarnH);//17
+					}
 				::SelectObject(m_hDC, hOldPen2);
              	::DeleteObject(hPen2);
-            	HPEN hPen3	= ::CreatePen(PS_DASHDOT, 0, cr3);
-            	HPEN hOldPen3 = (HPEN)::SelectObject(m_hDC, hPen3);
-
-				value2 = (float)( m_LineArray[m].m_dMid );
-				Format( 2 , strwarnH, value2);
-				valueH = (float)(  (m_LineArray[m].m_dMid)/(m_LineArray[m].m_dScaleHigh ) );
-				yH = GT + (int)(1.0 * valueH * (GB-GT)) ;
-				DrawLine(GL + 1, yH, GR - 1, yH);  //复电 yh高
-				PrintString((GR + GL) / 2 + 30*m, yH+17, 0, strwarnH);
-
-				::SelectObject(m_hDC, hOldPen3);
-             	::DeleteObject(hPen3);
-
-                SetStringAlign(LEFT, CENTER);
-				PrintString(GL, GT - m_bM /1.2, 0, "值域(大 小)");
+//最下边一行
+//                SetStringAlign(LEFT, CENTER);
+//				PrintString(GL, GT - m_bM /1.2, 0, "值域(大 小)");
 				}
 			}
 			else
@@ -474,26 +529,29 @@ void CRealTime::RightYTick()
 void CRealTime::DrawRealTimeLines()
 {
 	int n = m_LineArray.GetSize();
-	if (m_bLegendShadow)
-		DrawShadow(n);
+//	if (m_bLegendShadow)
+//		DrawShadow(n);
 
 		RightYTick();
 
 	for(int i = 0; i < n; i ++)
 	{
-		m_pCurLine = &m_LineArray[i];
+		m_pCurLine = &m_LineArray[0];//i
 		DrawCurrentLine();
 		if (m_bEnableLegend)
 		{
+			if(i == 0)
+			{
 			m_CurPen = ::CreatePen(m_pCurLine->m_nLineStyle, m_pCurLine->m_nLineWidth, m_pCurLine->m_nColor);
 			m_OldPen = (HPEN)::SelectObject(m_hDC, m_CurPen);
-			CGraphics::Legend(m_pCurLine->m_nColor, i + 1, m_pCurLine->m_sName.GetChar());
+//			CGraphics::Legend(m_pCurLine->m_nColor, i + 1, m_pCurLine->m_sName.GetChar());
 			::SelectObject(m_hDC, m_OldPen);
 			::DeleteObject(m_CurPen);
+			}
 		}
 	}
 
-	DrawTickLine();
+//	DrawTickLine();
 }
 
 void CRealTime::DrawCurrentLine()
@@ -553,7 +611,11 @@ void CRealTime::DrawCurrentLine()
 	}
 
 	if(m_nP > 1)
-		::Polyline(m_hDC, m_pLineArray, m_nP);
+	{
+//		m_pLineArray[0].x = (int)(GL + ((m_pValueTime[0] - m_Scale.xmin) / m_Scale.dx));
+		::Polyline(m_hDC, m_pLineArray, m_nP);//m_nP
+
+	}
 
 	::SelectObject(m_hDC, m_OldPen);
 	::DeleteObject(m_CurPen);
@@ -565,6 +627,7 @@ int CRealTime::ForwardDraw(int nB, int nE)
 	{
 		if (m_pCurLine->m_pValues[i].bFlag)
 		{
+//	        m_Pt.x = (int)(GR + ((m_pValueTime[i] - m_Scale.xmin) / m_Scale.dx));
 	        m_Pt.x = (int)(GL + ((m_pValueTime[i] - m_Scale.xmin) / m_Scale.dx));
 			///GB
 ///			m_Pt.y = (int)(GB - ((m_pCurLine->m_pValues[i].YValue - m_Scale.ymin) / m_Scale.dy));
@@ -572,8 +635,11 @@ int CRealTime::ForwardDraw(int nB, int nE)
 			if(m_Pt.x >= GL && m_Pt.x <= GR)
 			{
 				assert(m_nP<m_nDataPerLine);
-				m_pLineArray[m_nP].x = m_Pt.x;
+				m_pLineArray[m_nP].x = m_Pt.x ;
 				m_pLineArray[m_nP].y = m_Pt.y;
+//			CString strmes;
+//			strmes.Format("%d  %d  %d",m_Pt.x ,m_Pt.y,m_nP);
+//         g_Log.StatusOut(strmes);
 				m_nP++;
 			}
 			else // something wrong
@@ -775,7 +841,7 @@ void CRealTime::PrintTime()
 	n = GT + n -  m_bM / 6 ;
 	SetStringAlign(LEFT, BOTTOM);
 ///	ShowTime(GL, n, "指针时间", m_nCursorTime);
-		sprintf(m_sTempStr, "指针时间 (%d:%d:%d)",  
+		sprintf(m_sTempStr, "当前时间 (%d:%d:%d)",  
 				t.GetHour(), t.GetMinute(), t.GetSecond());
 	PrintString(GL, n, 0, m_sTempStr);	
 

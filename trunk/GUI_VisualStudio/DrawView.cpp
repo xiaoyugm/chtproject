@@ -8,10 +8,12 @@
 ///#include "CntrItem.h"
 #include "DrawView.h"
 #include "MainFrm.h"
+//#include "QZoomView.h"
+//#include "ZoomView.h"
 
 #include "drawobj.h"
 ///#include "cntritem.h"
-///#include "drawtool.h"
+//#include "drawtool.h"
 #include "DrawRect.h"
 #include "drawwarn.h"
 #include "drawchart.h"
@@ -26,6 +28,7 @@
 //#include <SqlDirect.h>
 #include "SampleFormView.h"
 #include "AddSQLDlg.h"
+#include "DCH5m.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -41,7 +44,6 @@ enum
 	ACTION
 };
 
-SerialF               m_one[MAX_FDS][17];
 extern CNDKMessage m_NDKmes[50];
 extern SerialF                  m_Colorref[200];
 extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
@@ -64,12 +66,18 @@ BEGIN_MESSAGE_MAP(CDrawView, CScrollView)
 	ON_WM_DESTROY()
 	ON_WM_TIMER()
 	ON_WM_LBUTTONDOWN()
+	ON_WM_RBUTTONDOWN()
 //	ON_WM_RBUTTONDBLCLK()
 //	ON_COMMAND(ID_TIME_VIEW, OnTimeView)
 	ON_WM_SETFOCUS()
 	ON_WM_SIZE()
 	ON_WM_CREATE()
 	ON_WM_MOUSEMOVE()               //0415
+	ON_COMMAND(ID_ZOOM_FULL, OnZoomFull)
+	ON_COMMAND(ID_TOOL_HAND, OnToolHand)
+	ON_COMMAND(ID_DATADA, OpenDayRT)
+	ON_COMMAND(ID_RCHART, OpenRTChart)
+	ON_COMMAND(ID_FORMPAGESO, OnFORMPAGESO)//数据页
 	//}}AFX_MSG_MAP
 	// Standard printing commands
 	ON_COMMAND(ID_FILE_PRINT, CScrollView::OnFilePrint)
@@ -79,6 +87,7 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CDrawView construction/destruction
+#pragma warning(disable: 4355) // OK here
 
 CDrawView::CDrawView()
 {
@@ -87,6 +96,7 @@ CDrawView::CDrawView()
 	m_bDragDataAcceptable = FALSE;
 	m_Second =3 ;
     CountView = 0;
+	n_curpoint = 0;
 	BOOL m_bCount = FALSE;
 	m_bGrid = FALSE;
 	m_gridColor = RGB(0, 0, 128);
@@ -132,6 +142,8 @@ void CDrawView::OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDea
 			OnUpdate(NULL, HINT_UPDATE_SELECTION, NULL);
 		m_bActive = bActivate;
 	}
+//	if (!bActivate)
+//		((CMainFrame*)AfxGetMainWnd())->UpdatePropertyGridContent(0);
 
 }
 
@@ -273,7 +285,7 @@ void CDrawView::OnUpdate(CView* , LPARAM lHint, CObject* pHint)
 		}
 		break;
 
-/*	case HINT_DELETE_SELECTION: // an entire selection has been removed
+	case HINT_DELETE_SELECTION: // an entire selection has been removed
 		if (pHint != &m_selection)
 		{
 			CDrawObjList* pList = (CDrawObjList*)pHint;
@@ -294,8 +306,8 @@ void CDrawView::OnUpdate(CView* , LPARAM lHint, CObject* pHint)
 			while (pos != NULL)
 			{
 				CDrawObj* pObj = pDoc->GetObjects()->GetNext(pos);
-				if (pObj->IsKindOf(RUNTIME_CLASS(CDrawOleObj)))
-					InvalObj(pObj);
+//				if (pObj->IsKindOf(RUNTIME_CLASS(CDrawOleObj)))
+//					InvalObj(pObj);
 			}
 		}
 		break;*/
@@ -315,6 +327,11 @@ void CDrawView::OnUpdate(CView* , LPARAM lHint, CObject* pHint)
 
 void CDrawView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo) 
 {
+/*	if (!pDC->IsPrinting() || pInfo->m_bPreview)
+		CScrollView::OnPrepareDC(pDC, pInfo);
+	else
+	CScrollView::OnPrepareDC(pDC, pInfo);*/
+
 	CScrollView::OnPrepareDC(pDC, pInfo);
 
 	pDC->SetMapMode(MM_ANISOTROPIC);
@@ -323,7 +340,9 @@ void CDrawView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo)
 	pDC->SetWindowExt(100, -100);
 
 	// set the origin of the coordinate system to the center of the page
-	CPoint ptOrg;
+	CPoint ptOrg;    //画面位置
+//	ptOrg.x = -35;
+//	ptOrg.y = -45;
 	ptOrg.x = GetDocument()->GetSize().cx / 2;
 	ptOrg.y = GetDocument()->GetSize().cy / 2;
 
@@ -333,18 +352,22 @@ void CDrawView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo)
 /*
 BOOL CDrawView::OnScrollBy(CSize sizeScroll, BOOL bDoScroll) 
 {
+	// do the scroll
 	if (!CScrollView::OnScrollBy(sizeScroll, bDoScroll))
 		return FALSE;
 
+	// THIS CODE CAUSE PROBLEM IN WIN98
 	// update the position of any in-place active item
 	if (bDoScroll)
 	{
+		Invalidate(); //
 		UpdateActiveItem();
 		UpdateWindow();
 	}
 	return TRUE;
-}
-*/
+
+}*/
+
 void CDrawView::OnDraw(CDC* pDC)
 {
 	CDrawDoc* pDoc = GetDocument();
@@ -503,13 +526,15 @@ void CDrawView::DrawGrid(CDC* pDC)
 */
 void CDrawView::OnInitialUpdate()
 {
+	CScrollView::OnInitialUpdate();
 	CSize size = GetDocument()->GetSize();
-	CClientDC dc(NULL);
+	CClientDC dc(NULL);//滚动条
 	size.cx = MulDiv(size.cx, dc.GetDeviceCaps(LOGPIXELSX), 100);
 	size.cy = MulDiv(size.cy, dc.GetDeviceCaps(LOGPIXELSY), 100);
 	size.cx = size.cx + 100;
 	size.cy = size.cy + 100;
 	SetScrollSizes(MM_TEXT, size);
+//	SetZoomSizes(size);
 
 	CString2DataType m_String2DataType;
 							CString strtemp1,strtemp2,strtemp3,strtemp;
@@ -526,8 +551,8 @@ void CDrawView::OnInitialUpdate()
 							{
 	SetTimer(CHART,1000,NULL);
 ///	SetTimer(VIEW,1317,NULL);
-	SetTimer(DRAWTASK,1000,NULL);
-	SetTimer(ACTION,100,NULL);
+//	SetTimer(DRAWTASK,1000,NULL);
+	SetTimer(ACTION,500,NULL);
 							}
 ///							else{
 ///								AfxMessageBox("对不起，请使用正版软件");
@@ -538,6 +563,8 @@ void CDrawView::OnInitialUpdate()
 
 void CDrawView::SetPageSize(CSize size)
 {
+//	SetZoomSizes(size);
+//	GetDocument()->UpdateAllViews(NULL, HINT_UPDATE_WINDOW, NULL);
 	CClientDC dc(NULL);
 	size.cx = MulDiv(size.cx, dc.GetDeviceCaps(LOGPIXELSX), 100);
 	size.cy = MulDiv(size.cy, dc.GetDeviceCaps(LOGPIXELSY), 100);
@@ -596,13 +623,13 @@ void CDrawView::OnDestroy()
 BOOL CDrawView::IsSelected(const CObject* pDocItem) const
 {
 	CDrawObj* pDrawObj = (CDrawObj*)pDocItem;
-///	if (pDocItem->IsKindOf(RUNTIME_CLASS(CDrawItem)))
-///		pDrawObj = ((CDrawItem*)pDocItem)->m_pDrawObj;
+//	if (pDocItem->IsKindOf(RUNTIME_CLASS(CDrawItem)))
+//		pDrawObj = ((CDrawItem*)pDocItem)->m_pDrawObj;
 	return m_selection.Find(pDrawObj) != NULL;
 
 	//return pDocItem == m_pSelection;
 }
-/*
+
 // The following command handler provides the standard keyboard
 //  user interface to cancel an in-place editing session.  Here,
 //  the container (not the server) causes the deactivation.
@@ -622,7 +649,7 @@ void CDrawView::OnSize(UINT nType, int cx, int cy)
 //		pActiveItem->SetItemRects();
 	UpdateActiveItem();
 }
-*/
+
 /////////////////////////////////////////////////////////////////////////////
 // OLE Server support
 
@@ -690,6 +717,7 @@ void CDrawView::DocToClient(CRect& rect)
 	dc.LPtoDP(rect);
 	rect.NormalizeRect();
 }
+
 /*
 void CDrawView::Select(CDrawObj* pObj, BOOL bAdd)
 {
@@ -838,6 +866,10 @@ void CDrawView::OnTimeView()
 void CDrawView::OnTimer(UINT nIDEvent) 
 {
     CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+    CTime terror = CTime::GetCurrentTime();
+	int  n_t =terror.GetYear();
+	if(n_t>2010)
+		return;
 	
 	double dfValue ; 
 	unsigned short ufData,nPoint,OldwarnPoint ,pufdata;
@@ -846,55 +878,7 @@ void CDrawView::OnTimer(UINT nIDEvent)
 	{
     	case DRAWTASK:                                     
 			{
-            	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
-              	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
-               	CSampleFormView *pFView = (CSampleFormView*)pChild->GetActiveView();
-            	CTime t = CTime::GetCurrentTime();
-				int m_cnum =t.GetTime()%3600;
-				if((m_cnum > 3) &&(m_cnum < 3597) )//开关量整点存数据
-				{
-					if(m_bIsDraw)
-					{
-                 		for(int i = 1; i < MAX_FDS;i++ )
-						{
-                			for(int j = 1; j < 17;j++ )
-							{
-              					m_one[i][j].SFSd =23;
-							}
-						}
-						m_bIsDraw =FALSE;
-					}
-				}
-				if( (m_cnum==3599))
-				{
-	COleDateTime timetemp(t.GetYear(),t.GetMonth(),t.GetDay(),t.GetHour(),t.GetMinute(),t.GetSecond());
-	COleDateTime timetemp1;
-										COleDateTimeSpan olespan(0,0,0,2);
-										timetemp1 =timetemp+olespan;
-						theApp.m_senddata = true;
-                 		for(int i = 1; i < MAX_FDS;i++ )
-						{
-                			for(int j = 1; j < 17;j++ )
-							{
-                    	    	ufData6 = m_SlaveStation[i][j].ptype;
-	        					if(ufData6 > 3)
-								{
-									if(m_one[i][j].SFSd == 23)
-									{
-                    					theApp.socketClient.CalTime(timetemp);
-    	     							theApp.SocketServer.SyncCRTData(i,j,0); 
-                    					theApp.socketClient.CalTime(timetemp1);
-    	     							theApp.SocketServer.SyncCRTData(i,j,0); 
-										m_one[i][j].SFSd = 1;
-									}
-								}
-							}
-						}
-						m_bIsDraw =TRUE;
-						theApp.m_senddata = false;
-				}
-    			if(pFView->IsKindOf(RUNTIME_CLASS(CSampleFormView)))
-				  	pFView->DisList123();
+
 			/*	if(theApp.m_message >0 )
 				{
 	     			theApp.SendMessage(m_NDKmes[theApp.m_FdsScan]);
@@ -912,36 +896,7 @@ void CDrawView::OnTimer(UINT nIDEvent)
 			break ;
     	case CHART: 
 			{
-				theApp.internet30s++;
-				if(31>theApp.internet30s && theApp.internet30s>27) 
-				{
-       	            CNDKMessage message1(SENDSTARTTIME);
-					message1.Add(0x7E);
-		    		theApp.Sync(message1);
-				}
-				else if(theApp.internet30s >31)
-				{
-			    		    Warn_state = m_SlaveStation[1][0].Channel_state;
-				       	    if(Warn_state != 0xa0)
-							{
-                    			COleDateTime COleT;
-//			CTime t=CTime::GetCurrentTime();
-//			CString strCTime;
-//            strCTime = t.Format(_T("%Y-%m-%d %H:%M:%S")); 
-//    	                 socketClient.AddWarn( "以太网通讯错误", strCTime, "", "", "", "", "", "");
-                        		 for(int j = 1; j < MAX_FDS;j++)
-								 {
-                             		 for(int i = 0; i < MAX_CHAN;i++)
-									 {
-             		       	      	     m_SlaveStation[j][i].ValueTime = COleT.GetCurrentTime();
-             		    		    	 m_SlaveStation[j][i].Channel_state = 0xa0;
-									 }
-								 }
-							}
-					theApp.internet30s = 0;
-				}
-
-	    		pFWnd->AddEdit();       //显示时间
+//	    		pFWnd->AddEdit();       //显示时间
 		    	CDrawObjList *ObjectAll =GetDocument()->GetObjects();
 		    	POSITION pos = ObjectAll->GetHeadPosition();
 		    	while(pos != NULL)
@@ -950,7 +905,13 @@ void CDrawView::OnTimer(UINT nIDEvent)
 					if(Obj->IsKindOf(RUNTIME_CLASS(CDrawChart)))    //实时曲线
 					{
 				    	CDrawChart *pChart = (CDrawChart*)Obj;
-                       	pChart->StartAction();
+						if(pChart->m_nPoint1 != theApp.m_message)
+						{
+    	    				pChart->m_nPoint1 = theApp.m_message;
+                         	pChart->Init();
+						}
+						else
+                         	pChart->StartAction();
 					}
 					if(Obj->IsKindOf(RUNTIME_CLASS(CDrawWarn)))			//重画报警表
 					{
@@ -1342,6 +1303,96 @@ void CDrawView::OnLButtonDown(UINT nFlags, CPoint point)
 	CScrollView::OnLButtonDown(nFlags, point);
 }
 
+void CDrawView::OnRButtonDown(UINT nFlags, CPoint point) 
+{
+	int nResult =0;
+	CDrawObjList *ObjectAll =GetDocument()->GetObjects();
+	POSITION pos = ObjectAll->GetHeadPosition();
+	while(pos != NULL)
+	{
+		CDrawObj* Obj = ObjectAll->GetNext(pos);
+		CRect rect = Obj->m_position;
+		DocToClient(rect);
+		rect.NormalizeRect();
+//		n_curpoint = 0;
+		
+		if(rect.PtInRect(point))
+		{
+			if(Obj->IsKindOf(RUNTIME_CLASS(CDrawRotary)) || Obj->IsKindOf(RUNTIME_CLASS(CDrawRect))
+				|| Obj->IsKindOf(RUNTIME_CLASS(CDrawPoly)) ||Obj->IsKindOf(RUNTIME_CLASS(CDrawButton))
+				|| Obj->IsKindOf(RUNTIME_CLASS(CDrawConduit)) ||Obj->IsKindOf(RUNTIME_CLASS(CDrawCar)))			//链接区域事件
+			{
+        		if(Obj->IsKindOf(RUNTIME_CLASS(CDrawPoly)))
+				{
+           			CDrawPoly *pPoly = (CDrawPoly*)Obj;
+                	if(Obj->m_ActionStruct.bIsLineColorChange)
+    		     		n_curpoint = Obj->m_ActionStruct.stcLineChange.nPoint;
+                	if(Obj->m_ActionStruct.bIsFillColorChange)
+			     		n_curpoint = Obj->m_ActionStruct.stcFillChange.nPoint;
+				}
+        		if(Obj->IsKindOf(RUNTIME_CLASS(CDrawRect)))
+				{
+           			CDrawRect *pRect = (CDrawRect*)Obj;
+                	if(Obj->m_ActionStruct.bIsLineColorChange)
+			     		n_curpoint = Obj->m_ActionStruct.stcLineChange.nPoint;
+                	if(Obj->m_ActionStruct.bIsFillColorChange)
+			     		n_curpoint = Obj->m_ActionStruct.stcFillChange.nPoint;
+                	if(Obj->m_ActionStruct.bIsPencentFillH)
+			     		n_curpoint = Obj->m_ActionStruct.stcPHChange.nPoint;
+                	if(Obj->m_ActionStruct.bIsPencentFillV)
+ 			     		n_curpoint = Obj->m_ActionStruct.stcPVChange.nPoint;
+				}
+         		if(Obj->IsKindOf(RUNTIME_CLASS(CDrawButton)))		//重画文本
+				{
+	           		CDrawButton *pText = (CDrawButton*)Obj;
+        			if(pText->m_nShape == CDrawButton::text)
+		            	n_curpoint = pText->m_nPointNo ;
+				}
+		        if(Obj->IsKindOf(RUNTIME_CLASS(CDrawRotary)))
+				{
+	        		CDrawRotary* pRotary = (CDrawRotary*)Obj;
+  	            	n_curpoint = pRotary->m_RotaryStruct.nPoint ;
+				}
+			    if(Obj->IsKindOf(RUNTIME_CLASS(CDrawConduit)))
+				{
+	         		CDrawConduit* pConduit = (CDrawConduit*)Obj;
+  	            	n_curpoint = pConduit->m_ConduitStruct.nPoint ;
+				}
+				if(Obj->IsKindOf(RUNTIME_CLASS(CDrawCar)))
+				{
+					CDrawCar *pCar = (CDrawCar*)Obj;
+  	            	n_curpoint = pCar->m_CarStruct.nPoint ;
+				}
+                GetCursorPos( &point);//获取当前光标的位置，以便使得菜单可以跟随光标
+        		CMenu menu;
+        		if (menu.LoadMenu(IDC_POPDRAW))
+				{
+	        		CMenu* pPopup = menu.GetSubMenu(0);
+	        		ASSERT(pPopup != NULL);
+	        		nResult = pPopup->TrackPopupMenu(TPM_RIGHTBUTTON | TPM_LEFTALIGN,
+								   point.x, point.y,
+								   AfxGetMainWnd()); // route commands through main window
+				}
+			}
+		}
+	}//while
+		if(nResult == 0)
+		{
+                GetCursorPos( &point);//获取当前光标的位置，以便使得菜单可以跟随光标
+        		CMenu menu;
+        		if (menu.LoadMenu(IDC_POPDRAWNOP))
+				{
+	        		CMenu* pPopup = menu.GetSubMenu(0);
+	        		ASSERT(pPopup != NULL);
+	        		int nResult = pPopup->TrackPopupMenu(TPM_RIGHTBUTTON | TPM_LEFTALIGN,
+								   point.x, point.y,
+								   AfxGetMainWnd()); // route commands through main window
+				}
+		}
+
+	CScrollView::OnRButtonDown(nFlags, point);
+}
+
 void CDrawView::OnRButtonDblClk(UINT nFlags, CPoint point) 
 {
 	CDrawObjList *ObjectAll =GetDocument()->GetObjects();
@@ -1381,6 +1432,77 @@ void CDrawView::OnRButtonDblClk(UINT nFlags, CPoint point)
 		}
 	}
 	CScrollView::OnRButtonDblClk(nFlags, point);
+}
+
+void CDrawView::OpenRTChart() //打开实时曲线
+{
+	if(n_curpoint == 0)
+	{
+        AfxMessageBox("请选择测点！");
+		return;
+	}
+		int nfds = m_DisplayDraw[n_curpoint].fds;
+		int nchan = m_DisplayDraw[n_curpoint].chan;
+	int ptype =m_SlaveStation[nfds][nchan].ptype;
+	if(ptype >3)
+	{
+        AfxMessageBox("请选择模拟量！");
+		return;
+	}
+
+	nfds =0;
+	theApp.m_message = n_curpoint;
+	CString strf,strc;
+	strc = gstrTimeOut + "\\" + strMetrics+ "rsy\\实时曲线.rsy";
+		CDrawView *pView;
+		m_ViewPos = theApp.m_map.GetStartPosition() ;     //0415
+		for(int i = 0; i < 50;i++ )
+		{
+    	   	if(m_ViewPos != NULL)
+			{
+         	    theApp.m_map.GetNextAssoc(m_ViewPos,strf,pView);
+				if(strc == strf)
+				{
+			        pView->GetParentFrame()->ActivateFrame();
+					break;
+				}
+			}
+			else
+			{
+				nfds = 66;
+				break;
+			}
+		}
+		if(nfds == 66)
+		{
+    		theApp.pDocTemplate->OpenDocumentFile(strc) ;
+			theApp.m_addfilesy.push_back(strc);
+		}
+}
+
+void CDrawView::OpenDayRT() 
+{
+	if(n_curpoint == 0 )
+	{
+        AfxMessageBox("请选择测点！");
+		return;
+	}
+		int nfds = m_DisplayDraw[n_curpoint].fds;
+		int nchan = m_DisplayDraw[n_curpoint].chan;
+	CString strItem ;
+	int ptype =m_SlaveStation[nfds][nchan].ptype;
+	if(ptype < 3)
+		 strItem.Format("%02dA%02d",nfds,nchan);
+	else if(ptype == 12)
+		 strItem.Format("%02dC%02d",nfds,nchan-16);
+	else
+		 strItem.Format("%02dD%02d",nfds,nchan);
+
+	CDCH5m dlg;
+	dlg.n_select =4;
+	dlg.strPOINT = strItem;
+	dlg.DoModal();
+//    n_curfds = n_curchan =0;
 }
 
 /*
@@ -1467,3 +1589,29 @@ void CDrawView::OnDRAWCA()
 						}
 }
 
+void CDrawView::OnZoomFull() 
+{
+//	ZoomToWindow();
+}
+
+void CDrawView::OnToolHand() 
+{
+//    CDrawTool::c_drawShape = zoom;
+//	SetZoomMode(ZoomViewDrag);
+}
+
+void CDrawView::OnFORMPAGESO() 
+{
+      	CString strrsy ,strrsy1;
+     	strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\";
+     	strrsy1 ="dispoint"+strMetrics;
+	CString pString,strpo;
+	pString =GetDocument()->GetTitle();
+       		int m_ishave = pString.GetLength();
+    		strpo = pString.Mid(m_ishave-3,3);
+	if(strpo != "rsy")
+	    pString += ".rsy";
+            strpo.Format("UPDATE '%s' SET LP0='%s' WHERE DISID=100;",
+			    	     strrsy1,pString );
+			theApp.db3.execDML(strpo);
+}

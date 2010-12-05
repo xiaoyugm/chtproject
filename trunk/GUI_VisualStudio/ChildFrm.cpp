@@ -116,13 +116,13 @@ int CChildFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CMDIChildWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	
-	CMenu* pMenu = GetSystemMenu(FALSE);
+//	CMenu* pMenu = GetSystemMenu(FALSE);
 
-	pMenu->RemoveMenu(SC_RESTORE, MF_BYCOMMAND);
-	pMenu->RemoveMenu(SC_MINIMIZE, MF_BYCOMMAND);
-	pMenu->RemoveMenu(SC_MAXIMIZE, MF_BYCOMMAND);
-	pMenu->RemoveMenu(SC_MOVE, MF_BYCOMMAND);
-	pMenu->RemoveMenu(SC_SIZE, MF_BYCOMMAND);
+//	pMenu->RemoveMenu(SC_RESTORE, MF_BYCOMMAND);
+//	pMenu->RemoveMenu(SC_MINIMIZE, MF_BYCOMMAND);
+//	pMenu->RemoveMenu(SC_MAXIMIZE, MF_BYCOMMAND);
+//	pMenu->RemoveMenu(SC_MOVE, MF_BYCOMMAND);
+//	pMenu->RemoveMenu(SC_SIZE, MF_BYCOMMAND);
 	
 	return 0;
 }

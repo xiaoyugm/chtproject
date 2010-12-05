@@ -73,6 +73,10 @@
 
 #define ENABLE_MANIFESTEDITOR
 
+#include <shlwapi.h>
+#pragma comment(lib, "shlwapi.lib")
+#pragma message("Automatically linking with shlwapi.lib")
+
 #include <XTToolkitPro.h>   // Codejock Software Components
 //#include <AboutDlg.h>       // Sample About Dialog
 
@@ -112,6 +116,8 @@ using namespace Gdiplus;
 
 #include <atlbase.h>
 #include <string>
+#include <map>
+#include <list>
 #include <vector>
 #include <algorithm>
 using namespace std;
@@ -128,7 +134,10 @@ using namespace std;
 
 #pragma comment(lib,"version.lib ")
 
-
+#pragma warning(disable:4146)
+#include "msado15.tlh"
+//#pragma warning(default:4146)
+//using namespace ADOCust;
 
 #pragma warning (disable : 4201)
 	#include "mmsystem.h"

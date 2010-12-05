@@ -32,7 +32,7 @@ public:
     CAxLogin        m_SLogin;
     CAxLogin        *m_SLoginNew;
 
-	CSQLDirect m_SQLDirect;
+//	CSQLDirect m_SQLDirect;
  	CString2DataType    m_Str2Data;
    
 // Dialog Data

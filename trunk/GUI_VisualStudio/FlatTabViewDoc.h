@@ -18,6 +18,7 @@ protected: // create from serialization only
 
 // Attributes
 public:
+	CString2DataType m_Str2Data;
 
 // Operations
 public:
@@ -30,6 +31,7 @@ public:
 	virtual void Serialize(CArchive& ar);
 	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
+	virtual void OnCloseDocument();
 	//}}AFX_VIRTUAL
 
 // Implementation

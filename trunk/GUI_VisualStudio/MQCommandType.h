@@ -15,5 +15,14 @@ enum CommandType
 	AUTOCONTROL,                 //自动控制操作
 	SAVEDBREALTIMEDATA,           //存实时数据
 	SAVEADJUSTDATA,               //存调校数据
-	SAVE5MRTDATA                  //存5M实时数据
+	SAVE5MRTDATA,                  //存5M实时数据
+	MASTERSLAVER,                  //主机备机
+	DISDRAWMENU,                 //更新主机draw菜单
+	SERVER_FILES,
+	REQUEST_FILE,
+	START_TRANSFERT,
+	REQUEST_NEXT_FILE_PART,
+	NEXT_FILE_PART,
+	TRANSFERT_COMPLETED,
+	SERVER_READY,
 };

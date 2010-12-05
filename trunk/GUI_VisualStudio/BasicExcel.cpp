@@ -1,19 +1,7 @@
-#include "stdafx.h"
 #include "ExcelFormat.h"
 
 #if _MSC_VER>=1400	// VS 2005
 #include <share.h>	// _SH_DENYRW
-#endif
-
-#if _MSC_VER<=1200    // VC++ 6.0
-#pragma warning(disable: 4786)
-#define LONGINT __int64
-#define LONGINT_CONST(x) x
-#define COMPOUNDFILE
-#else    // newer Microsoft compilers
-#define LONGINT long long
-#define COMPOUNDFILE CompoundFile::
-#define LONGINT_CONST(x) x##LL
 #endif
 
 namespace YCompoundFiles
@@ -4834,6 +4822,7 @@ bool BasicExcel::Save()
 {
 	if (file_.IsOpen())
 	{
+ //   	if (file_.MakeFile("Workbook")!=CompoundFile::SUCCESS) return false;
 		// Prepare Raw Worksheets for saving.
 		UpdateWorksheets();
 

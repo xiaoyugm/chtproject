@@ -34,20 +34,32 @@ public:
 	//}}AFX_DATA
 	CListCtrl_DataModel m_DataModel;
 	CImageList m_ImageList;
+	POSITION	m_ViewPos;
 
 	CString    strItem;
 	int        m_Itemnum;
 	int        nlistaj;
 	int        ilistaj;
+	int        n_cF;
 	int                 m_iTheme;
 	BOOL                m_bHotTracking,b_curdis;
 	BOOL                m_bWinTheme;
 	BOOL                m_bSortArrow;
 	int             m_nSortedCol;
 	bool            m_bAscending;
+	int             m_nSortedCol2;
+	bool            m_bAscending2;
+	int             m_nSortedCol3;
+	bool            m_bAscending3;
 	HICON           m_hIcon;
+//	int nlist;
 
 	CMQClient socketClient;
+	ListV m_strl1[100];
+	vector<CString> m_vl1;
+	vector<CString> m_vl2;
+	vector<CString> m_vl3;
+    SListstatus  m_ls[3][MAX_FDS][MAX_CHAN];
 
 // Attributes
 public:
@@ -56,30 +68,40 @@ public:
 	COLORREF m_clrRowText;
 	COLORREF m_clrRowBack;
 //	CXTFlatHeaderCtrl m_flatHeader;
-	CXTHeaderCtrl  *m_flatHeader;
+	CXTHeaderCtrl  m_flatHeader;
+	CXTHeaderCtrl  m_flatHeader2;
+	CXTHeaderCtrl  m_flatHeader3;
+//	CXTHeaderCtrl   m_header;
 
 	CString2DataType m_Str2Data;
 	CImageList m_SampleFormImageList;
 // Operations
 public:
 	void DisList123();
-	void DisList(int m_listnum ,int m_liststr);
+	void DisList(int nlist ,int ilist);
+	void DisLEXT(int nlist ,int nfds,int nchan,int i);
 	void BuildList(int nlist ,int ilist);
+	void BuildLEXT(int nlist ,int nfds,int nchan,int i);
 	void OpenAddDel();
 	void Openadjust();
 	void Deladjust();
     void AdjustAll() ;
     void DelAllAdjust() ;
+	void OpenDayRT();
+	void OpenRTChart();
 
 	void SetInfo();
 	void SetMonitorListHead(void);
+	void SetLHeadEXT(int mlist);
 
 	void EnableControls(BOOL bRedraw=TRUE);
-	void SortColumn(int iCol, bool bAsc);
+	void SortColumn(int iCol, bool bAsc ,int mlist);
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CSampleFormView)
 	public:
+//	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
+//	virtual bool SortList(int nCol, bool bAscending);
 	virtual void OnInitialUpdate();
 //	virtual CScrollBar* GetScrollBarCtrl(int nBar) const;
 	protected:
@@ -96,6 +118,13 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CSampleFormView)
+	afx_msg void OnFORMSLISTEXT();
+	afx_msg void OnFORMPAGESO();
+	afx_msg void OnFORMSCOLOR();
+	afx_msg void OnDRAWS();
+	afx_msg   void   OnColumnclickListstock(NMHDR*   pNMHDR,   LRESULT*   pResult); 
+	afx_msg   void   OnColumnclickListstock2(NMHDR*   pNMHDR,   LRESULT*   pResult); 
+	afx_msg   void   OnColumnclickListstock3(NMHDR*   pNMHDR,   LRESULT*   pResult); 
 //	afx_msg void OpenAddDel(int ilist);
 	afx_msg void OnSelendokComboThemes();
 //	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

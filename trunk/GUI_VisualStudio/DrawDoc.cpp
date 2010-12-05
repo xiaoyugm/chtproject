@@ -275,6 +275,18 @@ void CDrawDoc::Dump(CDumpContext& dc) const
 
 void CDrawDoc::OnCloseDocument() 
 {
-	theApp.m_map.RemoveKey(m_strDocName);
+	CString strpo,strrsy;
+	strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\";
+	theApp.m_map.RemoveKey(strrsy+m_strDocName);
+    		for(vector<CString>::iterator iter=theApp.m_addfilesy.begin(); iter!=theApp.m_addfilesy.end(); )
+			{
+	    		strpo = *iter;
+				if(strpo == (strrsy+m_strDocName))
+				{
+	        		iter = theApp.m_addfilesy.erase(iter);
+				}
+		    	else
+			    	iter++;
+			}
 	COleServerDoc::OnCloseDocument();
 }

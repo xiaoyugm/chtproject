@@ -22,7 +22,6 @@ static char THIS_FILE[] = __FILE__;
 
 extern ADMainDis         m_ADMainDis[MAX_FDS][MAX_CHAN];          //调用显示
 extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
-extern  OthersSetting    m_OthersSetting;
 /////////////////////////////////////////////////////////////////////////////
 // CSafeMethod dialog
 /*
@@ -65,14 +64,16 @@ void CSafeMethod::DoDataExchange(CDataExchange* pDX)
 		  DDX_Text(pDX, IDC_EDIT_SM, strsm);
 //	DDV_MaxChars(pDX, strsm, 20);
 		  DDX_Control(pDX, IDC_CB_SAFE_M, m_ComBoxSM);
+		  DDX_Control(pDX, IDC_CB_SAFE_M2, m_ComBoxSM2);
+	DDX_Control(pDX, IDC_LDCHD, m_LDCH);
 	//}}AFX_DATA_MAP
 }
 
 
 BEGIN_MESSAGE_MAP(CSafeMethod, CDialog)
 	//{{AFX_MSG_MAP(CSafeMethod)
-//    ON_BN_CLICKED(IDCANCELdemo, OnBndemo)
-    ON_BN_CLICKED(IDOK, OnBnOkSM)
+    ON_BN_CLICKED(IDC_CB_SAFE_M, OnBfds)
+//    ON_BN_CLICKED(IDOK, OnBnOkSM)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -82,9 +83,36 @@ END_MESSAGE_MAP()
 BOOL CSafeMethod::OnInitDialog()
 {
   CDialog::OnInitDialog();
+
+	HWND hWndHeader = m_LDCH.GetDlgItem(0)->GetSafeHwnd();
+	m_header.SubclassWindow(hWndHeader);
+
+	// add bitmap images.
+//	m_header.SetBitmap(0, IDB_COLUMN_0, FALSE, RGB(0,255,0));
+//	m_header.SetBitmap(1, IDB_COLUMN_1, FALSE, RGB(0,255,0));
+	//m_header.SetBitmap(2, IDB_COLUMN_2, FALSE, RGB(0,255,0));
+
+	// enable auto sizing.
+//	m_header.EnableAutoSize(TRUE);
+	m_header.ResizeColumnsToFit();
+	//SortColumn(m_nSortedCol, m_bAscending);
+
+//	m_listCtrl.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_EX_FULLROWSELECT);
+	m_LDCH.ModifyExtendedStyle(0, LVS_EX_GRIDLINES);
+//	m_listC2.ModifyExtendedStyle(0, LVS_EX_GRIDLINES);
+
+
+	for(int i = 01; i < MAX_FDS; i++)
+	{
+		CString strItem;
+		strItem.Format(_T("%d"), i);
+    	m_ComBoxSM.AddString(strItem);
+	}
+	m_ComBoxSM.SetCurSel(0);
+
   CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
                           User ID=sa;Password=sunset;\
-                          Data Source=") +m_OthersSetting.DBname+ _T(";Initial Catalog=BJygjl");
+                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
 
 //All calls to the AxLib should be wrapped in a try / catch block
   try
@@ -101,27 +129,7 @@ BOOL CSafeMethod::OnInitDialog()
 		m_PointDes.Open(_T("Select * From pointdescription WHERE fdel=0"), &m_Cn);
 		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
 
-		int eyear;	unsigned char emonth;
-		CTime t=CTime::GetCurrentTime();
-		theApp.socketClient.CalRtDB(t , eyear , emonth);
-		CString sztime;
-		sztime.Format("%d",eyear);
-		szConnect = "Select * From rt";
-		szConnect += sztime;
-		if(emonth>9)
-     		sztime.Format("%d",emonth);
-		else
-     		sztime.Format("0%d",emonth);
-		szConnect += sztime;
-		szConnect += "data";
 
-		m_Realtimedata.Create();
-		m_Realtimedata.CursorType(adOpenDynamic);
-		m_Realtimedata.CacheSize(50);
-//		m_Realtimedata._SetRecordsetEvents(new CAccountSetEvents);
-		m_Realtimedata.Open( szConnect , &m_Cn);
-		m_Realtimedata.MarshalOptions(adMarshalModifiedOnly);
-	    m_RealtimedataNew = &m_Realtimedata;
   }
   catch ( dbAx::CAxException *e )
   {
@@ -259,80 +267,23 @@ void CSafeMethod::OnCancel()
 	OnClose();
 	CDialog::OnCancel();
 }
-/*
-void CSafeMethod::OnBndemo() 
+
+void CSafeMethod::OnBfds() 
 {
-	BasicExcel xls;
-
-	xls.Load("example4.xls");
-//	xls.New(1);
-	BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
-
-	XLSFormatManager fmt_mgr(xls);
-
-	char buffer[100];
-	int i = 0;
-	for(size_t row=0; row<8; ++row) {
-		int color = 2;
-//		int color = i++;
-		int height = 100 * i;
-
-		sprintf(buffer, "中文 New Roman %d", height/20);
-
-        WCHAR * buf=new WCHAR[1000];
-        m_Str2Data.GB2312ToUnicode("客户号     New Roman",buf);
-
-		ExcelFont font;
-		font.set_color_index(color);
-		font.set_height(height);
-		font.set_font_name(L"Times New Roman");
-
-		CellFormat fmt(fmt_mgr, font);
-//		fmt.set_background(MAKE_COLOR2(EGA_MAGENTA,0));	// solid magenta background
-
-		BasicExcelCell* cell = sheet->Cell(row, 0);
-		cell->Set(buf);
-//		cell->Set(buffer);
-		cell->SetFormat(fmt);
+	CString strItem, strf,strc;
+    CString strstartTime,strname,dddd;
+			UpdateData(TRUE);           //Exchange dialog data
+	int  kkkk = m_ComBoxSM.GetCurSel();
+	if(kkkk == -1 || strsm == "")
+	{
+        AfxMessageBox("请选择测点和输入安全措施！");
+		return;
 	}
-//	CompoundFile cmjj;
-//	vector<char> data;
-//	cmjj.ReadFile("example4.xls",&data);
+	m_ComBoxSM.GetLBText(kkkk,strname);
+	strname = strname.Mid(0,5);
 
-
-	/*
-BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
-
- XLSFormatManager fmt_mgr(xls);
- ExcelFont font_bold;
- font_bold._weight = 20000; // bold
- 
- CellFormat fmt_bold(fmt_mgr);
-// fmt_bold.set_borderlines(MAKE_BORDERSTYLE(EXCEL_LS_MEDIUM, 0, EXCEL_LS_MEDIUM, 0, 0, 0));
- fmt_bold.set_borderlines(120000);
- fmt_bold.set_font(font_bold);
- BasicExcelCell* cell = sheet->Cell(0, 0);
- WCHAR * buf=new WCHAR[1000];
- GB2312ToUnicode("客户号",buf);
- cell->Set(buf);
- cell->SetFormat(fmt_bold);
- 
-    cell = sheet->Cell(0, 1);
-    GB2312ToUnicode("导入结果",buf);
-    cell->Set(buf);
-    cell->SetFormat(fmt_bold);
-//  xls.SaveAs(path);
-  delete [] buf;
-*//*
-//	xls.Save();
-	xls.SaveAs("example5.xls");
-//	copy_sheet("example5.xls","example6.xls");
-	
-
-	CDialog::OnCancel();
-	ShellExecute(0, NULL, "example4.xls", NULL, NULL, SW_NORMAL);
 }
-*/
+
 /*
 static void example1(const char* path)
 {
