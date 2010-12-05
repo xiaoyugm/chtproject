@@ -18,7 +18,7 @@ public:
 	CMQServer();
 	virtual ~CMQServer();
 public:
-	BOOL Listenning(long lPort = 8008);
+	BOOL Listenning(long lPort = 6000);
 	BOOL SendMessage(CNDKMessage& message);
 
 	BOOL SendSQL(CString strSql);
@@ -28,6 +28,7 @@ public:
 	void StopServer();
     unsigned char *m_ndkSend;
 	void ManageClientD();
+	void SyncTableCollectData();
 
 protected:
 	CString m_strIP;
@@ -47,7 +48,6 @@ protected:
 
 	CSQLDirect m_SQLDirect;
 	void ConnectDB();
-	void SyncTableCollectData();
 	void SyncTableuWarnCauseRecord();
 
 	void ManageClientG(CNDKMessage& message);

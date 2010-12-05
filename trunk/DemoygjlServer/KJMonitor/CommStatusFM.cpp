@@ -262,7 +262,7 @@ BOOL CCommStatusFM::StartScan()
     
 //	m_bFirstRefreshProgress=TRUE; //用于在初次显示百分比时设置显示
 	KillTimer(100);
-	SetTimer(100,1000,NULL);
+	SetTimer(100,5,NULL);   //ManageClientD 300  SyncTableCollectData
 
 	m_bCycleScan=FALSE;
 ///	Scan();
@@ -420,7 +420,9 @@ void CCommStatusFM::OnTimer(UINT nIDEvent)
 	// TODO: Add your message handler code here and/or call default
 	CKJMonitorApp* pApp=(CKJMonitorApp* )AfxGetApp();
 
-	SocketServer.ManageClientD();
+//	SocketServer.ManageClientD();
+	SocketServer.SyncTableCollectData();
+
 
 	unsigned char ucSuccessProcent=0;
 	unsigned char m_ucRXData ;

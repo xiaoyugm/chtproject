@@ -733,6 +733,10 @@ SOURCE=.\RES\NNNN.ICO
 # End Source File
 # Begin Source File
 
+SOURCE=.\RES\OK.BMP
+# End Source File
+# Begin Source File
+
 SOURCE=.\RES\OK.ICO
 # End Source File
 # Begin Source File
