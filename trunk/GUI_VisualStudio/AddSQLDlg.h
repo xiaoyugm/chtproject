@@ -2,12 +2,6 @@
 
 
 //Derived AxLib classes
-#include "dbAx\AxMAlocationSet.hpp"
-#include "dbAx\AxAccountSet.hpp"
-#include "dbAx\AxContactCmd.hpp"
-#include "dbAx\AxContactSet.hpp"
-#include "dbAx\CardFileEvents.hpp"
-#include "dbAx\AccountSetEvents.hpp"
 // CAccountDlg dialog
 
 class CAccountDlg : public CDialog

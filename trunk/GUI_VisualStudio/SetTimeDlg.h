@@ -8,16 +8,6 @@
 //
 //#define __STDC_WANT_SECURE_LIB__     
 
-#include "dbAx\AxSControl.hpp"
-#include "dbAx\AxControl.hpp"
-//#include "dbAx\AxDisPoint.hpp"
-#include "dbAx\AxPointDescription.hpp"
-//#include "dbAx\AxMAlocationSet.hpp"
-//#include "dbAx\AxAccountSet.hpp"
-#include "dbAx\AxContactCmd.hpp"
-//#include "dbAx\AxContactSet.hpp"
-#include "dbAx\CardFileEvents.hpp"
-#include "dbAx\AccountSetEvents.hpp"
 #include "CListCtrl_DataModel.h"
 /////////////////////////////////////////////////////////////////////////////
 // CSetTimeDlg dialog
@@ -49,19 +39,17 @@ public:
 	void ComDisMes(CString strmes);
 	void OnButRESre();
 	void InitWGas(int gasfds);
+	void Init5A();
+	void Save46();
 
-  CAxConnection   m_Cn;
-  CAxContactCmd   m_ContactCmd;
   CAxSControl     m_SControl;
   CAxSControl     *m_SControlNew;
-  CAxPointDescription  m_PointDes;
   CAxFans         m_Fans;
     CAxCommonSet        m_CommonSet;
 
 
 	vector<CString> m_Records1;
 	vector<CString> m_Records2;
-	ListV  m_wgas[6];
 
 // Overrides
 	// ClassWizard generated virtual function overrides

@@ -1,5 +1,6 @@
 // GUI_VisualStudio.h : main header file for the GUI_VISUALSTUDIO application
 //
+
 // This file is a part of the XTREME TOOLKIT PRO MFC class library.
 // (c)1998-2009 Codejock Software, All Rights Reserved.
 //
@@ -18,6 +19,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+
 #if !defined(AFX_GUI_VISUALSTUDIO_H__43A4C0AC_0369_4063_BC19_7EBCB371EFD9__INCLUDED_)
 #define AFX_GUI_VISUALSTUDIO_H__43A4C0AC_0369_4063_BC19_7EBCB371EFD9__INCLUDED_
 
@@ -31,26 +33,31 @@
 
 #include "resource.h"       // main symbols
 
-#include "MFClient.h"
-#include "MSServer.h"
+#include "RTDataManage.h"
+#include "dbAx\\AxLogin.hpp"
+#include "dbAx\\AxFeedE.hpp"
+#include "dbAx\\AxControl.hpp"
+#include "dbAx\\AxSControl.hpp"
+#include "dbAx\\AxPointDescription.hpp"
+#include "dbAx\\AxAccountSet.hpp"
+#include "dbAx\\AxContactSet.hpp"
+#include "dbAx\\AxDisPoint.hpp"
+#include "dbAx\\CardFileEvents.hpp"
+#include "dbAx\\AxColorset.hpp"
+#include "dbAx\\AxMAlocationSet.hpp"
+#include "dbAx\\AxContactCmd.hpp"
+#include "dbAx\\AccountSetEvents.hpp"
+
+#include "MSServer.h"//´ÎÐòÒª¶Ô    sMSb   sCb   SocketServer socketClient sFC
 #include "MSClient.h"
 #include "MQServer.h"
 #include "MQClient.h"
+#include "MFClient.h"
 #include "drawview.h"
 #include "SampleFormView.h"
 //#include <SqlDirect.h>
 #include <String2DataType.h>
-#include "dbAx\AxFeedE.hpp"
-#include "dbAx\AxControl.hpp"
-#include "dbAx\AxSControl.hpp"
-#include "dbAx\AxPointDescription.hpp"
-#include "dbAx\AxAccountSet.hpp"
-#include "dbAx\AxContactSet.hpp"
-#include "dbAx\AxDisPoint.hpp"
-#include "dbAx\CardFileEvents.hpp"
-#include "dbAx\AxColorset.hpp"
-#include "dbAx\AxLogin.hpp"
-#include "dbAx\AxMAlocationSet.hpp"
+#include "XProgressWnd.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CGUI_VisualStudioApp:
@@ -62,12 +69,13 @@ class CGUI_VisualStudioApp : public CWinApp
 public:
 	CGUI_VisualStudioApp();
 
-    CMFClient sFC;
+	CRTDataManage m_RTDM;
     CMSServer  sMSb;
     CMSClient sCb;
 	BOOL   ProcessShellCommand(CCommandLineInfo& rCmdInfo);
     CMQServer  SocketServer;
     CMQClient socketClient;
+    CMFClient sFC;
 	BOOL   StartServerB();
 	BOOL   StartServer();
 	BOOL   StartClient();
@@ -84,14 +92,13 @@ public:
 
 	BOOL   InitSQLite3();
 	BOOL   InitUIInfo();
+	BOOL   InitRTData();
 	BOOL   InitData();
-	int    Initfbl(CString strfbl);
 	CString SplitPath(CString strpath);
 	
 	void   OnCloseDB();
 	BOOL   ConnectDB();
 	BOOL   InitPointInfo();
-	BOOL   InitDisplay();
 
     CCardFileEvents *pCnEvents;
     CAxConnection   m_Cn;
@@ -105,11 +112,19 @@ public:
     CAxCommonSet        m_CommonSet;
     CAxMAlocationSet   m_MAlocation;
     CAxFans         m_Fans;
+	CRealtimedata   m_Realtimedata;
+	CAxDrawfile     m_Drawfile;
 
 	ADOCust::_ConnectionPtr m_pConnection;
+	ADOCust::_RecordsetPtr pRS;
     CppSQLite3DB db3;
+    CppSQLite3DB db3m;
 
-	vector<DCHm5> m_RTData;
+	vector<int>     m_LID;
+	vector<CString> m_Lstr;
+	vector<CString> m_DebugInfo;
+	vector<int> m_UpModA;
+	vector<int> m_UpModD;
 	vector<DCHm5> m_RDCHm5;
 	CSearchDir m_sdir;
 	vector<CString> m_addfilesy;
@@ -120,15 +135,16 @@ public:
 	int DocNum ,idis,internet30s,m_resnum,bidis,fidis,dabidis,dfidis,dchidis,master30,slave30;
 	CString curuser,strargc;
 	BOOL m_bsuper,b_SaveRT;
-	int  m_message;
+	int  m_message,n_temp;
 	UINT    	m_FdsScan;
 
 	bool m_senddata , b_5m,m_bLogIn;
+	BOOL b_startc;
 
 ///	CPointInfo      *pPointInfo;
 	CMultiDocTemplate* pDocTemplate;
 	CMultiDocTemplate* pNewDocTemplate;
-	CMultiDocTemplate* pOutlookViewDocTemplate;
+	CMultiDocTemplate* pRDocTemplate;
 	CMenu* pMainMenu;
 
 	CTypedPtrMap<CMapStringToOb,CString,CDrawView *> m_map;

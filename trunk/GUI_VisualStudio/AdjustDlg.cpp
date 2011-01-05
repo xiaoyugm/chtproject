@@ -13,7 +13,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern ADCbreakE             m_CFeed[MAX_FDS][9][65];
+extern ADCbreakE             m_CFeed[MAX_FDS][MAX_CHAN][65];
 extern ADCbreakE             m_ADCbreakE[MAX_FDS][MAX_CHAN][65];
 extern  SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 /////////////////////////////////////////////////////////////////////////////
@@ -122,19 +122,6 @@ BOOL CAdjustDlg::OnInitDialog()
 		strItem.Format(_T("%d"), i);
 	m_FUNCTION.SetCurSel(0);
 */
-    CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
-                          User ID=sa;Password=sunset;\
-                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
-
-//All calls to the AxLib should be wrapped in a try / catch block
-  try
-  {
-    dbAx::Init();
-    m_Cn.Create();
-//    m_Cn._SetConnectionEvents(new CCardFileEvents);
-    m_Cn.CursorLocation(adUseClient);
-    m_Cn.Open((LPCTSTR)szConnect);
-
 	CString strstartTime,strname;
 	CString dddd = "Select * From rtadjustdata WHERE recdate>'";
 
@@ -154,7 +141,7 @@ BOOL CAdjustDlg::OnInitDialog()
 		m_Adjustdata.CursorType(adOpenDynamic);
 		m_Adjustdata.CacheSize(50);
 		m_Adjustdata._SetRecordsetEvents(new CAccountSetEvents);
-		m_Adjustdata.Open(dddd , &m_Cn);
+		m_Adjustdata.Open(dddd , &theApp.m_Cn);
 		m_Adjustdata.MarshalOptions(adMarshalModifiedOnly);
 
 		int iItem = 0;
@@ -195,13 +182,6 @@ BOOL CAdjustDlg::OnInitDialog()
 			}
 			m_Adjustdata.MoveNext();
 		}
-  }
-  catch ( dbAx::CAxException *e )
-  {
-    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-    return (FALSE);
-  }
 //  MoveWindow(CRect(50,100,960,700));
   return TRUE;  // return TRUE unless you set the focus to a control
   // EXCEPTION: OCX Property Pages should return FALSE
@@ -238,7 +218,7 @@ void CAdjustDlg::OnDtimeA(NMHDR* pNMHDR, LRESULT* pResult)
 		m_Adjustdata.CursorType(adOpenDynamic);
 		m_Adjustdata.CacheSize(50);
 		m_Adjustdata._SetRecordsetEvents(new CAccountSetEvents);
-		m_Adjustdata.Open(dddd , &m_Cn);
+		m_Adjustdata.Open(dddd , &theApp.m_Cn);
 		m_Adjustdata.MarshalOptions(adMarshalModifiedOnly);
 
 		int iItem = 0;
@@ -309,7 +289,7 @@ void CAdjustDlg::OnCB_A()
 				{
 			    strfc.Format("%.2f",m_Adjustdata.m_szAValue);
         		m_L_A.InsertItem(iItem, strfc);
-        		m_L_A.SetItemText(iItem, 1, socketClient.strstatus(m_Adjustdata.m_szADStatus));
+        		m_L_A.SetItemText(iItem, 1, theApp.m_RTDM.strstatus(m_Adjustdata.m_szADStatus));
 				  COleDateTime oleDateTime=m_Adjustdata.m_szrecdate;
 				  strfc  =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
 	    		m_L_A.SetItemText(iItem, 2, strfc);
@@ -457,19 +437,8 @@ void CAdjustDlg::OnClose()
   //Closing of library objects is ensured as each object
   //goes out of scope, but doing a manual shutdown doesn’t hurt.
 
-  try
-  {
     if ( m_Adjustdata._IsOpen() )
       m_Adjustdata.Close();
-    m_Cn.Close();
-    //Cleanup the AxLib library
-    dbAx::Term();
-  }
-  catch ( CAxException *e )
-  {
-    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-  }
 //  CDialog::OnClose();
 }
 /*
@@ -489,10 +458,6 @@ void CAdjustDlg::OnButRES()
 	}
 }
 
-void CAdjustDlg::OnButRESre()
-{
-//    GetDlgItem(IDC_BUT_RES)->ShowWindow(SW_HIDE);
-}
 void CAdjustDlg::OnButCancel() 
 {
 	if(m_nchangev == 0)

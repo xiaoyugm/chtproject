@@ -7,12 +7,6 @@
 // SafeMethod.h : header file
 //
 
-#include "dbAx\AxSControl.hpp"
-#include "dbAx\AxAccountSet.hpp"
-#include "dbAx\AxContactCmd.hpp"
-#include "dbAx\AxContactSet.hpp"
-#include "dbAx\CardFileEvents.hpp"
-#include "dbAx\AccountSetEvents.hpp"
 /////////////////////////////////////////////////////////////////////////////
 // CSafeMethod dialog
 
@@ -32,14 +26,6 @@ public:
 	CXTHeaderCtrl   m_header;
     CString    strsm;
 	//}}AFX_DATA
-    CAxConnection   m_Cn;
-    CAxContactCmd   m_ContactCmd;
-    CAxPointDescription  m_PointDes;
-	CRealtimedata   m_Realtimedata;
-	CRealtimedata   *m_RealtimedataNew;
-
-	CString2DataType    m_Str2Data;
-
 	void OnClose();
 
 // Overrides

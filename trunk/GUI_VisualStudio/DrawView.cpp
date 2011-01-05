@@ -1,6 +1,7 @@
 // DrawView.cpp : implementation of the CDrawView class
 //
 
+
 #include "stdafx.h"
 #include "GUI_VisualStudio.h"
 
@@ -10,6 +11,7 @@
 #include "MainFrm.h"
 //#include "QZoomView.h"
 //#include "ZoomView.h"
+
 
 #include "drawobj.h"
 ///#include "cntritem.h"
@@ -29,6 +31,7 @@
 #include "SampleFormView.h"
 #include "AddSQLDlg.h"
 #include "DCH5m.h"
+#include "LangPreviewView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -44,7 +47,6 @@ enum
 	ACTION
 };
 
-extern CNDKMessage m_NDKmes[50];
 extern SerialF                  m_Colorref[200];
 extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 extern DisplayDraw    m_DisplayDraw[MAX_POINT_NUMBER];
@@ -82,7 +84,7 @@ BEGIN_MESSAGE_MAP(CDrawView, CScrollView)
 	// Standard printing commands
 	ON_COMMAND(ID_FILE_PRINT, CScrollView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, CScrollView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_PREVIEW, CScrollView::OnFilePrintPreview)
+	ON_COMMAND(ID_FILE_PRINT_PREVIEW, OnFilePrintPreview)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -866,32 +868,15 @@ void CDrawView::OnTimeView()
 void CDrawView::OnTimer(UINT nIDEvent) 
 {
     CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
-    CTime terror = CTime::GetCurrentTime();
-	int  n_t =terror.GetYear();
-	if(n_t>2010)
-		return;
 	
 	double dfValue ; 
 	unsigned short ufData,nPoint,OldwarnPoint ,pufdata;
-	unsigned char Warn_state,OldWarn_state ,LineWarn_state ,FillWarn_state,ufData6;
+	unsigned char Warn_state,OldWarn_state ,LineWarn_state ,FillWarn_state;
 	switch(nIDEvent)
 	{
     	case DRAWTASK:                                     
 			{
 
-			/*	if(theApp.m_message >0 )
-				{
-	     			theApp.SendMessage(m_NDKmes[theApp.m_FdsScan]);
-		     		m_NDKmes[theApp.m_FdsScan]= NULL;
-		    		theApp.m_FdsScan++;
-					if(theApp.m_FdsScan == 50)
-						theApp.m_FdsScan =0;
-				}*/
-
-//					theApp.m_sendcom =false;
-//					theApp.m_sendmessage =NULL;
-//					theApp.m_sendmessage = message1;
-//		    		theApp.Sync(message1);
 			}
 			break ;
     	case CHART: 
@@ -1201,7 +1186,7 @@ void CDrawView::OnTimer(UINT nIDEvent)
 //									pText ->m_fontColor.SetFromCOLORREF(pText->m_FalseColor);
 //				    		    	if( pText ->m_blsDispTrue)      RGB(0,0,0);
 
-								str = socketClient.strstatus(Warn_state);
+								str = theApp.m_RTDM.strstatus(Warn_state);
                                 pText ->m_strButton = str ;
 							}
 						}
@@ -1614,4 +1599,33 @@ void CDrawView::OnFORMPAGESO()
             strpo.Format("UPDATE '%s' SET LP0='%s' WHERE DISID=100;",
 			    	     strrsy1,pString );
 			theApp.db3.execDML(strpo);
+}
+
+void CDrawView::OnFilePrintPreview()
+{
+  // In derived classes, implement special window handling here.
+  // Be sure to Unhook Frame Window close if hooked.
+  // Must not create this on the frame. Must outlive this function.
+
+  CPrintPreviewState* pState = new CPrintPreviewState;
+
+  // DoPrintPreview's return value does not necessarily indicate that
+  // Print Preview succeeded or failed, but rather what actions are
+  // necessary at this point. If DoPrintPreview returns TRUE, it means
+  // that OnEndPrintPreview will be (or has already been) called and
+  // the pState structure will be/has been deleted.
+  // If DoPrintPreview returns FALSE, it means that OnEndPrintPreview
+  // WILL NOT be called and that cleanup, including deleting pState,
+  // must be done here.
+
+  if (!DoPrintPreview(AFX_IDD_PREVIEW_TOOLBAR, this,
+     RUNTIME_CLASS(CLangPreviewView), pState))
+  {
+     // In derived classes, reverse special window handling here for
+     // Preview failure case.
+
+     TRACE0("Error: DoPrintPreview failed.\n");
+     AfxMessageBox(AFX_IDP_COMMAND_FAILURE);
+     delete pState; // Preview failed to initialize, delete State now.
+  }
 }

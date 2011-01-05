@@ -144,7 +144,7 @@ BOOL CMSServer::SendStartTime(int time)
 
 void CMSServer::GetClient(CNDKMessage& message)
 {
-	int nYear,nMonth;
+	int nYear;
 	message.GetAt(0,nYear);
 //	message.GetAt(1,nMonth);
 	CString gggg;

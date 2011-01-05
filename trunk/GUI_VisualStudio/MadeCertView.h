@@ -7,11 +7,6 @@
 // MadeCertView.h : header file
 //
 
-#include "dbAx\AxLogin.hpp"
-#include "dbAx\AxSControl.hpp"
-#include "dbAx\AxContactCmd.hpp"
-#include "dbAx\CardFileEvents.hpp"
-#include "dbAx\AccountSetEvents.hpp"
 /////////////////////////////////////////////////////////////////////////////
 // CMadeCertView form view
 
@@ -44,21 +39,15 @@ public:
 	CTime t;
 	CTime t1;
 
-    CAxConnection   m_Cn;
-    CAxContactCmd   m_ContactCmd;
-    CAxPointDescription  m_PointDes;
-	CRealtimedata   m_Realtimedata;
-	CRealtimedata   m_Realtimedata1;
-	CRt5mdata       m_Rt5mdata;
+	ADOCust::_RecordsetPtr pRS1;
     CAxCommonSet        m_CommonSet;
 
-	ADMainDis         m_ADP[1000][500];          //记录查询
 	ADMainDis         m_ADRecord[MAX_FDS][MAX_CHAN][300];          //记录查询
 	CString2DataType    m_Str2Data;
 	int mPoint[1000];
 	vector<int> m_Points;
 	vector<int>::iterator  iter;
-	int m_tnum;
+	BOOL b_twodb;
 // Attributes
 public:
 	int             m_nSortedCol;
@@ -85,9 +74,13 @@ public:
 
 	void OnEXCELA();
 
+	void OnTAuto();
+	void ACALRecord();
 	void copy_sheet(const char* from, const char* to);
 	void L2upDB();
 	void InitStr();
+	void ADODBS(CString strTable,int n_dbl);
+	void ClearRDB();
 
 	void SortColumn(int iCol, bool bAsc);
 // Operations
@@ -122,7 +115,6 @@ protected:
 	afx_msg void OnDatetimeend(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnBOKSEARCH();
 	afx_msg void OnButtonViewinfo();
-	afx_msg void OnButtonAutMade();
 	afx_msg void OnClickListMade(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnDestroy();
 	//}}AFX_MSG

@@ -2,9 +2,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+
 #include "stdafx.h"
 #include "GUI_VisualStudio.h"
 #include "MQServer.h"
+
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -12,12 +14,8 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-//extern SerialF               m_one[MAX_FDS][MAX_CHAN];
-extern SerialF               m_ClassTime[200];            //°àÉèÖÃ
-extern CNDKMessage m_NDKmes[50];
-extern BYTE     m_ndkRTD[6];
 extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
-extern  OthersSetting    m_OthersSetting;
+//extern  OthersSetting    m_OthersSetting;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -148,7 +146,7 @@ BOOL CMQServer::SendStartTime(int time)
 
 void CMQServer::GetClient(CNDKMessage& message)
 {
-	int nYear,nMonth;
+	int nYear;
 	message.GetAt(0,nYear);
 //	message.GetAt(1,nMonth);
 	CString gggg;
@@ -215,8 +213,8 @@ void CMQServer::SyncTableCollectData()
 	strDate.Format("%d/%d/%d",tHostStartTime.GetMonth(), tHostStartTime.GetDay(), tHostStartTime.GetYear());
 	strTable.Format("SELECT unPointNo,unCollectData,strBeginTime,strEndTime FROM uCollectData WHERE (strBeginTime>CONVERT(DATETIME,'%s', 101))",strDate);
 
-	CString strDBLink = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=kj86;Password=kj86;Initial Catalog=masterdefine;Data Source="
-					+ m_OthersSetting.IP;
+//	CString strDBLink = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=kj86;Password=kj86;Initial Catalog=masterdefine;Data Source="
+//					+ m_OthersSetting.IP;
 /*	try
 	{
 		_RecordsetPtr pRS;
@@ -257,8 +255,8 @@ void CMQServer::SyncTableuWarnCauseRecord()
 	strDate.Format("%d/%d/%d",tHostStartTime.GetMonth(), tHostStartTime.GetDay(), tHostStartTime.GetYear());
 	strTable.Format("SELECT unPointNo,strExplain,strWarnCause,strWarnTime,strNormalTime,bConfirm FROM uWarnCauseRecord WHERE (strWarnTime>CONVERT(DATETIME,'%s', 101)) OR (strNormalTime>CONVERT(DATETIME,'%s', 101))",strDate,strDate);
 
-	CString strDBLink = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=kj86;Password=kj86;Initial Catalog=masterdefine;Data Source="
-					+ m_OthersSetting.IP;
+//	CString strDBLink = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=kj86;Password=kj86;Initial Catalog=masterdefine;Data Source="
+//					+ m_OthersSetting.IP;
 /*	try
 	{
 		_RecordsetPtr pRS;
@@ -311,8 +309,8 @@ void CMQServer::Sync(CNDKMessage &message)
 //	message.GetAt(2, strInSql);
 	
 	COleDateTime oleData1,oleData2;
-	CString strDBLink = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=kj86;Password=kj86;Initial Catalog=masterdefine;Data Source="
-					+ m_OthersSetting.IP;
+//	CString strDBLink = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=kj86;Password=kj86;Initial Catalog=masterdefine;Data Source="
+//					+ m_OthersSetting.IP;
 
 /*	try
 	{
@@ -476,9 +474,7 @@ void CMQServer::Sync(CNDKMessage &message)
 
 void CMQServer::SyncCRTData(unsigned char  afds, unsigned char  achan,int dbtype)
 {
-//	if(m_one[afds][achan].SFSd == 1)
-//		return;
-	if(!theApp.m_bLogIn)
+/*	if(!theApp.m_bLogIn)
 		return;
 	if(!theApp.b_SaveRT)
 		return;
@@ -595,7 +591,7 @@ void CMQServer::SyncCRTData(unsigned char  afds, unsigned char  achan,int dbtype
 		message.Add(m_SlaveStation[afds][achan].m5_AMaxValue);
 		SendMessageToAllUsers(message);
 //		m_NDKmes[theApp.m_message] =message;
-	}
+	}*/
 //	theApp.m_message++;
 //	if(theApp.m_message == 50)
 //		theApp.m_message = 0;

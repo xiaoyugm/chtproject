@@ -7,10 +7,6 @@
 // ColorSetDlg.h : header file
 //
 
-#include "dbAx\AxContactCmd.hpp"
-#include "dbAx\AxColorset.hpp"
-#include "dbAx\CardFileEvents.hpp"
-#include "dbAx\AccountSetEvents.hpp"
 /////////////////////////////////////////////////////////////////////////////
 // CColorSetDlg dialog
 
@@ -62,8 +58,6 @@ public:
 //	StringTrimming		m_trimmingSyle;
 //	StringFormatFlags   m_format;
 //	StringAlignment     m_fontAlignment;
-  CAxConnection   m_Cn;
-  CAxContactCmd   m_ContactCmd;
   CAxColorset     m_Colorset;
   CAxColorset     *m_ColorsetNew;
 

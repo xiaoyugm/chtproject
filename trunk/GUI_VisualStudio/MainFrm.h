@@ -1,6 +1,7 @@
 // MainFrm.h : interface of the CMainFrame class
 //
 // This file is a part of the XTREME TOOLKIT PRO MFC class library.
+
 // (c)1998-2009 Codejock Software, All Rights Reserved.
 //
 // THIS SOURCE FILE IS THE PROPERTY OF CODEJOCK SOFTWARE AND IS NOT TO BE
@@ -17,6 +18,7 @@
 // http://www.codejock.com
 //
 /////////////////////////////////////////////////////////////////////////////
+
 
 #if !defined(AFX_MAINFRM_H__57DF813D_6BDB_4AA1_A29E_0AAA116BC4D5__INCLUDED_)
 #define AFX_MAINFRM_H__57DF813D_6BDB_4AA1_A29E_0AAA116BC4D5__INCLUDED_
@@ -35,9 +37,33 @@
 #include "SampleFormView.h"
 #include "TabbedViewView.h"
 #include "SetTimeDlg.h"
+#include "DCH5m.h"
 #include "ChildFrm.h"
 #include "MadeCertView.h"
 #include "SettingHostDlg.h"
+#include "TimerThread.h"	// Added by ClassView
+
+#define WMX_OBJECT_ADDED		(WM_APP+1)
+#define WMX_OBJECT_START		(WM_APP+2)
+#define WMX_OBJECT_PROGRESS	(WM_APP+3)
+#define WMX_OBJECT_DONE			(WM_APP+4)
+#define WMX_OBJECT_REMOVED	(WM_APP+5)
+
+class CThreadObject : public CThreadObjectBase
+{
+public:
+	static LONG s_lNext;
+	static LONG s_lCount;
+	ULONG m_n;
+	int		m_nRuns;
+	HWND	m_hWndNotify;
+
+	CThreadObject(HWND hWnd, int nRuns);
+
+	// overrides CThreadObjectBase
+	virtual void Run(CThreadPoolThreadCallback &pool);
+	virtual void Done();
+};
 
 class CMainFrame : public CXTPMDIFrameWnd
 {
@@ -48,7 +74,7 @@ public:
 // Attributes
 public:
 //    CMenu *m_pMenu;
-	CChildFrame    *m_pMade;
+//	CChildFrame    *m_pMade;
 	CXTPToolBar    m_wndToolBar;
 
 	CXTPDockingPaneManager m_paneManager;
@@ -75,18 +101,26 @@ public:
 	CXTPCommandBars* pCommandBars;
 //	CXTPMenuBar* pMenuBar;
 
-//	CMadeCertView*           m_MadeCert;
-	CommonTools C_Ts;
-
+	CMadeCertView*           m_MadeCert;
 	CSampleFormView*		m_pSampleFormView;
 	CTabbedViewView*        m_pTabbedViewView;
-	CSetTimeDlg*		m_pSetTimeDlg;
+	CSetTimeDlg*	 	m_pSetTimeDlg;
 	CSettingHostDlg*		m_pSetHostDlg;
+	CDCH5m*              m_pDCH5m;
 
+	CommonTools C_Ts;
     void ModifySystem();
 	void addEqupmentManagerMenuItem();
 	void addCopyDataMenuItem();
 	void setEnableItem();
+
+	void OnDisableMinbox();
+	void OnDisableMaxbox();
+	void OnDisableClose();
+	void OnAbleMinbox();
+	void OnAbleMaxbox();
+	void OnAbleClose();
+	void OnDisasysmenu();
 
 	void OnMView(int menun,int myf);
 	void AddMessage(CString strMessage);
@@ -109,11 +143,30 @@ public:
     void         DoPlayWarnSound(CString strFileName);
 	UINT m_nPaneID;
 	CString2DataType    m_Str2Data;
-	int  m_m300;
+	int  m_m300,n_m60,n_timer60,n_derr60;
 	BOOL  m_bIsDraw;
 
 	POSITION	s_ViewPos;
 	POSITION	m_ViewPos;
+
+	void StartTimer();
+//	afx_msg LRESULT On1000ThreadMessage(WPARAM wParam, LPARAM lParam);
+
+	UINT m_nTimerID;
+	CTimerThread* m_pTimerThread;
+	THREAD_PARAM m_ThreadParam;
+	LRESULT OnThreadMessage(WPARAM, LPARAM);
+
+	CThreadPool		m_ThreadPool;
+	int FindItem(LPARAM lP);
+	void UpdateThreadList();
+	LRESULT OnObjectAdded(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+	LRESULT OnObjectStart(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
+	LRESULT OnObjectProgress(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
+	LRESULT OnObjectDone(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+	LRESULT OnObjectRemoved(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+	LRESULT OnEmptyQueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
 // Operations
 public:
 ///	void RemoveLogo();
@@ -157,8 +210,13 @@ public:
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnOPTXT();
 	afx_msg void OnWORKTXT();
+	afx_msg void OnDebugInfo();
+	afx_msg void OnTest();
+	afx_msg void OnTest1();
 
 	void OnWSYSTEM();
+	void OnOpenR();
+	void OnCloseR();
 
 //	BOOL ShowWindowEx(int nCmdShow);
 ///	void SetMousePosText(CPoint Logpoint,CPoint Devpoint);
@@ -218,6 +276,7 @@ protected:
 	afx_msg void OnCAALARM();
 	afx_msg void OnCABREAK();
 	afx_msg void OnCAFEED();
+	afx_msg void OnCurveADP();
 
 	afx_msg void OnALARMS();
 	afx_msg void OnBREAKES();

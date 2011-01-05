@@ -51,53 +51,20 @@ END_MESSAGE_MAP()
 BOOL CDASafeMehod::OnInitDialog()
 {
   CDialog::OnInitDialog();
-  CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
-                          User ID=sa;Password=sunset;\
-                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
-
-//All calls to the AxLib should be wrapped in a try / catch block
-  try
-  {
-    dbAx::Init();
-    m_Cn.Create();
-//    m_Cn._SetConnectionEvents(new CCardFileEvents);
-    m_Cn.CursorLocation(adUseClient);
-    m_Cn.Open((LPCTSTR)szConnect);
-		m_PointDes.Create();
-		m_PointDes.CursorType(adOpenDynamic);
-		m_PointDes.CacheSize(50);
-		m_PointDes._SetRecordsetEvents(new CAccountSetEvents);
-		m_PointDes.Open(_T("Select * From pointdescription WHERE fdel=0"), &m_Cn);
-		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
-
-//	    m_RealtimedataNew = &theApp.socketClient.m_Realtimedata;
-  }
-  catch ( dbAx::CAxException *e )
-  {
-    AfxMessageBox(e->m_szErrorDesc,  MB_OK);
-    delete e;
-    return (FALSE);
-  }
-	CString strstartTime,strname,dddd;
-	int eYear;
-		int iItem = 0;
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
+	CString dddd;	int eYear;	
+		for(int i = 1; i < MAX_FDS;i++ )
 		{
-			eYear = m_PointDes.m_szptype;
-			if((eYear < 3) || (eYear > 12)||(eYear == 10))
+			for(int j = 0; j < MAX_CHAN;j++ )
 			{
-             		int nfds = m_PointDes.m_szfds;
-              		int nchan = m_PointDes.m_szchan;
-				strname = m_SlaveStation[nfds][nchan].WatchName;
-				strstartTime = m_PointDes.m_szpointnum;
-				strstartTime.TrimRight();
-				dddd = strstartTime + strname;
-               	m_ComBoxSM.AddString(dddd);
-   		       iItem++;
+       			eYear = m_SlaveStation[i][j].ptype;
+       			if((eYear < 3 || eYear > 12||eYear == 10||eYear == 11) && m_SlaveStation[i][j].WatchName !="")
+				{
+    				dddd = m_SlaveStation[i][j].strPN + "|"+m_SlaveStation[i][j].WatchName;
+                	m_ComBoxSM.AddString(dddd);
+				}
 			}
-			m_PointDes.MoveNext();
 		}
+
   return TRUE;  // return TRUE unless you set the focus to a control
   // EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -105,52 +72,13 @@ BOOL CDASafeMehod::OnInitDialog()
 void CDASafeMehod::OnchCB()
 {
 //			strSQL.Format("INSERT INTO uCollectData VALUES(%d,%d,'%s','%s')",unPointNo,unCollectData,strBeginTime,strEndTime);
-/*	CString szConnect;
-		int eyear;	unsigned char emonth;
-		CTime t=CTime::GetCurrentTime();
-		theApp.socketClient.CalRtDB(t , eyear , emonth);
-		CString sztime;
-		sztime.Format("%d",eyear);
-		szConnect = "Select * From rt";
-		szConnect += sztime;
-		if(emonth>9)
-     		sztime.Format("%d",emonth);
-		else
-     		sztime.Format("0%d",emonth);
-		szConnect += sztime;
-		szConnect += "data";
 
-		m_Realtimedata.Create();
-		m_Realtimedata.CursorType(adOpenDynamic);
-		m_Realtimedata.CacheSize(50);
-//		m_Realtimedata._SetRecordsetEvents(new CAccountSetEvents);
-		m_Realtimedata.Open( szConnect , &m_Cn);
-		m_Realtimedata.MarshalOptions(adMarshalModifiedOnly);*/
-//	    m_RealtimedataNew = &theApp.socketClient.m_Realtimedata;
 }
 
 void CDASafeMehod::OnClose()
 {
   //Closing of library objects is ensured as each object
   //goes out of scope, but doing a manual shutdown doesn’t hurt.
-
-  try
-  {
-    if ( m_PointDes._IsOpen() )
-      m_PointDes.Close();
-//    if ( m_Realtimedata._IsOpen() )
-//      m_Realtimedata.Close();
-
-    m_Cn.Close();
-
-    //Cleanup the AxLib library
-    dbAx::Term();
-  }
-  catch ( CAxException *e )
-  {
-    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-  }
 }
 
 //BOOL CSafeMethod::DestroyWindow() 
@@ -174,9 +102,9 @@ void CDASafeMehod::OnBnOkSM()
 	m_ComBoxSM.GetLBText(kkkk,strname);
 	strname = strname.Mid(0,5);
     		strf = strname.Mid(0,2);
-    		strc = strname.Mid(3);
-		int afds = m_Str2Data.String2Int(strf);
-		int achan = m_Str2Data.String2Int(strc);
+    		strc = strname.Mid(3,2);
+		int afds = theApp.m_Str2Data.String2Int(strf);
+		int achan = theApp.m_Str2Data.String2Int(strc);
 //		strItem = _T("Select * From realtimedata WHERE ");
 //		strname.Format("fds=%d and chan=%d",nfds,nchan);
 
@@ -190,12 +118,10 @@ void CDASafeMehod::OnBnOkSM()
 //			CString strCTime;
 	//		strNormalTime.Format("%d-%d-%d %d:%d:%d",NormalTime.GetYear(),NormalTime.GetMonth(),NormalTime.GetDay(),NormalTime.GetHour(),NormalTime.GetMinute(),NormalTime.GetSecond());
 							 int m_nptype = m_SlaveStation[afds][achan].ptype;
-					m_SlaveStation[afds][achan].ValueTime = COTime.GetCurrentTime();
 
-
-					theApp.m_resnum = 10;
 					m_SlaveStation[afds][achan].strSafe = strsm;
 					m_SlaveStation[afds][achan].ValueTime = COTime.GetCurrentTime();
+					m_ADMainDis[afds][achan].AMaxTime = COTime.GetCurrentTime();
 							 if(m_nptype >3)
 							 {
  	strSQL.Format("INSERT INTO %s (PID,ptype,fds,chan,CDValue,AValue,ADStatus,recdate,Useridadd,safemtext,ffds,fchan,FeedStatus) VALUES(%d,%d,%d,%d,%d,0,%d,'%s','%s','%s',0,0,'')",sztime,m_SlaveStation[afds][achan].m_PID
@@ -203,7 +129,7 @@ void CDASafeMehod::OnBnOkSM()
 		,sztime1,theApp.curuser,strsm);
         	theApp.m_pConnection->Execute(_bstr_t(strSQL),NULL,adCmdText);
 							m_ADMainDis[afds][achan].NTime = COTime.GetCurrentTime();
-                                  pFWnd->m_wndResourceView4.InitLDAB(afds,achan);
+//                                  pFWnd->m_wndResourceView4.InitDAB(afds,achan);
 							 }
 							 else
 							 {
@@ -211,7 +137,7 @@ void CDASafeMehod::OnBnOkSM()
 		,m_nptype,afds,achan,m_SlaveStation[afds][achan].AValue,m_SlaveStation[afds][achan].Channel_state
 		,sztime1,theApp.curuser,strsm);
         	theApp.m_pConnection->Execute(_bstr_t(strSQL),NULL,adCmdText);
-                                  pFWnd->m_wndResourceView.InitLC(afds,achan);
+//                                  pFWnd->m_wndResourceView.InitAA(afds,achan);
 							 }
 	
 	/*            				try
@@ -222,7 +148,6 @@ void CDASafeMehod::OnBnOkSM()
 		    			     m_RealtimedataNew->m_szptype = m_nptype;
     						 m_RealtimedataNew->m_szfds = afds;
      						 m_RealtimedataNew->m_szchan = achan;
-					theApp.m_resnum = 10;
 					m_SlaveStation[afds][achan].strSafe = strsm;
 					m_SlaveStation[afds][achan].ValueTime = CTime.GetCurrentTime();
 							 if(m_nptype >3)

@@ -7,13 +7,6 @@
 // AdjustDlg.h : header file
 //
 
-#include "dbAx\AxSControl.hpp"
-//#include "dbAx\AxControl.hpp"
-//#include "dbAx\AxAccountSet.hpp"
-#include "dbAx\AxContactCmd.hpp"
-//#include "dbAx\AxContactSet.hpp"
-#include "dbAx\CardFileEvents.hpp"
-#include "dbAx\AccountSetEvents.hpp"
 /////////////////////////////////////////////////////////////////////////////
 // CAdjustDlg dialog
 
@@ -40,16 +33,12 @@ public:
 	int m_start,m_end;
 	vector<CString> m_Records;
 	vector<CString>::iterator  iter;
-	CMQClient socketClient;
 //	unsigned char  chcommand;
 //	CString2DataType    m_Str2Data;
 //	UINT	m_nchangev;
-//    unsigned char *m_ndkSend;
 
 //	void ComDisMes(CString strmes);
-//	void OnButRESre();
 
-  CAxConnection   m_Cn;
   CAxContactCmd   m_ContactCmd;
   CAdjustdata     m_Adjustdata;
 //  CAxSControl     *m_SControlNew;

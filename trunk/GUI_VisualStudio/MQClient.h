@@ -2,8 +2,6 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(AFX_MQCLIENT_H__06598D7B_DFFC_4FFF_B8E5_883979A1282F__INCLUDED_)
-#define AFX_MQCLIENT_H__06598D7B_DFFC_4FFF_B8E5_883979A1282F__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -12,15 +10,7 @@
 #define MAX_ROW     400  //最大行数 50
 
 #include "MQCommandType.h"
-#include "drawobj.h"
-
-#include "dbAx\AxSControl.hpp"
-//#include "dbAx\AxControl.hpp"
-//#include "dbAx\AxAccountSet.hpp"
-#include "dbAx\AxContactCmd.hpp"
-//#include "dbAx\AxContactSet.hpp"
-#include "dbAx\CardFileEvents.hpp"
-#include "dbAx\AccountSetEvents.hpp"
+//#include "drawobj.h"
 
 class CMQClient :public CNDKClient
 {
@@ -34,43 +24,17 @@ public:
 	BOOL ConnectServer(CString strIp,UINT lPort);
 	BOOL Ping();
 	void Close();
-    void AddWarn(CString strtemp, CString strtemp1, CString strtemp2, CString strtemp3, CString strtemp4, CString strtemp5, CString strtemp6, CString strtemp7);
 	void HostStateCheck();
 
-	CString strstatus(unsigned char  ustatus);
-	void Savefeedbr(unsigned char  hfds, unsigned char  hchan);
-	void feedbr(unsigned char  hfds, unsigned char  hchan);
-	void handbr(unsigned char  hfds, unsigned char  hchan, unsigned char hbr);
-	void SaveAdjust(unsigned char  afds, unsigned char  achan);
-	void SaveRtdata(unsigned char  afds, unsigned char  achan);
-//    unsigned char *m_ndkSend;
-//    unsigned char *m_ndkSend1;
-//	unsigned char* m_ndkSend2;
-	BOOL m_nodialog;
-	long m_adjustnum; 
-	BYTE     m_ndkSend[2001];//44BUFFER_SIZE
-	BYTE     m_ndkSend1[6];//6
-	BYTE     m_ndkSend2[44];//44
-	
-
-//    CAxConnection   m_Cn;
-//    CAxContactCmd   m_ContactCmd;
-//    CAdjustdata     m_Adjustdata;
-//    CAdjustdata     *m_AdjustdataNew;
-//	CRealtimedata   m_Realtimedata;
-//	CRealtimedata   *m_RealtimedataNew;
-	void CalRtDB(CTime time ,int &eYear, unsigned char  &eMonth);
-	void CalTime(COleDateTime time);
-	void CalRTdata(int fds);
-
-	void ConnectDB();
+    BYTE     m_ndkSendRT[BUFFER_SIZE];//44BUFFER_SIZE
+	BYTE     m_ndkSend2[BUFFER_SIZE];//44如果小于发来数据，退出报错  derror
 	UINT		   m_unBufferLength;
 
 protected:
 
-	void OnMessage(CNDKMessage& message);	
-	void OnDisconnect(NDKClientDisconnection disconnectionType);
-	void OnPing(long lNbMilliseconds);
+	virtual void OnMessage(CNDKMessage& message);	
+	virtual void OnDisconnect(NDKClientDisconnection disconnectionType);
+	virtual void OnPing(long lNbMilliseconds);
 
 	void WriteSQL(CNDKMessage& message);
 //	CSQLDirect m_SQLDirect;
@@ -80,9 +44,7 @@ protected:
 	void ManageServer(CNDKMessage& message);
 	void ManageServerG(CNDKMessage& message);
 
-	void DiaplayWarnTableC(unsigned short nPointNo);
 	void CollectDate(CNDKMessage& message);
 	
 };
 
-#endif // !defined(AFX_MQCLIENT_H__06598D7B_DFFC_4FFF_B8E5_883979A1282F__INCLUDED_)

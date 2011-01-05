@@ -281,15 +281,8 @@ BOOL CSettingHostDlg::OnInitDialog()
 
 	if(m_ADTypeTable[4].TableName != m_strtable)
 	{
-		m_MAlocation.MoveFirst();
-		while ( !m_MAlocation.IsEOF() )
-		{
-			strItem = m_MAlocation.m_szName;
-			strItem.TrimRight();
-        	m_wndComboSize1.AddString(strItem);
-			m_MAlocation.MoveNext();
-		}
-        m_MAlocation.MoveFirst();
+        for ( int i = 0; i < theApp.m_Lstr.size(); i++)//安装地点
+        	m_wndComboSize1.AddString(theApp.m_Lstr[i]);
 		m_wndComboSize1.SetCurSel(0);
 	}
 		m_ctrlCheckAlm.SetCheck(1);
@@ -505,74 +498,60 @@ void CSettingHostDlg::BuildAccountList()
 	  }
 	  else if(m_ADTypeTable[2].TableName ==  m_strtable)    //安装地点
 	  {
-		if ( m_MAlocation._IsEmpty() )
+		if (theApp.m_Lstr.size() == 0)
 		  return;
-		m_listCtrl.SetItemCount(m_MAlocation.RecordCount());
-		int iItem = 0;
-		m_MAlocation.MoveFirst();
-		while ( !m_MAlocation.IsEOF() )
+//		m_listCtrl.SetItemCount(m_MAlocation.RecordCount());
+        for ( int i = 0; i < theApp.m_Lstr.size(); i++)//安装地点
 		{
-				  dddd = m_MAlocation.m_szName;
-				  dddd.TrimRight();
-    		  m_listCtrl.InsertItem(iItem, dddd);
-			iItem++;
-			sqlid = m_MAlocation.m_szlocationID +1;
-			m_MAlocation.MoveNext();
+    		  m_listCtrl.InsertItem(i, theApp.m_Lstr[i]);
+    			sqlid = theApp.m_LID[i] +1;
 		}
 	  }
 	  else if(m_ADTypeTable[3].TableName ==  m_strtable)   //pointdescription
 	  {
 		if ( m_PointDes._IsEmpty() )
 		  return;
-		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
-		int iItem = 0;
+//		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
+		int iItem = 0;   
         m_Records.clear();
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
+		for(int i = 1; i < MAX_FDS;i++ )
 		{
-    		int nfds = m_PointDes.m_szfds;
-    		int nchan = m_PointDes.m_szchan;
-    		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds][nchan].WatchName);
-				  dddd = m_PointDes.m_szpointnum;
-				  dddd.TrimRight();
-    		m_listCtrl.SetItemText(iItem, 1, dddd);
-				  dddd = m_PointDes.m_szutype;
-				  dddd.TrimRight();
-			m_listCtrl.SetItemText(iItem, 2, dddd);
-				  dddd.Format("%d",m_PointDes.m_szPID);
-			m_listCtrl.SetItemText(iItem, 3, dddd);
-			iItem++;
-			PointDesid = m_PointDes.m_szPID +1;
-				  dddd = m_PointDes.m_szpointnum;
-				  dddd.TrimRight();
-			m_Records.push_back(dddd );
-			m_PointDes.MoveNext();
+			for(int j = 0; j < MAX_CHAN;j++ )
+			{
+       			if(m_SlaveStation[i][j].WatchName !="")
+				{
+            		m_listCtrl.InsertItem(iItem, m_SlaveStation[i][j].WatchName);
+            		m_listCtrl.SetItemText(iItem, 1, m_SlaveStation[i][j].strPN);
+        			m_listCtrl.SetItemText(iItem, 2, m_SlaveStation[i][j].utype);
+			    	dddd.Format("%d",m_SlaveStation[i][j].m_PID);
+         			m_listCtrl.SetItemText(iItem, 3, dddd);
+          			PointDesid = m_SlaveStation[i][j].m_PID +1;
+	        		m_Records.push_back(m_SlaveStation[i][j].strPN );
+         			iItem++;
+				}
+			}
 		}
 	  }
 	  else if(m_ADTypeTable[4].TableName ==  m_strtable)    //选择测点显示
 	  {
 		if ( m_PointDes._IsEmpty() )
 		  return;
-		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
+//		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
 		int iItem = 0;
-//        m_Records.clear();
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
+		for(int i = 1; i < MAX_FDS;i++ )
 		{
-    		int nfds = m_PointDes.m_szfds;
-    		int nchan = m_PointDes.m_szchan;
-    		dddd = m_SlaveStation[nfds][nchan].WatchName;
-//     	m_Str2Data.SplittoCString(dddd,str1,str2,str3);
-    		m_listCtrl.InsertItem(iItem, dddd);
-			dddd = m_PointDes.m_szpointnum;
-			dddd.TrimRight();
-    		m_listCtrl.SetItemText(iItem, 1, dddd);
-			dddd = m_PointDes.m_szutype;
-			dddd.TrimRight();
-			m_listCtrl.SetItemText(iItem, 2, dddd);
-			iItem++;
-			m_PointDes.MoveNext();
+			for(int j = 0; j < MAX_CHAN;j++ )
+			{
+       			if(m_SlaveStation[i][j].WatchName !="")
+				{
+            		m_listCtrl.InsertItem(iItem, m_SlaveStation[i][j].WatchName);
+            		m_listCtrl.SetItemText(iItem, 1, m_SlaveStation[i][j].strPN);
+        			m_listCtrl.SetItemText(iItem, 2, m_SlaveStation[i][j].utype);
+         			iItem++;
+				}
+			}
 		}
+//     	m_Str2Data.SplittoCString(dddd,str1,str2,str3);
     	  m_bADD =false;
 		  for(int k=0;k<100;k++)
      		  m_strl[k].strl= "";
@@ -614,7 +593,7 @@ void CSettingHostDlg::BuildAccountList()
         }
    		q.finalize();
 
-		for ( int i = 0 ; i < 100 ; i++ )
+		for (  i = 0 ; i < 100 ; i++ )
 		{
 			if(m_strl[i].strl == "")
 				break;
@@ -669,32 +648,32 @@ void CSettingHostDlg::BuildAccountList()
 //		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
      	m_listCtrl.DeleteAllItems();
      	m_listDis.DeleteAllItems();
-		CString cccc;
 		int iItem = 0;
-		int iItem1 = 0;
+		int iItem1 = 0; int eYear;
 		int nfds = m_wndComboSize3.GetCurSel();
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
+		for(int i = 1; i < MAX_FDS;i++ )
 		{
-    		dddd = m_PointDes.m_szpointnum;
-				  dddd.TrimRight();
-			cccc.Format("%d", m_PointDes.m_szPID);
-			if(m_PointDes.m_szfds == nfds+1  && dddd.Find("C") == -1 && dddd.Find("F") == -1)
+		for(int j = 0; j < MAX_CHAN;j++ )
+		{
+       		if(m_SlaveStation[i][j].WatchName !="")
 			{
-        		int nfds = m_PointDes.m_szfds;
-    	       	int nchan = m_PointDes.m_szchan;
-         		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds][nchan].WatchName);
-        		m_listCtrl.SetItemText(iItem, 1, dddd);
-        		m_listCtrl.SetItemText(iItem, 2, cccc);
-    			iItem++;
+       			eYear = m_SlaveStation[i][j].ptype;
+			    dddd.Format("%d",m_SlaveStation[i][j].m_PID);
+				if((eYear<3 || eYear>12 || eYear ==10) && i ==nfds+1)
+				{
+            		m_listCtrl.InsertItem(iItem, m_SlaveStation[i][j].WatchName);
+            		m_listCtrl.SetItemText(iItem, 1, m_SlaveStation[i][j].strPN);
+         			m_listCtrl.SetItemText(iItem, 2, dddd);
+         			iItem++;
+				}
+				if(eYear ==12)
+				{
+             		m_listDis.InsertItem(iItem1, m_SlaveStation[i][j].strPN);
+            		m_listDis.SetItemText(iItem1, 1, dddd);
+    	     		iItem1++;
+				}
 			}
-			if(dddd.Find("C") != -1)
-			{
-         		m_listDis.InsertItem(iItem1, dddd);
-        		m_listDis.SetItemText(iItem1, 1, cccc);
-    			iItem1++;
-			}
-			m_PointDes.MoveNext();
+		}
 		}
 	  }
 	  else if("feedelectricity" ==  m_strtable)     //馈电规则显示
@@ -741,32 +720,32 @@ void CSettingHostDlg::BuildAccountList()
 //		m_listCtrl.SetItemCount(m_PointDes.RecordCount());
      	m_listCtrl.DeleteAllItems();
      	m_listDis.DeleteAllItems();
-		CString cccc;
 		int iItem = 0;
-		int iItem1 = 0;
+		int iItem1 = 0; int eYear;
 		int nfds = m_wndComboSize3.GetCurSel();
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
+		for(int i = 1; i < MAX_FDS;i++ )
 		{
-    		dddd = m_PointDes.m_szpointnum;
-				  dddd.TrimRight();
-			cccc.Format("%d", m_PointDes.m_szPID);
-			if(m_PointDes.m_szfds == nfds+1  && dddd.Find("C") != -1)
+		for(int j = 0; j < MAX_CHAN;j++ )
+		{
+       		if(m_SlaveStation[i][j].WatchName !="")
 			{
-        		int nfds = m_PointDes.m_szfds;
-    	       	int nchan = m_PointDes.m_szchan;
-           		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds][nchan].WatchName);
-        		m_listCtrl.SetItemText(iItem, 1, dddd);
-        		m_listCtrl.SetItemText(iItem, 2, cccc);
-    			iItem++;
+       			eYear = m_SlaveStation[i][j].ptype;
+			    dddd.Format("%d",m_SlaveStation[i][j].m_PID);
+				if(eYear ==12 && i ==nfds+1)
+				{
+            		m_listCtrl.InsertItem(iItem, m_SlaveStation[i][j].WatchName);
+            		m_listCtrl.SetItemText(iItem, 1, m_SlaveStation[i][j].strPN);
+         			m_listCtrl.SetItemText(iItem, 2, dddd);
+         			iItem++;
+				}
+				if(eYear ==10 || eYear ==13 || eYear ==14)
+				{
+             		m_listDis.InsertItem(iItem1, m_SlaveStation[i][j].strPN);
+            		m_listDis.SetItemText(iItem1, 1, dddd);
+    	     		iItem1++;
+				}
 			}
-			if(dddd.Find("D") != -1)
-			{
-         		m_listDis.InsertItem(iItem1, dddd);
-        		m_listDis.SetItemText(iItem1, 1, cccc);
-    			iItem1++;
-			}
-			m_PointDes.MoveNext();
+		}
 		}
 	  }
 
@@ -836,7 +815,7 @@ void  CSettingHostDlg::DelConFeedFan(CString strdel)
 		m_Fans.CursorType(adOpenDynamic);
 		m_Fans.CacheSize(50);
 		m_Fans._SetRecordsetEvents(new CAccountSetEvents);
-		m_Fans.Open(_T("Select * From fanscon"), &m_Cn);
+		m_Fans.Open(_T("Select * From fanscon"), &theApp.m_Cn);
 		m_Fans.MarshalOptions(adMarshalModifiedOnly);
 		m_Fans.MoveFirst();
 		while ( !m_Fans.IsEOF() )
@@ -907,21 +886,16 @@ BOOL CSettingHostDlg::ConnectToProvider()
 //  CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
 //                          User ID=sa;Password=sunset;\
 //                          Data Source=(local)\\SQLEXPRESS;Initial Catalog=BJygjl");
-  CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
-                          User ID=sa;Password=sunset;\
-                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
-
 //All calls to the AxLib should be wrapped in a try / catch block
-  try
-  {
-    //Call the global Init function from the AxLib library. This will
+
+  //Call the global Init function from the AxLib library. This will
     //initialize COM and setup the library's connection collection.
     //Use the namespace identifier to avoid conflict with any other
     //init functions that may exist.
-    dbAx::Init();
+//    dbAx::Init();
 
     //Create the connection object
-    m_Cn.Create();
+//    m_Cn.Create();
 
     //Create the Connection events object on the heap. We don't need
     //to worry with deleting the Events object since this is handled
@@ -930,8 +904,8 @@ BOOL CSettingHostDlg::ConnectToProvider()
 //    m_Cn._SetConnectionEvents(new CCardFileEvents);
 
     //Set the cursor location and open the database connection
-    m_Cn.CursorLocation(adUseClient);
-    m_Cn.Open((LPCTSTR)szConnect);
+//    m_Cn.CursorLocation(adUseClient);
+//    m_Cn.Open((LPCTSTR)szConnect);
 
 //	if(m_ADTypeTable[1].TableName ==  m_strtable)
 	{
@@ -944,7 +918,7 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_AccountSet.CursorType(adOpenDynamic);
 		m_AccountSet.CacheSize(50);
 		m_AccountSet._SetRecordsetEvents(new CAccountSetEvents);
-		m_AccountSet.Open(_T("Select * From digitaltype WHERE fdel=0"), &m_Cn);
+		m_AccountSet.Open(_T("Select * From digitaltype WHERE fdel=0"), &theApp.m_Cn);
 
 		//Set the marshal options to minimize records returned to server
 		//to only those that have been edited.
@@ -975,7 +949,7 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_ContactSet.CursorType(adOpenDynamic);
 		m_ContactSet.CacheSize(50);
 		m_ContactSet._SetRecordsetEvents(new CAccountSetEvents);
-		m_ContactSet.Open(_T("Select * From analogtype WHERE fdel=0 "), &m_Cn);
+		m_ContactSet.Open(_T("Select * From analogtype WHERE fdel=0 "), &theApp.m_Cn);
 		m_ContactSet.MarshalOptions(adMarshalModifiedOnly);
 	}
 //	if(m_ADTypeTable[2].TableName ==  m_strtable)
@@ -984,43 +958,36 @@ BOOL CSettingHostDlg::ConnectToProvider()
 		m_MAlocation.CursorType(adOpenDynamic);
 		m_MAlocation.CacheSize(50);
 //		m_MAlocation._SetRecordsetEvents(new CAccountSetEvents);
-		m_MAlocation.Open(_T("Select * From fixlocation"), &m_Cn);
+		m_MAlocation.Open(_T("Select * From fixlocation"), &theApp.m_Cn);
 		m_MAlocation.MarshalOptions(adMarshalModifiedOnly);
 	}
 		m_PointDes.Create();
 		m_PointDes.CursorType(adOpenDynamic);
 		m_PointDes.CacheSize(50);
 		m_PointDes._SetRecordsetEvents(new CAccountSetEvents);
-		m_PointDes.Open(_T("Select * From pointdescription WHERE fdel=0"), &m_Cn);
+		m_PointDes.Open(_T("Select * From pointdescription WHERE fdel=0"), &theApp.m_Cn);
 		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
 
 		m_Control.Create();
 		m_Control.CursorType(adOpenDynamic);
 		m_Control.CacheSize(50);
 		m_Control._SetRecordsetEvents(new CAccountSetEvents);
-		m_Control.Open(_T("Select * From control WHERE fdel=0"), &m_Cn);
+		m_Control.Open(_T("Select * From control WHERE fdel=0"), &theApp.m_Cn);
 		m_Control.MarshalOptions(adMarshalModifiedOnly);
 
 		m_SControl.Create();
 		m_SControl.CursorType(adOpenDynamic);
 		m_SControl.CacheSize(50);
 		m_SControl._SetRecordsetEvents(new CAccountSetEvents);
-		m_SControl.Open(_T("Select * From specialcontrol"), &m_Cn);
+		m_SControl.Open(_T("Select * From specialcontrol"), &theApp.m_Cn);
 		m_SControl.MarshalOptions(adMarshalModifiedOnly);
 
 		m_AxFeedE.Create();
 		m_AxFeedE.CursorType(adOpenDynamic);
 		m_AxFeedE.CacheSize(50);
 		m_AxFeedE._SetRecordsetEvents(new CAccountSetEvents);
-		m_AxFeedE.Open(_T("Select * From feedelectricity WHERE fdel=0"), &m_Cn);
+		m_AxFeedE.Open(_T("Select * From feedelectricity WHERE fdel=0"), &theApp.m_Cn);
 		m_AxFeedE.MarshalOptions(adMarshalModifiedOnly);
-  }
-  catch ( dbAx::CAxException *e )
-  {
-    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-    return (FALSE);
-  }
 
   return (TRUE);
 }
@@ -1062,7 +1029,7 @@ void CSettingHostDlg::OnItemChangedList(NMHDR *pNMHDR, LRESULT *pResult)
            m_AccountSet.AbsolutePosition(pNMLV->iItem + 1);
 	  else if(m_ADTypeTable[0].TableName ==  m_strtable && !m_ContactSet._IsEmpty() )//模拟量
            m_ContactSet.AbsolutePosition(pNMLV->iItem + 1);
-	  else if(m_ADTypeTable[2].TableName ==  m_strtable && !m_MAlocation._IsEmpty() )//安装地点
+	  else if(m_ADTypeTable[2].TableName ==  m_strtable && theApp.m_LID.size()!=0 )//安装地点
            m_MAlocation.AbsolutePosition(pNMLV->iItem + 1);
 	  else if(m_ADTypeTable[3].TableName ==  m_strtable && !m_PointDes._IsEmpty() ) //pointdescription
            m_PointDes.AbsolutePosition(pNMLV->iItem + 1);
@@ -1080,9 +1047,6 @@ void CSettingHostDlg::OnClose()
 {
   //Closing of library objects is ensured as each object
   //goes out of scope, but doing a manual shutdown doesn抰 hurt.
-
-  try
-  {
     if ( m_AccountSet._IsOpen() )
       m_AccountSet.Close();
     if ( m_ContactSet._IsOpen() )
@@ -1097,17 +1061,6 @@ void CSettingHostDlg::OnClose()
       m_SControl.Close();
     if ( m_AxFeedE._IsOpen() )
       m_AxFeedE.Close();
-
-    m_Cn.Close();
-
-    //Cleanup the AxLib library
-    dbAx::Term();
-  }
-  catch ( CAxException *e )
-  {
-    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-  }
 
   CDialog::OnClose();
 }
@@ -1319,53 +1272,41 @@ void CSettingHostDlg::OnBtnADD2()
 
 void CSettingHostDlg::OnBtnOK()
 {
-   if(m_ADTypeTable[4].TableName != m_strtable)
+	UpdateData(TRUE);           //Exchange dialog data
+   if(m_ADTypeTable[4].TableName != m_strtable)//add A D
    {
   try
   {
 	vector<CString>::iterator  iter;
-	int fff = 0;
 	m_PointDesNew->m_szPID  = PointDesid;
-
-	UpdateData(TRUE);           //Exchange dialog data
 	COleDateTime CTime;
-	CString  m_strsel,dddd,szFind,strItem;
-
+	CString  m_strsel,dddd,szFind,strItem;  strItem="";
 	m_wndComboSize1.GetWindowText(m_strsel);
 	strItem +="安装地点："+ m_strsel+"|";
-
-		m_MAlocation.MoveFirst();
-		while ( !m_MAlocation.IsEOF() )
+        for ( int i = 0; i < theApp.m_Lstr.size(); i++)//安装地点
 		{
-			dddd = m_MAlocation.m_szName;
-			dddd.TrimRight();
-			if(m_strsel == dddd)
+			if(m_strsel == theApp.m_Lstr[i])
 			{
-            	m_PointDesNew->m_szpositionid = m_MAlocation.m_szlocationID;
+            	m_PointDesNew->m_szpositionid = theApp.m_LID[i];//locationid
 				break;
 			}
 			else
             	m_PointDesNew->m_szpositionid = 0;
-			m_MAlocation.MoveNext();
 		}
         m_PointDesNew->m_szName ="";
-//	if(m_bSwitch)
-//    	m_PointDesNew->m_szName = m_strsel +"|" + m_AccountSet.m_szName;
-//	else
-//    	m_PointDesNew->m_szName = m_strsel +"|" + m_ContactSet.m_szName;
-	m_wndComboSize3.GetWindowText(m_strsel);
-	strItem +="分站："+ m_strsel+"|";
-	m_PointDesNew->m_szfds = m_Str2Data.String2Int(m_strsel);
-	m_wndComboSize4.GetWindowText(dddd);
-	strItem +="通道："+ dddd+"|";
-	m_PointDesNew->m_szchan = m_Str2Data.String2Int(dddd);
+       	m_wndComboSize3.GetWindowText(m_strsel);
+     strItem +="分站："+ m_strsel+"|";
+       	m_PointDesNew->m_szfds = m_Str2Data.String2Int(m_strsel);
+       	m_wndComboSize4.GetWindowText(dddd);
+      strItem +="通道："+ dddd+"|";
+      	m_PointDesNew->m_szchan = m_Str2Data.String2Int(dddd);
 
-	if(m_strsel.GetLength() ==1)
-		m_strsel ="0" + m_strsel;
-	if(dddd.GetLength() ==1)
-		dddd ="0" + dddd;
-	if(m_bSwitch)
-	{
+      	if(m_strsel.GetLength() ==1)//two char
+      		m_strsel ="0" + m_strsel;
+       	if(dddd.GetLength() ==1)
+    		dddd ="0" + dddd;
+	if(m_bSwitch) //点号
+	{		
 		if(m_AccountSet.m_szptype == 0  || m_AccountSet.m_szptype == 3 || m_AccountSet.m_szptype == 4)
         	m_PointDesNew->m_szpointnum = m_strsel +"D"+dddd;
 		if(m_AccountSet.m_szptype == 1 )
@@ -1388,36 +1329,31 @@ void CSettingHostDlg::OnBtnOK()
 	else
     	m_PointDesNew->m_szpointnum = m_strsel +"A"+dddd;
 
-	for(iter = m_Records.begin(); iter != m_Records.end(); ++iter)
+	if(m_bADD)//点号已存在判断
 	{
+    	for(iter = m_Records.begin(); iter != m_Records.end(); ++iter)//现有点号
+		{
 			szFind = *iter;
 			szFind.TrimRight();
-		if(szFind == m_PointDesNew->m_szpointnum)
-		{
-			fff = 100;		break;
-		}
-
-		dddd = m_PointDesNew->m_szpointnum;
-		int m =dddd.Find(_T("D"));
-		int o =dddd.Find(_T("A"));
-		if(m != -1)
-			dddd.Replace(_T("D"),_T("A"));
- 		if(o != -1)
-			dddd.Replace(_T("A"),_T("D"));
-		if(szFind == dddd)
-		{
-			fff = 100;		break;
-		}
-	}
-	if(m_bADD)
-	{
-		if(fff == 100)
-		{
+	    	if(szFind == m_PointDesNew->m_szpointnum)
+			{
 			AfxMessageBox("点号已存在，重新选择", MB_OK);
 			return;
+			}
+     		dddd = m_PointDesNew->m_szpointnum;
+    		int m =dddd.Find(_T("D"));//A D 通道不能相同
+     		int o =dddd.Find(_T("A"));
+	    	if(m != -1)
+	    		dddd.Replace(_T("D"),_T("A"));
+ 	    	if(o != -1)
+		    	dddd.Replace(_T("A"),_T("D"));
+	    	if(szFind == dddd)
+			{
+			AfxMessageBox("点号已存在，重新选择", MB_OK);
+			return;
+			}
 		}
 	}
-//	UpdateData(TRUE);           //Exchange dialog data
 	m_wndComboSize2.GetWindowText(m_strsel);
 	int s = m_wndComboSize2.GetCurSel();
 	if(m_bSwitch)
@@ -1432,7 +1368,7 @@ void CSettingHostDlg::OnBtnOK()
 					  dddd = "三态开关量";
 				  else if(m_AccountSet.m_szptype == 4)
 					  dddd = "通断量";
-	strItem +="类型："+ dddd+"|";
+    	strItem +="类型："+ dddd+"|";
 		m_PointDesNew->m_szutype = dddd;
     	m_PointDesNew->m_szptype = 10+m_AccountSet.m_szptype;     //开关量
     	m_PointDesNew->m_sztypeID = m_AccountSet.m_szDID;
@@ -1465,8 +1401,38 @@ void CSettingHostDlg::OnBtnOK()
 	m_PointDesNew->m_szfdel = false;
 	m_PointDesNew->m_szrecdate = CTime.GetCurrentTime();
    	m_PointDesNew->m_szUseridadd = theApp.curuser;
-	strItem +="用户名："+ theApp.curuser+"|";
 
+	        dddd ="";
+        	int nCount=m_listCtrl.GetItemCount();
+            for(int nItem=0;nItem<nCount;nItem++)
+			{
+        		if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
+				{
+					if(m_bSwitch){
+						dddd +=" 名称:"+m_listCtrl.GetItemText(nItem,0)+" ";
+						dddd +=" 0态:"+m_listCtrl.GetItemText(nItem,1)+" ";
+						dddd +=" 1态:"+m_listCtrl.GetItemText(nItem,2)+" ";
+						dddd +=" 2态:"+m_listCtrl.GetItemText(nItem,3)+" ";
+						dddd +=" 状态:"+m_listCtrl.GetItemText(nItem,4)+" ";
+						dddd +=" 报警音乐:"+m_listCtrl.GetItemText(nItem,5)+" ";
+					}
+					else{
+						dddd +=" 名称:"+m_listCtrl.GetItemText(nItem,0)+" ";
+						dddd +=" 量程高值:"+m_listCtrl.GetItemText(nItem,1)+" ";
+						dddd +=" 量程低值:"+m_listCtrl.GetItemText(nItem,2)+" ";
+						dddd +=" 报警上限:"+m_listCtrl.GetItemText(nItem,3)+" ";
+						dddd +=" 报警下限:"+m_listCtrl.GetItemText(nItem,4)+" ";
+						dddd +=" 断电值:"+m_listCtrl.GetItemText(nItem,5)+" ";
+						dddd +=" 复电值:"+m_listCtrl.GetItemText(nItem,6)+" ";
+						dddd +=" 报警音乐:"+m_listCtrl.GetItemText(nItem,7)+" ";
+						dddd +=" 单位:"+m_listCtrl.GetItemText(nItem,8)+" ";
+					}
+					break;
+				}
+			}
+			if(dddd ==""){
+				AfxMessageBox("请选择测点类型行！", MB_OK);    return;    }
+	strItem +=dddd + "用户名："+ theApp.curuser+"|";
 	if(m_bADD)
 	{
       g_Log.StatusOut("增加测点：" + strItem );
@@ -1743,20 +1709,129 @@ void CSettingHostDlg::InsDIS()
 
 void CSettingHostDlg::OnBtnDEL()
 {
-  CString szMsg;
-	  if(m_ADTypeTable[1].TableName ==  m_strtable ) //开关量
-         szMsg.Format(_T("删除 %s?"), m_AccountSet.m_szName);
-	  else if(m_ADTypeTable[0].TableName ==  m_strtable )//模拟量
-         szMsg.Format(_T("删除 %s?"), m_ContactSet.m_szName);
-	  else if(m_ADTypeTable[2].TableName ==  m_strtable )//安装地点
-         szMsg.Format(_T("删除 %s?"), m_MAlocation.m_szName);
-	  else if(m_ADTypeTable[3].TableName ==  m_strtable ) //pointdescription
-         szMsg.Format(_T("删除 %s?"), m_PointDes.m_szName);
-	  else if(m_ADTypeTable[5].TableName ==  m_strtable )  //控制策略显示
-         szMsg.Format(_T("删除 %s?"), m_Control.m_szName);
-	  else if("feedelectricity" ==  m_strtable )  //控制策略显示
-         szMsg.Format(_T("删除 %s?"), m_AxFeedE.m_szName);
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+    CString szMsg,strobject;
+	int nCount=m_listCtrl.GetItemCount();
+    for(int nItem=0;nItem<nCount;nItem++)
+	{
+		if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
+		{
+			strobject =m_listCtrl.GetItemText(nItem,0);
+			if(m_ADTypeTable[2].TableName !=  m_strtable )//安装地点
+			{
+            	strobject += "|" +m_listCtrl.GetItemText(nItem,1);
+	    		strobject += "|" +m_listCtrl.GetItemText(nItem,2);
+			}
+    		nCount =12345678;
+        	if("feedelectricity" ==  m_strtable )  //馈电策略显示
+			{
+				szMsg = m_listCtrl.GetItemText(nItem,2);
+            	CString strf,strc;
+      		    strf = szMsg.Mid(0,2);
+        		strc = szMsg.Mid(3,2);
+        		int nfds = m_Str2Data.String2Int(strf);
+        		int nchan = m_Str2Data.String2Int(strc);
+				szMsg = m_SlaveStation[nfds][nchan].FeedState;
+    			if(szMsg == "异常")
+				{
+					nCount =6666;
+	        		break;
+				}
+			}
+     	    else if(m_ADTypeTable[5].TableName ==  m_strtable )  //控制策略显示
+			{
+				szMsg = m_listCtrl.GetItemText(nItem,1);
+            	CString strf,strc;
+      		    strf = szMsg.Mid(0,2);
+        		strc = szMsg.Mid(3,2);
+        		int nfds = m_Str2Data.String2Int(strf);
+        		int nchan = m_Str2Data.String2Int(strc);
+				int nstatus = m_SlaveStation[nfds][nchan].Channel_state;
+    			if(nstatus == 0x20)//断电状态不可以删除
+				{
+					nCount =6665;
+	        		break;
+				}
+			}
+        	else if(m_ADTypeTable[3].TableName ==  m_strtable ) //pointdescription
+			{
+				szMsg = m_listCtrl.GetItemText(nItem,1);
+            	CString strf,strc;
+      		    strf = szMsg.Mid(0,2);
+        		strc = szMsg.Mid(3,2);
+        		int nfds = m_Str2Data.String2Int(strf);
+        		int nchan = m_Str2Data.String2Int(strc);
+        		int p =szMsg.Find("C");
+				if(p >0)
+					nchan = nchan +16;
+				if(!theApp.m_RTDM.CalRelationW(nfds,nchan) || !theApp.m_RTDM.CalRelationD(nfds,nchan)||!theApp.m_RTDM.CalRelationF(nfds,nchan)||!theApp.m_RTDM.CalRelationC(nfds,nchan))
+				{//当关系用时不能删、改
+					nCount =6664;
+	        		break;
+				}
+          		int ufData4 = m_SlaveStation[nfds][nchan].Adjust_state;
+				if(ufData4 ==1)
+				{//调校时不可删、改；
+					nCount =6664;
+                     AfxMessageBox(strobject+":已经设为标校,不能删除！");
+	        		break;
+				}
+				int nstatus = m_SlaveStation[nfds][nchan].Channel_state;
+    			if(nstatus == 0x20 || nstatus == 0x10)
+				{//报警状态不可以删除、断电状态不可以删除
+					nCount =6664;
+                     AfxMessageBox(strobject+":"+theApp.m_RTDM.strstatus(nstatus)+",不能删除！");
+	        		break;
+				}
+			}//pointdescription
+       	    else if(m_ADTypeTable[1].TableName ==  m_strtable ) //开关量
+			{//开关量类型、模拟量类型定义后，如果被使用，则不可以删除、修改
+				for(int k=0; k< theApp.m_UpModD.size(); k++)
+				{
+					if(m_AccountSet.m_szDID == theApp.m_UpModD[k])
+					{
+			    		nCount =6664;
+                     AfxMessageBox(strobject+":被使用,不能删除！");
+	            		break;
+					}
+				}
+			}
+     	    else if(m_ADTypeTable[0].TableName ==  m_strtable )//模拟量
+			{
+				for(int k=0; k< theApp.m_UpModA.size(); k++)
+				{
+					if(m_ContactSet.m_szAID == theApp.m_UpModA[k])
+					{
+			    		nCount =6664;
+                     AfxMessageBox(strobject+":被使用,不能删除！");
+	            		break;
+					}
+				}
+			}
+			break;
+		}
+	}
+	if(nCount == 6666)
+	{
+			AfxMessageBox(strobject +"：馈电异常,不能删除！", MB_OK);
+			return;
+	}
+	else if(nCount == 6665)
+	{
+			AfxMessageBox(strobject +"：断电,不能删除！", MB_OK);
+			return;
+	}
+	else if(nCount == 6664)
+			return;
 
+
+	if(nCount != 12345678 )
+	{
+			AfxMessageBox("请选择需要删除的行！", MB_OK);
+			return;
+	}
+
+	         szMsg.Format(_T("删除 %s?"), strobject);
   MessageBeep(MB_ICONEXCLAMATION);
   int Reply = AfxMessageBox(szMsg, MB_YESNO);
 
@@ -1772,22 +1847,21 @@ void CSettingHostDlg::OnBtnDEL()
 			COleDateTime CTime;
 
 	int nItemCount=m_listCtrl.GetItemCount();
-	CString strPointNo,strItem,strn0,strn2,strn3;
+	CString strPointNo;
     for(int nItem=0;nItem<nItemCount;nItem++)
 	{
 		if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
 		{
-			strn0 =m_listCtrl.GetItemText(nItem,0);
+//			strn0 =m_listCtrl.GetItemText(nItem,0);
         	 strPointNo=m_listCtrl.GetItemText(nItem,1);
-			strn2 =m_listCtrl.GetItemText(nItem,2);
+//			strn2 =m_listCtrl.GetItemText(nItem,2);
 			m_listCtrl.DeleteItem(nItem);
 			break;
 		}
 	}
 			  if(m_ADTypeTable[1].TableName ==  m_strtable ) //开关量
 			  {
-				  strItem =strn0 +"||"+strPointNo +"||"+strn2 +"||";
-      g_Log.StatusOut("删除开关量类型：" + strItem + theApp.curuser);
+      g_Log.StatusOut("删除开关量类型：" + strobject +"||"+ theApp.curuser);
                 	m_AccountSet.m_szUseriddel = theApp.curuser;
         			m_AccountSet.m_szfdel = true;
         			m_AccountSet.m_szdeldate = CTime.GetCurrentTime();
@@ -1795,8 +1869,7 @@ void CSettingHostDlg::OnBtnDEL()
 			  }
 			  else if(m_ADTypeTable[0].TableName ==  m_strtable )//模拟量
 			  {
-				  strItem =strn0 +"||"+strPointNo +"||"+strn2 +"||";
-      g_Log.StatusOut("删除模拟量类型：" + strItem + theApp.curuser);
+      g_Log.StatusOut("删除模拟量类型：" + strobject +"||" + theApp.curuser);
                 	m_ContactSet.m_szUseriddel = theApp.curuser;
         			m_ContactSet.m_szfdel = true;
         			m_ContactSet.m_szdeldate = CTime.GetCurrentTime();
@@ -1804,14 +1877,12 @@ void CSettingHostDlg::OnBtnDEL()
 			  }
 			  else if(m_ADTypeTable[2].TableName ==  m_strtable )//安装地点
 			  {
-				  strItem =strn0 +"||"+strPointNo +"||"+strn2 +"||";
-      g_Log.StatusOut("删除安装地点：" + strItem + theApp.curuser);
+      g_Log.StatusOut("删除安装地点：" + strobject +"||" + theApp.curuser);
 				 m_MAlocation.Delete();
 			  }
 			  else if(m_ADTypeTable[3].TableName ==  m_strtable )  //pointdescription
 			  {
-				  strItem =strn0 +"||"+strPointNo +strn2 +"||";
-      g_Log.StatusOut("删除测点：" + strItem + theApp.curuser);
+      g_Log.StatusOut("删除测点：" + strobject +"||" + theApp.curuser);
                	m_PointDes.m_szUseriddel = theApp.curuser;
         			m_PointDes.m_szfdel = true;
         			m_PointDes.m_szdeldate = CTime.GetCurrentTime();
@@ -1821,8 +1892,7 @@ void CSettingHostDlg::OnBtnDEL()
 			  }
 			  else if(m_ADTypeTable[5].TableName ==  m_strtable )  //控制策略显示
 			  {
-				  strItem =strn0 +"||"+strPointNo +"||"+strn2 +"||";
-      g_Log.StatusOut("删除控制策略：" + strItem + theApp.curuser);
+      g_Log.StatusOut("删除控制策略：" + strobject +"||" + theApp.curuser);
                 	m_Control.m_szUseriddel = theApp.curuser;
         			m_Control.m_szfdel = true;
         			m_Control.m_szdeldate = CTime.GetCurrentTime();
@@ -1830,8 +1900,7 @@ void CSettingHostDlg::OnBtnDEL()
 			  }
 			  else if("feedelectricity" ==  m_strtable )  //馈电策略显示
 			  {
-				  strItem =strn0 +"||"+strPointNo +"||"+strn2 +"||";
-      g_Log.StatusOut("删除馈电策略：" + strItem + theApp.curuser);
+      g_Log.StatusOut("删除馈电策略：" + strobject +"||" + theApp.curuser);
                 	m_AxFeedE.m_szUseriddel = theApp.curuser;
         			m_AxFeedE.m_szfdel = true;
         			m_AxFeedE.m_szdeldate = CTime.GetCurrentTime();
@@ -1839,9 +1908,9 @@ void CSettingHostDlg::OnBtnDEL()
 			  }
 		//      m_Cn.Execute(szExecStr);
 			  OnClose();
+		theApp.InitData();
 			  ConnectToProvider();
 			  BuildAccountList();
-		theApp.InitData();
     }
   }
   catch ( dbAx::CAxException *e )
@@ -1853,14 +1922,44 @@ void CSettingHostDlg::OnBtnDEL()
 
 void CSettingHostDlg::OnBtnMOD()
 {
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 	LPCTSTR str1 = "",str2 = "",str3 = "",str4 = "";
 	CString strItem, strf,strc;
+	int nCount=m_listCtrl.GetItemCount();
+    for(int nItem=0;nItem<nCount;nItem++)
+	{
+		if(m_listCtrl.GetItemState(nItem,LVIS_SELECTED) & LVIS_SELECTED)
+		{
+    		nCount =12345678;
+			break;
+		}
+	}
+	if(nCount != 12345678)
+	{
+			AfxMessageBox("请选择需要修改的行！", MB_OK);
+			return;
+	}
 	if(m_ADTypeTable[3].TableName ==  m_strtable ) //pointdescription
 	{
 		m_bADD = false;
     		int nfds = m_PointDesNew->m_szfds;
     		int nchan = m_PointDesNew->m_szchan;
 		strItem = m_SlaveStation[nfds][nchan].WatchName;
+                //当关系用时，要删、改测点必须先删除关系
+				if(!theApp.m_RTDM.CalRelationW(nfds,nchan) || !theApp.m_RTDM.CalRelationD(nfds,nchan)||!theApp.m_RTDM.CalRelationF(nfds,nchan)||!theApp.m_RTDM.CalRelationC(nfds,nchan))
+	        		return;
+          		int ufData4 = m_SlaveStation[nfds][nchan].Adjust_state;
+				if(ufData4 ==1)//调校时不可删、改
+				{
+                     AfxMessageBox(strItem+"|"+m_SlaveStation[nfds][nchan].strPN +":已经设为标校,不能删除！");
+	        		return;
+				}//报警状态不可以删除、断电状态不可以删除
+				int nstatus = m_SlaveStation[nfds][nchan].Channel_state;
+    			if(nstatus == 0x20 || nstatus == 0x10)
+				{
+                     AfxMessageBox(strItem+"|"+m_SlaveStation[nfds][nchan].strPN+":"+theApp.m_RTDM.strstatus(nstatus)+",不能删除！");
+	        		return;
+				}
       	m_Str2Data.SplittoCString(strItem,str1,str2,str3);
 		m_wndComboSize1.SetWindowText(str1);
 		strItem = m_PointDesNew->m_szutype;
@@ -1932,10 +2031,37 @@ void CSettingHostDlg::OnBtnMOD()
 	}
 	else if(m_ADTypeTable[6].TableName ==  m_strtable )
 	{
-	}//安装地点
+	}
 	else 
 	{
-		  CAccountDlg dlg(TRUE, this);
+		int nCount=0; //开关量类型、模拟量类型定义后，如果被使用，则不可以删除、修改
+		if(m_ADTypeTable[1].TableName ==  m_strtable ) //开关量
+		{
+				for(int k=0; k< theApp.m_UpModD.size(); k++)
+				{
+					if(m_AccountSet.m_szDID == theApp.m_UpModD[k])
+					{
+			    		nCount =6664;  strItem =m_AccountSet.m_szName; strItem.TrimRight();
+                        AfxMessageBox(strItem+":被使用,不能修改！");
+	            		break;
+					}
+				}
+		}
+	    else if(m_ADTypeTable[0].TableName ==  m_strtable )//模拟量
+		{
+				for(int k=0; k< theApp.m_UpModA.size(); k++)
+				{
+					if(m_ContactSet.m_szAID == theApp.m_UpModA[k])
+					{
+			    		nCount =6664;   strItem =m_ContactSet.m_szName; strItem.TrimRight();
+                     AfxMessageBox(strItem+":被使用,不能修改！");
+	            		break;
+					}
+				}
+		}
+			if(nCount ==6664)
+				return;
+ 		  CAccountDlg dlg(TRUE, this);
 		  dlg.strtable= m_strtable;
 		  if ( dlg.DoModal() == IDOK )
 		  {
@@ -2064,7 +2190,7 @@ void CSettingHostDlg::OnButtonDeselect()
 				             strP1=m_listDis.GetItemText(ndis,0);
 				             strP2=m_listDis.GetItemText(ndis,1);
       			    		 m_ControlNew->m_szcpointnum = strP1;
-				  strItem =strPoint1 +"||"+strPoint2 +"||"+strP1 +"||";
+				  strItem =strPoint1 +" "+strPoint2 +" "+strP1 +"  ";
 
 		    			     m_ControlNew->m_szcPID = m_Str2Data.String2Int(strP2);
 							 strPoint2.TrimRight();
@@ -2200,7 +2326,7 @@ void CSettingHostDlg::OnButtonDeselect()
 			             	 strP1.TrimRight();
 		      			     m_AxFeedENew->m_szepointnum = strP1;
 		    			     m_AxFeedENew->m_szecpointnum = strPoint2 +strP1;
-				  strItem =strPoint1 +"||"+strPoint2 +"||"+strP1 +"||";
+				  strItem =strPoint1 +" "+strPoint2 +" "+strP1 +"  ";
 
     						 m_AxFeedENew->m_szrecdate = CTime.GetCurrentTime();
      						 m_AxFeedENew->m_szUseridadd = theApp.curuser;
@@ -2393,26 +2519,24 @@ void CSettingHostDlg::OnchangeComboF() //COMBO3
 		  return;
      	m_listCtrl.DeleteAllItems();
 //     	m_listDis.DeleteAllItems();
-		CString dddd,cccc;
-		int iItem = 0;
-		int iItem1 = 0;
+		CString dddd;
+		int iItem = 0;   int eYear;
 		int nfds3 = m_wndComboSize3.GetCurSel();
 //		int nfds4 = m_wndComboSize4.GetCurSel();
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
+		for(int j = 0; j < MAX_CHAN;j++ )
 		{
-    		dddd = m_PointDes.m_szpointnum;
-			cccc.Format("%d", m_PointDes.m_szPID);
-			if(m_PointDes.m_szfds == nfds3+1  && dddd.Find("C") == -1)
+       		if(m_SlaveStation[nfds3+1][j].WatchName !="")
 			{
-             		int nfds = m_PointDes.m_szfds;
-              		int nchan = m_PointDes.m_szchan;
-         		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds][nchan].WatchName);
-        		m_listCtrl.SetItemText(iItem, 1, m_PointDes.m_szpointnum);
-        		m_listCtrl.SetItemText(iItem, 2, cccc);
-    			iItem++;
+       			eYear = m_SlaveStation[nfds3+1][j].ptype;
+			    dddd.Format("%d",m_SlaveStation[nfds3+1][j].m_PID);
+				if(eYear<3 || eYear>12 || eYear ==10)
+				{
+            		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds3+1][j].WatchName);
+            		m_listCtrl.SetItemText(iItem, 1, m_SlaveStation[nfds3+1][j].strPN);
+         			m_listCtrl.SetItemText(iItem, 2, dddd);
+         			iItem++;
+				}
 			}
-			m_PointDes.MoveNext();
 		}
 	}
 	else if("AddFeedE" ==  m_strtable)   //加馈电策略
@@ -2421,29 +2545,27 @@ void CSettingHostDlg::OnchangeComboF() //COMBO3
 		  return;
      	m_listCtrl.DeleteAllItems();
 //     	m_listDis.DeleteAllItems();
-		CString dddd,cccc;
-		int iItem = 0;
-		int iItem1 = 0;
+		CString dddd;
+		int iItem = 0; int eYear;
 		int nfds3 = m_wndComboSize3.GetCurSel();
-		int nfds4 = m_wndComboSize4.GetCurSel();
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
+//		int nfds4 = m_wndComboSize4.GetCurSel();
+		for(int j = 0; j < MAX_CHAN;j++ )
 		{
-    		dddd = m_PointDes.m_szpointnum;
-			cccc.Format("%d", m_PointDes.m_szPID);
-			if(m_PointDes.m_szfds == nfds3+1  && dddd.Find("C") != -1)
+       		if(m_SlaveStation[nfds3+1][j].WatchName !="")
 			{
-             		int nfds = m_PointDes.m_szfds;
-              		int nchan = m_PointDes.m_szchan;
-         		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds][nchan].WatchName);
-        		m_listCtrl.SetItemText(iItem, 1, m_PointDes.m_szpointnum);
-        		m_listCtrl.SetItemText(iItem, 2, cccc);
-    			iItem++;
+       			eYear = m_SlaveStation[nfds3+1][j].ptype;
+			    dddd.Format("%d",m_SlaveStation[nfds3+1][j].m_PID);
+				if(eYear ==12 )
+				{
+            		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds3+1][j].WatchName);
+            		m_listCtrl.SetItemText(iItem, 1, m_SlaveStation[nfds3+1][j].strPN);
+         			m_listCtrl.SetItemText(iItem, 2, dddd);
+         			iItem++;
+				}
 			}
-			m_PointDes.MoveNext();
 		}
 	}
-	else if(m_ADTypeTable[4].TableName ==  m_strtable)    //选择测点显示 
+	else if(m_ADTypeTable[4].TableName ==  m_strtable)    //选择测点显示 多条件选
 	{
 		if ( m_PointDes._IsEmpty() )
 		  return;
@@ -2456,16 +2578,15 @@ void CSettingHostDlg::OnchangeComboF() //COMBO3
 		int kkkk = m_wndComboSize1.GetCurSel(); //传感器名称
     	m_wndComboSize1.GetLBText(kkkk,strname);
       	LPCTSTR str1 = "",str2 = "",str3 = "";
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
+		for(int i = 1; i < MAX_FDS;i++ )
 		{
-             		int nfds = m_PointDes.m_szfds;
-              		int nchan = m_PointDes.m_szchan;
+			for(int j = 0; j < MAX_CHAN;j++ )
+			{
 					if(nfds3 == 0)
-						n_sfds = nfds;
+						n_sfds = i;
 					else
 						n_sfds = nfds3;
-    		cccc = m_SlaveStation[nfds][nchan].WatchName;
+    		cccc = m_SlaveStation[i][j].WatchName;
          	m_Str2Data.SplittoCString(cccc,str1,str2,str3);
 			cccc = str2;
 			if(kkkk == 0)
@@ -2475,22 +2596,18 @@ void CSettingHostDlg::OnchangeComboF() //COMBO3
 			else
 				n_sfds2 = nfds2-1;
 			if(n_sfds2 == -1)
-				n_sfds2 = m_PointDes.m_szptype;
+				n_sfds2 = m_SlaveStation[i][j].ptype;
 
-    		dddd = m_PointDes.m_szpointnum;
-			dddd.TrimRight();
-			if(n_sfds == nfds && cccc==strname && n_sfds2==m_PointDes.m_szptype)
+			if(n_sfds == i && cccc==strname && n_sfds2==m_SlaveStation[i][j].ptype &&m_SlaveStation[i][j].WatchName !="")
 			{
-         		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds][nchan].WatchName);
-        		m_listCtrl.SetItemText(iItem, 1, dddd);
-         		dddd = m_PointDes.m_szutype;
-    			dddd.TrimRight();
-        		m_listCtrl.SetItemText(iItem, 2, dddd);
+         		m_listCtrl.InsertItem(iItem, m_SlaveStation[i][j].WatchName);
+        		m_listCtrl.SetItemText(iItem, 1, m_SlaveStation[i][j].strPN );
+        		m_listCtrl.SetItemText(iItem, 2, m_SlaveStation[i][j].utype);
     			iItem++;
 			}
-			m_PointDes.MoveNext();
-		}
-	}
+			}
+		}//for
+	}//else if
 }
 
 //void CSettingHostDlg::OnButtonCANCEL() 
@@ -2519,22 +2636,18 @@ void CSettingHostDlg::OnchangeCombo2()
 		  return;
      	m_listCtrl.DeleteAllItems();
 		CString dddd,cccc,strname;
-		int iItem = 0;
-		int n_sfds = 0;
-		int n_sfds2 = 0;
+		int iItem = 0;		int n_sfds = 0;		int n_sfds2 = 0;
 		int nfds2 = m_wndComboSize2.GetCurSel(); //传感器制式
 		int nfds3 = m_wndComboSize3.GetCurSel();  //分站
 		int kkkk = m_wndComboSize1.GetCurSel(); //传感器名称
     	m_wndComboSize1.GetLBText(kkkk,strname);
       	LPCTSTR str1 = "",str2 = "",str3 = "";
-
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
+		for(int i = 1; i < MAX_FDS;i++ )
 		{
-             		int nfds = m_PointDes.m_szfds;
-              		int nchan = m_PointDes.m_szchan;
+			for(int j = 0; j < MAX_CHAN;j++ )
+			{
 					if(nfds3 == 0)
-						n_sfds = nfds;
+						n_sfds = i;
 					else
 						n_sfds = nfds3;
 			if(nfds2 >3)
@@ -2542,26 +2655,21 @@ void CSettingHostDlg::OnchangeCombo2()
 			else
 				n_sfds2 = nfds2-1;
 			if(n_sfds2 == -1)
-				n_sfds2 = m_PointDes.m_szptype;
-    		cccc = m_SlaveStation[nfds][nchan].WatchName;
+				n_sfds2 = m_SlaveStation[i][j].ptype;
+    		cccc = m_SlaveStation[i][j].WatchName;
          	m_Str2Data.SplittoCString(cccc,str1,str2,str3);
 			cccc = str2;
 			if(kkkk == 0)
 				strname =cccc;
-
-    		dddd = m_PointDes.m_szpointnum;
-			dddd.TrimRight();
-			if(m_PointDes.m_szptype == n_sfds2 && n_sfds==nfds && cccc==strname)
+			if(m_SlaveStation[i][j].ptype == n_sfds2 && n_sfds==i && cccc==strname &&m_SlaveStation[i][j].WatchName !="")
 			{
-         		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds][nchan].WatchName);
-        		m_listCtrl.SetItemText(iItem, 1, dddd);
-         		dddd = m_PointDes.m_szutype;
-    			dddd.TrimRight();
-        		m_listCtrl.SetItemText(iItem, 2, dddd);
+         		m_listCtrl.InsertItem(iItem, m_SlaveStation[i][j].WatchName);
+        		m_listCtrl.SetItemText(iItem, 1, m_SlaveStation[i][j].strPN );
+        		m_listCtrl.SetItemText(iItem, 2, m_SlaveStation[i][j].utype);
     			iItem++;
 			}
-			m_PointDes.MoveNext();
-		}
+			}
+		}//for
 	}
 }
 
@@ -2573,9 +2681,7 @@ void CSettingHostDlg::OnchangeCombo1()
 		  return;
      	m_listCtrl.DeleteAllItems();
 		CString dddd,cccc,strname;
-		int iItem = 0;
-		int n_sfds = 0;
-		int n_sfds2 = 0;
+		int iItem = 0;		int n_sfds = 0;		int n_sfds2 = 0;
 		int kkkk = m_wndComboSize1.GetCurSel(); //传感器名称
     	if(kkkk == -1 )
 		{
@@ -2587,14 +2693,12 @@ void CSettingHostDlg::OnchangeCombo1()
 
     	m_wndComboSize1.GetLBText(kkkk,strname);
       	LPCTSTR str1 = "",str2 = "",str3 = "";
-
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
+		for(int i = 1; i < MAX_FDS;i++ )
 		{
-             		int nfds = m_PointDes.m_szfds;
-              		int nchan = m_PointDes.m_szchan;
+			for(int j = 0; j < MAX_CHAN;j++ )
+			{
 					if(nfds3 == 0)
-						n_sfds = nfds;
+						n_sfds = i;
 					else
 						n_sfds = nfds3;
 			if(nfds2 >3)
@@ -2602,27 +2706,21 @@ void CSettingHostDlg::OnchangeCombo1()
 			else
 				n_sfds2 = nfds2-1;
 			if(n_sfds2 == -1)
-				n_sfds2 = m_PointDes.m_szptype;
-
-    		dddd = m_SlaveStation[nfds][nchan].WatchName;
-         	m_Str2Data.SplittoCString(dddd,str1,str2,str3);
-			dddd = str2;
+				n_sfds2 = m_SlaveStation[i][j].ptype;
+    		cccc = m_SlaveStation[i][j].WatchName;
+         	m_Str2Data.SplittoCString(cccc,str1,str2,str3);
+			cccc = str2;
 			if(kkkk == 0)
-				strname =dddd;
-
-			if(dddd==strname && n_sfds==nfds && n_sfds2==m_PointDes.m_szptype)
+				strname =cccc;
+			if(m_SlaveStation[i][j].ptype == n_sfds2 && n_sfds==i && cccc==strname &&m_SlaveStation[i][j].WatchName !="")
 			{
-         		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds][nchan].WatchName);
-        		dddd = m_PointDes.m_szpointnum;
-     			dddd.TrimRight();
-         		m_listCtrl.SetItemText(iItem, 1, dddd);
-         		dddd = m_PointDes.m_szutype;
-    			dddd.TrimRight();
-        		m_listCtrl.SetItemText(iItem, 2, dddd);
+         		m_listCtrl.InsertItem(iItem, m_SlaveStation[i][j].WatchName);
+        		m_listCtrl.SetItemText(iItem, 1, m_SlaveStation[i][j].strPN );
+        		m_listCtrl.SetItemText(iItem, 2, m_SlaveStation[i][j].utype);
     			iItem++;
 			}
-			m_PointDes.MoveNext();
-		}
+			}
+		}//for
 	}
 }
 
@@ -2640,29 +2738,6 @@ void CSettingHostDlg::OnChCB03() //COMBO3
 		}
 	if(m_ADTypeTable[4].TableName ==  m_strtable)    //选择测点显示
 	{
-		if ( m_PointDes._IsEmpty() )
-		  return;
-     	m_listCtrl.DeleteAllItems();
-//     	m_listDis.DeleteAllItems();
-		int iItem = 0;
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
-		{
-    		dddd = m_PointDes.m_szpointnum;
-    			dddd.TrimRight();
-			if(m_PointDes.m_szfds == nfds3 ) //分站
-			{
-             		int nfds = m_PointDes.m_szfds;
-              		int nchan = m_PointDes.m_szchan;
-         		m_listCtrl.InsertItem(iItem, m_SlaveStation[nfds][nchan].WatchName);
-        		m_listCtrl.SetItemText(iItem, 1, dddd);
-         		dddd = m_PointDes.m_szutype;
-    			dddd.TrimRight();
-        		m_listCtrl.SetItemText(iItem, 2, dddd);
-    			iItem++;
-			}
-			m_PointDes.MoveNext();
-		}
 	}
 	UpdateData(FALSE);
 }

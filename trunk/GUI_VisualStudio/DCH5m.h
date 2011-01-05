@@ -6,10 +6,6 @@
 #endif // _MSC_VER > 1000
 // DCH5m.h : header file
 //
-#include "dbAx\AxPointDescription.hpp"
-#include "dbAx\AxContactCmd.hpp"
-#include "dbAx\CardFileEvents.hpp"
-#include "dbAx\AccountSetEvents.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 // CDCH5m dialog
@@ -34,12 +30,12 @@ public:
 	CTime m_endDateTime;
 	CTime m_startDateTime;
 	int n_select;
+	int m_success;
 	CString strPOINT;
-    CAxConnection   m_Cn;
-    CAxPointDescription  m_PointDes;
-	CString2DataType    m_Str2Data;
 	CSearchDir m_sdir;
 	CommonTools C_Ts;
+
+	void DCH5mInitList();
 
 // Overrides
 	// ClassWizard generated virtual function overrides

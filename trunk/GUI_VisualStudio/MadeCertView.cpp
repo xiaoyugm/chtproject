@@ -1,6 +1,7 @@
 // MadeCertView.cpp : implementation file
 //
 
+
 #include "stdafx.h"
 #include "GUI_VisualStudio.h"
 #include "MadeCertView.h"
@@ -8,6 +9,7 @@
 //#include "ViewInfoDlg.h"
 #include "MainFrm.h"
 //#include "MadeCertDlg.h"
+
 
 #include "ExcelFormat.h"
 using namespace ExcelFormat;
@@ -21,8 +23,10 @@ static char THIS_FILE[] = __FILE__;
 
 #define BoolType(b) b?true:false
 
+extern SerialF               m_SerialF[MAX_FDS];
+extern ADCbreakE             m_CFeed[MAX_FDS][MAX_CHAN][65];
+extern ADCbreakE             m_ADCbreakE[MAX_FDS][MAX_CHAN][65];
 extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
-extern SerialF               m_ClassTime[200];            //班设置
 /////////////////////////////////////////////////////////////////////////////
 // CMadeCertView
 //extern CString str[35];
@@ -35,8 +39,8 @@ CMadeCertView::CMadeCertView()
 	m_select=-1;
 	m_stragrv ="";
 	CTimeSpan tpan(1,0,0,0);
-	m_ctrlStartH = m_ClassTime[1].ffds;
-	m_ctrlEndH = m_ClassTime[1].ffds-1;
+	m_ctrlStartH = m_SerialF[0].SFSd;
+	m_ctrlEndH = m_SerialF[0].SFSd-1;
 	m_endDateTime = CTime::GetCurrentTime();
 	if(m_ctrlStartH == 0)
    	{
@@ -45,7 +49,7 @@ CMadeCertView::CMadeCertView()
 	}
 
 	m_startDateTime = CTime::GetCurrentTime()-tpan;
-	m_tnum =0;
+	b_twodb = FALSE;
 //	CString strna = m_startDateTime.Format(_T("%Y-%m-%d %H:%M:%S"));
 //    		AfxMessageBox(strna);
 
@@ -129,14 +133,17 @@ void CMadeCertView::OnInitialUpdate()
 //	((CButton*)GetDlgItem(IDC_BUTTON_AUT_MADE))->SetBitmap(m_bitMadeCert);
 //    	GetParentFrame()->MoveWindow(CRect(50,100,960,700));
 //	GetParentFrame()->SetWindowPos(NULL,0,0,GetSystemMetrics(SM_CXSCREEN)-8,140,SWP_NOMOVE|SWP_NOZORDER | SWP_NOACTIVATE|SWP_SHOWWINDOW);
+	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+   	pFWnd->m_MadeCert=this;
 
+	::CoInitialize(NULL);
 	CString strna[3];
 	strna[0] = "安装地点|名称";
 		strna[1] ="点号";
 		strna[2] ="PID";
 		int m_widge[3];
-		m_widge[0] =170;
-		m_widge[1]=80;
+		m_widge[0] =160;
+		m_widge[1]=75;
 		m_widge[2]=40;
 	for(int i=0;i<3;i++)
 	{
@@ -146,142 +153,115 @@ void CMadeCertView::OnInitialUpdate()
 	m_ctrlStartTime.SetTime(&m_startDateTime);
 	m_ctrlEndTime.SetTime(&m_endDateTime);
 	
-	CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
-                          User ID=sa;Password=sunset;\
-                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
-//All calls to the AxLib should be wrapped in a try / catch block
-  try
-  {
-    dbAx::Init();
-    m_Cn.Create();
-//    m_Cn._SetConnectionEvents(new CCardFileEvents);
-    m_Cn.CursorLocation(adUseClient);
-    m_Cn.Open((LPCTSTR)szConnect);
-  }
-  catch ( dbAx::CAxException *e )
-  {
-		AfxMessageBox(e->m_szErrorDesc +  _T("BJygjl Message"));
-//    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-    return ;
-  }
-
 //	((CComboBox *)GetDlgItem(IDC_COMBO1))->SetCurSel(0);
 	// TODO: Add your specialized code here and/or call the base class
 //	m_List.SetWindowPos(NULL,0,0,1024,400,SWP_NOMOVE|SWP_NOZORDER | SWP_NOACTIVATE);
     	GetDlgItem(IDC_COMBMADE)->ShowWindow(SW_HIDE);;
 
-		strna[0] ="Select * From pointdescription WHERE fdel=0";
+		m_widge[0] = 0 ;//all point
 	if(theApp.strargc == "OnALARMS")
-//    	GetDlgItem(IDC_CHECK_ISALM)->ShowWindow(SW_SHOW);;
-       	GetParentFrame()->SetWindowText("报警记录查询");
+//       	GetParentFrame()->SetWindowText("报警记录查询");
+		GetDocument()->SetTitle("报警记录查询");
 	else if(theApp.strargc == "OnBREAKES")
-       	GetParentFrame()->SetWindowText("断电记录查询");
+		GetDocument()->SetTitle("断电记录查询");
 	else if(theApp.strargc == "OnFEEDES")
-       	GetParentFrame()->SetWindowText("馈电异常记录查询");
+		GetDocument()->SetTitle("馈电异常记录查询");
 	else if(theApp.strargc == "OnSELECTS")
-       	GetParentFrame()->SetWindowText("调用查询");
+		GetDocument()->SetTitle("调用查询");
 	else if(theApp.strargc == "OnRECAAD")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype<3";
-       	GetParentFrame()->SetWindowText("模拟量报警记录查询");
+		m_widge[0] = 1 ;//A point
+		GetDocument()->SetTitle("模拟量报警记录查询");
 	}
 	else if(theApp.strargc == "OnRECABD")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype<3";
-       	GetParentFrame()->SetWindowText("模拟量断电记录查询");
+		m_widge[0] = 1 ;//A point
+		GetDocument()->SetTitle("模拟量断电记录查询");
 	}
 	else if(theApp.strargc == "OnRECAFED")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype<3";
-       	GetParentFrame()->SetWindowText("模拟量馈电异常记录查询");
+		m_widge[0] = 1 ;//A point
+		GetDocument()->SetTitle("模拟量馈电异常记录查询");
 	}
 	else if(theApp.strargc == "OnRECASR")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype<3";
-       	GetParentFrame()->SetWindowText("模拟量统计值记录查询");
+		m_widge[0] = 1 ;//A point
+		GetDocument()->SetTitle("模拟量统计值记录查询");
 	}
 	else if(theApp.strargc == "OnRECDABD")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype>3";
-       	GetParentFrame()->SetWindowText("开关量报警记录查询");
+		m_widge[0] = 2 ;//D point
+		GetDocument()->SetTitle("开关量报警断电记录查询");
 	}
 	else if(theApp.strargc == "OnRECDABB")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype>3";
-       	GetParentFrame()->SetWindowText("开关量断电记录查询");
+		m_widge[0] = 2 ;//D point
+		GetDocument()->SetTitle("开关量断电记录查询");
 	}
 	else if(theApp.strargc == "OnRECDFED")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype>3";
-       	GetParentFrame()->SetWindowText("开关量馈电异常记录查询");
+		m_widge[0] = 2 ;//D point
+		GetDocument()->SetTitle("开关量馈电异常记录查询");
 	}
 	else if(theApp.strargc == "OnRECDSCD")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype>3";
-       	GetParentFrame()->SetWindowText("开关量状态变动记录查询");
+		m_widge[0] = 2 ;//D point
+		GetDocument()->SetTitle("开关量状态变动记录查询");
 	}
 	else if(theApp.strargc == "OnRECDRIVERE")
 	{
-       	GetParentFrame()->SetWindowText("监控设备故障记录查询");
+		GetDocument()->SetTitle("监控设备故障记录查询");
 	}
 
 	else if(theApp.strargc == "OnEXCELA")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype<3";
-       	GetParentFrame()->SetWindowText("模拟量日(班)报表");
+		m_widge[0] = 1 ;//A point
+		GetDocument()->SetTitle("模拟量日(班)报表");
 	}
 	else if(theApp.strargc == "OnEXCELAA")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype<3";
-       	GetParentFrame()->SetWindowText("模拟量报警日(班)报表");
+		m_widge[0] = 1 ;//A point
+		GetDocument()->SetTitle("模拟量报警日(班)报表");
 	}
 	else if(theApp.strargc == "OnEXCELAB")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype<3";
-       	GetParentFrame()->SetWindowText("模拟量断电日(班)报表");
+		m_widge[0] = 1 ;//A point
+		GetDocument()->SetTitle("模拟量断电日(班)报表");
 	}
 	else if(theApp.strargc == "OnEXCELAFE")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype<3";
-       	GetParentFrame()->SetWindowText("模拟量馈电异常日(班)报表");
+		m_widge[0] = 1 ;//A point
+		GetDocument()->SetTitle("模拟量馈电异常日(班)报表");
 	}
 	else if(theApp.strargc == "OnEXCELASR")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype<3";
-       	GetParentFrame()->SetWindowText("模拟量统计值日(班)报表");
+		m_widge[0] = 1 ;//A point
+		GetDocument()->SetTitle("模拟量统计值日(班)报表");
 	}
 	else if(theApp.strargc == "OnEXCELDA")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype>3";
-       	GetParentFrame()->SetWindowText("开关量报警日(班)报表");
+		m_widge[0] = 2 ;//D point
+		GetDocument()->SetTitle("开关量报警日(班)报表");
 	}
 	else if(theApp.strargc == "OnEXCELDAB")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype>3";
-       	GetParentFrame()->SetWindowText("开关量断电日(班)报表");
+		m_widge[0] = 2 ;//D point
+		GetDocument()->SetTitle("开关量断电日(班)报表");
 	}
 	else if(theApp.strargc == "OnEXCELDFE")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype>3";
-       	GetParentFrame()->SetWindowText("开关量馈电异常日(班)报表");
+		m_widge[0] = 2 ;//D point
+		GetDocument()->SetTitle("开关量馈电异常日(班)报表");
 	}
 	else if(theApp.strargc == "OnEXCELDSCD")
 	{
-		strna[0] ="Select * From pointdescription WHERE fdel=0 and ptype>3";
-       	GetParentFrame()->SetWindowText("开关量状态变动日(班)报表");
+		m_widge[0] = 2 ;//D point
+		GetDocument()->SetTitle("开关量状态变动日(班)报表");
 	}
 	else if(theApp.strargc == "OnEXCELDRIVERE")
 	{
-       	GetParentFrame()->SetWindowText("监控设备故障日(班)报表");
+		GetDocument()->SetTitle("监控设备故障日(班)报表");
 	}
-
-  		m_PointDes.Create();
-		m_PointDes.CursorType(adOpenDynamic);
-		m_PointDes.CacheSize(50);
-//		m_PointDes._SetRecordsetEvents(new CAccountSetEvents);
-		m_PointDes.Open(strna[0] , &m_Cn);
-		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
 
        InitStr();
 	CString strstartTime,strname,dddd;
@@ -290,7 +270,7 @@ void CMadeCertView::OnInitialUpdate()
 		m_CommonSet.CursorType(adOpenDynamic);
 		m_CommonSet.CacheSize(50);
 //		m_CommonSet._SetRecordsetEvents(new CAccountSetEvents);
-		m_CommonSet.Open(_T("Select * From commonset"), &m_Cn);
+		m_CommonSet.Open(_T("Select * From commonset"), &theApp.m_Cn);
 		m_CommonSet.MarshalOptions(adMarshalModifiedOnly);
 		int iItem = 0;
     	if(!m_CommonSet._IsEmpty())
@@ -352,23 +332,23 @@ void CMadeCertView::OnInitialUpdate()
 				int m_cba =0;
 				 eYear = m_Str2Data.String2Int(strstartTime);
 
-         		m_PointDes.MoveFirst();
-      	     	while ( !m_PointDes.IsEOF() )
+        		for(int i = 1; i < MAX_FDS;i++ )
 				{
-					int n_cp= m_PointDes.m_szPID;
-					if(eYear == n_cp)
+	        		for(int j = 0; j < MAX_CHAN;j++ )
 					{
-						m_cba =100;
-       					 break;
+		    			int n_cp= m_SlaveStation[i][j].m_PID;
+	       				if(eYear == n_cp)
+						{
+					    	m_cba =100;
+       				    	 break;
+						}
 					}
-	        		m_PointDes.MoveNext();
 				}
-				if(m_cba == 100)
+				if(m_cba == 100)//have point
 				{
 					mPoint[eYear]=iItem;
     	        	m_Points.push_back(eYear);
     		        iItem++;
-					m_tnum = iItem;
 				}
 	    		m_CommonSet.MoveNext();
 			}
@@ -376,26 +356,28 @@ void CMadeCertView::OnInitialUpdate()
              for ( i = 0 ; i < m_Points.size() ; i++ )
         		m_LCEXCEL2.InsertItem(i, "ddd");
 
-		 iItem = 0;
-    	if(!m_PointDes._IsEmpty())
+		 iItem = 0;      BOOL B_is;
+ 		for( i = 1; i < MAX_FDS;i++ )
 		{
-    		m_PointDes.MoveFirst();
-	     	while ( !m_PointDes.IsEOF() )
+			for(int j = 0; j < MAX_CHAN;j++ )
 			{
+				B_is =FALSE;
+       			eYear = m_SlaveStation[i][j].ptype;
+				if(m_widge[0] == 1 && eYear<3)
+					B_is = TRUE;
+				else if(m_widge[0] == 2 && eYear>9)
+					B_is = TRUE;
+				else if(m_widge[0] == 0)
+					B_is = TRUE;
+
 				int m_cba =0;
-	    		eYear = m_PointDes.m_szptype;
-	    		if((eYear != 11))
+	    		if(B_is && m_SlaveStation[i][j].WatchName!="")
 				{
-	    			strstartTime = m_PointDes.m_szpointnum;
-    				strstartTime.TrimRight();
-             		int nfds = m_PointDes.m_szfds;
-              		int nchan = m_PointDes.m_szchan;
-					eYear = m_PointDes.m_szPID;
+					eYear = m_SlaveStation[i][j].m_PID;
     				dddd.Format("%d",eYear);
-					int i=0;
-             		for ( i = 0 ; i < m_Points.size() ; i++ )
+             		for (int k = 0 ; k < m_Points.size() ; k++ )
 					{
-		      			if(eYear == m_Points[i])
+		      			if(eYear == m_Points[k])
 						{
     						m_cba =100;
       						break;
@@ -403,42 +385,31 @@ void CMadeCertView::OnInitialUpdate()
 					}
 					if(m_cba == 100)
 					{
-						strname =m_SlaveStation[nfds][nchan].WatchName;
-//						if(strname != "")
-						{
-            				m_LCEXCEL2.SetItemText(i, 0, strname);
-            				m_LCEXCEL2.SetItemText(i, 1, strstartTime);
-        	    			m_LCEXCEL2.SetItemText(i, 2, dddd);
-						}
+            				m_LCEXCEL2.SetItemText(k, 0, m_SlaveStation[i][j].WatchName);
+            				m_LCEXCEL2.SetItemText(k, 1, m_SlaveStation[i][j].strPN);
+        	    			m_LCEXCEL2.SetItemText(k, 2, dddd);
 					}
 					else
 					{
-        				m_LCEXCEL1.InsertItem(iItem, m_SlaveStation[nfds][nchan].WatchName);
-         				m_LCEXCEL1.SetItemText(iItem, 1, strstartTime);
+        				m_LCEXCEL1.InsertItem(iItem, m_SlaveStation[i][j].WatchName);
+         				m_LCEXCEL1.SetItemText(iItem, 1, m_SlaveStation[i][j].strPN);
         				m_LCEXCEL1.SetItemText(iItem, 2, dddd);
     	    	        iItem++;
 					}
-				}
-	    		m_PointDes.MoveNext();
-			}
-		}
-
+				}//B_is && m_SlaveStation[i][j]
+			}//for(int j
+		}//for(int i
 	HWND hWndHeader = m_LCEXCEL2.GetDlgItem(IDC_LCEXCEL_2)->GetSafeHwnd();
 	m_header.SubclassWindow(hWndHeader);
 	// enable auto sizing.
 	m_header.EnableAutoSize(TRUE);
 //	m_header.ResizeColumnsToFit();
-
-	
 	SortColumn(m_nSortedCol, m_bAscending);
-
 	m_LCEXCEL1.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_SHOWSELALWAYS | LVS_EX_GRIDLINES);
 	m_LCEXCEL2.ModifyExtendedStyle(0, LVS_EX_FULLROWSELECT|LVS_SHOWSELALWAYS | LVS_EX_GRIDLINES);
 //	m_LCEXCEL2.EnableUserSortColor(BoolType(m_bSortColor));
 //	m_LCEXCEL2.EnableUserListColor(BoolType(m_bListColor));
 //	m_LCEXCEL2.EnableUserRowColor(BoolType(m_bRowColor));
-
-
 /*	if (::CoInitialize(NULL)!=0)   //EXCEL
 	{ 
 		AfxMessageBox("初始化COM支持库失败,无法输出EXCEL报表!");
@@ -450,8 +421,19 @@ void CMadeCertView::OnInitialUpdate()
 
 void CMadeCertView::OnBOKSEARCH() 
 {
-	CommonTools C_Ts;
 	UpdateData(TRUE);
+	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+    pFWnd->m_ThreadPool.Add(new CThreadObject(*this, 5));
+}
+
+void CMadeCertView::OnTAuto() 
+{
+//       	GetParentFrame()->EnableWindow(FALSE);
+  	GetDlgItem(IDOKSEARCH)->EnableWindow(FALSE);;
+  	GetDlgItem(IDC_BEXCELADD)->EnableWindow(FALSE);;
+  	GetDlgItem(IDCANCELEXCEL)->EnableWindow(FALSE);;
+
+	CommonTools C_Ts;
 	if(m_ctrlStartH >23)
 		return;
 	if(m_ctrlEndH >23)
@@ -475,8 +457,8 @@ void CMadeCertView::OnBOKSEARCH()
 		}
 		else
 		{
-					theApp.socketClient.CalRtDB(t , starty , startm);
-					theApp.socketClient.CalRtDB(t1 , endy , endm);
+					theApp.m_RTDM.CalRtDB(t , starty , startm);
+					theApp.m_RTDM.CalRtDB(t1 , endy , endm);
 						strtime = "结束时间与起始时间应在两个月内";
 					if(starty == endy)	{
     					if(endm-startm>1){
@@ -514,21 +496,21 @@ void CMadeCertView::OnBOKSEARCH()
 					szConnect += "data WHERE recdate>'";
 					if(endm != startm)
 					{
-    					if(m_ClassTime[1].ffds >12)
+    					if(m_SerialF[0].SFSd >12)
 						{
         					  strtime = t.Format(_T("%Y-%m-%d %H:%M:%S")); 
-        					  sztime.Format("%d-%d-%d %d:59:59",starty,startm,C_Ts.GetDayM(starty,startm),m_ClassTime[1].ffds-1); 
+        					  sztime.Format("%d-%d-%d %d:59:59",starty,startm,C_Ts.GetDayM(starty,startm),m_SerialF[0].SFSd-1); 
             				  szConnect1 += strtime+"' and recdate<'" +sztime+"'";
-        					  strtime.Format("%d-%d-%d %d:00:00",starty,startm,C_Ts.GetDayM(starty,startm),m_ClassTime[1].ffds); 
+        					  strtime.Format("%d-%d-%d %d:00:00",starty,startm,C_Ts.GetDayM(starty,startm),m_SerialF[0].SFSd); 
         					  sztime = t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
             				  szConnect += strtime+"' and recdate<'" +sztime+"'";
 						}
 						else
 						{
         					  strtime = t.Format(_T("%Y-%m-%d %H:%M:%S")); 
-        					  sztime.Format("%d-%d-1 %d:59:59",endy,endm,m_ClassTime[1].ffds-1); 
+        					  sztime.Format("%d-%d-1 %d:59:59",endy,endm,m_SerialF[0].SFSd-1); 
             				  szConnect1 += strtime+"' and recdate<'" +sztime+"'";
-        					  strtime.Format("%d-%d-1 %d:00:00",endy,endm,m_ClassTime[1].ffds); 
+        					  strtime.Format("%d-%d-1 %d:00:00",endy,endm,m_SerialF[0].SFSd); 
         					  sztime = t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
             				  szConnect += strtime+"' and recdate<'" +sztime+"'";
 						}
@@ -565,35 +547,15 @@ void CMadeCertView::OnBOKSEARCH()
 
 		if(theApp.strargc == "OnRECASR" ||theApp.strargc == "OnEXCELASR")
 		{
-					if ( m_Rt5mdata._IsOpen() )
-						 m_Rt5mdata.Close();
-					m_Rt5mdata.Create();
-					m_Rt5mdata.CursorType(adOpenDynamic);
-					m_Rt5mdata.CacheSize(50);
-					m_Rt5mdata.Open( szConnect , &m_Cn);
-					m_Rt5mdata.MarshalOptions(adMarshalModifiedOnly);
+						ADODBS(szConnect,0);
 		}
 		else
 		{
-					if ( m_Realtimedata1._IsOpen() )
-						 m_Realtimedata1.Close();
-					if ( m_Realtimedata._IsOpen() )
-						 m_Realtimedata.Close();
-
 					if(endm != startm)   //两个月
 					{
-					m_Realtimedata1.Create();
-					m_Realtimedata1.CursorType(adOpenDynamic);
-					m_Realtimedata1.CacheSize(50);
-					m_Realtimedata1._SetRecordsetEvents(new CAccountSetEvents);
-					m_Realtimedata1.Open( szConnect1 , &m_Cn);
-					m_Realtimedata1.MarshalOptions(adMarshalModifiedOnly);
+						ADODBS(szConnect1,1);
 					}
-					m_Realtimedata.Create();
-					m_Realtimedata.CursorType(adOpenDynamic);
-					m_Realtimedata.CacheSize(50);
-					m_Realtimedata.Open( szConnect , &m_Cn);
-					m_Realtimedata.MarshalOptions(adMarshalModifiedOnly);
+						ADODBS(szConnect,0);
 		}
 	if(theApp.strargc == "OnALARMS")
 		OnSABFE();
@@ -624,6 +586,9 @@ void CMadeCertView::OnBOKSEARCH()
 	else if(theApp.strargc == "OnEXCELA")
 		OnEXCELA();
 
+  	GetDlgItem(IDOKSEARCH)->EnableWindow(TRUE);;
+  	GetDlgItem(IDC_BEXCELADD)->EnableWindow(TRUE);;
+  	GetDlgItem(IDCANCELEXCEL)->EnableWindow(TRUE);;
  /*		((CRaChildFrame*)GetParentFrame( ))->Msg("开始查询数据库");
 		msg.Format("没有查询到待制作证书,查询结束!");
 	((CRaChildFrame*)GetParentFrame( ))->Msg(msg);*/
@@ -631,79 +596,60 @@ void CMadeCertView::OnBOKSEARCH()
 
 void CMadeCertView::OnSABFE() 
 {
-	CString sztime,strtime,stnames;
-	if(m_Realtimedata1._IsOpen())
-	{
-		m_Realtimedata1.MoveFirst();
-		while ( !m_Realtimedata1.IsEOF() )
-		{
-	   		int dbp = mPoint[m_Realtimedata1.m_szPID];
-             if(dbp != 6666)
-			 {
-				 if(m_ADP[dbp][m_ADP[dbp][0].m_ATotalnum].NTime != m_Realtimedata1.m_szrecdate)
-				 {
-        			m_ADP[dbp][0].m_ATotalnum++;
-     				int afds = m_Realtimedata1.m_szfds;
-	      			int achan = m_Realtimedata1.m_szchan;
-	    			 m_ADP[dbp][m_ADP[dbp][0].m_ATotalnum].strsafetext = m_SlaveStation[afds][achan].WatchName;
-	     			 m_ADP[dbp][m_ADP[dbp][0].m_ATotalnum].NTime = m_Realtimedata1.m_szrecdate;
-	    			 m_ADP[dbp][m_ADP[dbp][0].m_ATotalnum].m_ATotalnum =m_Realtimedata1.m_szADStatus;
-	    			  int nptype = m_SlaveStation[afds][achan].ptype;
-		    		  if( nptype <3)
-				    	  strtime.Format("%.2f",m_Realtimedata1.m_szAValue);
-		      		  else
-					  {
-					  int nstatus = m_Realtimedata1.m_szCDValue;
-					  if(nstatus == 0)
-						  strtime= m_SlaveStation[afds][achan].ZeroState;
-					  else if(nstatus == 1)
-						  strtime= m_SlaveStation[afds][achan].OneState;
-					  else if(nstatus == 2)
-						  strtime= m_SlaveStation[afds][achan].TwoState;
-					  }
-	    			  m_ADP[dbp][m_ADP[dbp][0].m_ATotalnum].strlocal =strtime;
-				 }
-			 }
-			m_Realtimedata1.MoveNext();
-		}
-	}
-	if(!m_Realtimedata._IsEmpty())
-	{
-		m_Realtimedata.MoveFirst();
-		while ( !m_Realtimedata.IsEOF() )
-		{
-	   		int dbp = mPoint[m_Realtimedata.m_szPID];
-             if(dbp != 6666)
-			 {
-				 //debug error
-				 if(m_ADP[dbp][m_ADP[dbp][0].m_ATotalnum].NTime != m_Realtimedata.m_szrecdate)
-				 {
-     			m_ADP[dbp][0].m_ATotalnum++;
-				int afds = m_Realtimedata.m_szfds;
-				int achan = m_Realtimedata.m_szchan;
-				 m_ADP[dbp][m_ADP[dbp][0].m_ATotalnum].strsafetext = m_SlaveStation[afds][achan].WatchName;
-				 m_ADP[dbp][m_ADP[dbp][0].m_ATotalnum].NTime = m_Realtimedata.m_szrecdate;
-				 m_ADP[dbp][m_ADP[dbp][0].m_ATotalnum].m_ATotalnum =m_Realtimedata.m_szADStatus;
-				  int nptype = m_SlaveStation[afds][achan].ptype;
-				  if( nptype <3)
-				    	  strtime.Format("%.2f",m_Realtimedata1.m_szAValue);
-				  else
-				  {
-					  int nstatus = m_Realtimedata.m_szCDValue;
-					  if(nstatus == 0)
-						  strtime= m_SlaveStation[afds][achan].ZeroState;
-					  else if(nstatus == 1)
-						  strtime= m_SlaveStation[afds][achan].OneState;
-					  else if(nstatus == 2)
-						  strtime= m_SlaveStation[afds][achan].TwoState;
-				  }
-				  m_ADP[dbp][m_ADP[dbp][0].m_ATotalnum].strlocal =strtime;
-				 }
-			 }
-			m_Realtimedata.MoveNext();
-		}
-	}
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	// initialize progress control.
+	pFWnd->m_wndProgCtrl.SetRange (0, theApp.pRS->GetRecordCount());
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	pFWnd->m_wndProgCtrl.SetStep (1);
+	CString strcan,strtime;
+	CString strDBr[16];
+    	strtime = "TRUNCATE TABLE reported";
+    	try{
+    		theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);  }
+    	catch(_com_error e){
+    		AfxMessageBox(e.ErrorMessage()); }
 
+		while ( !theApp.pRS->EndOfFile)
+		{
+				int afds = theApp.pRS->Fields->Item["fds"]->Value.lVal;
+				int achan = theApp.pRS->Fields->Item["chan"]->Value.lVal;
+				int cv = theApp.pRS->Fields->Item["CDValue"]->Value.lVal;
+				float av = theApp.pRS->Fields->Item["AValue"]->Value.fltVal;
+         	    int nptype = m_SlaveStation[afds][achan].ptype;
+    			int nstatus = theApp.pRS->Fields->Item["ADStatus"]->Value.lVal;
+				COleDateTime dt(theApp.pRS->Fields->Item["recdate"]->Value);
+				strDBr[0] =m_SlaveStation[afds][achan].WatchName+"|"+m_SlaveStation[afds][achan].strPN;
+	            if(nptype ==1 || nptype ==0)
+                	strDBr[1].Format("%.2f%s",av,m_SlaveStation[afds][achan].m_Unit);
+         		else if(nptype ==2 )
+            	  	  strDBr[1].Format("%.0f%s",av,m_SlaveStation[afds][achan].m_Unit);
+        		else 
+				{
+								if(cv ==0)
+				        		  strDBr[1]= m_SlaveStation[afds][achan].ZeroState;
+			            		else if(cv == 1)
+					        	  strDBr[1]= m_SlaveStation[afds][achan].OneState;
+				         	    else if(cv == 2)
+				          		  strDBr[1]= m_SlaveStation[afds][achan].TwoState;
+				}
+        		if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x80)||(nstatus == 0x70)||(nstatus == 0x90)|| (nstatus == 0xa0) || (nstatus == 0xa1))
+          		      strDBr[1]= theApp.m_RTDM.strstatus(nstatus);
+				strDBr[2] = theApp.m_RTDM.strstatus(nstatus);
+				strDBr[3] = dt.Format(_T("%Y-%m-%d %H:%M:%S"));
+
+    	strtime.Format("INSERT INTO reported (R0,R1,R2,R3,R4,R5) VALUES('%s','%s','%s','%s','%s','%s')"
+    		,strDBr[0],strDBr[1],strDBr[2],strDBr[3],strDBr[4],strDBr[5]);
+     	theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			theApp.pRS->MoveNext();
+		}
+
+	pFWnd->m_wndProgCtrl.SetPos (0);
+    theApp.pRS->Close();
+
+		strcan ="9,"+t.Format(_T("%Y-%m-%d,%H:%M:%S"))+","+t1.Format(_T("%Y-%m-%d,%H:%M:%S"));
+	ShellExecute(0, "open", gstrTimeOut +"\\reportday.exe",m_Str2Data.CStringtocharp(strcan), 0, SW_NORMAL);
+/*	CString sztime,strtime,stnames;
 	if(theApp.strargc == "OnALARMS")
        	stnames= "报警查询";
 	else if(theApp.strargc == "OnBREAKES")
@@ -712,81 +658,7 @@ void CMadeCertView::OnSABFE()
        	stnames= "馈电异常查询";
 	else if(theApp.strargc == "OnSELECTS")
     	stnames= "调用查询";
-
-	_Application ExcelApp; 
-	Workbooks wbsMyBooks; 
-	_Workbook wbMyBook; 
-	Worksheets wssMysheets; 
-	_Worksheet wsMysheet; 
-	Range rgMyRge; 
-	//创建Excel 2000服务器(启动Excel) 
- 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
-	{ 
-		AfxMessageBox("创建Excel服务失败!"); 
-		return; 
-	} 
-	//利用模板文件建立新文档 
-	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
-	//CreateDirectory( str1, NULL );
-//	if(!SetCurrentDirectory(str1))
-//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
-	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
-	//得到Worksheets 
-	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
-	//得到sheet1 
-	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
-	//得到全部Cells，此时,rgMyRge是cells的集合 
-	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
-	//设置1行1列的单元的值 
-	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
-	size_t col = 0;
-		int iItem = 3;
-		for(int h = 0; h < m_tnum;h++)
-		{
-      		for(int i = 1; i < 1000;i++)
-			{
-				if(m_ADP[h][i].strsafetext =="")
-					break;
-			    for(col=0; col<4; col++) {
-//         	     	BasicExcelCell* cell = sheet->Cell(iItem, col);
-         	    	if(col==0)
-							strtime =m_ADP[h][i].strsafetext;
-//                      m_Str2Data.GB2312ToUnicode(m_ADP[h][i].strsafetext,buf);
-        	     	else if(col==1)
-							strtime =m_ADP[h][i].strlocal;
-//                      m_Str2Data.GB2312ToUnicode(m_ADP[h][i].strlocal ,buf);
-         	     	else if(col==2)
-					{
-				    	int nstatus = m_ADP[h][i].m_ATotalnum;
-				    	strtime= theApp.socketClient.strstatus(nstatus);
-//                        m_Str2Data.GB2312ToUnicode(strtime ,buf);
-					}
-         	     	else if(col==3)
-					{
-				  COleDateTime oleDateTime=m_ADP[h][i].NTime;
-				  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
-//                      m_Str2Data.GB2312ToUnicode(strtime,buf);
-					}
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
-				}
-				iItem++;
-			}
-		}
-	//保存为文件
-	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
-	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
-		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
-    ExcelApp.Quit();
-	//释放对象 
-	rgMyRge.ReleaseDispatch(); 
-	wsMysheet.ReleaseDispatch(); 
-	wssMysheets.ReleaseDispatch(); 
-	wbMyBook.ReleaseDispatch(); 
-	wbsMyBooks.ReleaseDispatch(); 
-	ExcelApp.ReleaseDispatch(); 
-	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
-
-
+*/
 /*
 	for(size_t row=0; row<8; ++row) {
 		int color = 2;
@@ -838,104 +710,187 @@ BasicExcelWorksheet* sheet = xls.GetWorksheet((size_t)0);
 */
 //	xls.Save();
 }
-
+//模拟量报警记录  
 void CMadeCertView::OnRECAAD() 
 {
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	// initialize progress control.
+	pFWnd->m_wndProgCtrl.SetRange (0, 3840);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	pFWnd->m_wndProgCtrl.SetStep (1);
+
+		for(int i = 1; i < MAX_FDS;i++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
+			{
+				for(int h = 0; h < 300;h++)
+				{
+					m_ADRecord[i][j][h].m_ATotalnum = 0;
+					m_ADRecord[i][j][h].ATotalV = 0;
+					m_ADRecord[i][j][h].duant = 0;
+					m_ADRecord[i][j][h].strlocal = "";
+					m_ADRecord[i][j][h].havev = 0;
+					m_ADRecord[i][j][h].tmid = 0;
+					m_ADRecord[i][j][h].AavV = 0;
+					m_ADRecord[i][j][h].strsafetext = "";
+					m_ADRecord[i][j][h].AMaxValue = 0;
+					m_ADRecord[i][j][h].AMinValue = 666666;
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
 	CString strtime,strtime2;
-	if(m_Realtimedata1._IsOpen())
+	if(b_twodb)
 	{
-		m_Realtimedata1.MoveFirst();
-		while ( !m_Realtimedata1.IsEOF() )
+		while ( !pRS1->EndOfFile)
 		{
-				int afds = m_Realtimedata1.m_szfds;
-				int achan = m_Realtimedata1.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata1.m_szPID];
+				int afds = pRS1->Fields->Item["fds"]->Value.lVal;
+				int achan = pRS1->Fields->Item["chan"]->Value.lVal;
+    			int m_alarm = pRS1->Fields->Item["ADStatus"]->Value.lVal;
+				float s_curd = pRS1->Fields->Item["AValue"]->Value.fltVal;
+				COleDateTime dt(pRS1->Fields->Item["recdate"]->Value);
+	   		int dbp = mPoint[pRS1->Fields->Item["PID"]->Value.lVal];
              if(dbp != 6666)
 			 {
-			int m_alarm = m_Realtimedata1.m_szADStatus;
 			if(m_alarm == 16)
 			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata1.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
-
-				if(m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue <m_Realtimedata1.m_szAValue)
-				{
-    				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue = m_Realtimedata1.m_szAValue;
-		    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxTime = m_Realtimedata1.m_szrecdate;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)//第一次报警时刻
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
+//				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
+				//报警模拟量统计次数  统计值   平均值(本日或本班报警期间平均值)
+			    	m_ADRecord[afds][achan][299].m_ATotalnum++;
+			    	m_ADRecord[afds][achan][299].AavV +=s_curd;
+					//最大值及时刻(本日或本班报警期间最大值)
+				if(m_ADRecord[afds][achan][299].AMaxValue <s_curd)
+				{//本日最大值、时刻   m_ADRecord[afds][achan][0].m_ATotalnum 次数
+    				m_ADRecord[afds][achan][299].AMaxValue = s_curd;
+		    		m_ADRecord[afds][achan][299].ATime = dt;
 				}
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal="ddd";
-					strtime = m_Realtimedata1.m_szsafemtext;
+
+					//每次报警期间平均值和最大值及时刻
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant++;
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AavV +=s_curd;
+				if(m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue <s_curd)
+				{//每次最大值、时刻   m_ADRecord[afds][achan][0].m_ATotalnum 次数
+    				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue = s_curd;
+		    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxTime = dt;
+				}
+//				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal="ddd";
+   				_bstr_t Explain =pRS1->Fields->Item["safemtext"]->Value;
+				strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
 					if(strtime != "")
-					{
-          				  COleDateTime t=m_Realtimedata1.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
+					{//每次措施及采取措施时刻
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
 //	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].RTime = m_Realtimedata1.m_szrecdate;
 	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
 					}
-				m_ADRecord[afds][achan][0].duant++;//n个报警值
+				m_ADRecord[afds][achan][1].m_ATotalnum++;//n个报警值
 			}
-			else if(m_alarm == 0)
+			else if(m_alarm != 16)
 			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
-				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)
+				{//正常时刻 次数加1 下次初始化  每次报警时间
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计报警时间(本日或本班累计报警时间)
+					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+					//报警次数(本日或本班累计报警次数)
 	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总报警次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
 				}
 			}
 			 }
-			m_Realtimedata1.MoveNext();
+            	m_ADRecord[afds][achan][0].ATime = dt;
+			pRS1->MoveNext();
 		}
 	}
-	if(!m_Realtimedata._IsEmpty())
+//	if(!m_Realtimedata._IsEmpty())
 	{
-		m_Realtimedata.MoveFirst();
-		while ( !m_Realtimedata.IsEOF() )
+		while ( !theApp.pRS->EndOfFile)
 		{
-				int afds = m_Realtimedata.m_szfds;
-				int achan = m_Realtimedata.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata.m_szPID];
+				int afds = theApp.pRS->Fields->Item["fds"]->Value.lVal;
+				int achan = theApp.pRS->Fields->Item["chan"]->Value.lVal;
+    			int m_alarm = theApp.pRS->Fields->Item["ADStatus"]->Value.lVal;
+			float s_curd = theApp.pRS->Fields->Item["AValue"]->Value.fltVal;
+			COleDateTime dt(theApp.pRS->Fields->Item["recdate"]->Value);
+	   		int dbp = mPoint[theApp.pRS->Fields->Item["PID"]->Value.lVal];
              if(dbp != 6666)
 			 {
-			int m_alarm = m_Realtimedata.m_szADStatus;
 			if(m_alarm == 16)
 			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
-
-				if(m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue <m_Realtimedata.m_szAValue)
-				{
-    				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue = m_Realtimedata.m_szAValue;
-		    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxTime = m_Realtimedata.m_szrecdate;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
+//				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
+				//报警模拟量统计次数  统计值   平均值(本日或本班报警期间平均值)
+			    	m_ADRecord[afds][achan][299].m_ATotalnum++;
+			    	m_ADRecord[afds][achan][299].AavV +=s_curd;
+					//最大值及时刻(本日或本班报警期间最大值)
+				if(m_ADRecord[afds][achan][299].AMaxValue <s_curd)
+				{//本日最大值、时刻   m_ADRecord[afds][achan][0].m_ATotalnum 次数
+    				m_ADRecord[afds][achan][299].AMaxValue = s_curd;
+		    		m_ADRecord[afds][achan][299].ATime = dt;
 				}
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal="ddd";
-					strtime = m_Realtimedata.m_szsafemtext;
+
+					//每次报警期间平均值和最大值及时刻
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant++;
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AavV +=s_curd;
+				if(m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue <s_curd)
+				{
+    				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue = s_curd;
+		    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxTime = dt;
+				}
+//				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal="ddd";
+            	_bstr_t Explain =theApp.pRS->Fields->Item["safemtext"]->Value;
+				strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
 					if(strtime != "")
 					{
-          				  COleDateTime t=m_Realtimedata.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
 	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
 					}
-				m_ADRecord[afds][achan][0].duant++;//n个报警值
+				m_ADRecord[afds][achan][1].m_ATotalnum++;//n个报警值
 			}
-			else if(m_alarm == 0)
+			else if(m_alarm != 16)
 			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)//有报警
 				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计报警时间(本日或本班累计报警时间)
+					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+					//报警次数(本日或本班累计报警次数)
 	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总报警次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
 				}
 			}
 			 }
-			m_Realtimedata.MoveNext();
+            	m_ADRecord[afds][achan][0].ATime = dt;
+			theApp.pRS->MoveNext();
 		}
 	}
-	CString strtime1,strtime3,strtime4,stnames;
+		for( i = 1; i < MAX_FDS;i++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
+			{
+				if(m_ADRecord[i][j][1].m_ATotalnum> 0)//有报警
+				{
+	    			m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].NTime =m_ADRecord[i][j][0].ATime;
+					m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid =m_ADRecord[i][j][0].ATime-m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].BTime;
+					//累计报警时间(本日或本班累计报警时间)
+					m_ADRecord[i][j][299].tmid +=m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid;
+					//报警次数(本日或本班累计报警次数)
+	     			m_ADRecord[i][j][0].m_ATotalnum++;  //总报警次数
+	     			m_ADRecord[i][j][1].m_ATotalnum = 0;  //状态转变
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
+    if (b_twodb)
+	{
+		b_twodb = FALSE;
+      	pRS1->Close();
+	}
+    theApp.pRS->Close();
+
+	CString strtime1,strtime3,strtime4,stnames,strcan;
+		strcan ="2,"+t.Format(_T("%Y-%m-%d,%H:%M:%S"))+","+t1.Format(_T("%Y-%m-%d,%H:%M:%S"));
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -957,227 +912,300 @@ void CMadeCertView::OnRECAAD()
 		else
 				stnames = "模拟量报警记录查询显示";
 		strtime += "    "+strtime1+"    "+strtime2;
-	_Application ExcelApp; 
-	Workbooks wbsMyBooks; 
-	_Workbook wbMyBook; 
-	Worksheets wssMysheets; 
-	_Worksheet wsMysheet; 
-	Range rgMyRge; 
-	//创建Excel 2000服务器(启动Excel) 
- 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
-	{ 
-		AfxMessageBox("创建Excel服务失败!"); 
-		return; 
-	} 
-	//利用模板文件建立新文档 
-	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
-	//CreateDirectory( str1, NULL );
-//	if(!SetCurrentDirectory(str1))
-//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
-	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
-	//得到Worksheets 
-	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
-	//得到sheet1 
-	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
-	//得到全部Cells，此时,rgMyRge是cells的集合 
-	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
-	//设置1行1列的单元的值 
-	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
-
+		//比Delete删除方式快非常多  清空了该数据表，而不保留日志 Drop   table   test删除表
+		//delete   *   from   表名    delete   表名
+    	strtime = "TRUNCATE TABLE reportaad";
+    	try{
+    		theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);  }
+    	catch(_com_error e){
+    		AfxMessageBox(e.ErrorMessage()); }
+	CString strDBr[16];
+	CTime t = CTime::GetCurrentTime();
+	int t_curse = t.GetTime();
 	size_t col = 0;
 		int iItem = 3;
-		for (int i = 1; i < MAX_FDS;i++)
+		for ( i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
 			{
      			for(int k = 0; k < 300;k++ )
 				{
-    				if(m_ADRecord[i][j][k].strlocal!="ddd")
+    				if(m_ADRecord[i][j][k].duant==0)
 						break;
-                       	for(col=0; col<8; col++) {
+                       	for(col=0; col<11; col++) {
+							strtime ="";
 //                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-							strtime =m_SlaveStation[i][j].WatchName;
+							strtime =m_SlaveStation[i][j].WatchName+"|"+m_SlaveStation[i][j].strPN;
 //                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
-//					  if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x70))
-//						  strtime= theApp.socketClient.strstatus(nstatus);
-							strtime ="1";
-//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+							strtime =m_SlaveStation[i][j].m_Unit;
                 		else if(col==2)
-						{
-							COleDateTime o =m_ADRecord[i][j][k].NTime;
-							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
-				         	COleDateTimeSpan t = o1-o;
+				        	  strtime.Format("%.2f",m_SlaveStation[i][j].AlarmValueH);
+                		else if(col==3)
+							//报警次数(本日或本班累计报警次数)
+				        	  strtime.Format("%d",m_ADRecord[i][j][0].m_ATotalnum);
+//							strtime ="1";
+//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+                		else if(col==4)
+						{//累计报警时间(本日或本班累计报警时间)
+							COleDateTimeSpan t = m_ADRecord[i][j][299].tmid;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
 //                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
-                 		else if(col==3)
-						{
-				    	  strtime.Format("%.2f",m_ADRecord[i][j][k].AMaxValue);
-//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
-						}
-                 		else if(col==4)
-						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].AMaxTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
-//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
-						}
                  		else if(col==5)
-						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+						{//最大值及时刻(本日或本班报警期间最大值)
+				    	  strtime.Format("%.2f|",m_ADRecord[i][j][299].AMaxValue);
+						  strtime = strtime +m_ADRecord[i][j][299].ATime.Format(_T("%Y:%m:%d %H:%M:%S")); 
 //                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==6)
-						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+						{//平均值(本日或本班报警期间平均值);
+				    	  strtime.Format("%.2f",m_ADRecord[i][j][299].AavV/m_ADRecord[i][j][299].m_ATotalnum);
 //                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==7)
+						{//每次报警时刻及解除报警时刻
+		        		  strtime =m_ADRecord[i][j][k].BTime.Format(_T("%Y:%m:%d %H:%M:%S")) +"|"+ m_ADRecord[i][j][k].NTime.Format(_T("%Y:%m:%d %H:%M:%S")) ; 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+						}
+                 		else if(col==8)
+						{//每次报警时间
+							COleDateTimeSpan t = m_ADRecord[i][j][k].tmid;
+			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+						}
+                		else if(col==9)
+						{//每次报警期间平均值和最大值及时刻
+				    	  strtime.Format("%.2f|%.2f|",m_ADRecord[i][j][k].AavV/m_ADRecord[i][j][k].duant,m_ADRecord[i][j][k].AMaxValue);
+							strtime =strtime + m_ADRecord[i][j][k].AMaxTime.Format(_T("%Y:%m:%d %H:%M:%S"));
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
+						}
+                		else if(col==10)
+						{//每次措施及采取措施时刻
 							strtime =m_ADRecord[i][j][k].strsafetext;
 //                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
 						}
+//					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+                        strDBr[col]=strtime;
+						}
+    	strtime.Format("INSERT INTO reportaad (R0,R1,R2,R3,R4,R5,R6,R7,R8,R9,R10) VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')"
+    		,strDBr[0],strDBr[1],strDBr[2],strDBr[3],strDBr[4],strDBr[5],strDBr[6],strDBr[7],strDBr[8],strDBr[9],strDBr[10]);
+     	theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);
 		            	iItem++;
 				}//k
+	    	pFWnd->m_wndProgCtrl.StepIt();
 			}//j
 		}//i
-	//保存为文件
-	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
-	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
-		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
-    ExcelApp.Quit();
-	//释放对象 
-	rgMyRge.ReleaseDispatch(); 
-	wsMysheet.ReleaseDispatch(); 
-	wssMysheets.ReleaseDispatch(); 
-	wbMyBook.ReleaseDispatch(); 
-	wbsMyBooks.ReleaseDispatch(); 
-	ExcelApp.ReleaseDispatch(); 
-	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	ShellExecute(0, "open", gstrTimeOut +"\\reportday.exe",m_Str2Data.CStringtocharp(strcan), 0, SW_NORMAL);
+//	theApp.C_Ts.CreateP(gstrTimeOut +"\\reportday.exe", m_Str2Data.CStringtocharp(strcan),5,0x00000001);
 }
 
 void CMadeCertView::OnRECABD() 
 {
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	// initialize progress control.
+	pFWnd->m_wndProgCtrl.SetRange (0, 3840);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	pFWnd->m_wndProgCtrl.SetStep (1);
+
+	  for(int i = 1; i < MAX_FDS;i++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
+			{
+				for(int h = 0; h < 300;h++)
+				{
+					m_ADRecord[i][j][h].m_ATotalnum = 0;
+					m_ADRecord[i][j][h].ATotalV = 0;
+					m_ADRecord[i][j][h].duant = 0;
+					m_ADRecord[i][j][h].strlocal = "";
+					m_ADRecord[i][j][h].havev = 0;
+					m_ADRecord[i][j][h].tmid = 0;
+					m_ADRecord[i][j][h].AavV = 0;
+					m_ADRecord[i][j][h].strsafetext = "";
+					m_ADRecord[i][j][h].AMaxValue = 0;
+					m_ADRecord[i][j][h].AMinValue = 666666;
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
 	CString strtime,strtime2;
-	if(m_Realtimedata1._IsOpen())
+	if(b_twodb)
 	{
-		m_Realtimedata1.MoveFirst();
-		while ( !m_Realtimedata1.IsEOF() )
+		while ( !pRS1->EndOfFile)
 		{
-				int afds = m_Realtimedata1.m_szfds;
-				int achan = m_Realtimedata1.m_szchan;
-   		int dbp = mPoint[m_Realtimedata1.m_szPID];
+				int afds = pRS1->Fields->Item["fds"]->Value.lVal;
+				int achan = pRS1->Fields->Item["chan"]->Value.lVal;
+				int ffds = pRS1->Fields->Item["ffds"]->Value.lVal;
+				int fchan = pRS1->Fields->Item["fchan"]->Value.lVal;
+    			int m_alarm = pRS1->Fields->Item["ADStatus"]->Value.lVal;
+				float s_curd = pRS1->Fields->Item["AValue"]->Value.fltVal;
+				COleDateTime dt(pRS1->Fields->Item["recdate"]->Value);
+   		int dbp = mPoint[pRS1->Fields->Item["PID"]->Value.lVal];
              if(dbp != 6666)
 			 {
-			int m_alarm = m_Realtimedata1.m_szADStatus;
 			if(m_alarm == 32)
 			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata1.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
-
-				if(m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue <m_Realtimedata1.m_szAValue)
-				{
-    				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue = m_Realtimedata1.m_szAValue;
-		    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxTime = m_Realtimedata1.m_szrecdate;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)//第一次断电时刻
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
+//				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
+				//断电模拟量统计次数  统计值   平均值(本日或本班断电期间平均值)
+			    	m_ADRecord[afds][achan][299].m_ATotalnum++;
+			    	m_ADRecord[afds][achan][299].AavV +=s_curd;
+					//最大值及时刻(本日或本班断电期间最大值)
+				if(m_ADRecord[afds][achan][299].AMaxValue <s_curd)
+				{//本日最大值、时刻   m_ADRecord[afds][achan][0].m_ATotalnum 次数
+    				m_ADRecord[afds][achan][299].AMaxValue = s_curd;
+		    		m_ADRecord[afds][achan][299].ATime = dt;
 				}
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].havev =1;
-					strtime = m_Realtimedata1.m_szsafemtext;
+
+					//每次断电期间平均值和最大值及时刻
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant++;
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AavV +=s_curd;
+				if(m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue <s_curd)
+				{//每次最大值、时刻   m_ADRecord[afds][achan][0].m_ATotalnum 次数
+    				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue = s_curd;
+		    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxTime = dt;
+				}
+            	_bstr_t Explain =pRS1->Fields->Item["safemtext"]->Value;
+				strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
 					if(strtime != "")
-					{
-          				  COleDateTime t=m_Realtimedata1.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
+					{//每次措施及采取措施时刻
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
+//	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].RTime = m_Realtimedata1.m_szrecdate;
 	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
 					}
-				int ffds = m_Realtimedata1.m_szffds;
-				int fchan = m_Realtimedata1.m_szfchan;
-				if(ffds>0)
-				{
-          				  COleDateTime oleDateTime=m_Realtimedata1.m_szrecdate;
-		        		  strtime2   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-					strtime = m_Realtimedata1.m_szFeedStatus;
+            	 Explain =pRS1->Fields->Item["FeedStatus"]->Value;
+				strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal +=m_SlaveStation[ffds][fchan].WatchName+"|"
-						+strtime+"|"+strtime2+"|";
-				}
-				m_ADRecord[afds][achan][0].duant++;//n个断电值
+					if(strtime != "")
+					{//馈电状态及其时刻、累计时间
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
+//	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].RTime = m_Realtimedata1.m_szrecdate;
+	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal += m_SlaveStation[ffds][fchan].WatchName +"|"+ m_SlaveStation[ffds][fchan].strPN +"|"+ strtime+"|"+strtime2+"|";
+					}
+				m_ADRecord[afds][achan][1].m_ATotalnum++;//n个断电值
 			}
-			else if(m_alarm == 0)
+			else if(m_alarm != 32)
 			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
-				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)
+				{//正常时刻 次数加1 下次初始化  每次断电时间
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计断电时间(本日或本班累计断电时间)
+					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+		        	strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
+	       	    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal += strtime2;
+					//断电次数(本日或本班累计断电次数)
 	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总断电次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
 				}
 			}
 			 }
-			m_Realtimedata1.MoveNext();
+            	m_ADRecord[afds][achan][0].ATime = dt;
+			pRS1->MoveNext();
 		}
 	}
-	if(!m_Realtimedata._IsEmpty())
+//	if(!m_Realtimedata._IsEmpty())
 	{
-		m_Realtimedata.MoveFirst();
-		while ( !m_Realtimedata.IsEOF() )
+//		m_Realtimedata.MoveFirst();
+		while ( !theApp.pRS->EndOfFile)
 		{
-				int afds = m_Realtimedata.m_szfds;
-				int achan = m_Realtimedata.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata.m_szPID];
+				int afds = theApp.pRS->Fields->Item["fds"]->Value.lVal;
+				int achan = theApp.pRS->Fields->Item["chan"]->Value.lVal;
+				int ffds = theApp.pRS->Fields->Item["ffds"]->Value.lVal;
+				int fchan = theApp.pRS->Fields->Item["fchan"]->Value.lVal;
+    			int m_alarm = theApp.pRS->Fields->Item["ADStatus"]->Value.lVal;
+				float s_curd = theApp.pRS->Fields->Item["AValue"]->Value.fltVal;
+			COleDateTime dt(theApp.pRS->Fields->Item["recdate"]->Value);
+	   		int dbp = mPoint[theApp.pRS->Fields->Item["PID"]->Value.lVal];
              if(dbp != 6666)
 			 {
-			int m_alarm = m_Realtimedata.m_szADStatus;
 			if(m_alarm == 32)
 			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
-
-				if(m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue <m_Realtimedata.m_szAValue)
-				{
-    				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue = m_Realtimedata.m_szAValue;
-		    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxTime = m_Realtimedata.m_szrecdate;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
+//				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
+				//断电模拟量统计次数  统计值   平均值(本日或本班断电期间平均值)
+			    	m_ADRecord[afds][achan][299].m_ATotalnum++;
+			    	m_ADRecord[afds][achan][299].AavV +=s_curd;
+					//最大值及时刻(本日或本班断电期间最大值)
+				if(m_ADRecord[afds][achan][299].AMaxValue <s_curd)
+				{//本日最大值、时刻   m_ADRecord[afds][achan][0].m_ATotalnum 次数
+    				m_ADRecord[afds][achan][299].AMaxValue = s_curd;
+		    		m_ADRecord[afds][achan][299].ATime = dt;
 				}
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].havev =1;
-
-					strtime = m_Realtimedata.m_szsafemtext;
+					//每次断电期间平均值和最大值及时刻
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant++;
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AavV +=s_curd;
+				if(m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue <s_curd)
+				{
+    				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue = s_curd;
+		    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxTime = dt;
+				}
+            	_bstr_t Explain =theApp.pRS->Fields->Item["safemtext"]->Value;
+				strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
 					if(strtime != "")
 					{
-          				  COleDateTime t=m_Realtimedata.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
 	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
 					}
-				int ffds = m_Realtimedata.m_szffds;
-				int fchan = m_Realtimedata.m_szfchan;
-				if(ffds>0)
-				{
-          				  COleDateTime oleDateTime=m_Realtimedata.m_szrecdate;
-		        		  strtime2   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-					strtime = m_Realtimedata.m_szFeedStatus;
+            	 Explain =theApp.pRS->Fields->Item["FeedStatus"]->Value;
+				strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal +=m_SlaveStation[ffds][fchan].WatchName+"|"
-						+strtime+"|"+strtime2+"|";
-				}
-				m_ADRecord[afds][achan][0].duant++;//n个断电值
+					if(strtime != "")
+					{//馈电状态及其时刻、累计时间
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
+	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal += m_SlaveStation[ffds][fchan].WatchName +"|"+ m_SlaveStation[ffds][fchan].strPN +"|"+ strtime+"|"+strtime2+"|";
+					}
+				m_ADRecord[afds][achan][1].m_ATotalnum++;//n个断电值
 			}
-			else if(m_alarm == 0)
+			else if(m_alarm != 32)
 			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)//有断电
 				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计断电时间(本日或本班累计断电时间)
+					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+		        	strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
+	       	    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal += strtime2;
+					//断电次数(本日或本班累计断电次数)
 	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总断电次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
 				}
 			}
 			 }
-			m_Realtimedata.MoveNext();
+            	m_ADRecord[afds][achan][0].ATime = dt;
+			theApp.pRS->MoveNext();
 		}
 	}
-	CString strtime1,strtime3,strtime4,stnames;
+
+		for( i = 1; i < MAX_FDS;i++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
+			{
+				if(m_ADRecord[i][j][1].m_ATotalnum> 0)//有断电
+				{
+	    			m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].NTime =m_ADRecord[i][j][0].ATime;
+					m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid =m_ADRecord[i][j][0].ATime-m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].BTime;
+					//累计断电时间(本日或本班累计断电时间)
+					m_ADRecord[i][j][299].tmid +=m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid;
+					//断电次数(本日或本班累计报警次数)
+	     			m_ADRecord[i][j][0].m_ATotalnum++;  //总断电次数
+	     			m_ADRecord[i][j][1].m_ATotalnum = 0;  //状态转变
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
+    if (b_twodb)
+	{
+		b_twodb = FALSE;
+      	pRS1->Close();
+	}
+    theApp.pRS->Close();
+
+	CString strtime1,strtime3,strtime4,stnames,strcan;
+		strcan ="3,"+t.Format(_T("%Y-%m-%d,%H:%M:%S"))+","+t1.Format(_T("%Y-%m-%d,%H:%M:%S"));
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -1200,223 +1228,291 @@ void CMadeCertView::OnRECABD()
 				stnames = "模拟量断电记录查询显示";
 
 		strtime += "    "+strtime1+"    "+strtime2;
-	_Application ExcelApp; 
-	Workbooks wbsMyBooks; 
-	_Workbook wbMyBook; 
-	Worksheets wssMysheets; 
-	_Worksheet wsMysheet; 
-	Range rgMyRge; 
-	//创建Excel 2000服务器(启动Excel) 
- 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
-	{ 
-		AfxMessageBox("创建Excel服务失败!"); 
-		return; 
-	} 
-	//利用模板文件建立新文档 
-	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
-	//CreateDirectory( str1, NULL );
-//	if(!SetCurrentDirectory(str1))
-//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
-	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
-	//得到Worksheets 
-	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
-	//得到sheet1 
-	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
-	//得到全部Cells，此时,rgMyRge是cells的集合 
-	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
-	//设置1行1列的单元的值 
-	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
+    	strtime = "TRUNCATE TABLE reportabd";
+    	try{
+    		theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);  }
+    	catch(_com_error e){
+    		AfxMessageBox(e.ErrorMessage()); }
+	CString strDBr[16];
+	CTime t = CTime::GetCurrentTime();
+	int t_curse = t.GetTime();
 
 	size_t col = 0;
 		int iItem = 3;
-		for (int i = 1; i < MAX_FDS;i++)
+		for ( i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
 			{
      			for(int k = 0; k < 300;k++ )
 				{
-    				if(m_ADRecord[i][j][k].havev==0)
+    				if(m_ADRecord[i][j][k].duant==0)
 						break;
 					{
-                       	for(col=0; col<9; col++) {
+                       	for(col=0; col<14; col++) {
+							strtime="";
 //                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-							strtime =m_SlaveStation[i][j].WatchName;
+							strtime =m_SlaveStation[i][j].WatchName+"|"+m_SlaveStation[i][j].strPN;
 //                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
-//					  if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x70))
-//						  strtime= theApp.socketClient.strstatus(nstatus);
-//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
-							strtime ="1";
+							strtime =m_SlaveStation[i][j].m_Unit;
                 		else if(col==2)
-						{
-							COleDateTime o =m_ADRecord[i][j][k].NTime;
-							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
-				         	COleDateTimeSpan t = o1-o;
+				        	  strtime.Format("%.2f",m_SlaveStation[i][j].Apbrk);
+                		else if(col==3)
+				        	  strtime.Format("%.2f",m_SlaveStation[i][j].Aprtn);
+                		else if(col==4)
+				        	  strtime.Format("%s",m_SlaveStation[i][j].strBS);
+                		else if(col==5)
+							//断电次数(本日或本班累计断电次数)
+				        	  strtime.Format("%d",m_ADRecord[i][j][0].m_ATotalnum);
+//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+//							strtime ="1";
+                		else if(col==6)
+						{//累计断电时间(本日或本班累计断电时间)
+							COleDateTimeSpan t = m_ADRecord[i][j][299].tmid;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
 //                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
-                 		else if(col==3)
-						{
-				    	  strtime.Format("%.2f",m_ADRecord[i][j][k].AMaxValue);
-//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
-						}
-                 		else if(col==4)
-						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].AMaxTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
-//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
-						}
-                 		else if(col==5)
-						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
-//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
-						}
-                 		else if(col==6)
-						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
-//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
-						}
                  		else if(col==7)
-							strtime =m_ADRecord[i][j][k].strsafetext;
-//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
-                 		else if(col==8)
-							strtime =m_ADRecord[i][j][k].strlocal;
-//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
-//						cell->Set(buf);
+						{//最大值及时刻(本日或本班断电期间最大值)
+				    	  strtime.Format("%.2f|",m_ADRecord[i][j][299].AMaxValue);
+						  strtime = strtime +m_ADRecord[i][j][299].ATime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
+                 		else if(col==8)
+						{//平均值(本日或本班断电期间平均值);
+				    	  strtime.Format("%.2f",m_ADRecord[i][j][299].AavV/m_ADRecord[i][j][299].m_ATotalnum);
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+						}
+                 		else if(col==9)
+						{//每次断电时刻及复电时刻
+		        		  strtime =m_ADRecord[i][j][k].BTime.Format(_T("%Y:%m:%d %H:%M:%S")) +"|"+ m_ADRecord[i][j][k].NTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+						}
+                 		else if(col==10)
+						{//每次断电累计时间
+							COleDateTimeSpan t = m_ADRecord[i][j][k].tmid;
+			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+						}
+                 		else if(col==11)//每次断电期间平均值和最大值及时刻
+						{
+				    	  strtime.Format("%.2f|%.2f|",m_ADRecord[i][j][k].AavV/m_ADRecord[i][j][k].duant,m_ADRecord[i][j][k].AMaxValue);
+							strtime =strtime + m_ADRecord[i][j][k].AMaxTime.Format(_T("%Y:%m:%d %H:%M:%S"));
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
+						}
+                 		else if(col==12)//断电区域|馈电状态|时刻|累计时间
+						{
+							strtime =m_ADRecord[i][j][k].strlocal;
+							int strl = strtime.GetLength();
+							if(strl>799)
+								strtime = strtime.Mid(0,799);
+						}
+//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
+						else if(col==13)//安全措施|时刻
+							strtime =m_ADRecord[i][j][k].strsafetext;
+//					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//						cell->Set(buf);
+                        strDBr[col]=strtime;
+						}
+    	strtime.Format("INSERT INTO reportabd (R0,R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,R11,R12,R13) VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')"
+    		,strDBr[0],strDBr[1],strDBr[2],strDBr[3],strDBr[4],strDBr[5],strDBr[6],strDBr[7],strDBr[8],strDBr[9],strDBr[10],strDBr[11],strDBr[12],strDBr[13]);
+     	theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);
 		            	iItem++;
 					}//if
 				}//k
+	    	pFWnd->m_wndProgCtrl.StepIt();
 			}//j
 		}//i
-	//保存为文件
-	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
-	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
-		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
-    ExcelApp.Quit();
-	//释放对象 
-	rgMyRge.ReleaseDispatch(); 
-	wsMysheet.ReleaseDispatch(); 
-	wssMysheets.ReleaseDispatch(); 
-	wbMyBook.ReleaseDispatch(); 
-	wbsMyBooks.ReleaseDispatch(); 
-	ExcelApp.ReleaseDispatch(); 
-	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	ShellExecute(0, "open", gstrTimeOut +"\\reportday.exe",m_Str2Data.CStringtocharp(strcan), 0, SW_NORMAL);
+//	theApp.C_Ts.CreateP(gstrTimeOut +"\\reportday.exe", m_Str2Data.CStringtocharp(strcan),5,0x00000001);
 }
 
 void CMadeCertView::OnRECAFED() 
 {
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	// initialize progress control.
+	pFWnd->m_wndProgCtrl.SetRange (0, 3840);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	pFWnd->m_wndProgCtrl.SetStep (1);
+
+	  for(int i = 1; i < MAX_FDS;i++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
+			{
+				for(int h = 0; h < 300;h++)
+				{
+					m_ADRecord[i][j][h].m_ATotalnum = 0;
+					m_ADRecord[i][j][h].ATotalV = 0;
+					m_ADRecord[i][j][h].duant = 0;
+					m_ADRecord[i][j][h].strlocal = "";
+					m_ADRecord[i][j][h].havev = 0;
+					m_ADRecord[i][j][h].tmid = 0;
+					m_ADRecord[i][j][h].AavV = 0;
+					m_ADRecord[i][j][h].strsafetext = "";
+					m_ADRecord[i][j][h].AMaxValue = 0;
+					m_ADRecord[i][j][h].AMinValue = 666666;
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
+
 	CString strtime,strtime2;
-	if(m_Realtimedata1._IsOpen())
+	if(b_twodb)
 	{
-		m_Realtimedata1.MoveFirst();
-		while ( !m_Realtimedata1.IsEOF() )
+		while ( !pRS1->EndOfFile)
 		{
-				int afds = m_Realtimedata1.m_szfds;
-				int achan = m_Realtimedata1.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata1.m_szPID];
-             if(dbp != 6666)
+				int afds = pRS1->Fields->Item["ffds"]->Value.lVal;
+				int achan = pRS1->Fields->Item["fchan"]->Value.lVal;
+				COleDateTime dt(pRS1->Fields->Item["recdate"]->Value);
+//				int afds = m_Realtimedata1.m_szffds;
+//				int achan = m_Realtimedata1.m_szfchan;
+	   		int dbp = mPoint[pRS1->Fields->Item["PID"]->Value.lVal];
+//             if(dbp != 6666)
 			 {
-			strtime = m_Realtimedata1.m_szFeedStatus;
+            	_bstr_t Explain =pRS1->Fields->Item["FeedStatus"]->Value;
+				strtime.Format("%s",(char *)Explain);
 			strtime.TrimRight();
 			if(strtime == "异常")
 			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata1.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)//第一次馈电异常时刻
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
 
-					strtime = m_Realtimedata1.m_szsafemtext;
+				Explain =pRS1->Fields->Item["safemtext"]->Value;
+				strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
 					if(strtime != "")
-					{
-          				  COleDateTime t=m_Realtimedata1.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
+					{//每次措施及采取措施时刻
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
 	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
 					}
-				int ffds = m_Realtimedata1.m_szffds;
-				int fchan = m_Realtimedata1.m_szfchan;
-				if(ffds>0)
-				{
-          				  COleDateTime oleDateTime=m_Realtimedata1.m_szrecdate;
-		        		  strtime2   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-					strtime = m_Realtimedata1.m_szFeedStatus;
-					strtime.TrimRight();
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal +=m_SlaveStation[ffds][fchan].WatchName+"|"
-						+strtime+"|"+strtime2+"|";
-				}
-				m_ADRecord[afds][achan][0].duant++;//n个馈电异常记录
+				m_ADRecord[afds][achan][1].m_ATotalnum++;//n个馈电异常记录
 			}
 			else if(strtime == "正常")
 			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
-				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
-	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总馈电异常记录次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)
+				{//正常时刻 次数加1 下次初始化  每次馈电异常时间
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计馈电异常时间(本日或本班累计馈电异常时间)
+//					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+					//馈电异常次数(本日或本班累计馈电异常次数)
+	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总馈电异常次数
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
 				}
 			}
 			 }
-			m_Realtimedata1.MoveNext();
+            	m_ADRecord[afds][achan][0].ATime = dt;
+			pRS1->MoveNext();
 		}
 	}
-	if(!m_Realtimedata._IsEmpty())
+//	if(!m_Realtimedata._IsEmpty())
 	{
-		m_Realtimedata.MoveFirst();
-		while ( !m_Realtimedata.IsEOF() )
+		while ( !theApp.pRS->EndOfFile)
 		{
-				int afds = m_Realtimedata.m_szfds;
-				int achan = m_Realtimedata.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata.m_szPID];
-             if(dbp != 6666)
+				int afds = theApp.pRS->Fields->Item["ffds"]->Value.lVal;
+				int achan = theApp.pRS->Fields->Item["fchan"]->Value.lVal;
+			COleDateTime dt(theApp.pRS->Fields->Item["recdate"]->Value);
+//				int afds = m_Realtimedata.m_szffds;
+//				int achan = m_Realtimedata.m_szfchan;
+	   		int dbp = mPoint[theApp.pRS->Fields->Item["PID"]->Value.lVal];
+//             if(dbp != 6666)
 			 {
-			strtime = m_Realtimedata.m_szFeedStatus;
+            	_bstr_t Explain =theApp.pRS->Fields->Item["FeedStatus"]->Value;
+				strtime.Format("%s",(char *)Explain);
 			strtime.TrimRight();
 			if(strtime == "异常")
 			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)//第一次馈电异常时刻
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
 
-					strtime = m_Realtimedata.m_szsafemtext;
+            	Explain =theApp.pRS->Fields->Item["safemtext"]->Value;
+				strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
 					if(strtime != "")
-					{
-          				  COleDateTime t=m_Realtimedata.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
+					{//每次措施及采取措施时刻
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
 	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
 					}
-				int ffds = m_Realtimedata.m_szffds;
-				int fchan = m_Realtimedata.m_szfchan;
-				if(ffds>0)
-				{
-          				  COleDateTime oleDateTime=m_Realtimedata.m_szrecdate;
-		        		  strtime2   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-					strtime = m_Realtimedata.m_szFeedStatus;
-					strtime.TrimRight();
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal +=m_SlaveStation[ffds][fchan].WatchName+"|"
-						+strtime+"|"+strtime2+"|";
-				}
-				m_ADRecord[afds][achan][0].duant++;//n个馈电异常记录值
+				m_ADRecord[afds][achan][1].m_ATotalnum++;//n个馈电异常记录
 			}
 			else if(strtime == "正常")
 			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
-				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
-	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总馈电异常记录次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)
+				{//正常时刻 次数加1 下次初始化  每次馈电异常时间
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计馈电异常时间(本日或本班累计馈电异常时间)
+//					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+					//馈电异常次数(本日或本班累计馈电异常次数)
+	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总馈电异常次数
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
 				}
 			}
 			 }
-			m_Realtimedata.MoveNext();
+            	m_ADRecord[afds][achan][0].ATime = dt;
+			theApp.pRS->MoveNext();
 		}
 	}
+		for( i = 1; i < MAX_FDS;i++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
+			{
+				if(m_ADRecord[i][j][1].m_ATotalnum> 0)//有馈电异常
+				{
+	    			m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].NTime =m_ADRecord[i][j][0].ATime;
+					m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid =m_ADRecord[i][j][0].ATime-m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].BTime;
+					//累计馈电异常时间(本日或本班累计馈电异常时间)
+//					m_ADRecord[i][j][299].tmid +=m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid;
+					//馈电异常次数(本日或本班累计馈电异常次数)
+	     			m_ADRecord[i][j][0].m_ATotalnum++;  //总馈电异常次数
+	     			m_ADRecord[i][j][1].m_ATotalnum = 0;  //状态转变
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
 
-	CString strtime1,strtime3,strtime4,stnames;
+		for ( i = 1; i < MAX_FDS;i++)
+		{
+			for(int j = 1; j < 17;j++ )
+			{
+         		int m_fen=0;
+	   	    	int dbp = mPoint[m_SlaveStation[i][j].m_PID];
+                if(dbp != 6666)
+				{
+                 	for(int h= 0 ;h<64 ; h++)
+					{
+            		     int cfds = m_ADCbreakE[i][j][h].bFSd;
+            			 int cchan = m_ADCbreakE[i][j][h].bchanel;
+            			 if(cfds == 0)
+	            			 break;
+            			 for(int m= 0 ;m<64 ; m++)
+						 {
+    	            	     int ffds = m_CFeed[cfds][cchan][m].bFSd;//被控量
+	                		 int fchan = m_CFeed[cfds][cchan][m].bchanel;
+		            		 if(ffds == 0)
+	 	            			 break;
+               	    		for(int k = 0; k < m_ADRecord[ffds][fchan][0].m_ATotalnum;k++ )
+							{
+								m_ADRecord[i][j][m_fen].BTime =m_ADRecord[ffds][fchan][k].BTime;
+								m_ADRecord[i][j][m_fen].NTime =m_ADRecord[ffds][fchan][k].NTime;
+								m_ADRecord[i][j][m_fen].tmid =m_ADRecord[ffds][fchan][k].tmid;
+								m_ADRecord[i][j][m_fen].strsafetext =m_ADRecord[ffds][fchan][k].strsafetext;
+								m_ADRecord[i][j][299].tmid += m_ADRecord[ffds][fchan][k].tmid;
+								m_fen++;
+							}
+							m_ADRecord[i][j][0].m_ATotalnum += m_ADRecord[ffds][fchan][0].m_ATotalnum;
+						 }//for(int m= 0 ;m<64 ; m++)
+					}//for(int h= 0 ;h<64 ; h++)
+				}//if(dbp != 6666)
+			}//for(int j = 1; j < 17;j++ )
+		}//for ( i = 1; i < MAX_FDS;i++)
+    if (b_twodb)
+	{
+		b_twodb = FALSE;
+      	pRS1->Close();
+	}
+    theApp.pRS->Close();
+
+	CString strtime1,strtime3,strtime4,stnames,strcan;
+		strcan ="4,"+t.Format(_T("%Y-%m-%d,%H:%M:%S"))+","+t1.Format(_T("%Y-%m-%d,%H:%M:%S"));
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -1439,139 +1535,139 @@ void CMadeCertView::OnRECAFED()
 				stnames = "模拟量馈电异常记录查询显示";
 
 		strtime += "    "+strtime1+"     "+strtime2;
-
-	_Application ExcelApp; 
-	Workbooks wbsMyBooks; 
-	_Workbook wbMyBook; 
-	Worksheets wssMysheets; 
-	_Worksheet wsMysheet; 
-	Range rgMyRge; 
-	//创建Excel 2000服务器(启动Excel) 
- 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
-	{ 
-		AfxMessageBox("创建Excel服务失败!"); 
-		return; 
-	} 
-	//利用模板文件建立新文档 
-	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
-	//CreateDirectory( str1, NULL );
-//	if(!SetCurrentDirectory(str1))
-//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
-	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
-	//得到Worksheets 
-	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
-	//得到sheet1 
-	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
-	//得到全部Cells，此时,rgMyRge是cells的集合 
-	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
-	//设置1行1列的单元的值 
-	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
+    	strtime = "TRUNCATE TABLE reportafd";
+    	try{
+    		theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);  }
+    	catch(_com_error e){
+    		AfxMessageBox(e.ErrorMessage()); }
+	CString strDBr[16];
+	CTime t = CTime::GetCurrentTime();
+	int t_curse = t.GetTime();
 
 	size_t col = 0;
 		int iItem = 3;
-		for (int i = 1; i < MAX_FDS;i++)
+		for ( i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
 			{
-     			for(int k = 0; k < 300;k++ )
+	   	    	int dbp = mPoint[m_SlaveStation[i][j].m_PID];
+                if(dbp != 6666)
 				{
-    				if(m_ADRecord[i][j][k].strlocal == "")
-						break;
+				for(int k = 0; k < m_ADRecord[i][j][0].m_ATotalnum;k++ )
+				{
 					{
-                       	for(col=0; col<7; col++) {
+                       	for(col=0; col<6; col++) {
+							strtime="";
 //                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-							strtime =m_SlaveStation[i][j].WatchName;
+							strtime =m_SlaveStation[i][j].WatchName+"|"+m_SlaveStation[i][j].strPN;
 //                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
-							strtime ="1";
-//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+				        	  strtime.Format("%s",m_SlaveStation[i][j].strBS);
                 		else if(col==2)
-						{
-							COleDateTime o =m_ADRecord[i][j][k].NTime;
-							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
-				         	COleDateTimeSpan t = o1-o;
+							//馈电异常次数(本日或本班累计断电次数)
+				        	  strtime.Format("%d",m_ADRecord[i][j][0].m_ATotalnum);
+//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+                		else if(col==3)
+						{//累计馈电异常时间(本日或本班累计馈电异常时间)
+							COleDateTimeSpan t = m_ADRecord[i][j][299].tmid;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
 //                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
-                 		else if(col==3)
+                 		else if(col==4)//每次馈电状态每次累计时间及起止时刻
 						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
-//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
-						}
-                 		else if(col==4)
-						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+						  COleDateTimeSpan t = m_ADRecord[i][j][k].tmid;
+			            	strtime.Format("异常|%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
+		        		  strtime +="|"+m_ADRecord[i][j][k].BTime.Format(_T("%Y:%m:%d %H:%M:%S")) +"|"+ m_ADRecord[i][j][k].NTime.Format(_T("%Y:%m:%d %H:%M:%S")) ; 
 //                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==5)
+						{
 							strtime =m_ADRecord[i][j][k].strsafetext;
-//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
-                 		else if(col==6)
-							strtime =m_ADRecord[i][j][k].strlocal;
-//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
-//						cell->Set(buf);
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
+//					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//						cell->Set(buf);
+                        strDBr[col]=strtime;
+						}
+    	strtime.Format("INSERT INTO reportafd (R0,R1,R2,R3,R4,R5) VALUES('%s','%s','%s','%s','%s','%s')"
+    		,strDBr[0],strDBr[1],strDBr[2],strDBr[3],strDBr[4],strDBr[5]);
+     	theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);
 		            	iItem++;
 					}//if
 				}//k
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
 			}//j
 		}//i
-	//保存为文件
-	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
-	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
-		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
-    ExcelApp.Quit();
-	//释放对象 
-	rgMyRge.ReleaseDispatch(); 
-	wsMysheet.ReleaseDispatch(); 
-	wssMysheets.ReleaseDispatch(); 
-	wbMyBook.ReleaseDispatch(); 
-	wbsMyBooks.ReleaseDispatch(); 
-	ExcelApp.ReleaseDispatch(); 
-	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	ShellExecute(0, "open", gstrTimeOut +"\\reportday.exe",m_Str2Data.CStringtocharp(strcan), 0, SW_NORMAL);
+//	theApp.C_Ts.CreateP(gstrTimeOut +"\\reportday.exe", m_Str2Data.CStringtocharp(strcan),5,0x00000001);
 }
-
+//模拟量统计值历史记录查询报表
 void CMadeCertView::OnRECASR() 
 {
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	// initialize progress control.
+	pFWnd->m_wndProgCtrl.SetRange (0, 2400);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	pFWnd->m_wndProgCtrl.SetStep (1);
+
+	for(int i = 1; i < MAX_FDS;i++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
+			{
+				for(int h = 0; h < 300;h++)
+				{
+					m_ADRecord[i][j][h].m_ATotalnum = 0;
+					m_ADRecord[i][j][h].ATotalV = 0;
+					m_ADRecord[i][j][h].duant = 0;
+					m_ADRecord[i][j][h].strlocal = "";
+					m_ADRecord[i][j][h].havev = 0;
+					m_ADRecord[i][j][h].tmid = 0;
+					m_ADRecord[i][j][h].AavV = 0;
+					m_ADRecord[i][j][h].strsafetext = "";
+					m_ADRecord[i][j][h].AMaxValue = 0;
+					m_ADRecord[i][j][h].AMinValue = 666666;
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
 	CString strtime,strtime2,strname;
-	int m_Atotal =0;
-	int m_asr =0;
-	float fmax,ATotalV;
-	ATotalV=fmax =0;
-	COleDateTime t2;
-	if(!m_Rt5mdata._IsEmpty())
+//	if(!m_Rt5mdata._IsEmpty())
 	{
-		m_Rt5mdata.MoveFirst();
-		while ( !m_Rt5mdata.IsEOF() )
+		while ( !theApp.pRS->EndOfFile)
 		{
-				int afds = m_Rt5mdata.m_szfds;
-				int achan = m_Rt5mdata.m_szchan;
-	   		int dbp = mPoint[m_Rt5mdata.m_szPID];
+				int afds = theApp.pRS->Fields->Item["fds"]->Value.lVal;
+				int achan = theApp.pRS->Fields->Item["chan"]->Value.lVal;
+			float s_curd = theApp.pRS->Fields->Item["AValue"]->Value.fltVal;
+			float s_curdmax = theApp.pRS->Fields->Item["AMaxValue"]->Value.fltVal;
+			COleDateTime dt(theApp.pRS->Fields->Item["recdate"]->Value);
+	   		int dbp = mPoint[theApp.pRS->Fields->Item["PID"]->Value.lVal];
              if(dbp != 6666)
 			 {
-	     	    m_ADRecord[afds][achan][0].m_ATotalnum++;  //总统计记录次数
-						float fcurmax =m_Rt5mdata.m_szAMaxValue;
-						t2 = m_Rt5mdata.m_szrecdate;
-						float fcurv =m_Rt5mdata.m_szAValue;
-
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].ATotalV =fcurv;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =t2;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue =fcurmax;
-				if(fcurmax > m_ADRecord[afds][achan][0].AMaxValue)
-				{
-					m_ADRecord[afds][achan][0].NTime =t2;
-					m_ADRecord[afds][achan][0].AMaxValue =fcurmax;
+				//模拟量统计次数  统计值   平均值(本日或本班统计值历史记录平均值)
+//			    	m_ADRecord[afds][achan][299].m_ATotalnum++;//总统计记录次数
+			    	m_ADRecord[afds][achan][299].AavV +=s_curd;
+					//最大值及时刻(本日或本班期间最大值)
+				if(m_ADRecord[afds][achan][299].AMaxValue <s_curdmax)
+				{//本日最大值、时刻   m_ADRecord[afds][achan][0].m_ATotalnum 次数
+    				m_ADRecord[afds][achan][299].AMaxValue = s_curdmax;
+		    		m_ADRecord[afds][achan][299].AMaxTime = dt;
 				}
-				m_ADRecord[afds][achan][0].ATotalV +=fcurv;
+
+					//每次期间平均值和最大值及时刻
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AavV =s_curd;
+				//每次最大值、时刻   m_ADRecord[afds][achan][0].m_ATotalnum 次数
+    				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxValue = s_curdmax;
+		    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].AMaxTime = dt;
+	     	    m_ADRecord[afds][achan][0].m_ATotalnum++;  //总统计记录次数
 			 }
-			m_Rt5mdata.MoveNext();
+			theApp.pRS->MoveNext();
 		}
 	}
-	CString strtime1,strtime3,strtime4,stnames;
+	theApp.pRS->Close();
+
+	CString strtime1,strtime3,strtime4,stnames,strcan;
+		strcan ="5,"+t.Format(_T("%Y-%m-%d,%H:%M:%S"))+","+t1.Format(_T("%Y-%m-%d,%H:%M:%S"));
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -1595,200 +1691,371 @@ void CMadeCertView::OnRECASR()
 
 		strtime += "    "+strtime1+"    "+strtime2;
 
-	_Application ExcelApp; 
-	Workbooks wbsMyBooks; 
-	_Workbook wbMyBook; 
-	Worksheets wssMysheets; 
-	_Worksheet wsMysheet; 
-	Range rgMyRge; 
-	//创建Excel 2000服务器(启动Excel) 
- 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
-	{ 
-		AfxMessageBox("创建Excel服务失败!"); 
-		return; 
-	} 
-	//利用模板文件建立新文档 
-	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
-	//CreateDirectory( str1, NULL );
-//	if(!SetCurrentDirectory(str1))
-//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
-	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
-	//得到Worksheets 
-	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
-	//得到sheet1 
-	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
-	//得到全部Cells，此时,rgMyRge是cells的集合 
-	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
-	//设置1行1列的单元的值 
-	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
+    	strtime = "TRUNCATE TABLE reportahd";
+    	try{
+    		theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);  }
+    	catch(_com_error e){
+    		AfxMessageBox(e.ErrorMessage()); }
+	CString strDBr[16];
+	CTime t = CTime::GetCurrentTime();
+	int t_curse = t.GetTime();
 
 	size_t col = 0;
 		int iItem = 3;
-		for (int i = 1; i < MAX_FDS;i++)
+		for ( i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
 			{
      			for(int k = 0; k < 300;k++ )
 				{
-					if(m_ADRecord[i][j][k].ATotalV <= 0.0001)
+					if(m_ADRecord[i][j][k].AMaxValue <= 0.0001)
 						break;
-                    for(col=0; col<5; col++) {
+                    for(col=0; col<8; col++) {
+						strtime="";
 //             		BasicExcelCell* cell = sheet->Cell(iItem, col);
-            	    if(col==0)
-							strtime =m_SlaveStation[i][j].WatchName;
+						if(col==0)
+						{
+				         	COleDateTimeSpan tspan(0,0,5,0);
+							COleDateTime o1 =m_ADRecord[i][j][k].AMaxTime - tspan;
+						  strtime = "5|" +o1.Format(_T("%Y:%m:%d %H:%M:%S"))+"|"+m_ADRecord[i][j][k].AMaxTime.Format(_T("%Y:%m:%d %H:%M:%S")) ;
+						}
+                        else if(col==1)
+							strtime =m_SlaveStation[i][j].WatchName+"|"+m_SlaveStation[i][j].strPN;
 //                        m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
-              		else if(col==1)
-					{
-			    		strtime.Format(_T("%.2f"), m_ADRecord[i][j][k].AMaxValue);
+                		else if(col==2)
+							strtime =m_SlaveStation[i][j].m_Unit;
+                		else if(col==3)
+				        	  strtime.Format("%.2f",m_SlaveStation[i][j].AlarmValueH);
+                		else if(col==4)
+				        	  strtime.Format("%.2f",m_SlaveStation[i][j].Apbrk);
+                		else if(col==5)
+				        	  strtime.Format("%.2f",m_SlaveStation[i][j].Aprtn);
+              		else if(col==6)
+					{//最大值最大值时刻平均值(本日或本班期间最大值)
+				    	  strtime2.Format("|%.2f",m_ADRecord[i][j][299].AavV/m_ADRecord[i][j][0].m_ATotalnum);
+				    	  strtime.Format("%.2f|",m_ADRecord[i][j][299].AMaxValue);
+						  strtime = strtime +m_ADRecord[i][j][299].AMaxTime.Format(_T("%Y:%m:%d %H:%M:%S")) +strtime2; 
 //                        m_Str2Data.GB2312ToUnicode(strtime1,buf);
 					}
-              		else if(col==2)
-					{
-						t2 =m_ADRecord[i][j][k].NTime;
-						 strtime   =   t2.Format(_T("%Y:%m:%d %H:%M:%S")); 
+              		else if(col==7)
+					{//每段时间内平均值和最大值
+				    	  strtime2.Format("%.2f|%.2f",m_ADRecord[i][j][k].AavV,m_ADRecord[i][j][k].AMaxValue);
+//						  strtime = strtime2 +m_ADRecord[i][j][299].BTime.Format(_T("%Y:%m:%d %H:%M:%S")) +strtime2; 
 //                         m_Str2Data.GB2312ToUnicode(strtime ,buf);
 					}
-               		else if(col==3)
-					{
-						if(k == 0)
-    			    		strtime.Format(_T("%.2f"), m_ADRecord[i][j][0].ATotalV/(m_ADRecord[i][j][0].m_ATotalnum-1));
-						else
-    			    		strtime.Format(_T("%.2f"), m_ADRecord[i][j][k].ATotalV);
-//                        m_Str2Data.GB2312ToUnicode(strtime1 ,buf);
-					}
-              		else if(col==4)
-					{
-						if(k == 0)
-							strtime ="";
-						else
-						{
-			    			t2 =m_ADRecord[i][j][k].NTime;
-						 strtime   =   t2.Format(_T("%Y:%m:%d %H:%M:%S")); 
-						}
-//                         m_Str2Data.GB2312ToUnicode(strtime,buf);
-					}
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
 //					cell->Set(buf);
+                        strDBr[col]=strtime;
 					}
+    	strtime.Format("INSERT INTO reportahd (R0,R1,R2,R3,R4,R5,R6,R7) VALUES('%s','%s','%s','%s','%s','%s','%s','%s')"
+    		,strDBr[0],strDBr[1],strDBr[2],strDBr[3],strDBr[4],strDBr[5],strDBr[6],strDBr[7]);
+     	theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);
 		          iItem++;
 				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
 			}
 		}
-	//保存为文件
-	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
-	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
-		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
-    ExcelApp.Quit();
-	//释放对象 
-	rgMyRge.ReleaseDispatch(); 
-	wsMysheet.ReleaseDispatch(); 
-	wssMysheets.ReleaseDispatch(); 
-	wbMyBook.ReleaseDispatch(); 
-	wbsMyBooks.ReleaseDispatch(); 
-	ExcelApp.ReleaseDispatch(); 
-	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	ShellExecute(0, "open", gstrTimeOut +"\\reportday.exe",m_Str2Data.CStringtocharp(strcan), 0, SW_NORMAL);
+//	theApp.C_Ts.CreateP(gstrTimeOut +"\\reportday.exe", m_Str2Data.CStringtocharp(strcan),5,0x00000001);
 }
-
+//开关量报警断电日报
 void CMadeCertView::OnRECDABD() 
 {
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	// initialize progress control.
+	pFWnd->m_wndProgCtrl.SetRange (0, 3840);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	pFWnd->m_wndProgCtrl.SetStep (1);
+
+	for(int i = 1; i < MAX_FDS;i++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
+			{
+				for(int h = 0; h < 300;h++)
+				{
+					m_ADRecord[i][j][h].m_ATotalnum = 0;
+					m_ADRecord[i][j][h].ATotalV = 0;
+					m_ADRecord[i][j][h].duant = 6;
+					m_ADRecord[i][j][h].strlocal = "";
+					m_ADRecord[i][j][h].havev = 0;
+					m_ADRecord[i][j][h].tmid = 0;
+					m_ADRecord[i][j][h].tmid1 = 0;
+					m_ADRecord[i][j][h].AavV = 0;
+					m_ADRecord[i][j][h].strsafetext = "";
+					m_ADRecord[i][j][h].AMaxValue = 0;
+					m_ADRecord[i][j][h].AMinValue = 666666;
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
 	CString strtime,strtime2;
-	if(m_Realtimedata1._IsOpen())
+	if(b_twodb)
 	{
-		m_Realtimedata1.MoveFirst();
-		while ( !m_Realtimedata1.IsEOF() )
+		while ( !pRS1->EndOfFile)
 		{
-				int afds = m_Realtimedata1.m_szfds;
-				int achan = m_Realtimedata1.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata1.m_szPID];
+				int afds = pRS1->Fields->Item["fds"]->Value.lVal;
+				int achan = pRS1->Fields->Item["chan"]->Value.lVal;
+				int ffds = pRS1->Fields->Item["ffds"]->Value.lVal;
+				int fchan = pRS1->Fields->Item["fchan"]->Value.lVal;
+    			int m_alarm = pRS1->Fields->Item["ADStatus"]->Value.lVal;
+				int s_curd = pRS1->Fields->Item["CDValue"]->Value.lVal;
+				COleDateTime dt(pRS1->Fields->Item["recdate"]->Value);
+	   		int dbp = mPoint[pRS1->Fields->Item["PID"]->Value.lVal];
              if(dbp != 6666)
 			 {
-			int m_alarm = m_Realtimedata1.m_szADStatus;
 			if(m_alarm == 16)
 			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata1.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
-
-    				int nstatus=m_Realtimedata1.m_szCDValue;
-     			   	if(nstatus ==0)
-                          m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal=m_SlaveStation[afds][achan].ZeroState;
-					  else if(nstatus == 1)
-						  m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal= m_SlaveStation[afds][achan].OneState;
-					  else if(nstatus == 2)
-						  m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal= m_SlaveStation[afds][achan].TwoState;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)//第一次报警时刻
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
+					//每次开关量报警期间状态及时刻
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant =s_curd;
+               	_bstr_t Explain =pRS1->Fields->Item["safemtext"]->Value;
+				strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
 					if(strtime != "")
-					{
-          				  COleDateTime t=m_Realtimedata1.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
+					{//每次措施及采取措施时刻
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
 	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
 					}
-				m_ADRecord[afds][achan][0].duant++;//n个报警值
+            	 Explain =pRS1->Fields->Item["FeedStatus"]->Value;
+				strtime.Format("%s",(char *)Explain);
+					strtime.TrimRight();
+					if(strtime != "")
+					{//馈电状态及其时刻、累计时间
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
+	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal += m_SlaveStation[ffds][fchan].WatchName +"|"+ m_SlaveStation[ffds][fchan].strPN +"|"+ strtime+"|"+strtime2+"|";
+					}
+				m_ADRecord[afds][achan][1].m_ATotalnum++;//n个报警值
 			}
-			else if(m_alarm == 0)
+			else if(m_alarm != 16)
 			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
-				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)
+				{//正常时刻 次数加1 下次初始化  每次报警时间
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计报警时间(本日或本班累计报警时间)
+					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+					//报警次数(本日或本班累计报警次数)
 	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总报警次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
 				}
 			}
 			 }
-			m_Realtimedata1.MoveNext();
+							COleDateTimeSpan t(0,0,0,1);
+            	m_ADRecord[afds][achan][0].ATime = dt +t;
+			pRS1->MoveNext();
 		}
 	}
-	if(!m_Realtimedata._IsEmpty())
+//	if(!m_Realtimedata._IsEmpty())
 	{
-		m_Realtimedata.MoveFirst();
-		while ( !m_Realtimedata.IsEOF() )
+		while ( !theApp.pRS->EndOfFile)
 		{
-				int afds = m_Realtimedata.m_szfds;
-				int achan = m_Realtimedata.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata.m_szPID];
+				int afds = theApp.pRS->Fields->Item["fds"]->Value.lVal;
+				int achan = theApp.pRS->Fields->Item["chan"]->Value.lVal;
+				int ffds = theApp.pRS->Fields->Item["ffds"]->Value.lVal;
+				int fchan = theApp.pRS->Fields->Item["fchan"]->Value.lVal;
+    			int m_alarm = theApp.pRS->Fields->Item["ADStatus"]->Value.lVal;
+			COleDateTime dt(theApp.pRS->Fields->Item["recdate"]->Value);
+	   		int dbp = mPoint[theApp.pRS->Fields->Item["PID"]->Value.lVal];
              if(dbp != 6666)
 			 {
-          if(achan<17)
-		  {
-			int m_alarm = m_Realtimedata.m_szADStatus;
 			if(m_alarm == 16)
 			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
-
-    				int nstatus=m_Realtimedata.m_szCDValue;
-     			   	if(nstatus ==0)
-                          m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal=m_SlaveStation[afds][achan].ZeroState;
-					  else if(nstatus == 1)
-						  m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal= m_SlaveStation[afds][achan].OneState;
-					  else if(nstatus == 2)
-						  m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal= m_SlaveStation[afds][achan].TwoState;
-					strtime = m_Realtimedata.m_szsafemtext;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
+					//每次开关量报警期间状态及时刻
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant =theApp.pRS->Fields->Item["CDValue"]->Value.lVal;
+            	_bstr_t Explain =theApp.pRS->Fields->Item["safemtext"]->Value;
+				strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
 					if(strtime != "")
 					{
-          				  COleDateTime t=m_Realtimedata.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
 	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
 					}
-				m_ADRecord[afds][achan][0].duant++;//n个报警值
+            	    Explain =theApp.pRS->Fields->Item["FeedStatus"]->Value;
+				strtime.Format("%s",(char *)Explain);
+					strtime.TrimRight();
+					if(strtime != "")
+					{//馈电状态及其时刻、累计时间
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
+	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal += m_SlaveStation[ffds][fchan].WatchName +"|"+ m_SlaveStation[ffds][fchan].strPN +"|"+ strtime+"|"+strtime2+"|";
+					}
+				m_ADRecord[afds][achan][1].m_ATotalnum++;//n个报警值
 			}
-			else if(m_alarm == 0)
+			else if(m_alarm != 16)
 			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)//有报警
 				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计报警时间(本日或本班累计报警时间)
+					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+					//报警次数(本日或本班累计报警次数)
 	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总报警次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
 				}
 			}
-		  }
 			 }
-			m_Realtimedata.MoveNext();
+							COleDateTimeSpan t(0,0,0,1);
+            	m_ADRecord[afds][achan][0].ATime = dt+t;
+			theApp.pRS->MoveNext();
 		}
 	}
-	CString strtime1,strtime3,strtime4,stnames;
+		for( i = 1; i < MAX_FDS;i++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
+				if(m_ADRecord[i][j][1].m_ATotalnum> 0)//有报警
+				{
+	    			m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].NTime =m_ADRecord[i][j][0].ATime;
+					m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid =m_ADRecord[i][j][0].ATime-m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].BTime;
+					//累计报警时间(本日或本班累计报警时间)
+					m_ADRecord[i][j][299].tmid +=m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid;
+					//报警次数(本日或本班累计报警次数)
+	     			m_ADRecord[i][j][0].m_ATotalnum++;  //总报警次数
+	     			m_ADRecord[i][j][1].m_ATotalnum = 0;  //状态转变
+				}
+
+//	if(theApp.pRS->GetEndOfFile() ==0)
+	if(b_twodb)
+	{
+		if(pRS1->GetRecordCount() !=0)
+			pRS1->MoveFirst();
+		while ( !pRS1->EndOfFile)
+		{
+				int afds = pRS1->Fields->Item["fds"]->Value.lVal;
+				int achan = pRS1->Fields->Item["chan"]->Value.lVal;
+				int ffds = pRS1->Fields->Item["ffds"]->Value.lVal;
+				int fchan = pRS1->Fields->Item["fchan"]->Value.lVal;
+    			int m_alarm = pRS1->Fields->Item["ADStatus"]->Value.lVal;
+				COleDateTime dt(pRS1->Fields->Item["recdate"]->Value);
+	   		int dbp = mPoint[pRS1->Fields->Item["PID"]->Value.lVal];
+             if(dbp != 6666)
+			 {
+			if(m_alarm == 32)
+			{
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)//第一次断电时刻
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
+					//每次开关量断电期间状态及时刻
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant =pRS1->Fields->Item["CDValue"]->Value.lVal;
+                 	_bstr_t Explain =pRS1->Fields->Item["safemtext"]->Value;
+		    		strtime.Format("%s",(char *)Explain);
+					strtime.TrimRight();
+					if(strtime != "")
+					{//每次措施及采取措施时刻
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
+	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
+					}
+                 	 Explain =pRS1->Fields->Item["FeedStatus"]->Value;
+		    		strtime.Format("%s",(char *)Explain);
+					strtime.TrimRight();
+					if(strtime != "")
+					{//馈电状态及其时刻、累计时间
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
+	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal += m_SlaveStation[ffds][fchan].WatchName +"|"+ m_SlaveStation[ffds][fchan].strPN +"|"+ strtime+"|"+strtime2+"|";
+					}
+				m_ADRecord[afds][achan][1].m_ATotalnum++;//n个断电值
+			}
+			else if(m_alarm != 32)
+			{
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)
+				{//正常时刻 次数加1 下次初始化  每次断电时间
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计断电时间(本日或本班累计断电时间)
+					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+					//断电次数(本日或本班累计断电次数)
+	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总断电次数
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
+				}
+			}
+			 }
+							COleDateTimeSpan t(0,0,0,1);
+            	m_ADRecord[afds][achan][0].ATime = dt+t;
+			pRS1->MoveNext();
+		}
+	}
+//	if(!m_Realtimedata._IsEmpty())
+	{
+		if(theApp.pRS->GetRecordCount() !=0)
+    		theApp.pRS->MoveFirst();
+		while ( !theApp.pRS->EndOfFile)
+		{
+				int afds = theApp.pRS->Fields->Item["fds"]->Value.lVal;
+				int achan = theApp.pRS->Fields->Item["chan"]->Value.lVal;
+				int ffds = theApp.pRS->Fields->Item["ffds"]->Value.lVal;
+				int fchan = theApp.pRS->Fields->Item["fchan"]->Value.lVal;
+    			int m_alarm = theApp.pRS->Fields->Item["ADStatus"]->Value.lVal;
+			COleDateTime dt(theApp.pRS->Fields->Item["recdate"]->Value);
+	   		int dbp = mPoint[theApp.pRS->Fields->Item["PID"]->Value.lVal];
+             if(dbp != 6666)
+			 {
+			if(m_alarm == 32)
+			{
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
+					//每次开关量断电期间状态及时刻
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant =theApp.pRS->Fields->Item["CDValue"]->Value.lVal;
+                	_bstr_t Explain =theApp.pRS->Fields->Item["safemtext"]->Value;
+	    			strtime.Format("%s",(char *)Explain);
+					strtime.TrimRight();
+					if(strtime != "")
+					{
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
+	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
+					}
+            	    Explain =theApp.pRS->Fields->Item["FeedStatus"]->Value;
+	    			strtime.Format("%s",(char *)Explain);
+					strtime.TrimRight();
+					if(strtime != "")
+					{//馈电状态及其时刻、累计时间
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
+	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal += m_SlaveStation[ffds][fchan].WatchName +"|"+ m_SlaveStation[ffds][fchan].strPN +"|"+ strtime+"|"+strtime2+"|";
+					}
+				m_ADRecord[afds][achan][1].m_ATotalnum++;//n个断电值
+			}
+			else if(m_alarm != 32)
+			{
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)//有断电
+				{
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计断电时间(本日或本班累计断电时间)
+					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+					//断电次数(本日或本班累计断电次数)
+	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总断电次数
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
+				}
+			}
+			 }
+							COleDateTimeSpan t(0,0,0,1);
+            	m_ADRecord[afds][achan][0].ATime = dt+t;
+			theApp.pRS->MoveNext();
+		}
+	}
+		for( i = 1; i < MAX_FDS;i++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
+			{
+				if(m_ADRecord[i][j][1].m_ATotalnum> 0)//有断电
+				{
+	    			m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].NTime =m_ADRecord[i][j][0].ATime;
+					m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid =m_ADRecord[i][j][0].ATime-m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].BTime;
+					//累计断电时间(本日或本班累计断电时间)
+					m_ADRecord[i][j][299].tmid +=m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid;
+					//断电次数(本日或本班累计断电次数)
+	     			m_ADRecord[i][j][0].m_ATotalnum++;  //总断电次数
+	     			m_ADRecord[i][j][1].m_ATotalnum = 0;  //状态转变
+				}
+
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
+    if (b_twodb)
+	{
+		b_twodb = FALSE;
+      	pRS1->Close();
+	}
+    theApp.pRS->Close();
+
+	CString strtime1,strtime3,strtime4,stnames,strcan;
+		strcan ="6,"+t.Format(_T("%Y-%m-%d,%H:%M:%S"))+","+t1.Format(_T("%Y-%m-%d,%H:%M:%S"));
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -1811,431 +2078,285 @@ void CMadeCertView::OnRECDABD()
 				stnames = "开关量报警记录查询显示";
 		strtime += "    "+strtime1+"    "+strtime2;
 
-	_Application ExcelApp; 
-	Workbooks wbsMyBooks; 
-	_Workbook wbMyBook; 
-	Worksheets wssMysheets; 
-	_Worksheet wsMysheet; 
-	Range rgMyRge; 
-	//创建Excel 2000服务器(启动Excel) 
- 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
-	{ 
-		AfxMessageBox("创建Excel服务失败!"); 
-		return; 
-	} 
-	//利用模板文件建立新文档 
-	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
-	//CreateDirectory( str1, NULL );
-//	if(!SetCurrentDirectory(str1))
-//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
-	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
-	//得到Worksheets 
-	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
-	//得到sheet1 
-	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
-	//得到全部Cells，此时,rgMyRge是cells的集合 
-	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
-	//设置1行1列的单元的值 
-	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
+    	strtime = "TRUNCATE TABLE reportdad";
+    	try{
+    		theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);  }
+    	catch(_com_error e){
+    		AfxMessageBox(e.ErrorMessage()); }
+	CString strDBr[16];
+	CTime t = CTime::GetCurrentTime();
+	int t_curse = t.GetTime();
 
 	   size_t col = 0;
 		int iItem = 3;
-		for (int i = 1; i < MAX_FDS;i++)
+		for ( i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
 			{
      			for(int k = 0; k < 300;k++ )
 				{
-    				if(m_ADRecord[i][j][k].strlocal == "")
+    				if(m_ADRecord[i][j][k].duant == 6)
 						break;
 					{
-                       	for(col=0; col<7; col++) {
+                       	for(col=0; col<8; col++) {
+							strtime="";
 //                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-							strtime =m_SlaveStation[i][j].WatchName;
+							strtime =m_SlaveStation[i][j].WatchName+"|"+m_SlaveStation[i][j].strPN;
 //                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
-							strtime = "1";
-//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
-                		else if(col==2)
 						{
-							COleDateTime o =m_ADRecord[i][j][k].NTime;
-							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
-				         	COleDateTimeSpan t = o1-o;
+	        				  int nstatus = m_ADRecord[i][j][k].duant;
+			        		  if(nstatus == 0)
+			        			  strtime= m_SlaveStation[i][j].ZeroState;
+				         	  else if(nstatus == 1)
+			         			  strtime= m_SlaveStation[i][j].OneState;
+		        			  else if(nstatus == 2)
+		        				  strtime= m_SlaveStation[i][j].TwoState;
+//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+						}
+                		else if(col==2)
+						{//累计报警及断电时间(本日或本班累计报警及断电时间)
+							COleDateTimeSpan t = m_ADRecord[i][j][299].tmid;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
 //                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
                  		else if(col==3)
-							strtime =m_ADRecord[i][j][k].strlocal;
+							//报警及断电次数(本日或本班累计报警及断电次数)
+				        	  strtime.Format("%d",m_ADRecord[i][j][0].m_ATotalnum);
 //                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
                  		else if(col==4)
-						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+						{//每次报警及断电时刻及解除时刻  每次报警及断电时间
+							COleDateTimeSpan t = m_ADRecord[i][j][k].tmid;
+			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
+		        		  strtime +="|" + m_ADRecord[i][j][k].BTime.Format(_T("%Y:%m:%d %H:%M:%S")) +"|"+ m_ADRecord[i][j][k].NTime.Format(_T("%Y:%m:%d %H:%M:%S")) ; 
 //                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
-                 		else if(col==5)
-						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
-//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
-						}
+                		else if(col==5)//断电区域
+				        	  strtime.Format("%s",m_SlaveStation[i][j].strBS);
                  		else if(col==6)
+						{//馈电状态及起止时刻、累计时间
+							strtime =m_ADRecord[i][j][k].strlocal;
+							if(strtime !="")
+							{
+	    						COleDateTimeSpan t = m_ADRecord[i][j][k].tmid;
+			            	strtime2.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
+								strtime +="|"+strtime2;
+    							int strl = strtime.GetLength();
+			    				if(strl>799)
+				    				strtime = strtime.Mid(0,799);
+							}
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
+						}
+                 		else if(col==7)
 							strtime =m_ADRecord[i][j][k].strsafetext;
 //                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
 //						cell->Set(buf);
+                        strDBr[col]=strtime;
 						}
+    	strtime.Format("INSERT INTO reportdad (R0,R1,R2,R3,R4,R5,R6,R7) VALUES('%s','%s','%s','%s','%s','%s','%s','%s')"
+    		,strDBr[0],strDBr[1],strDBr[2],strDBr[3],strDBr[4],strDBr[5],strDBr[6],strDBr[7]);
+     	theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);
 		            	iItem++;
 					}//if
 				}//k
+	    	pFWnd->m_wndProgCtrl.StepIt();
 			}//j
 		}//i
-	//保存为文件
-	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
-	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
-		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
-    ExcelApp.Quit();
-	//释放对象 
-	rgMyRge.ReleaseDispatch(); 
-	wsMysheet.ReleaseDispatch(); 
-	wssMysheets.ReleaseDispatch(); 
-	wbMyBook.ReleaseDispatch(); 
-	wbsMyBooks.ReleaseDispatch(); 
-	ExcelApp.ReleaseDispatch(); 
-	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	ShellExecute(0, "open", gstrTimeOut +"\\reportday.exe",m_Str2Data.CStringtocharp(strcan), 0, SW_NORMAL);
+//	theApp.C_Ts.CreateP(gstrTimeOut +"\\reportday.exe", m_Str2Data.CStringtocharp(strcan),5,0x00000001);
 }
 
 void CMadeCertView::OnRECDABB() //开关量断电
 {
-	CString strtime,strtime2;
-	if(m_Realtimedata1._IsOpen())
-	{
-		m_Realtimedata1.MoveFirst();
-		while ( !m_Realtimedata1.IsEOF() )
-		{
-				int afds = m_Realtimedata1.m_szfds;
-				int achan = m_Realtimedata1.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata1.m_szPID];
-             if(dbp != 6666)
-			 {
-          if(achan<17)
-		  {
-			int m_alarm = m_Realtimedata1.m_szADStatus;
-			if(m_alarm == 32)
-			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata1.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
-
-    				int nstatus=m_Realtimedata1.m_szCDValue;
-     			   	if(nstatus ==0)
-                          m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal=m_SlaveStation[afds][achan].ZeroState;
-					  else if(nstatus == 1)
-						  m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal= m_SlaveStation[afds][achan].OneState;
-					  else if(nstatus == 2)
-						  m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal= m_SlaveStation[afds][achan].TwoState;
-					strtime.TrimRight();
-					if(strtime != "")
-					{
-          				  COleDateTime t=m_Realtimedata1.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
-	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
-					}
-				m_ADRecord[afds][achan][0].duant++;//n个断电值
-			}
-			else if(m_alarm == 0)
-			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
-				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
-	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总断电次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
-				}
-			}
-		  }
-			 }
-			m_Realtimedata1.MoveNext();
-		}
-	}
-	if(!m_Realtimedata._IsEmpty())
-	{
-		m_Realtimedata.MoveFirst();
-		while ( !m_Realtimedata.IsEOF() )
-		{
-				int afds = m_Realtimedata.m_szfds;
-				int achan = m_Realtimedata.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata.m_szPID];
-             if(dbp != 6666)
-			 {
-			int m_alarm = m_Realtimedata.m_szADStatus;
-			if(m_alarm == 32)
-			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
-
-    				int nstatus=m_Realtimedata.m_szCDValue;
-     			   	if(nstatus ==0)
-                          m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal=m_SlaveStation[afds][achan].ZeroState;
-					  else if(nstatus == 1)
-						  m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal= m_SlaveStation[afds][achan].OneState;
-					  else if(nstatus == 2)
-						  m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal= m_SlaveStation[afds][achan].TwoState;
-					strtime = m_Realtimedata.m_szsafemtext;
-					strtime.TrimRight();
-					if(strtime != "")
-					{
-          				  COleDateTime t=m_Realtimedata.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
-	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
-					}
-				m_ADRecord[afds][achan][0].duant++;//n个断电值
-			}
-			else if(m_alarm == 0)
-			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
-				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
-	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总断电次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
-				}
-			}
-			 }
-			m_Realtimedata.MoveNext();
-		}
-	}
-	CString strtime1,strtime3,strtime4,stnames;
-		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
-		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
-		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
-		strtime2.Format("%d",m_hours); 
-		strtime2 = "时间间隔:" +strtime2+"小时";
-		strtime3 = "打印时间:" + CTime::GetCurrentTime().Format(_T("%Y-%m-%d %H:%M:%S"));
-		if(m_hours >20)
-	     	strtime4 = t1.Format(_T("%Y-%m-%d"))+"日报表:";
-		else
-	     	strtime4 = t1.Format(_T("%Y-%m-%d"))+ "班报表:";
-
-		if(theApp.strargc == "OnEXCELDAB")
-		{
-			if(m_hours >20)
-				stnames = "开关量断电日报表";
-			else
-				stnames = "开关量断电班报表";
-		}
-		else
-				stnames = "开关量断电记录查询显示";
-
-		strtime += "    "+strtime1+"    "+strtime2;
-	_Application ExcelApp; 
-	Workbooks wbsMyBooks; 
-	_Workbook wbMyBook; 
-	Worksheets wssMysheets; 
-	_Worksheet wsMysheet; 
-	Range rgMyRge; 
-	//创建Excel 2000服务器(启动Excel) 
- 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
-	{ 
-		AfxMessageBox("创建Excel服务失败!"); 
-		return; 
-	} 
-	//利用模板文件建立新文档 
-	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
-	//CreateDirectory( str1, NULL );
-//	if(!SetCurrentDirectory(str1))
-//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
-	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
-	//得到Worksheets 
-	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
-	//得到sheet1 
-	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
-	//得到全部Cells，此时,rgMyRge是cells的集合 
-	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
-	//设置1行1列的单元的值 
-	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
-
-	size_t col = 0;
-		int iItem = 3;
-		for (int i = 1; i < MAX_FDS;i++)
-		{
-			for(int j = 1; j < 17;j++ )
-			{
-     			for(int k = 0; k < 300;k++ )
-				{
-    				if(m_ADRecord[i][j][k].strlocal == "")
-						break;
-					{
-                       	for(col=0; col<7; col++) {
-//                		BasicExcelCell* cell = sheet->Cell(iItem, col);
-                		if(col==0)
-		        		  strtime   =   m_SlaveStation[i][j].WatchName; 
-//                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
-                		else if(col==1)
-		        		  strtime   =  "1"; 
-//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
-                		else if(col==2)
-						{
-							COleDateTime o =m_ADRecord[i][j][k].NTime;
-							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
-				         	COleDateTimeSpan t = o1-o;
-			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
-//                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
-						}
-                 		else if(col==3)
-		        		  strtime   =   m_ADRecord[i][j][k].strlocal; 
- //                         m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
-                 		else if(col==4)
-						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
-//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
-						}
-                 		else if(col==5)
-						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
-//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
-						}
-                 		else if(col==6)
-		        		  strtime   =   m_ADRecord[i][j][k].strsafetext; 
-//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
-//						cell->Set(buf);
-						}
-		            	iItem++;
-					}//if
-				}//k
-			}//j
-		}//i
-	//保存为文件
-	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
-	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
-		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
-    ExcelApp.Quit();
-	//释放对象 
-	rgMyRge.ReleaseDispatch(); 
-	wsMysheet.ReleaseDispatch(); 
-	wssMysheets.ReleaseDispatch(); 
-	wbMyBook.ReleaseDispatch(); 
-	wbsMyBooks.ReleaseDispatch(); 
-	ExcelApp.ReleaseDispatch(); 
-	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
 }
 
 void CMadeCertView::OnRECDFED() //开关量馈电异常
 {
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	// initialize progress control.
+	pFWnd->m_wndProgCtrl.SetRange (0, 3840);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	pFWnd->m_wndProgCtrl.SetStep (1);
+
+		for(int i = 1; i < MAX_FDS;i++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
+			{
+				for(int h = 0; h < 300;h++)
+				{
+					m_ADRecord[i][j][h].m_ATotalnum = 0;
+					m_ADRecord[i][j][h].ATotalV = 0;
+					m_ADRecord[i][j][h].duant = 0;
+					m_ADRecord[i][j][h].strlocal = "";
+					m_ADRecord[i][j][h].havev = 0;
+					m_ADRecord[i][j][h].tmid = 0;
+					m_ADRecord[i][j][h].tmid1 = 0;
+					m_ADRecord[i][j][h].AavV = 0;
+					m_ADRecord[i][j][h].strsafetext = "";
+					m_ADRecord[i][j][h].AMaxValue = 0;
+					m_ADRecord[i][j][h].AMinValue = 666666;
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
 	CString strtime,strtime2;
-	if(m_Realtimedata1._IsOpen())
+	if(b_twodb)
 	{
-		m_Realtimedata1.MoveFirst();
-		while ( !m_Realtimedata1.IsEOF() )
+		while ( !pRS1->EndOfFile)
 		{
-				int afds = m_Realtimedata1.m_szfds;
-				int achan = m_Realtimedata1.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata1.m_szPID];
-             if(dbp != 6666)
+				int afds = pRS1->Fields->Item["ffds"]->Value.lVal;
+				int achan = pRS1->Fields->Item["fchan"]->Value.lVal;
+				COleDateTime dt(pRS1->Fields->Item["recdate"]->Value);
+//				int afds = m_Realtimedata1.m_szffds;
+//				int achan = m_Realtimedata1.m_szfchan;
+	   		int dbp = mPoint[pRS1->Fields->Item["PID"]->Value.lVal];
+//             if(dbp != 6666)
 			 {
-			strtime = m_Realtimedata1.m_szFeedStatus;
-			strtime.TrimRight();
+            	_bstr_t Explain =pRS1->Fields->Item["FeedStatus"]->Value;
+				strtime.Format("%s",(char *)Explain);
+    			strtime.TrimRight();
 			if(strtime == "异常")
 			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata1.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)//第一次馈电异常时刻
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
 
-					strtime = m_Realtimedata1.m_szsafemtext;
+               	 Explain =pRS1->Fields->Item["safemtext"]->Value;
+				strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
 					if(strtime != "")
-					{
-          				  COleDateTime t=m_Realtimedata1.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
+					{//每次措施及采取措施时刻
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
 	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
 					}
-				int ffds = m_Realtimedata1.m_szffds;
-				int fchan = m_Realtimedata1.m_szfchan;
-				if(ffds>0)
-				{
-          				  COleDateTime oleDateTime=m_Realtimedata1.m_szrecdate;
-		        		  strtime2   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-					strtime = m_Realtimedata1.m_szFeedStatus;
-					strtime.TrimRight();
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal +=m_SlaveStation[ffds][fchan].WatchName+"|"
-						+strtime+"|"+strtime2+"|";
-				}
-				m_ADRecord[afds][achan][0].duant++;//n个馈电异常记录
+				m_ADRecord[afds][achan][1].m_ATotalnum++;//n个馈电异常记录
 			}
 			else if(strtime == "正常")
 			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
-				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
-	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总馈电异常记录次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)
+				{//正常时刻 次数加1 下次初始化  每次馈电异常时间
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计馈电异常时间(本日或本班累计馈电异常时间)
+//					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+					//馈电异常次数(本日或本班累计馈电异常次数)
+	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总馈电异常次数
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
 				}
 			}
 			 }
-			m_Realtimedata1.MoveNext();
+            	m_ADRecord[afds][achan][0].ATime = dt;
+			pRS1->MoveNext();
 		}
 	}
-	if(!m_Realtimedata._IsEmpty())
+//	if(!m_Realtimedata._IsEmpty())
 	{
-		m_Realtimedata.MoveFirst();
-		while ( !m_Realtimedata.IsEOF() )
+		while ( !theApp.pRS->EndOfFile)
 		{
-				int afds = m_Realtimedata.m_szfds;
-				int achan = m_Realtimedata.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata.m_szPID];
-             if(dbp != 6666)
+				int afds = theApp.pRS->Fields->Item["ffds"]->Value.lVal;
+				int achan = theApp.pRS->Fields->Item["fchan"]->Value.lVal;
+			COleDateTime dt(theApp.pRS->Fields->Item["recdate"]->Value);
+//				int afds = m_Realtimedata.m_szffds;
+//				int achan = m_Realtimedata.m_szfchan;
+	   		int dbp = mPoint[theApp.pRS->Fields->Item["PID"]->Value.lVal];
+//             if(dbp != 6666)
 			 {
-			strtime = m_Realtimedata.m_szFeedStatus;
-			strtime.TrimRight();
+            	_bstr_t Explain =theApp.pRS->Fields->Item["FeedStatus"]->Value;
+				strtime.Format("%s",(char *)Explain);
+    			strtime.TrimRight();
 			if(strtime == "异常")
 			{
-//				m_ADRecord[afds][achan][1].duant=100;
-//				if()
-				{
-					m_ADRecord[afds][achan][2].duant =10;
-    				if(m_ADRecord[afds][achan][0].duant == 0)
-     					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata.m_szrecdate;
-	      			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)//第一次馈电异常时刻
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
 
-					strtime = m_Realtimedata.m_szsafemtext;
+                	 Explain =theApp.pRS->Fields->Item["safemtext"]->Value;
+    				strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
 					if(strtime != "")
-					{
-          				  COleDateTime t=m_Realtimedata.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
+					{//每次措施及采取措施时刻
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
 	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
 					}
-		     		int ffds = m_Realtimedata.m_szffds;
-		    		int fchan = m_Realtimedata.m_szfchan;
-		    		if(ffds>0)
-					{
-          				  COleDateTime oleDateTime=m_Realtimedata.m_szrecdate;
-		        		  strtime2   =   oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-					strtime = m_Realtimedata.m_szFeedStatus;
-					strtime.TrimRight();
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strlocal +=m_SlaveStation[ffds][fchan].WatchName+"|"
-						+strtime+"|"+strtime2+"|";
-					}
-			      	m_ADRecord[afds][achan][0].duant++;//n个馈电异常记录值
-				}
+				m_ADRecord[afds][achan][1].m_ATotalnum++;//n个馈电异常记录
 			}
 			else if(strtime == "正常")
 			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
-				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
-	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总馈电异常记录次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)
+				{//正常时刻 次数加1 下次初始化  每次馈电异常时间
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计馈电异常时间(本日或本班累计馈电异常时间)
+//					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+					//馈电异常次数(本日或本班累计馈电异常次数)
+	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总馈电异常次数
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
 				}
 			}
 			 }
-			m_Realtimedata.MoveNext();
+            	m_ADRecord[afds][achan][0].ATime = dt;
+			theApp.pRS->MoveNext();
 		}
 	}
-	CString strtime1,strtime3,strtime4,stnames;
+		for( i = 1; i < MAX_FDS;i++ )
+			for(int j = 1; j < MAX_CHAN;j++ )
+			{
+				if(m_ADRecord[i][j][1].m_ATotalnum> 0)//有馈电异常
+				{
+	    			m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].NTime =m_ADRecord[i][j][0].ATime;
+					m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid =m_ADRecord[i][j][0].ATime-m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].BTime;
+					//累计馈电异常时间(本日或本班累计馈电异常时间)
+//					m_ADRecord[i][j][299].tmid +=m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid;
+					//馈电异常次数(本日或本班累计馈电异常次数)
+	     			m_ADRecord[i][j][0].m_ATotalnum++;  //总馈电异常次数
+	     			m_ADRecord[i][j][1].m_ATotalnum = 0;  //状态转变
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
+
+		for ( i = 1; i < MAX_FDS;i++)
+		{
+			for(int j = 1; j < 17;j++ )
+			{
+         		int m_fen=0;
+	   	    	int dbp = mPoint[m_SlaveStation[i][j].m_PID];
+                if(dbp != 6666)
+				{
+                 	for(int h= 0 ;h<64 ; h++)
+					{
+            		     int cfds = m_ADCbreakE[i][j][h].bFSd;
+            			 int cchan = m_ADCbreakE[i][j][h].bchanel;
+            			 if(cfds == 0)
+	            			 break;
+            			 for(int m= 0 ;m<64 ; m++)
+						 {
+    	            	     int ffds = m_CFeed[cfds][cchan][m].bFSd;//被控量
+	                		 int fchan = m_CFeed[cfds][cchan][m].bchanel;
+		            		 if(ffds == 0)
+	 	            			 break;
+               	    		for(int k = 0; k < m_ADRecord[ffds][fchan][0].m_ATotalnum;k++ )
+							{
+								m_ADRecord[i][j][m_fen].ATime =m_ADRecord[ffds][fchan][k].BTime;
+								m_ADRecord[i][j][m_fen].RTime =m_ADRecord[ffds][fchan][k].NTime;
+								m_ADRecord[i][j][m_fen].tmid1 =m_ADRecord[ffds][fchan][k].tmid;
+								m_ADRecord[i][j][m_fen].strlocal =m_ADRecord[ffds][fchan][k].strsafetext;
+								m_ADRecord[i][j][299].tmid += m_ADRecord[ffds][fchan][k].tmid;
+								m_fen++;
+							}
+							m_ADRecord[i][j][299].m_ATotalnum += m_ADRecord[ffds][fchan][0].m_ATotalnum;
+						 }//for(int m= 0 ;m<64 ; m++)
+					}//for(int h= 0 ;h<64 ; h++)
+				}//if(dbp != 6666)
+			}//for(int j = 1; j < 17;j++ )
+		}//for ( i = 1; i < MAX_FDS;i++)
+    if (b_twodb)
+	{
+		b_twodb = FALSE;
+      	pRS1->Close();
+	}
+    theApp.pRS->Close();
+
+	CString strtime1,strtime3,strtime4,stnames,strcan;
+		strcan ="7,"+t.Format(_T("%Y-%m-%d,%H:%M:%S"))+","+t1.Format(_T("%Y-%m-%d,%H:%M:%S"));
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -2258,152 +2379,199 @@ void CMadeCertView::OnRECDFED() //开关量馈电异常
 				stnames = "开关量馈电异常记录查询显示";
 
 		strtime += "    "+strtime1+"     "+strtime2;
-	_Application ExcelApp; 
-	Workbooks wbsMyBooks; 
-	_Workbook wbMyBook; 
-	Worksheets wssMysheets; 
-	_Worksheet wsMysheet; 
-	Range rgMyRge; 
-	//创建Excel 2000服务器(启动Excel) 
- 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
-	{ 
-		AfxMessageBox("创建Excel服务失败!"); 
-		return; 
-	} 
-	//利用模板文件建立新文档 
-	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
-	//CreateDirectory( str1, NULL );
-//	if(!SetCurrentDirectory(str1))
-//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
-	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
-	//得到Worksheets 
-	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
-	//得到sheet1 
-	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
-	//得到全部Cells，此时,rgMyRge是cells的集合 
-	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
-	//设置1行1列的单元的值 
-	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
+    	strtime = "TRUNCATE TABLE reportdfd";
+    	try{
+    		theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);  }
+    	catch(_com_error e){
+    		AfxMessageBox(e.ErrorMessage()); }
+	CString strDBr[16];
+	CTime t = CTime::GetCurrentTime();
+	int t_curse = t.GetTime();
 
 	size_t col = 0;
 		int iItem = 3;
-		for (int i = 1; i < MAX_FDS;i++)
+		for ( i = 1; i < MAX_FDS;i++)
 		{
 			for(int j = 1; j < 17;j++ )
 			{
-     			for(int k = 0; k < 300;k++ )
+	   	    	int dbp = mPoint[m_SlaveStation[i][j].m_PID];
+                if(dbp != 6666)
 				{
-    				if(m_ADRecord[i][j][k].strlocal == "")
-						break;
+				for(int k = 0; k < m_ADRecord[i][j][299].m_ATotalnum;k++ )
+				{
 					{
-                       	for(col=0; col<7; col++) {
+                       	for(col=0; col<6; col++) {
+							strtime="";
 //                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-		        		  strtime   =  m_SlaveStation[i][j].WatchName; 
+							strtime =m_SlaveStation[i][j].WatchName+"|"+m_SlaveStation[i][j].strPN;
 //                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
-		        		  strtime   =   "1" ; 
-//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+				        	  strtime.Format("%s",m_SlaveStation[i][j].strBS);
                 		else if(col==2)
-						{
-							COleDateTime o =m_ADRecord[i][j][k].NTime;
-							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
-				         	COleDateTimeSpan t = o1-o;
+							//馈电异常次数(本日或本班累计断电次数)
+				        	  strtime.Format("%d",m_ADRecord[i][j][299].m_ATotalnum);
+//                             m_Str2Data.GB2312ToUnicode("1" ,buf);
+                		else if(col==3)
+						{//累计馈电异常时间(本日或本班累计馈电异常时间)
+							COleDateTimeSpan t = m_ADRecord[i][j][299].tmid;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
 //                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
-                 		else if(col==3)
+                 		else if(col==4)//每次馈电状态每次累计时间及起止时刻
 						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
-//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
-						}
-                 		else if(col==4)
-						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+						  COleDateTimeSpan t = m_ADRecord[i][j][k].tmid1;
+			            	strtime.Format("异常|%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
+		        		  strtime +="|"+m_ADRecord[i][j][k].ATime.Format(_T("%Y:%m:%d %H:%M:%S")) +"|"+ m_ADRecord[i][j][k].RTime.Format(_T("%Y:%m:%d %H:%M:%S")) ; 
 //                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
                  		else if(col==5)
-		        		  strtime   =   m_ADRecord[i][j][k].strsafetext; 
-//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
-                 		else if(col==6)
-		        		  strtime   =   m_ADRecord[i][j][k].strlocal; 
-//                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strlocal,buf);
-
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
-//						cell->Set(buf);
+						{
+							strtime =m_ADRecord[i][j][k].strlocal;
+//                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
+//					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//						cell->Set(buf);
+                        strDBr[col]=strtime;
+						}
+    	strtime.Format("INSERT INTO reportdfd (R0,R1,R2,R3,R4,R5) VALUES('%s','%s','%s','%s','%s','%s')"
+    		,strDBr[0],strDBr[1],strDBr[2],strDBr[3],strDBr[4],strDBr[5]);
+     	theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);
 		            	iItem++;
 					}//if
 				}//k
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
 			}//j
 		}//i
-	//保存为文件
-	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
-	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
-		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
-    ExcelApp.Quit();
-	//释放对象 
-	rgMyRge.ReleaseDispatch(); 
-	wsMysheet.ReleaseDispatch(); 
-	wssMysheets.ReleaseDispatch(); 
-	wbMyBook.ReleaseDispatch(); 
-	wbsMyBooks.ReleaseDispatch(); 
-	ExcelApp.ReleaseDispatch(); 
-	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	ShellExecute(0, "open", gstrTimeOut +"\\reportday.exe",m_Str2Data.CStringtocharp(strcan), 0, SW_NORMAL);
+//	theApp.C_Ts.CreateP(gstrTimeOut +"\\reportday.exe", m_Str2Data.CStringtocharp(strcan),5,0x00000001);
 }
 
 void CMadeCertView::OnRECDSCD() //开关量状态变动记录
 {
-	int m_s[MAX_FDS][MAX_CHAN];
-	if(m_Realtimedata1._IsOpen())
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	// initialize progress control.
+	pFWnd->m_wndProgCtrl.SetRange (0, 3840);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	pFWnd->m_wndProgCtrl.SetStep (1);
+
+		for(int i = 1; i < MAX_FDS;i++ )
+			for(int j = 0; j < MAX_CHAN;j++ )
+			{
+				for(int h = 0; h < 300;h++)
+				{
+					m_ADRecord[i][j][h].m_ATotalnum = 0;
+					m_ADRecord[i][j][h].ATotalV = 0;
+					m_ADRecord[i][j][h].duant = 6;
+					m_ADRecord[i][j][h].strlocal = "";
+					m_ADRecord[i][j][h].havev = 0;
+					m_ADRecord[i][j][h].tmid = 0;
+					m_ADRecord[i][j][h].AavV = 0;
+					m_ADRecord[i][j][h].strsafetext = "";
+					m_ADRecord[i][j][h].AMaxValue = 0;
+					m_ADRecord[i][j][h].AMinValue = 666666;
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
+	if(b_twodb)
 	{
-		m_Realtimedata1.MoveFirst();
-		while ( !m_Realtimedata1.IsEOF() )
+		while ( !pRS1->EndOfFile)
 		{
-				int afds = m_Realtimedata1.m_szfds;
-				int achan = m_Realtimedata1.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata1.m_szPID];
+				int afds = pRS1->Fields->Item["fds"]->Value.lVal;
+				int achan = pRS1->Fields->Item["chan"]->Value.lVal;
+    			int nstatus = pRS1->Fields->Item["CDValue"]->Value.lVal;
+				COleDateTime dt(pRS1->Fields->Item["recdate"]->Value);
+	   		int dbp = mPoint[pRS1->Fields->Item["PID"]->Value.lVal];
              if(dbp != 6666)
 			 {
-	    			int nstatus = m_Realtimedata1.m_szCDValue;
-    	    		if(nstatus != m_s[afds][achan])
+    	    		if(nstatus == 1)
 					{
-		         		m_s[afds][achan] = nstatus;
-		        		m_ADRecord[afds][achan][0].m_ATotalnum++;
-		        		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].m_ATotalnum =nstatus;
-		        		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata1.m_szrecdate;
+     		    		if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)//第一次状态变动时刻
+				        	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
+				        m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant =nstatus;
+        				m_ADRecord[afds][achan][1].m_ATotalnum++;//n次状态变动
+					}
+	        		else if(nstatus != 1)
+					{
+	        			if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)
+						{//状态变动时刻 次数加1 下次初始化  每次状态变动时间
+					//累计运行时间(本日或本班累计运行时间)
+					m_ADRecord[afds][achan][299].tmid +=dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+	     			m_ADRecord[afds][achan][0].m_ATotalnum ++;//总状态变动次数
+					//状态变动次数(本日或本班累计状态变动次数)
+					//第n次状态变动时刻
+				    m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
+				    m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant =nstatus;
+	     			m_ADRecord[afds][achan][0].m_ATotalnum ++;//总状态变动次数
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
+						}
 					}
 			 }
-			m_Realtimedata1.MoveNext();
+                 	m_ADRecord[afds][achan][0].ATime = dt;
+			pRS1->MoveNext();
 		}
 	}
-	if(!m_Realtimedata._IsEmpty())
+//	if(!m_Realtimedata._IsEmpty())
 	{
-		m_Realtimedata.MoveFirst();
-		while ( !m_Realtimedata.IsEOF() )
+		while ( !theApp.pRS->EndOfFile)
 		{
-				int afds = m_Realtimedata.m_szfds;
-				int achan = m_Realtimedata.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata.m_szPID];
+				int afds = theApp.pRS->Fields->Item["fds"]->Value.lVal;
+				int achan = theApp.pRS->Fields->Item["chan"]->Value.lVal;
+    			int nstatus = theApp.pRS->Fields->Item["CDValue"]->Value.lVal;
+			COleDateTime dt(theApp.pRS->Fields->Item["recdate"]->Value);
+	   		int dbp = mPoint[theApp.pRS->Fields->Item["PID"]->Value.lVal];
              if(dbp != 6666)
 			 {
-        				int nstatus = m_Realtimedata.m_szCDValue;
-            			if(nstatus != m_s[afds][achan])
+                	if(nstatus == 1)
+					{
+     		        	if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)//第一次状态变动时刻
 						{
-	              			m_s[afds][achan] = nstatus;
-	            			m_ADRecord[afds][achan][0].m_ATotalnum++;
-	             			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].m_ATotalnum =nstatus;
-		            		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata.m_szrecdate;
+				        	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
+    				        m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant =nstatus;
+            				m_ADRecord[afds][achan][1].m_ATotalnum++;//n次状态变动
 						}
+					}
+	        		else if(nstatus != 1)
+					{
+	        			if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)
+						{//状态变动时刻 次数加1 下次初始化  每次状态变动时间
+					//累计运行时间(本日或本班累计运行时间)
+					m_ADRecord[afds][achan][299].tmid +=dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+	            	m_ADRecord[afds][achan][0].m_ATotalnum ++;//总状态变动次数
+					//状态变动次数(本日或本班累计状态变动次数)
+					//第n次状态变动时刻
+				    m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
+				    m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant =nstatus;
+	     			m_ADRecord[afds][achan][0].m_ATotalnum ++;//总状态变动次数
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
+						}
+					}
 			 }
-			m_Realtimedata.MoveNext();
+                 	m_ADRecord[afds][achan][0].ATime = dt;
+			theApp.pRS->MoveNext();
 		}
 	}
+		for( i = 1; i < MAX_FDS;i++ )
+			for(int j = 0; j < MAX_CHAN;j++ )
+			{
+				if(m_ADRecord[i][j][1].m_ATotalnum> 0)//有状态转变
+					//累计运行时间(本日或本班累计运行时间)
+					m_ADRecord[i][j][299].tmid +=m_ADRecord[i][j][0].ATime-m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].BTime;
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
+    if (b_twodb)
+	{
+		b_twodb = FALSE;
+      	pRS1->Close();
+	}
+    theApp.pRS->Close();
 
 	CString strtime,strtime1,stnames;
 	CString strtime2,strtime3,strtime4;
+	CString strcan;
+		strcan ="8,"+t.Format(_T("%Y-%m-%d,%H:%M:%S"))+","+t1.Format(_T("%Y-%m-%d,%H:%M:%S"));
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -2436,195 +2604,225 @@ void CMadeCertView::OnRECDSCD() //开关量状态变动记录
 //             m_Str2Data.GB2312ToUnicode(strtime ,buf);
 //		cell->Set(buf);
 //		cell->SetFormat(fmt_bold);
-	_Application ExcelApp; 
-	Workbooks wbsMyBooks; 
-	_Workbook wbMyBook; 
-	Worksheets wssMysheets; 
-	_Worksheet wsMysheet; 
-	Range rgMyRge; 
-	//创建Excel 2000服务器(启动Excel) 
- 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
-	{ 
-		AfxMessageBox("创建Excel服务失败!"); 
-		return; 
-	} 
-	//利用模板文件建立新文档 
-	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
-	//CreateDirectory( str1, NULL );
-//	if(!SetCurrentDirectory(str1))
-//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
-	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
-	//得到Worksheets 
-	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
-	//得到sheet1 
-	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
-	//得到全部Cells，此时,rgMyRge是cells的集合 
-	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
-	//设置1行1列的单元的值 
-	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
+    	strtime = "TRUNCATE TABLE reportdsd";
+    	try{
+    		theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);  }
+    	catch(_com_error e){
+    		AfxMessageBox(e.ErrorMessage()); }
+	CString strDBr[16];
+	CTime t = CTime::GetCurrentTime();
+	int t_curse = t.GetTime();
 
 	size_t col = 0;
 		int iItem = 3;
-		for (int i = 1; i < MAX_FDS;i++)
+		for ( i = 1; i < MAX_FDS;i++)
 		{
-			for(int j = 1; j < 17;j++ )
+			for(int j = 0; j < MAX_CHAN;j++ )
 			{
 				if(m_SlaveStation[i][j].ptype >3)
 				{
-     			for(int k = 1; k < 300;k++ )
+     			for(int k = 0; k < 300;k++ )
 				{
-					if( k> m_ADRecord[i][j][0].m_ATotalnum)
+					if( m_ADRecord[i][j][k].duant == 6)
 						break;
 
-                	for(col=0; col<5; col++) {
+                	for(col=0; col<4; col++) {
+						strtime ="";
 //              		BasicExcelCell* cell = sheet->Cell(iItem, col);
          	      	if(col==0)
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(m_SlaveStation[i][j].WatchName)); 
+//					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(m_SlaveStation[i][j].WatchName)); 
 //                      m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
+							strtime =m_SlaveStation[i][j].WatchName+"|"+m_SlaveStation[i][j].strPN;
                  	else if(col==1)
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t("1")); 
+					{
+//					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t("1")); 
+							COleDateTimeSpan t = m_ADRecord[i][j][299].tmid;
+			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
+					}
 //                      m_Str2Data.GB2312ToUnicode("1" ,buf);
          	      	else if(col==2)
 					{
-					  int nstatus = m_ADRecord[i][j][k].m_ATotalnum;
+				        	strtime.Format("%d",m_ADRecord[i][j][0].m_ATotalnum+1);
+//                      m_Str2Data.GB2312ToUnicode(strtime ,buf);
+//					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+					}
+         	      	else if(col==3)
+					{
+					  int nstatus = m_ADRecord[i][j][k].duant;
 					  if(nstatus == 0)
 						  strtime= m_SlaveStation[i][j].ZeroState;
 					  else if(nstatus == 1)
 						  strtime= m_SlaveStation[i][j].OneState;
-					  else if(nstatus == 2)
-						  strtime= m_SlaveStation[i][j].TwoState;
-//                      m_Str2Data.GB2312ToUnicode(strtime ,buf);
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
-					}
-         	      	else if(col==3)
-					{
-			     	  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-			    	  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+		        	  else if(nstatus == 2)
+		        		  strtime= m_SlaveStation[i][j].TwoState;
+			     	  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
+			    	  strtime   +="|" + oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
 //                      m_Str2Data.GB2312ToUnicode(strtime,buf);
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
 					}
-                		else if(col==4)
-						{
-			        		if(k > 1)
-							{
-//				    			cell = sheet->Cell(iItem-1, col);
-				    			COleDateTime o =m_ADRecord[i][j][k-1].NTime;
-					    		COleDateTime o1 =m_ADRecord[i][j][k].NTime;
-				             	COleDateTimeSpan t = o1-o;
-			                	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
 //                                m_Str2Data.GB2312ToUnicode(strtime ,buf);
-					rgMyRge.SetItem(_variant_t((long)(iItem-1)),_variant_t((long)(col+1)),_variant_t(strtime)); 
-							}
-						}
+//					rgMyRge.SetItem(_variant_t((long)(iItem-1)),_variant_t((long)(col+1)),_variant_t(strtime)); 
+                        strDBr[col]=strtime;
+					}//for(col=0; col<4; 
 //            		cell->Set(buf);
-					}
+    	strtime.Format("INSERT INTO reportdsd (R0,R1,R2,R3) VALUES('%s','%s','%s','%s')"
+    		,strDBr[0],strDBr[1],strDBr[2],strDBr[3]);
+     	theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);
 	           		iItem++;
-				}
-				}
+				}//for(int k = 1; k < 300;k++
+				}//if(m_SlaveStation[i][j].ptype >3)
+	    	pFWnd->m_wndProgCtrl.StepIt();
 			}
 		}
-	//保存为文件
-	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
-	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
-		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
-    ExcelApp.Quit();
-	//释放对象 
-	rgMyRge.ReleaseDispatch(); 
-	wsMysheet.ReleaseDispatch(); 
-	wssMysheets.ReleaseDispatch(); 
-	wbMyBook.ReleaseDispatch(); 
-	wbsMyBooks.ReleaseDispatch(); 
-	ExcelApp.ReleaseDispatch(); 
-	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+//	}
+	ShellExecute(0, "open", gstrTimeOut +"\\reportday.exe",m_Str2Data.CStringtocharp(strcan), 0, SW_NORMAL);
+//	theApp.C_Ts.CreateP(gstrTimeOut +"\\reportday.exe", m_Str2Data.CStringtocharp(strcan),5,0x00000001);
 }
 
 void CMadeCertView::OnRECDRIVERE()   //设备故障记录
 {
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	// initialize progress control.
+	pFWnd->m_wndProgCtrl.SetRange (0, 3840);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	pFWnd->m_wndProgCtrl.SetStep (1);
+
+	for(int i = 1; i < MAX_FDS;i++ )
+			for(int j = 0; j < MAX_CHAN;j++ )
+			{
+				for(int h = 0; h < 300;h++)
+				{
+					m_ADRecord[i][j][h].m_ATotalnum = 0;
+					m_ADRecord[i][j][h].ATotalV = 0;
+					m_ADRecord[i][j][h].duant = 0;
+					m_ADRecord[i][j][h].strlocal = "";
+					m_ADRecord[i][j][h].havev = 0;
+					m_ADRecord[i][j][h].tmid = 0;
+					m_ADRecord[i][j][h].AavV = 0;
+					m_ADRecord[i][j][h].strsafetext = "";
+					m_ADRecord[i][j][h].AMaxValue = 0;
+					m_ADRecord[i][j][h].AMinValue = 666666;
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
 	CString strtime,strtime2;
-	if(m_Realtimedata1._IsOpen())
+	if(b_twodb)
 	{
-		m_Realtimedata1.MoveFirst();
-		while ( !m_Realtimedata1.IsEOF() )
+		while ( !pRS1->EndOfFile)
 		{
-				int afds = m_Realtimedata1.m_szfds;
-				int achan = m_Realtimedata1.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata1.m_szPID];
+				int afds = pRS1->Fields->Item["fds"]->Value.lVal;
+				int achan = pRS1->Fields->Item["chan"]->Value.lVal;
+    			int m_alarm = pRS1->Fields->Item["ADStatus"]->Value.lVal;
+				COleDateTime dt(pRS1->Fields->Item["recdate"]->Value);
+	   		int dbp = mPoint[pRS1->Fields->Item["PID"]->Value.lVal];
              if(dbp != 6666)
 			 {
-			int m_alarm = m_Realtimedata1.m_szADStatus;
 			if(m_alarm > 47)
 			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata1.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].havev = m_Realtimedata1.m_szADStatus;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)//第一次故障时刻
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
 
-					strtime = m_Realtimedata1.m_szsafemtext;
+					//状态
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant =dt;
+                 	_bstr_t Explain =pRS1->Fields->Item["safemtext"]->Value;
+	    			strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
 					if(strtime != "")
-					{
-          				  COleDateTime t=m_Realtimedata1.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
-//	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].RTime = m_Realtimedata1.m_szrecdate;
+					{//每次措施及采取措施时刻
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
 	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
 					}
-				m_ADRecord[afds][achan][0].duant++;//n个设备故障值
+		    		m_ADRecord[afds][achan][1].m_ATotalnum++;//n个故障值
 			}
 			else if(m_alarm < 48)
 			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
-				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata1.m_szrecdate;
-	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总设备故障次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)
+				{//正常时刻 次数加1 下次初始化  每次故障时间
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计故障时间(本日或本班累计故障时间)
+					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+					//故障次数(本日或本班累计故障次数)
+	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总故障次数
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
 				}
 			}
 			 }
-			m_Realtimedata1.MoveNext();
+            	m_ADRecord[afds][achan][0].ATime = dt;
+			pRS1->MoveNext();
 		}
 	}
-	if(!m_Realtimedata._IsEmpty())
+//	if(!m_Realtimedata._IsEmpty())
 	{
-		m_Realtimedata.MoveFirst();
-		while ( !m_Realtimedata.IsEOF() )
+		while ( !theApp.pRS->EndOfFile)
 		{
-				int afds = m_Realtimedata.m_szfds;
-				int achan = m_Realtimedata.m_szchan;
-	   		int dbp = mPoint[m_Realtimedata.m_szPID];
+				int afds = theApp.pRS->Fields->Item["fds"]->Value.lVal;
+				int achan = theApp.pRS->Fields->Item["chan"]->Value.lVal;
+    			int m_alarm = theApp.pRS->Fields->Item["ADStatus"]->Value.lVal;
+			COleDateTime dt(theApp.pRS->Fields->Item["recdate"]->Value);
+	   		int dbp = mPoint[theApp.pRS->Fields->Item["PID"]->Value.lVal];
              if(dbp != 6666)
 			 {
-			int m_alarm = m_Realtimedata.m_szADStatus;
 			if(m_alarm > 47)
 			{
-				if(m_ADRecord[afds][achan][0].duant == 0)
-					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =m_Realtimedata.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
-				m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].havev = m_Realtimedata.m_szADStatus;
+				if(m_ADRecord[afds][achan][1].m_ATotalnum == 0)//第一次故障时刻
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =dt;
 
-				strtime = m_Realtimedata.m_szsafemtext;
+					//状态
+			    	m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].duant =dt;
+            	_bstr_t Explain =theApp.pRS->Fields->Item["safemtext"]->Value;
+				strtime.Format("%s",(char *)Explain);
 					strtime.TrimRight();
 					if(strtime != "")
-					{
-          				  COleDateTime t=m_Realtimedata.m_szrecdate;
-		        		  strtime2   =   t.Format(_T("%Y-%m-%d %H:%M:%S")); 
+					{//每次措施及采取措施时刻
+		        		  strtime2   =   dt.Format(_T("%Y-%m-%d %H:%M:%S")); 
 	       	    		m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].strsafetext += strtime+"|"+strtime2+"|";
 					}
-				m_ADRecord[afds][achan][0].duant++;//n个设备故障值
+		    		m_ADRecord[afds][achan][1].m_ATotalnum++;//n个故障值
 			}
 			else if(m_alarm < 48)
 			{
-				if(m_ADRecord[afds][achan][0].duant> 0)
-				{
-	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime =m_Realtimedata.m_szrecdate;
-	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总设备故障次数
-	     			m_ADRecord[afds][achan][0].duant = 0;  //状态转变
+				if(m_ADRecord[afds][achan][1].m_ATotalnum> 0)
+				{//正常时刻 次数加1 下次初始化  每次故障时间
+	    			m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].NTime =dt;
+					m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid =dt-m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].BTime;
+					//累计故障时间(本日或本班累计故障时间)
+					m_ADRecord[afds][achan][299].tmid +=m_ADRecord[afds][achan][m_ADRecord[afds][achan][0].m_ATotalnum].tmid;
+					//故障次数(本日或本班累计故障次数)
+	     			m_ADRecord[afds][achan][0].m_ATotalnum++;  //总故障次数
+	     			m_ADRecord[afds][achan][1].m_ATotalnum = 0;  //状态转变
 				}
 			}
 			 }
-			m_Realtimedata.MoveNext();
+            	m_ADRecord[afds][achan][0].ATime = dt;
+			theApp.pRS->MoveNext();
 		}
 	}
-	CString strtime1,strtime3,strtime4,stnames;
+		for( i = 1; i < MAX_FDS;i++ )
+			for(int j = 0; j < MAX_CHAN;j++ )
+			{
+				if(m_ADRecord[i][j][1].m_ATotalnum> 0)//有故障
+				{
+	    			m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].NTime =m_ADRecord[i][j][0].ATime;
+					m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid =m_ADRecord[i][j][0].ATime-m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].BTime;
+					//累计故障时间(本日或本班累计故障时间)
+					m_ADRecord[i][j][299].tmid +=m_ADRecord[i][j][m_ADRecord[i][j][0].m_ATotalnum].tmid;
+					//故障次数(本日或本班累计故障次数)
+	     			m_ADRecord[i][j][0].m_ATotalnum++;  //总故障次数
+	     			m_ADRecord[i][j][1].m_ATotalnum = 0;  //状态转变
+				}
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
+    if (b_twodb)
+	{
+		b_twodb = FALSE;
+      	pRS1->Close();
+	}
+    theApp.pRS->Close();
+
+	CString strtime1,strtime3,strtime4,stnames,strcan;
+		strcan ="9,"+t.Format(_T("%Y-%m-%d,%H:%M:%S"))+","+t1.Format(_T("%Y-%m-%d,%H:%M:%S"));
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -2657,106 +2855,101 @@ void CMadeCertView::OnRECDRIVERE()   //设备故障记录
 //             m_Str2Data.GB2312ToUnicode(strtime ,buf);
 //		cell->Set(buf);
 //		cell->SetFormat(fmt_bold);
-	_Application ExcelApp; 
-	Workbooks wbsMyBooks; 
-	_Workbook wbMyBook; 
-	Worksheets wssMysheets; 
-	_Worksheet wsMysheet; 
-	Range rgMyRge; 
-	//创建Excel 2000服务器(启动Excel) 
- 	if (!ExcelApp.CreateDispatch("Excel.Application",NULL)) 
-	{ 
-		AfxMessageBox("创建Excel服务失败!"); 
-		return; 
-	} 
-	//利用模板文件建立新文档 
-	wbsMyBooks.AttachDispatch(ExcelApp.GetWorkbooks(),true); 
-	//CreateDirectory( str1, NULL );
-//	if(!SetCurrentDirectory(str1))
-//		AfxMessageBox("设置template1.xlt文件夹失败 setcurrentdirectory");
-	wbMyBook.AttachDispatch(wbsMyBooks.Add(_variant_t(gstrTimeOut +"\\report\\" + stnames + ".xlt"))); 
-	//得到Worksheets 
-	wssMysheets.AttachDispatch(wbMyBook.GetWorksheets(),true); 
-	//得到sheet1 
-	wsMysheet.AttachDispatch(wssMysheets.GetItem(_variant_t("sheet1")),true); 
-	//得到全部Cells，此时,rgMyRge是cells的集合 
-	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
-	//设置1行1列的单元的值 
-	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
+    	strtime = "TRUNCATE TABLE reported";
+    	try{
+    		theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);  }
+    	catch(_com_error e){
+    		AfxMessageBox(e.ErrorMessage()); }
+	CString strDBr[16];
+	CTime t = CTime::GetCurrentTime();
+	int t_curse = t.GetTime();
 
 	size_t col = 0;
 		int iItem = 3;
-		for (int i = 1; i < MAX_FDS;i++)
+		for ( i = 1; i < MAX_FDS;i++)
 		{
-			for(int j = 1; j < MAX_CHAN;j++ )
+			for(int j = 0; j < MAX_CHAN;j++ )
 			{
      			for(int k = 0; k < 300;k++ )
 				{
-    				if(m_ADRecord[i][j][k].havev == 0)
+    				if(m_ADRecord[i][j][k].duant == 0)
 						break;
 
-					    for(col=0; col<7; col++) {
+					    for(col=0; col<6; col++) {
+							strtime="";
 //                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-							strtime =m_SlaveStation[i][j].WatchName;
+							strtime =m_SlaveStation[i][j].WatchName+"|"+m_SlaveStation[i][j].strPN;
 //                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
-                		else if(col==1)
-							strtime ="1" ;
+                		else if(col==1)//累计次数
+				        	  strtime.Format("%d",m_ADRecord[i][j][0].m_ATotalnum);
+//							strtime ="1" ;
 //                             m_Str2Data.GB2312ToUnicode("1" ,buf);
-                		else if(col==2)
+                		else if(col==2)//累计时间
 						{
-							COleDateTime o =m_ADRecord[i][j][k].NTime;
-							COleDateTime o1 =m_ADRecord[i][j][k].BTime;
-				         	COleDateTimeSpan t = o1-o;
+							COleDateTimeSpan t = m_ADRecord[i][j][299].tmid;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
 //                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
-                 		else if(col==3)
+                 		else if(col==3)//每次累计时间及起止时刻
 						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].NTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+						  COleDateTimeSpan t = m_ADRecord[i][j][k].tmid;
+			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
+		        		  strtime +="|"+m_ADRecord[i][j][k].BTime.Format(_T("%Y:%m:%d %H:%M:%S")) +"|"+ m_ADRecord[i][j][k].NTime.Format(_T("%Y:%m:%d %H:%M:%S")) ; 
 //                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
-                 		else if(col==4)
+                 		else if(col==4)//安全措施|时刻
 						{
-          				  COleDateTime oleDateTime=m_ADRecord[i][j][k].BTime;
-		        		  strtime   =   oleDateTime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+							strtime =m_ADRecord[i][j][k].strsafetext;
 //                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
-                 		else if(col==5)
-		        		  strtime   =   m_ADRecord[i][j][k].strsafetext; 
+                 		else if(col==5)//状态
+		        		  strtime   = theApp.m_RTDM.strstatus(m_ADRecord[i][j][k].duant); 
 //                          m_Str2Data.GB2312ToUnicode(m_ADRecord[i][j][k].strsafetext,buf);
-                 		else if(col==6)
-						{
-							strtime= theApp.socketClient.strstatus(m_ADRecord[i][j][k].havev);
-//                            m_Str2Data.GB2312ToUnicode(strtime,buf);
-						}
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
 //						cell->Set(buf);
+                        strDBr[col]=strtime;
 						}
+    	strtime.Format("INSERT INTO reported (R0,R1,R2,R3,R4,R5) VALUES('%s','%s','%s','%s','%s','%s')"
+    		,strDBr[0],strDBr[1],strDBr[2],strDBr[3],strDBr[4],strDBr[5]);
+     	theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);
 		            	iItem++;
 				}//k
+	    	pFWnd->m_wndProgCtrl.StepIt();
 			}//j
 		}//i
-	//保存为文件
-	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
-	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
-		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
-    ExcelApp.Quit();
-	//释放对象 
-	rgMyRge.ReleaseDispatch(); 
-	wsMysheet.ReleaseDispatch(); 
-	wssMysheets.ReleaseDispatch(); 
-	wbMyBook.ReleaseDispatch(); 
-	wbsMyBooks.ReleaseDispatch(); 
-	ExcelApp.ReleaseDispatch(); 
-	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+//	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls", NULL, NULL, SW_NORMAL);
+	ShellExecute(0, "open", gstrTimeOut +"\\reportday.exe",m_Str2Data.CStringtocharp(strcan), 0, SW_NORMAL);
+//	theApp.C_Ts.CreateP(gstrTimeOut +"\\reportday.exe", m_Str2Data.CStringtocharp(strcan),5,0x00000001);
 }
-
+//模拟量记录
 void CMadeCertView::OnEXCELA() 
 {
+/*	int   nRange=2400;
+	UINT nAvi[6] = { 0, IDC_DOWNLOAD_AVI, IDC_FIND_AVI, IDC_SYNC_AVI,
+						IDC_UPDATE_AVI, IDC_WRITE_AVI };
+	int nAviHeight[6] = { 0, 60, 50, 40, 40, 64 };
+	CXProgressWnd wndProgress(this, _T("正在生成数据"), 
+		(LPCTSTR)nAvi[4], nAviHeight[4]);
+	BOOL	m_bModal = TRUE;
+	if (m_bModal)
+		wndProgress.GoModal(this);
+	BOOL	m_bTimeLeft = FALSE;
+	wndProgress.SetRange(0, nRange)
+			   .EnableTimeLeft(TRUE)
+			   .SetText(_T("This is a progress window...\n\n")
+						_T("Try dragging it around, hitting Cancel or pressing ESC."));
+*/
+    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+	// initialize progress control.
+	pFWnd->m_wndProgCtrl.SetRange (0, 2400);
+	pFWnd->m_wndProgCtrl.SetPos (0);
+	pFWnd->m_wndProgCtrl.SetStep (1);
+
 		for(int i = 1; i < MAX_FDS;i++ )
 			for(int j = 1; j < MAX_CHAN;j++ )
+			{
 				for(int h = 0; h < 300;h++)
 				{
 					m_ADRecord[i][j][h].m_ATotalnum = 0;
@@ -2768,31 +2961,36 @@ void CMadeCertView::OnEXCELA()
 					m_ADRecord[i][j][h].AavV = 0;
 					m_ADRecord[i][j][h].strsafetext = "正常";
 				}
+//			pFWnd->m_wndProgCtrl.SetText(_T("\n初始化数据"));
+	    	pFWnd->m_wndProgCtrl.StepIt();
+			}
 	CString strtime,strtime2;
-	if(m_Realtimedata1._IsOpen())
+	if(b_twodb)
 	{
-		m_Realtimedata1.MoveFirst();
-		while ( !m_Realtimedata1.IsEOF() )
+//		pRS1->MoveFirst();
+		while ( !pRS1->EndOfFile)
 		{
-    	   		int dbp = mPoint[m_Realtimedata1.m_szPID];
+    	   		int dbp = mPoint[pRS1->Fields->Item["PID"]->Value.lVal];
              if(dbp != 6666)
 			 {
-				int afds = m_Realtimedata1.m_szfds;
-				int achan = m_Realtimedata1.m_szchan;
-				int ffds = m_Realtimedata1.m_szffds;
-				int fchan = m_Realtimedata1.m_szfchan;
-    			int m_alarm = m_Realtimedata1.m_szADStatus;
+				int afds = pRS1->Fields->Item["fds"]->Value.lVal;
+				int achan = pRS1->Fields->Item["chan"]->Value.lVal;
+				int ffds = pRS1->Fields->Item["ffds"]->Value.lVal;
+				int fchan = pRS1->Fields->Item["fchan"]->Value.lVal;
+    			int m_alarm = pRS1->Fields->Item["ADStatus"]->Value.lVal;
+				COleDateTime dt(pRS1->Fields->Item["recdate"]->Value);
 	    		if(m_alarm == 00 ||m_alarm == 16 ||m_alarm == 32)
 				{//平均值0
 			    	m_ADRecord[afds][achan][0].m_ATotalnum++;
-			    	m_ADRecord[afds][achan][0].ATotalV +=m_Realtimedata1.m_szAValue;
-			    	if(m_ADRecord[afds][achan][1].ATotalV <m_Realtimedata1.m_szAValue)
+			    	m_ADRecord[afds][achan][0].ATotalV +=pRS1->Fields->Item["AValue"]->Value.fltVal;
+			    	if(m_ADRecord[afds][achan][1].ATotalV <pRS1->Fields->Item["AValue"]->Value.fltVal)
 					{//最大值  时间1
-    			    	m_ADRecord[afds][achan][1].ATotalV = m_Realtimedata1.m_szAValue;
-		    	    	m_ADRecord[afds][achan][1].ATime = m_Realtimedata1.m_szrecdate;
+    			    	m_ADRecord[afds][achan][1].ATotalV = pRS1->Fields->Item["AValue"]->Value.fltVal;
+		    	    	m_ADRecord[afds][achan][1].ATime = dt;
 					}
 				}
-				strtime = m_Realtimedata1.m_szFeedStatus;
+            	_bstr_t Explain =pRS1->Fields->Item["FeedStatus"]->Value;
+				strtime.Format("%s",(char *)Explain);
 				strtime.TrimRight();
 				int ffdschan = (afds-1)*16 +achan;
     			strtime2 = m_ADRecord[ffds][fchan][ffdschan].strsafetext;//old馈电异常
@@ -2810,8 +3008,8 @@ void CMadeCertView::OnEXCELA()
 				if( "异常" == strtime)   //馈电异常结束 计算持续时间5
 				{
 						if(m_ADRecord[ffds][fchan][ffdschan].duant != 0)
-    						m_ADRecord[ffds][fchan][ffdschan].tmid += m_Realtimedata1.m_szrecdate -m_ADRecord[ffds][fchan][ffdschan].ATime;
-						m_ADRecord[ffds][fchan][ffdschan].ATime = m_Realtimedata1.m_szrecdate;
+    						m_ADRecord[ffds][fchan][ffdschan].tmid += dt -m_ADRecord[ffds][fchan][ffdschan].ATime;
+						m_ADRecord[ffds][fchan][ffdschan].ATime = dt;
 						if(m_ADRecord[afds][achan][5].tmid<m_ADRecord[ffds][fchan][ffdschan].tmid)
 							m_ADRecord[afds][achan][5].tmid = m_ADRecord[ffds][fchan][ffdschan].tmid;
         				m_ADRecord[ffds][fchan][ffdschan].duant++;
@@ -2841,46 +3039,50 @@ void CMadeCertView::OnEXCELA()
 					if(m_alarm ==16)//报警计算持续时间8
 					{
 						if(m_ADRecord[afds][achan][2].duant != 0)
-    						m_ADRecord[afds][achan][8].tmid += m_Realtimedata1.m_szrecdate -m_ADRecord[afds][achan][8].ATime;
-						m_ADRecord[afds][achan][8].ATime = m_Realtimedata1.m_szrecdate;
+    						m_ADRecord[afds][achan][8].tmid += dt -m_ADRecord[afds][achan][8].ATime;
+						m_ADRecord[afds][achan][8].ATime = dt;
         				m_ADRecord[afds][achan][2].duant++;
 					}
 					if(m_alarm ==32 ||m_alarm ==64 ||m_alarm ==80 ||m_alarm ==96 ||m_alarm ==112 ||m_alarm ==128)//断电计算持续时间9
 					{
 						if(m_ADRecord[afds][achan][4].duant != 0)
-    						m_ADRecord[afds][achan][9].tmid += m_Realtimedata1.m_szrecdate-m_ADRecord[afds][achan][9].ATime;
-						m_ADRecord[afds][achan][9].ATime = m_Realtimedata1.m_szrecdate;
+    						m_ADRecord[afds][achan][9].tmid += dt-m_ADRecord[afds][achan][9].ATime;
+						m_ADRecord[afds][achan][9].ATime = dt;
         				m_ADRecord[afds][achan][4].duant++;
 					}
 
 			 }//dbp != 6666
-			m_Realtimedata1.MoveNext();
+			pRS1->MoveNext();
 		}
 	}
-	if(!m_Realtimedata._IsEmpty())
+//	if(!m_Realtimedata._IsEmpty())
+//	if(theApp.pRS->GetEndOfFile() ==0)
 	{
-		m_Realtimedata.MoveFirst();
-		while ( !m_Realtimedata.IsEOF() )
+//		int xxx = theApp.pRS->GetRecordCount();
+//		theApp.pRS->MoveFirst();
+		while ( !theApp.pRS->EndOfFile)
 		{
-    	   		int dbp = mPoint[m_Realtimedata.m_szPID];
+    	   	 int dbp = mPoint[theApp.pRS->Fields->Item["PID"]->Value.lVal];
              if(dbp != 6666)
 			 {
-				int afds = m_Realtimedata.m_szfds;
-				int achan = m_Realtimedata.m_szchan;
-				int ffds = m_Realtimedata.m_szffds;
-				int fchan = m_Realtimedata.m_szfchan;
-    			int m_alarm = m_Realtimedata.m_szADStatus;
+				int afds = theApp.pRS->Fields->Item["fds"]->Value.lVal;
+				int achan = theApp.pRS->Fields->Item["chan"]->Value.lVal;
+				int ffds = theApp.pRS->Fields->Item["ffds"]->Value.lVal;
+				int fchan = theApp.pRS->Fields->Item["fchan"]->Value.lVal;
+    			int m_alarm = theApp.pRS->Fields->Item["ADStatus"]->Value.lVal;
+				COleDateTime dt(theApp.pRS->Fields->Item["recdate"]->Value);
 	    		if(m_alarm == 0 ||m_alarm == 16 ||m_alarm == 32)
 				{//平均值10
 			    	m_ADRecord[afds][achan][10].m_ATotalnum++;
-			    	m_ADRecord[afds][achan][10].ATotalV +=m_Realtimedata.m_szAValue;
-			    	if(m_ADRecord[afds][achan][1].ATotalV <m_Realtimedata.m_szAValue)
+			    	m_ADRecord[afds][achan][10].ATotalV +=theApp.pRS->Fields->Item["AValue"]->Value.fltVal;
+			    	if(m_ADRecord[afds][achan][1].ATotalV <theApp.pRS->Fields->Item["AValue"]->Value.fltVal)
 					{//最大值  时间1
-    			    	m_ADRecord[afds][achan][1].ATotalV = m_Realtimedata.m_szAValue;
-		    	    	m_ADRecord[afds][achan][1].ATime = m_Realtimedata.m_szrecdate;
+    			    	m_ADRecord[afds][achan][1].ATotalV = theApp.pRS->Fields->Item["AValue"]->Value.fltVal;
+		    	    	m_ADRecord[afds][achan][1].ATime = dt;
 					}
 				}
-				strtime = m_Realtimedata.m_szFeedStatus;
+            	_bstr_t Explain =theApp.pRS->Fields->Item["FeedStatus"]->Value;
+				strtime.Format("%s",(char *)Explain);
 				strtime.TrimRight();
 				int ffdschan = (afds-1)*16 +achan;
     			strtime2 = m_ADRecord[ffds][fchan][ffdschan].strsafetext;//old馈电异常
@@ -2898,8 +3100,8 @@ void CMadeCertView::OnEXCELA()
 				if( "异常" == strtime)   //馈电异常结束 计算持续时间14
 				{
 						if(m_ADRecord[ffds][fchan][ffdschan].duant != 0)
-    						m_ADRecord[ffds][fchan][ffdschan].tmid += m_Realtimedata.m_szrecdate -m_ADRecord[ffds][fchan][ffdschan].ATime;
-						m_ADRecord[ffds][fchan][ffdschan].ATime = m_Realtimedata.m_szrecdate;
+    						m_ADRecord[ffds][fchan][ffdschan].tmid += dt -m_ADRecord[ffds][fchan][ffdschan].ATime;
+						m_ADRecord[ffds][fchan][ffdschan].ATime = dt;
 						if(m_ADRecord[afds][achan][14].tmid<m_ADRecord[ffds][fchan][ffdschan].tmid)
 							m_ADRecord[afds][achan][14].tmid = m_ADRecord[ffds][fchan][ffdschan].tmid;
         				m_ADRecord[ffds][fchan][ffdschan].duant++;
@@ -2926,24 +3128,31 @@ void CMadeCertView::OnEXCELA()
 					if(m_alarm ==16)//报警计算持续时间17
 					{
 						if(m_ADRecord[afds][achan][8].duant != 0)
-    						m_ADRecord[afds][achan][17].tmid += m_Realtimedata.m_szrecdate -m_ADRecord[afds][achan][17].ATime;
-						m_ADRecord[afds][achan][17].ATime = m_Realtimedata.m_szrecdate;
+    						m_ADRecord[afds][achan][17].tmid += dt -m_ADRecord[afds][achan][17].ATime;
+						m_ADRecord[afds][achan][17].ATime = dt;
         				m_ADRecord[afds][achan][8].duant++;
 					}
 					if(m_alarm ==32 ||m_alarm ==64 ||m_alarm ==80 ||m_alarm ==96 ||m_alarm ==112 ||m_alarm ==128)//断电计算持续时间18
 					{
 						if(m_ADRecord[afds][achan][9].duant != 0)
-    						m_ADRecord[afds][achan][18].tmid += m_Realtimedata.m_szrecdate-m_ADRecord[afds][achan][18].ATime;
-						m_ADRecord[afds][achan][18].ATime = m_Realtimedata.m_szrecdate;
+    						m_ADRecord[afds][achan][18].tmid += dt-m_ADRecord[afds][achan][18].ATime;
+						m_ADRecord[afds][achan][18].ATime = dt;
         				m_ADRecord[afds][achan][9].duant++;
 					}
 			 }//dbp != 6666
-			m_Realtimedata.MoveNext();
+			theApp.pRS->MoveNext();
 		}
 	}
+//	int jjj1 = theApp.pRS->GetState();
+    if (b_twodb)
+	{
+		b_twodb = FALSE;
+      	pRS1->Close();
+	}
+    theApp.pRS->Close();
 
-	CString stnames;
-	CString strtime1,strtime3,strtime4;
+	CString strtime1,strtime3,strtime4,stnames,strcan;
+		strcan ="1,"+t.Format(_T("%Y-%m-%d,%H:%M:%S"))+","+t1.Format(_T("%Y-%m-%d,%H:%M:%S"));
 		strtime = "起始日期:"+t.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		strtime1 = "终止日期:"+ t1.Format(_T("%Y-%m-%d %H:%M:%S")); 
 		int m_hours = (t1.GetTime()-t.GetTime()+1)/3600;
@@ -3041,7 +3250,7 @@ void CMadeCertView::OnEXCELA()
 		cell->SetFormat(fmt_bold);
 	}*/
 
-	_Application ExcelApp; 
+/*	_Application ExcelApp; 
 	Workbooks wbsMyBooks; 
 	_Workbook wbMyBook; 
 	Worksheets wssMysheets; 
@@ -3067,6 +3276,15 @@ void CMadeCertView::OnEXCELA()
 	rgMyRge.AttachDispatch(wsMysheet.GetCells(),true); 
 	//设置1行1列的单元的值 
 	   rgMyRge.SetItem(_variant_t((long)1),_variant_t((long)2),_variant_t(strtime)); 
+*/
+    	strtime = "TRUNCATE TABLE reportad";
+    	try{
+    		theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);  }
+    	catch(_com_error e){
+    		AfxMessageBox(e.ErrorMessage()); }
+	CString strDBr[16];
+	CTime t = CTime::GetCurrentTime();
+	int t_curse = t.GetTime();
 
 		int iItem = 3;//4
 		for ( i = 1; i < MAX_FDS;i++)
@@ -3077,71 +3295,88 @@ void CMadeCertView::OnEXCELA()
 				{
     				if(m_ADRecord[i][j][10].m_ATotalnum != 0)
 					{
-                    for(col=0; col<10; col++) 
+                    for(col=0; col<13; col++) 
 					{
+						strtime="";
 //                		BasicExcelCell* cell = sheet->Cell(iItem, col);
                 		if(col==0)
-							strtime =m_SlaveStation[i][j].WatchName;
+							strtime =m_SlaveStation[i][j].WatchName+"|"+m_SlaveStation[i][j].strPN;
 //                             m_Str2Data.GB2312ToUnicode(m_SlaveStation[i][j].WatchName,buf);
                 		else if(col==1)
+							strtime =m_SlaveStation[i][j].m_Unit;
+                		else if(col==2)
+				        	  strtime.Format("%.2f",m_SlaveStation[i][j].AlarmValueH);
+                		else if(col==3)
+				        	  strtime.Format("%.2f",m_SlaveStation[i][j].Apbrk);
+                		else if(col==4)
+				        	  strtime.Format("%.2f",m_SlaveStation[i][j].Aprtn);
+                		else if(col==5)
 						{
 							float m_fm = (m_ADRecord[i][j][0].ATotalV+m_ADRecord[i][j][10].ATotalV)/(m_ADRecord[i][j][0].m_ATotalnum+m_ADRecord[i][j][10].m_ATotalnum);
 				        	  strtime.Format("%.2f",m_fm);
 //                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
-                		else if(col==2)
+                		else if(col==6)
 						{
-				        	  strtime.Format("%.2f",m_ADRecord[i][j][1].ATotalV);
+				        	  strtime.Format("%.2f|",m_ADRecord[i][j][1].ATotalV);
+							  strtime = strtime + m_ADRecord[i][j][1].ATime.Format(_T("%Y:%m:%d %H:%M:%S"));
 //                            m_Str2Data.GB2312ToUnicode(strtime ,buf);
 						}
-                 		else if(col==3)
-						{
+//                 		else if(col==7)
+//						{
 //          				  COleDateTime oleDateTime=m_ADRecord[i][j][1].ATime;
-		        		  strtime   =   m_ADRecord[i][j][1].ATime.Format(_T("%Y:%m:%d %H:%M:%S")); 
+//		        		  strtime   =   m_ADRecord[i][j][1].ATime.Format(_T("%Y:%m:%d %H:%M:%S")); 
 //                          m_Str2Data.GB2312ToUnicode(strtime,buf);
-						}
-                 		else if(col==4)
+//						}
+                 		else if(col==7)
 						{
 				        	  strtime.Format("%d",m_ADRecord[i][j][6].m_ATotalnum+m_ADRecord[i][j][15].m_ATotalnum);
 //                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
-                 		else if(col==5)
+                 		else if(col==8)
 						{
           			    	  COleDateTimeSpan t =m_ADRecord[i][j][8].tmid +m_ADRecord[i][j][17].tmid;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
 //                            m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
-                 		else if(col==6)
+                 		else if(col==9)
 						{
 				        	  strtime.Format("%d",m_ADRecord[i][j][7].m_ATotalnum+m_ADRecord[i][j][16].m_ATotalnum);
 //                              m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
-                 		else if(col==7)
+                 		else if(col==10)
 						{
           			    	  COleDateTimeSpan t =m_ADRecord[i][j][9].tmid +m_ADRecord[i][j][18].tmid;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
 //                            m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
-						else if(col==8) 
+						else if(col==11) 
 						{
 				        	  strtime.Format("%d",m_ADRecord[i][j][3].m_ATotalnum+m_ADRecord[i][j][12].m_ATotalnum);
 //                          m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
-                 		else if(col==9)
+                 		else if(col==12)
 						{
 							COleDateTimeSpan t=0;
           			    	t =m_ADRecord[i][j][5].tmid +m_ADRecord[i][j][14].tmid;
 			            	strtime.Format("%d %d:%d:%d",t.GetDays(),t.GetHours(),t.GetMinutes(),t.GetSeconds()); 
 //                            m_Str2Data.GB2312ToUnicode(strtime,buf);
 						}
-					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
+//					rgMyRge.SetItem(_variant_t((long)iItem),_variant_t((long)(col+1)),_variant_t(strtime)); 
 //						cell->Set(buf);
+                        strDBr[col]=strtime;
 					}
+    	strtime.Format("INSERT INTO reportad (R0,R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,R11,R12) VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')"
+    		,strDBr[0],strDBr[1],strDBr[2],strDBr[3],strDBr[4],strDBr[5],strDBr[6],strDBr[7],strDBr[8],strDBr[9],strDBr[10],strDBr[11],strDBr[12]);
+     	theApp.m_pConnection->Execute(_bstr_t(strtime),NULL,adCmdText);
 	             	iItem++;
 					}
 				}//k
+//			wndProgress.SetText(_T("\n存数据库"));
+	    	pFWnd->m_wndProgCtrl.StepIt();
 			}//j
 		}//i
+	pFWnd->m_wndProgCtrl.SetPos (0);
 
 /*		if(theApp.strargc == "OnEXCELA")
 		{
@@ -3182,7 +3417,7 @@ void CMadeCertView::OnEXCELA()
 //	ExcelApp.SetVisible(true); 
 	//wbMyBook.PrintPreview(_variant_t(false)); 
 	//保存为文件
-	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
+/*	ExcelApp.SetDisplayAlerts(FALSE);   //隐藏弹出的对话框
 	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,COleVariant("123"),vtMissing,
 //	wsMysheet.SaveAs(gstrTimeOut +"\\report\\" + stnames +t1.Format(_T("%Y-%m-%d"))+ ".xls",vtMissing,vtMissing,vtMissing,vtMissing,
 		vtMissing,vtMissing,vtMissing,vtMissing,vtMissing);   
@@ -3195,7 +3430,8 @@ void CMadeCertView::OnEXCELA()
 	wbsMyBooks.ReleaseDispatch(); 
 	ExcelApp.ReleaseDispatch(); 
 	ShellExecute(0, "open", gstrTimeOut +"\\report\\"+stnames + t1.Format(_T("%Y-%m-%d")) +".xls",NULL, NULL, SW_NORMAL);
-//book.AttachDispatch(books.Open(ExtPath, covOptional,covOptional, covOptional,
+*/
+	//book.AttachDispatch(books.Open(ExtPath, covOptional,covOptional, covOptional,
 //COleVariant("123456"),covOptional, covOptional,covOptional, covOptional, 
 //covOptional, covOptional, covOptional, covOptional, covOptional, covOptional));
 //    delete [] buf;
@@ -3205,6 +3441,9 @@ void CMadeCertView::OnEXCELA()
 //	xls.Close();
 //	copy_sheet(gstrTimeOut +"\\report\\example.xls",gstrTimeOut +"\\report\\"+stnames+".xls");
 //	ShellExecute(0, NULL, gstrTimeOut +"\\report\\sexample.xls", NULL, NULL, SW_NORMAL);
+//	theApp.C_Ts.CreateP(gstrTimeOut +"\\reportday.exe", m_Str2Data.CStringtocharp(strcan),5,0x00000001);
+	ShellExecute(0, "open", gstrTimeOut +"\\reportday.exe",m_Str2Data.CStringtocharp(strcan), 0, SW_NORMAL);
+
 }
 
 void CMadeCertView::copy_sheet(const char* from, const char* to)
@@ -3214,6 +3453,10 @@ void CMadeCertView::copy_sheet(const char* from, const char* to)
 	xls.SaveAs(to);
 }
 
+void CMadeCertView::ACALRecord()
+{
+}
+
 void CMadeCertView::OnButtonViewinfo() 
 {
 	// TODO: Add your control notification handler code here
@@ -3221,21 +3464,6 @@ void CMadeCertView::OnButtonViewinfo()
 //	CViewInfoDlg dlg;
 //	dlg.DoModal();
 
-}
-
-void CMadeCertView::OnButtonAutMade() 
-{
-	// TODO: Add your control notification handler code here
-/*	if(m_select==-1) return;
-
-	((CRaChildFrame*)GetParentFrame( ))->Msg("开始证书制作,请等待");
-	CMadeCertDlg dlg;
-	dlg.DoModal();
-	m_List.DeleteItem(m_select);
-	((CRaChildFrame*)GetParentFrame( ))->Msg("证书制作成功!");
-	str[35]=3;
-	m_select=-1;*/
-	
 }
 
 void CMadeCertView::OnClickListMade(NMHDR* pNMHDR, LRESULT* pResult) 
@@ -3252,33 +3480,24 @@ void CMadeCertView::OnClickListMade(NMHDR* pNMHDR, LRESULT* pResult)
 
 void CMadeCertView::OnDestroy() 
 {
-  try
-  {
-    if ( m_PointDes._IsOpen() )
-      m_PointDes.Close();
-    if ( m_Realtimedata._IsOpen() )
-      m_Realtimedata.Close();
-    if ( m_Realtimedata1._IsOpen() )
-      m_Realtimedata1.Close();
-	if ( m_Rt5mdata._IsOpen() )
-	    m_Rt5mdata.Close();
+//    if ( m_Realtimedata._IsOpen() )
+//      m_Realtimedata.Close();
+//    if ( m_Realtimedata1._IsOpen() )
+//      m_Realtimedata1.Close();
+//	if ( m_Rt5mdata._IsOpen() )
+//	    m_Rt5mdata.Close();
     if ( m_CommonSet._IsOpen() )
          m_CommonSet.Close();
 
-    m_Cn.Close();
-    //Cleanup the AxLib library
-    dbAx::Term();
-  }
-  catch ( CAxException *e )
-  {
-    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-  }
 //	if(m_bExcelInit)
 //		::CoUninitialize();  //EXCEL
 
+	::CoUninitialize();
+	m_Points.clear();
+	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+   	pFWnd->m_MadeCert=NULL;
 	CFormView::OnDestroy();
-	((CMainFrame*)AfxGetMainWnd())->m_pMade=NULL; // 清空窗口指针
+//	((CMainFrame*)AfxGetMainWnd())->m_pMade=NULL; // 清空窗口指针
 }
 
 void CMadeCertView::OnChangeEditStarth() 
@@ -3368,6 +3587,31 @@ void CMadeCertView::OnBED()
 	L2upDB();
 }
 
+void CMadeCertView::ADODBS(CString strTable,int n_dbl) 
+{
+    CString strDBLink = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
+                          User ID=sa;Password=sunset;\
+                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
+	try
+	{
+		if(n_dbl ==0)
+		{
+		theApp.pRS.CreateInstance(__uuidof(ADOCust::Recordset));
+		theApp.pRS->Open(_bstr_t(strTable),_bstr_t(strDBLink), ADOCust::adOpenStatic ,ADOCust::adLockReadOnly , ADOCust::adCmdText );
+		}
+		else if(n_dbl ==1)
+		{
+			b_twodb =TRUE;
+		pRS1.CreateInstance(__uuidof(ADOCust::Recordset));
+		pRS1->Open(_bstr_t(strTable),_bstr_t(strDBLink), ADOCust::adOpenStatic ,ADOCust::adLockReadOnly , ADOCust::adCmdText );
+		}
+	}
+	catch(_com_error &e)
+	{
+		AfxMessageBox(e.ErrorMessage());
+	}
+}
+
 void CMadeCertView::L2upDB() 
 {
        InitStr();
@@ -3380,7 +3624,7 @@ void CMadeCertView::L2upDB()
                  m_CommonSet.Close();
 	      	CString strPointNo; 
      		strPointNo.Format(_T("SELECT * From commonset WHERE CommonID = %d"),nItem+1);
-     		m_CommonSet.Open(strPointNo, &m_Cn);
+     		m_CommonSet.Open(strPointNo, &theApp.m_Cn);
 	            				 m_CommonSet.m_szCommonID  = nItem+1;
 	                    		 strPointNo=m_LCEXCEL2.GetItemText(nItem,2);
                 if(theApp.strargc == "OnALARMS")
@@ -3436,12 +3680,11 @@ void CMadeCertView::L2upDB()
 
 				mPoint[m_Str2Data.String2Int(strPointNo)]=nItem;
 		 }
-					m_tnum = nItemCount;
 		 if ( m_CommonSet._IsOpen() )
                  m_CommonSet.Close();
 	      	CString strPointNo; 
      		strPointNo.Format(_T("SELECT * From commonset WHERE CommonID = %d"),nItemCount+1);
-     		m_CommonSet.Open(strPointNo, &m_Cn);
+     		m_CommonSet.Open(strPointNo, &theApp.m_Cn);
 	            				 m_CommonSet.m_szCommonID  = nItemCount+1;
                 if(theApp.strargc == "OnALARMS")
     		      			     m_CommonSet.m_szstrc2 = "";
@@ -3500,57 +3743,17 @@ void CMadeCertView::L2upDB()
 					}
 }
 
+void CMadeCertView::ClearRDB() 
+{
+
+
+}
+
 void CMadeCertView::InitStr() 
 {
 		m_Points.clear();
-          		for(int k = 0; k < 1000;k++ )
-	             		mPoint[k] =6666;
-		for(int i = 1; i < MAX_FDS;i++ )
-			for(int j = 1; j < MAX_CHAN;j++ )
-			{
-				if(theApp.strargc == "OnEXCELA")
-				{
-	     			for(int h = 0; h < 300;h++)
-					{
-					m_ADRecord[i][j][h].m_ATotalnum = 0;
-					m_ADRecord[i][j][h].ATotalV = 0;
-					m_ADRecord[i][j][h].duant = 0;
-					m_ADRecord[i][j][h].strlocal = "";
-					m_ADRecord[i][j][h].tmid = 0;
-					m_ADRecord[i][j][h].havev = 0;
-					m_ADRecord[i][j][h].AavV = 0;
-    					m_ADRecord[i][j][h].strsafetext = "正常";
-					}
-				}
-				else
-				{
-	     			for(int h = 0; h < 300;h++)
-					{
-					m_ADRecord[i][j][h].m_ATotalnum = 0;
-					m_ADRecord[i][j][h].ATotalV = 0;
-					m_ADRecord[i][j][h].duant = 0;
-					m_ADRecord[i][j][h].strlocal = "";
-					m_ADRecord[i][j][h].tmid = 0;
-					m_ADRecord[i][j][h].havev = 0;
-					m_ADRecord[i][j][h].AavV = 0;
-					}
-				}
-			}
-		for(int h = 0; h < m_tnum;h++)
-		{
-      		for(int i = 0; i < 500;i++)
-			{
-					m_ADP[h][i].m_ATotalnum = 0;
-					m_ADP[h][i].ATotalV = 0;
-					m_ADP[h][i].duant = 0;
-					m_ADP[h][i].strlocal = "";
-					m_ADP[h][i].strsafetext = "";
-					m_ADP[h][i].havev = 0;
-					m_ADP[h][i].AavV = 0;
-			}
-		}
-
-
+        for(int k = 0; k < 1000;k++ )
+	          mPoint[k] =6666;
 }
 
 //bool CMadeCertView::SortList(int /*nCol*/, bool /*bAscending*/)

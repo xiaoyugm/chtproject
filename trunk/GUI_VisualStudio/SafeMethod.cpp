@@ -20,7 +20,6 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern ADMainDis         m_ADMainDis[MAX_FDS][MAX_CHAN];          //µ÷ÓÃÏÔÊ¾
 extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
 /////////////////////////////////////////////////////////////////////////////
 // CSafeMethod dialog
@@ -110,53 +109,6 @@ BOOL CSafeMethod::OnInitDialog()
 	}
 	m_ComBoxSM.SetCurSel(0);
 
-  CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
-                          User ID=sa;Password=sunset;\
-                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
-
-//All calls to the AxLib should be wrapped in a try / catch block
-  try
-  {
-    dbAx::Init();
-    m_Cn.Create();
-//    m_Cn._SetConnectionEvents(new CCardFileEvents);
-    m_Cn.CursorLocation(adUseClient);
-    m_Cn.Open((LPCTSTR)szConnect);
-		m_PointDes.Create();
-		m_PointDes.CursorType(adOpenDynamic);
-		m_PointDes.CacheSize(50);
-		m_PointDes._SetRecordsetEvents(new CAccountSetEvents);
-		m_PointDes.Open(_T("Select * From pointdescription WHERE fdel=0"), &m_Cn);
-		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
-
-
-  }
-  catch ( dbAx::CAxException *e )
-  {
-    AfxMessageBox(e->m_szErrorDesc,  MB_OK);
-    delete e;
-    return (FALSE);
-  }
-	CString strstartTime,strname,dddd;
-	int eYear;
-		int iItem = 0;
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
-		{
-			eYear = m_PointDes.m_szptype;
-			if((eYear < 3) || (eYear > 12)||(eYear == 10))
-			{
-             		int nfds = m_PointDes.m_szfds;
-              		int nchan = m_PointDes.m_szchan;
-				strname = m_SlaveStation[nfds][nchan].WatchName;
-				strstartTime = m_PointDes.m_szpointnum;
-				strstartTime.TrimRight();
-				dddd = strstartTime + strname;
-               	m_ComBoxSM.AddString(dddd);
-   		       iItem++;
-			}
-			m_PointDes.MoveNext();
-		}
 
   return TRUE;  // return TRUE unless you set the focus to a control
   // EXCEPTION: OCX Property Pages should return FALSE
@@ -166,24 +118,6 @@ void CSafeMethod::OnClose()
 {
   //Closing of library objects is ensured as each object
   //goes out of scope, but doing a manual shutdown doesn’t hurt.
-
-  try
-  {
-    if ( m_PointDes._IsOpen() )
-      m_PointDes.Close();
-    if ( m_Realtimedata._IsOpen() )
-      m_Realtimedata.Close();
-
-    m_Cn.Close();
-
-    //Cleanup the AxLib library
-    dbAx::Term();
-  }
-  catch ( CAxException *e )
-  {
-    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-  }
 }
 
 //BOOL CSafeMethod::DestroyWindow() 
@@ -208,8 +142,8 @@ void CSafeMethod::OnBnOkSM()
 	strname = strname.Mid(0,5);
     		strf = strname.Mid(0,2);
     		strc = strname.Mid(3);
-		int afds = m_Str2Data.String2Int(strf);
-		int achan = m_Str2Data.String2Int(strc);
+//		int afds = m_Str2Data.String2Int(strf);
+//		int achan = m_Str2Data.String2Int(strc);
 //		strItem = _T("Select * From realtimedata WHERE ");
 //		strname.Format("fds=%d and chan=%d",nfds,nchan);
 
@@ -217,46 +151,6 @@ void CSafeMethod::OnBnOkSM()
 //			CString strCTime;
 //			strCTime.Format("%d-%d-%d %d:%d:%d",CTime.GetYear(),CTime.GetMonth(),CTime.GetDay(),CTime.GetHour(),CTime.GetMinute(),CTime.GetSecond());
 	//		strNormalTime.Format("%d-%d-%d %d:%d:%d",NormalTime.GetYear(),NormalTime.GetMonth(),NormalTime.GetDay(),NormalTime.GetHour(),NormalTime.GetMinute(),NormalTime.GetSecond());
-            				try
-							{
-	         				 m_RealtimedataNew->m_szRTID  = 1;
-		      			     m_RealtimedataNew->m_szPID = m_SlaveStation[afds][achan].m_PID;
-							 int m_nptype = m_SlaveStation[afds][achan].ptype;
-		    			     m_RealtimedataNew->m_szptype = m_nptype;
-    						 m_RealtimedataNew->m_szfds = afds;
-     						 m_RealtimedataNew->m_szchan = achan;
-					theApp.m_resnum = 10;
-					m_SlaveStation[afds][achan].strSafe = strsm;
-					m_SlaveStation[afds][achan].ValueTime = CTime.GetCurrentTime();
-							 if(m_nptype >3)
-							 {
-							m_ADMainDis[afds][achan].NTime = CTime.GetCurrentTime();
-    						      m_RealtimedataNew->m_szCDValue = m_SlaveStation[afds][achan].CValue;
-     				   		      m_RealtimedataNew->m_szAValue = 0;
-                                  pFWnd->m_wndResourceView4.InitLDAB(afds,achan);
-							 }
-							 else
-							 {
-    						      m_RealtimedataNew->m_szCDValue = 0;
-     				   		      m_RealtimedataNew->m_szAValue = m_SlaveStation[afds][achan].AValue;
-                                  pFWnd->m_wndResourceView.InitLC(afds,achan);
-							 }
-    						 m_RealtimedataNew->m_szADStatus = m_SlaveStation[afds][achan].Channel_state;
-    						 m_RealtimedataNew->m_szrecdate = CTime.GetCurrentTime();
-     						 m_RealtimedataNew->m_szUseridadd = theApp.curuser;
-//    						 m_RealtimedataNew->m_szsafemdate = CTime.GetCurrentTime();
-    						 m_RealtimedataNew->m_szsafemtext = strsm;
-      						m_RealtimedataNew->AddNew();  //Add a new, blank record
-					   	    m_RealtimedataNew->Update();    //Update the recordset
-							//If this is a new record, requery the database table
-							//otherwise we may out-of-sync
-						    m_RealtimedataNew->Requery();
-							}
-		     			    catch (CAxException *e)
-							{
-					        	AfxMessageBox(e->m_szErrorDesc, MB_OK);
-				        		delete e;
-							}
 	OnClose();
     EndDialog(IDOK);
 }

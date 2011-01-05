@@ -14,6 +14,91 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
+// CRViewDoc
+
+IMPLEMENT_DYNCREATE(CRViewDoc, CDocument)
+
+BEGIN_MESSAGE_MAP(CRViewDoc, CDocument)
+	//{{AFX_MSG_MAP(CFlatTabViewDoc)
+		// NOTE - the ClassWizard will add and remove mapping macros here.
+		//    DO NOT EDIT what you see in these blocks of generated code!
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+/////////////////////////////////////////////////////////////////////////////
+// CRViewDoc construction/destruction
+
+CRViewDoc::CRViewDoc()
+{
+}
+
+CRViewDoc::~CRViewDoc()
+{
+}
+
+BOOL CRViewDoc::OnOpenDocument(LPCTSTR lpszPathName)
+{
+	return CDocument::OnOpenDocument(lpszPathName);
+}
+
+BOOL CRViewDoc::OnNewDocument()
+{
+	if (!CDocument::OnNewDocument())
+		return FALSE;
+	return TRUE;
+}
+
+BOOL CRViewDoc::OnSaveDocument(LPCTSTR lpszPathName)
+{
+	return CDocument::OnSaveDocument(lpszPathName);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// CRViewDoc serialization
+
+void CRViewDoc::Serialize(CArchive& ar)
+{
+	if (ar.IsStoring())
+	{
+		// TODO: add storing code here
+	}
+	else
+	{
+		// TODO: add loading code here
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// CRViewDoc diagnostics
+
+#ifdef _DEBUG
+void CRViewDoc::AssertValid() const
+{
+	CDocument::AssertValid();
+}
+
+void CRViewDoc::Dump(CDumpContext& dc) const
+{
+	CDocument::Dump(dc);
+}
+#endif //_DEBUG
+
+/////////////////////////////////////////////////////////////////////////////
+// CRViewDoc commands
+void CRViewDoc::OnCloseDocument() 
+{
+	CDocument::OnCloseDocument();
+//	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+//    pFWnd->OnCloseR();
+}
+
+void CRViewDoc::OnCloseD()
+{
+	CDocument::OnCloseDocument();
+}
+
+/////////////////////////////////////////////////////////////////////////////
 // CFlatTabViewDoc
 
 IMPLEMENT_DYNCREATE(CFlatTabViewDoc, CDocument)

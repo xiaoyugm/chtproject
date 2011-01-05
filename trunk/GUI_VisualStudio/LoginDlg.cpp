@@ -119,10 +119,8 @@ void CLoginDlg::OnOK()
 							if(m_SLogin.m_szclasser == 1)
 								theApp.m_bsuper = true;
 							else
-							{
 								theApp.m_bsuper = false;
-								theApp.b_SaveRT = TRUE;
-							}
+							theApp.b_SaveRT = TRUE;
        g_Log1.StatusOut("用户：" +m_strUser +"登陆。");
 //           					if("主机" == m_strUser)
 							break;
@@ -188,8 +186,6 @@ void CLoginDlg::OnOK()
             m_PointDes.Close();
     if ( m_SLogin._IsOpen() )
       m_SLogin.Close();
-    m_Cn.Close();
-    dbAx::Term();
 	CDialog::OnOK();
 }
 
@@ -201,8 +197,6 @@ void CLoginDlg::OnCancel()
             m_PointDes.Close();
         if ( m_SLogin._IsOpen() )
             m_SLogin.Close();
-        m_Cn.Close();
-        dbAx::Term();
 	}
 	CDialog::OnCancel();
 }
@@ -378,7 +372,7 @@ BOOL CLoginDlg::OnInitDialog()
 						{
       	        	      m_listUser.InsertItem(iItem, m_SlaveStation[i][j].WatchName);
 //      	    	      m_listUser.SetItemText(iItem,0, m_SlaveStation[i][j].WatchName);
-				  	  strtemp = theApp.socketClient.strstatus(m_state);
+				  	  strtemp = theApp.m_RTDM.strstatus(m_state);
             		  m_listUser.SetItemText(iItem, 1, strtemp);
 				      COleDateTime o=m_SlaveStation[i][j].ValueTime;
   	    			  strtemp = o.Format(_T("%Y-%m-%d %H:%M:%S")); 
@@ -422,22 +416,12 @@ BOOL CLoginDlg::OnInitDialog()
 
 void CLoginDlg::ConnectDB()
 {
-  CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
-                          User ID=sa;Password=sunset;\
-                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
-	try
-	{
-       dbAx::Init();
-       m_Cn.Create();
-//       m_Cn._SetConnectionEvents(new CCardFileEvents);
-       m_Cn.CursorLocation(adUseClient);
-       m_Cn.Open((LPCTSTR)szConnect);
-
+	CString szConnect;
 		m_SLogin.Create();
 		m_SLogin.CursorType(adOpenDynamic);
 		m_SLogin.CacheSize(50);
 //		m_SLogin._SetRecordsetEvents(new CAccountSetEvents);
-		m_SLogin.Open(_T("Select * From ygjluser"), &m_Cn);
+		m_SLogin.Open(_T("Select * From ygjluser"), &theApp.m_Cn);
 		m_SLogin.MarshalOptions(adMarshalModifiedOnly);
 
 		m_PointDes.Create();
@@ -450,15 +434,8 @@ void CLoginDlg::ConnectDB()
 			szConnect = "Select * From pointdescription WHERE fdel=0 and ptype>3";
 		else 
 			szConnect = "Select * From pointdescription WHERE fdel=0 and ptype<3";
-       	m_PointDes.Open(szConnect, &m_Cn);
+       	m_PointDes.Open(szConnect, &theApp.m_Cn);
 		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
-	}
-    catch ( dbAx::CAxException *e )
-	{
-    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-    return ;
-	}
 }
 
 void CLoginDlg::AddODUser()
@@ -525,8 +502,6 @@ void CLoginDlg::DelUser()
             m_PointDes.Close();
     if ( m_SLogin._IsOpen() )
       m_SLogin.Close();
-    m_Cn.Close();
-    dbAx::Term();
 	OnInitDialog();
 }
 

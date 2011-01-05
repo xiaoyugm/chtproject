@@ -39,15 +39,15 @@ public:
 	COfficeTreeCtrl m_wndResourceView;
 	CImageList      m_ilResourceView;
 	CXTListCtrl     m_listCtrl;
-	int m_ontime ;
+	int m_numabf ;
+	BOOL B_change;
+	vector<CString> m_cpstr;
 
 	void InitListControl();
-	void InitLC(unsigned char  afds, unsigned char  achan);
-	void InitLB(unsigned char  afds, unsigned char  achan);
-	void InitLF(unsigned char  afds, unsigned char  achan);
-	void InitLDAB(unsigned char  afds, unsigned char  achan);
-	void InitLDF(unsigned char  afds, unsigned char  achan);
-	void InitLDCH(unsigned char  afds, unsigned char  achan);
+	void InitAA(unsigned char  afds, unsigned char  achan);
+	void InitFBA(unsigned char  abfnum);
+	void BuildList(int abfnum);
+	void UpList(int abfnum);
 
 	virtual CWnd* GetClientWnd() { return &m_listCtrl; }
 //	void OnEmptyCommand();

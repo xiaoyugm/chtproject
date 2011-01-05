@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "gui_visualstudio.h"
 #include "DCH5m.h"
+#include "MainFrm.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -20,6 +21,7 @@ CDCH5m::CDCH5m(CWnd* pParent /*=NULL*/)
 	: CDialog(CDCH5m::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CDCH5m)
+	m_success = 0;
 	n_select = 0;
 	strPOINT="";
 	CTimeSpan tpan(10,0,0,0);
@@ -56,8 +58,8 @@ BOOL CDCH5m::OnInitDialog()
 {
   CDialog::OnInitDialog();
 
-//	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
-//   	pFWnd->m_pSetTimeDlg=this;
+	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+   	pFWnd->m_pDCH5m=this;
 
 //	SetResize(IDOK_SEND,                  SZ_BOTTOM_LEFT,   SZ_BOTTOM_LEFT);
 //	SetResize(IDCANCEL,              SZ_BOTTOM_LEFT,   SZ_BOTTOM_LEFT);
@@ -116,11 +118,11 @@ BOOL CDCH5m::OnInitDialog()
 	if(n_select == 2)
 	{
          	m_sdir.BeginBrowse("*.ini");
+       		m_LDCH.InsertColumn(0,"操作日志文件名",LVCFMT_LEFT,520);
 		for ( int i = 0 ; i < m_sdir.m_dirs.size() ; i++ )
 		{
 			strclm = m_sdir.m_dirs[i];
 //    			strclm.Replace(strItem,"");
-       		m_LDCH.InsertColumn(0,"操作日志文件名",LVCFMT_LEFT,520);
  				  m_LDCH.InsertItem(i, strclm);
  		}
 	    SetWindowText("查询操作日志");
@@ -128,63 +130,59 @@ BOOL CDCH5m::OnInitDialog()
 	else if(n_select == 3)
 	{
          	m_sdir.BeginBrowse("*.txt");
+       		m_LDCH.InsertColumn(0,"中心站运行日志文件名",LVCFMT_LEFT,520);
 		for ( int i = 0 ; i < m_sdir.m_dirs.size() ; i++ )
 		{
 			strclm = m_sdir.m_dirs[i];
 //    			strclm.Replace(strItem,"");
-       		m_LDCH.InsertColumn(0,"中心站运行日志文件名",LVCFMT_LEFT,520);
  				  m_LDCH.InsertItem(i, strclm);
  		}
        	SetWindowText("查询中心站运行日志");
 	}
+	else if(n_select == 5)
+	{
+		m_LDCH.DeleteColumn(0);
+       		m_LDCH.InsertColumn(0,"操作日志文件名",LVCFMT_LEFT,520);
+				for(int k=0; k< theApp.m_DebugInfo.size(); k++)
+				{
+					strclm = theApp.m_DebugInfo[k];
+ 				  m_LDCH.InsertItem(k, strclm);
+				}
+	}
 
 	if(n_select == 1 || n_select == 4)
 	{
-	for(int i = 01; i < MAX_FDS; i++)
-	{
+    	for(int i = 01; i < MAX_FDS; i++)
+		{
 		strItem.Format(_T("%d"), i);
     	m_DCHfds.AddString(strItem);
-	}
-	m_DCHfds.SetCurSel(0);
-
-    CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
-                          User ID=sa;Password=sunset;\
-                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
-
-//All calls to the AxLib should be wrapped in a try / catch block
-  try
-  {
-    dbAx::Init();
-    m_Cn.Create();
-//    m_Cn._SetConnectionEvents(new CCardFileEvents);
-    m_Cn.CursorLocation(adUseClient);
-    m_Cn.Open((LPCTSTR)szConnect);
-    	m_PointDes.Create();
-		m_PointDes.CursorType(adOpenDynamic);
-		m_PointDes.CacheSize(50);
-		m_PointDes._SetRecordsetEvents(new CAccountSetEvents);
-		if(n_select == 1)
-    		m_PointDes.Open(_T("Select * From pointdescription WHERE fdel=0 and ptype>9"), &m_Cn);
-		else
-    		m_PointDes.Open(_T("Select * From pointdescription WHERE fdel=0"), &m_Cn);
-		m_PointDes.MarshalOptions(adMarshalModifiedOnly);
-
-		CString dddd;
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
-		{
-    		dddd = m_PointDes.m_szpointnum;
-    		dddd.TrimRight();
-			int sfds = m_PointDes.m_szfds;
-			int schan = m_PointDes.m_szchan;
-			int ptype = m_PointDes.m_szptype;
-			if(sfds == 1 && schan != 0)
-			{
-				dddd += "|" +m_SlaveStation[sfds][schan].WatchName;
-	     	    m_DCHp.AddString(dddd);
-			}
-			m_PointDes.MoveNext();
 		}
+    	m_DCHfds.SetCurSel(0);
+
+	CString dddd;	int eYear;	
+	if(n_select == 1)
+	{
+			for(int j = 0; j < MAX_CHAN;j++ )
+			{
+       			eYear = m_SlaveStation[1][j].ptype;
+       			if(eYear >9 && m_SlaveStation[1][j].WatchName !="")
+				{
+    				dddd = m_SlaveStation[1][j].strPN + "|"+m_SlaveStation[1][j].WatchName;
+    	     	    m_DCHp.AddString(dddd);
+				}
+			}
+	}
+	else if(n_select == 4)
+	{
+			for(int j = 0; j < MAX_CHAN;j++ )
+			{
+       			if(m_SlaveStation[1][j].WatchName !="")
+				{
+    				dddd = m_SlaveStation[1][j].strPN + "|"+m_SlaveStation[1][j].WatchName;
+    	     	    m_DCHp.AddString(dddd);
+				}
+			}
+	}
 	     	    m_DCHp.SetCurSel(0);
 		m_LDCH.InsertColumn(0,"安装地点/名称",LVCFMT_LEFT,200);
 		m_LDCH.InsertColumn(1,"点号",LVCFMT_LEFT,60);
@@ -206,28 +204,9 @@ BOOL CDCH5m::OnInitDialog()
 		}
 		else if(n_select == 4)
 		{
-			n=0;
-    		for(int i = 0; i<theApp.m_RTData.size(); i++)
-			{
-				dddd = theApp.m_RTData[i].str2;
-				strPOINT = strPOINT.Mid(0,5);
-				if(strPOINT == dddd)
-				{
- 				  m_LDCH.InsertItem(n, theApp.m_RTData[i].str1);
-    			  m_LDCH.SetItemText(n, 1, dddd);
-    			  m_LDCH.SetItemText(n, 2, theApp.m_RTData[i].str3);
-    			  m_LDCH.SetItemText(n, 3, theApp.m_RTData[i].str4);
-				  n++;
-				}
-			}
+            pFWnd->m_ThreadPool.Add(new CThreadObject(*this, 2));
+//			DCH5mInitList();
 		}
-  }
-  catch ( dbAx::CAxException *e )
-  {
-    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-    return (FALSE);
-  }
 	}
 
   return TRUE;  // return TRUE unless you set the focus to a control
@@ -247,30 +226,14 @@ void CDCH5m::OnOK()
 		}
 	}
 	strP1 = "notepad "+strP1;
-	C_Ts.CreateP(NULL, m_Str2Data.CStringtocharp(strP1),5,0x00000001);
+	C_Ts.CreateP(NULL, theApp.m_Str2Data.CStringtocharp(strP1),5,0x00000001);
 //	CDialog::OnOK();
 }
 
 void CDCH5m::OnCancel() 
 {
-	if(n_select == 1 || n_select == 4)
-	{
-  try
-  {
-    if ( m_PointDes._IsOpen() )
-      m_PointDes.Close();
-    m_Cn.Close();
-
-    //Cleanup the AxLib library
-    dbAx::Term();
-  }
-  catch ( CAxException *e )
-  {
-    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-  }
-	}
-	
+	if(m_success ==11)
+		return;
 	CDialog::OnCancel();
 }
 
@@ -310,7 +273,7 @@ void CDCH5m::OnSelchangeDchcbFds()
 		{
 			cccc = theApp.m_RDCHm5[i].str2;
          	cccc = cccc.Mid(0,2);
-			nfds3 =m_Str2Data.String2Int(cccc);
+			nfds3 =theApp.m_Str2Data.String2Int(cccc);
 			if(nfds3 == (kkkk +1))
 			{
 				  m_LDCH.InsertItem(k, theApp.m_RDCHm5[i].str1);
@@ -322,21 +285,14 @@ void CDCH5m::OnSelchangeDchcbFds()
 		}
 	}
 	m_DCHp.ResetContent();
-		m_PointDes.MoveFirst();
-		while ( !m_PointDes.IsEOF() )
-		{
-    		CString dddd = m_PointDes.m_szpointnum;
-    		dddd.TrimRight();
-			int sfds = m_PointDes.m_szfds;
-			int schan = m_PointDes.m_szchan;
-			int ptype = m_PointDes.m_szptype;
-			if(sfds == (kkkk +1) && schan != 0)
+			for(int j = 0; j < MAX_CHAN;j++ )
 			{
-				dddd += "|" +m_SlaveStation[sfds][schan].WatchName;
-	     	    m_DCHp.AddString(dddd);
+       			if(m_SlaveStation[kkkk +1][j].WatchName !="")
+				{
+    				dddd = m_SlaveStation[kkkk +1][j].strPN + "|"+m_SlaveStation[kkkk +1][j].WatchName;
+    	     	    m_DCHp.AddString(dddd);
+				}
 			}
-			m_PointDes.MoveNext();
-		}
 	    m_DCHp.SetCurSel(0);
 		
 }
@@ -345,7 +301,7 @@ void CDCH5m::OnSelchangeDchcbPoint()
 {
      	m_LDCH.DeleteAllItems();
 	UpdateData(TRUE);
-		CString cccc; int nfds3;
+		CString cccc; 
     CString strname,dddd;
 			UpdateData(TRUE);           //Exchange dialog data
 	int  kkkk = m_DCHp.GetCurSel();
@@ -374,18 +330,47 @@ void CDCH5m::OnSelchangeDchcbPoint()
 	}
 		else if(n_select == 4)
 		{
-			int n=0;
-    		for(int i = 0; i<theApp.m_RTData.size(); i++)
-			{
-				dddd = theApp.m_RTData[i].str2;
-				if(strname == dddd)
-				{
- 				  m_LDCH.InsertItem(n, theApp.m_RTData[i].str1);
-    			  m_LDCH.SetItemText(n, 1, dddd);
-    			  m_LDCH.SetItemText(n, 2, theApp.m_RTData[i].str3);
-    			  m_LDCH.SetItemText(n, 3, theApp.m_RTData[i].str4);
-				  n++;
-				}
-			}
+			strPOINT =strname;
+          	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+            pFWnd->m_ThreadPool.Add(new CThreadObject(*this, 2));
 		}
+}
+
+void CDCH5m::DCH5mInitList()
+{
+	m_success =11;
+        	CString strf,strc,dddd; int n;
+		    strf = strPOINT.Mid(0,2);
+    		strc = strPOINT.Mid(3,2);
+    		int nfds = theApp.m_Str2Data.String2Int(strf);
+     		int nchan = theApp.m_Str2Data.String2Int(strc);
+        	n =strPOINT.Find("C");
+			if(n>0)
+				nchan += 16;
+			n=0;
+
+			CppSQLite3Query q; //int m_fds,m_chan;
+    		dddd.Format("select * from rtdata where RTfds=%d and RTchan=%d;",nfds,nchan);
+            q = theApp.db3m.execQuery(dddd);
+            while (!q.eof())
+			{
+//    			   m_fds = q.getIntField(0);
+//                   m_chan = q.getIntField(1);
+//				if(nfds == m_fds && nchan == m_chan)
+				{
+    				  m_LDCH.InsertItem(n, m_SlaveStation[nfds][nchan].WatchName);
+        			  m_LDCH.SetItemText(n, 1, m_SlaveStation[nfds][nchan].strPN);
+        			  m_LDCH.SetItemText(n, 2, q.getStringField(2));
+    	    		  m_LDCH.SetItemText(n, 3, q.getStringField(3));
+			    	  n++;
+				}
+                q.nextRow();
+			}
+			//caohaitao
+#ifdef _DEBUG
+			strf.Format("%d  hang",n);
+			theApp.m_DebugInfo.push_back(strf);
+#endif //_DEBUG
+     		q.finalize();
+	m_success =0;
 }

@@ -116,7 +116,7 @@ void CDListEXT::OnOK()
 			theApp.db3.execDML(strSQL);
 		}
         theApp.InitSQLite3();
-    	theApp.InitDisplay();
+    	theApp.m_RTDM.InitDisplay();
 
 	CDialog::OnOK();
 }

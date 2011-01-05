@@ -7,12 +7,6 @@
 // DASafeMehod.h : header file
 //
 
-#include "dbAx\AxSControl.hpp"
-#include "dbAx\AxAccountSet.hpp"
-#include "dbAx\AxContactCmd.hpp"
-#include "dbAx\AxContactSet.hpp"
-#include "dbAx\CardFileEvents.hpp"
-#include "dbAx\AccountSetEvents.hpp"
 /////////////////////////////////////////////////////////////////////////////
 // CDASafeMehod dialog
 
@@ -29,16 +23,7 @@ public:
 	CXTFlatComboBox     m_ComBoxSM;
     CString    strsm;
 	//}}AFX_DATA
-    CAxConnection   m_Cn;
-    CAxContactCmd   m_ContactCmd;
-    CAxPointDescription  m_PointDes;
-	CRealtimedata   m_Realtimedata;
-	CRealtimedata   *m_RealtimedataNew;
-
-	CString2DataType    m_Str2Data;
-
 	void OnClose();
-
 
 // Overrides
 	// ClassWizard generated virtual function overrides
