@@ -169,6 +169,7 @@ struct ADMainDis	 {
 	CString     strlocal;                                                   //断电区域|馈电状态|时刻  
 	int     havev; 
 	COleDateTimeSpan tmid;
+	COleDateTimeSpan tmid1;
 };
 
 //日报/班报表头字符串
@@ -223,11 +224,13 @@ struct SerialF	 {
 struct RT60DATA	 {
 	unsigned char   rtdata[44]; 
 };
-//通道号
-//struct NumChannel {
-//	int EFeed;                  	//馈电状态
-//	int EquipmentState;             //设备状态
-//};
+
+//关联点号
+struct FDS_CFS {
+	CString    str_fdsc[50];             //控制测点点号 01A01 
+	CString    str_cf[50];             //馈电测点点号 01A01 
+};
+
 //分站
 struct SlaveStation {
 	int     m_PID;	                        //点号  

@@ -79,8 +79,6 @@ BOOL CFormDraw::OnInitDialog()
 //      	else if(m ==1)
 //         	m_sdir.BeginBrowse("*.rsy");
 
-	L2upDB();
-
 //                m_LCFD.InsertItem(i1, strclm);
 //    			i1++;
 /*     		for ( int k = 0 ; k < theApp.m_addfilesy.size() ; k++ )
@@ -96,6 +94,8 @@ BOOL CFormDraw::OnInitDialog()
     		  GetDlgItem(IDC_CBDRAW)->ShowWindow(SW_HIDE);;
 		 GetDlgItem(IDC_BEXCELADD)->SetWindowText("¸ÄÃû");
 	}
+	else if(m_dorf == 1)
+    	L2upDB();
 
 //	m_LCFD.InsertItem(0, _T("hhh"), 0);
 //	GetDlgItemText(IDC_EDIT_DIR,dirName,100);
@@ -169,7 +169,7 @@ void CFormDraw::OnBES()
                 q.nextRow();
 			}
 	}
-	else
+	else if(m_dorf == 1)
 	{
 		n_is =0;
 	    	strSQL.Format("select * from '%s' WHERE DISID=1;",strrsy1);
@@ -213,7 +213,7 @@ void CFormDraw::OnBES()
 
 	theApp.DocNum = 1;
 	theApp.InitSQLite3();
-	theApp.InitDisplay();
+	theApp.m_RTDM.InitDisplay();
 
 /*	BOOL bExist;
 	int nItemCount=m_LCFD.GetItemCount();
@@ -302,7 +302,7 @@ void CFormDraw::OnBED()
 
 			theApp.DocNum = 1;
 			theApp.InitSQLite3();
-	theApp.InitDisplay();
+	theApp.m_RTDM.InitDisplay();
 
 	L2upDB();
 

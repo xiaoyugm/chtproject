@@ -13,10 +13,6 @@
 //#include "Controls\\XPStyleButtonST.h"
 //#include "Controls\\ThemeHelperST.h"
 
-//#include "SQL\\sqldirect.h"
-#include "dbAx\AxLogin.hpp"
-#include "dbAx\AccountSetEvents.hpp"
-
 class CLoginDlg : public CXTResizeDialog
 {
 // Construction
@@ -26,8 +22,6 @@ public:
 	void ConnectDB(void);
 	CLoginDlg(CWnd* pParent = NULL);   // standard constructor
 
-    CCardFileEvents *pCnEvents;
-    CAxConnection   m_Cn;
     CAxPointDescription  m_PointDes;
     CAxLogin        m_SLogin;
     CAxLogin        *m_SLoginNew;

@@ -30,22 +30,19 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+extern SerialF               m_AFans[MAX_FDS][MAX_CHAN];    //双风门主扇备扇报警
+extern SerialF       m_ABFlist[MAX_FDS][MAX_CHAN]; //AD have ABF SFSd/aa cfds/ab cchan/af ffds/dab fchan/df
 extern ADMainDis             m_ADMainDis[MAX_FDS][MAX_CHAN];          //调用显示
-extern SerialF               m_DCHlist[MAX_FDS][MAX_CHAN][65];        //D状态改变
-extern SerialF               m_DFlist[MAX_FDS][MAX_CHAN][65];     //D馈电列表
-extern SerialF               m_DABlist[MAX_FDS][MAX_CHAN][65];    //D报警\断电列表
-extern ADCbreakE             m_CFeed[MAX_FDS][9][65];
+extern ADCbreakE             m_CFeed[MAX_FDS][MAX_CHAN][65];
 extern ADCbreakE             m_ADCbreakE[MAX_FDS][MAX_CHAN][65];
-extern SerialF               m_Flist[MAX_FDS][MAX_CHAN][65];
-extern SerialF               m_Blist[MAX_FDS][MAX_CHAN][65];
 extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
-extern SerialF               m_Warnlist[MAX_FDS][MAX_CHAN];
 /////////////////////////////////////////////////////////////////////////////
 // CResourceViewPane
 
 CResourceViewPane::CResourceViewPane()
 {
-	m_ontime=0;
+	m_numabf=0;
+	B_change = FALSE;
 }
 
 CResourceViewPane::~CResourceViewPane()
@@ -64,13 +61,13 @@ END_MESSAGE_MAP()
 
 static int arColWidths[] = {
 	160,
-	50,
+	60,
 	130,
 	130,
 	130,
 //	60,
-//	160,
-	450
+	200,
+	240
 };
 static CString arColLabels[] = {
 	_T("安装地点/名称"),
@@ -79,19 +76,19 @@ static CString arColLabels[] = {
 	_T("断电时刻"),
 	_T("复电时刻"),
 //	_T("馈电状态"),
-//	_T("馈电状态/时刻"),
+	_T("馈电状态/时刻"),
 	_T("安全措施/时刻")
 };
 
 static int bColWidths[] = {
 	160,
-	50,
+	60,
 	130,
-	300,
-	160,
+	240,
+	200,
 //	60,
 //	160,
-//	360
+	240
 };
 static CString bColLabels[] = {
 	_T("安装地点/名称"),
@@ -102,39 +99,39 @@ static CString bColLabels[] = {
 //	_T("复电时刻"),
 //	_T("馈电状态"),
 	_T("馈电状态/时刻"),
-//	_T("安全措施/时刻")
+	_T("安全措施/时刻")
 };
 
 static int fColWidths[] = {
 	160,
-//	50,
+	60,
 	130,
 	130,
-	300,
+	170,
 //	60,
-//	160,
-	160
+	200,
+	240
 };
 static CString fColLabels[] = {
 	_T("安装地点/名称"),
-//	_T("监测值"),
-//	_T("报警时刻"),
+	_T("监测值"),
+	_T("报警时刻"),
 	_T("断电时刻"),
-	_T("复电时刻"),
+//	_T("复电时刻"),
 	_T("断电区域"),
 //	_T("馈电状态"),
 	_T("馈电状态/时刻"),
-//	_T("安全措施")
+	_T("安全措施/时刻")
 };
 
 static int dabColWidths[] = {
 	160,
-	100,
+	80,
 	130,
 	130,
 	160,
 //	60,
-	160,
+	200,
 	300
 };
 static CString dabColLabels[] = {
@@ -151,48 +148,27 @@ static CString dabColLabels[] = {
 
 static int dfColWidths[] = {
 	160,
-	100,
-//	130,
+	80,
+	130,
 	130,
 	160,
 //	60,
-	160
-//	300
+	200,
+	300
 };
 static CString dfColLabels[] = {
 	_T("安装地点/名称"),
 	_T("状态"),
-//	_T("报警时刻"),
+	_T("报警时刻"),
 	_T("断电时刻"),
 //	_T("复电时刻"),
 	_T("断电区域"),
 //	_T("馈电状态"),
-	_T("馈电状态/时刻")
-//	_T("安全措施")
+	_T("馈电状态/时刻"),
+	_T("安全措施/时刻")
 };
 
 //开关量状态变动显示
-static int dchColWidths[] = {
-	160,
-	100,
-//	130,
-	130,
-	160,
-//	60,
-	160
-//	300
-};
-static CString dchColLabels[] = {
-	_T("安装地点/名称"),
-	_T("状态"),
-//	_T("报警时刻"),
-	_T("变动时刻"),
-//	_T("复电时刻"),
-	_T("断电区域"),
-//	_T("馈电状态"),
-	_T("馈电状态/时刻")
-//	_T("安全措施")
-};
 
 /*
 设备故障记录
@@ -221,7 +197,6 @@ static CString arColLabels[] = {
 };
 开关量调用显示
 static CString arColLabels[] = {
-	_T("安装地点/名称"),
 	_T("设备状态/时刻"),
 	_T("断电/报警状态"),
 	_T("断电/报警及时刻"),
@@ -375,18 +350,18 @@ void CResourceViewPane::OnSetFocus(CWnd* /*pOldWnd*/)
 void CResourceViewPane::InitListControl()
 {
 	// Insert the columns.
-	if(theApp.m_resnum == 1)
+	if(m_numabf == 1)
        	m_listCtrl.BuildColumns(_countof(arColWidths), arColWidths, arColLabels);
-	else if(theApp.m_resnum == 2)
+	else if(m_numabf == 2)
        	m_listCtrl.BuildColumns(_countof(bColWidths), bColWidths, bColLabels);
-	else if(theApp.m_resnum == 3)
+	else if(m_numabf == 3)
        	m_listCtrl.BuildColumns(_countof(fColWidths), fColWidths, fColLabels);
-	else if(theApp.m_resnum == 4)
+	else if(m_numabf == 4)
        	m_listCtrl.BuildColumns(_countof(dabColWidths), dabColWidths, dabColLabels);
-	else if(theApp.m_resnum == 5)
+	else if(m_numabf == 5)
        	m_listCtrl.BuildColumns(_countof(dfColWidths), dfColWidths, dfColLabels);
-	else if(theApp.m_resnum == 6)
-       	m_listCtrl.BuildColumns(_countof(dchColWidths), dchColWidths, dchColLabels);
+//	else if(m_numabf == 6)
+//       	m_listCtrl.BuildColumns(_countof(dchColWidths), dchColWidths, dchColLabels);
 	// Subclass the flat header control.
 	m_listCtrl.SubclassHeader();
 
@@ -408,72 +383,17 @@ void CResourceViewPane::InitListControl()
 	m_listCtrl.EnableUserListColor(true);
 	m_listCtrl.EnableUserRowColor(true);
 
-    for(int i=0;i<MAX_ROW;i++)
+    for(int i=0;i<500;i++)
 	{
     	m_listCtrl.InsertItem(i, NULL, 0);
-    	m_listCtrl.SetItemText(i, 3, _T(""));
+    	m_listCtrl.SetItemText(i, 0, "");
         m_listCtrl.SetRowColor(i, RGB(255,0,0), RGB(255,255,255));
 	}
+	m_cpstr.clear();
 }
 
-void CResourceViewPane::InitLC(unsigned char  afds, unsigned char  achan)
+void CResourceViewPane::InitAA(unsigned char  afds, unsigned char  achan)
 {
-    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
-//	pFWnd->OnDisAAR();
-    pFWnd->paneResourceView->Select();
-
-	CString strtemp,strtemp1,strtemp2,strtempB,strtempS,strtempN;
-	int m_listnum = m_Warnlist[afds][achan].SFSd;
-	unsigned char	ufData1 = m_SlaveStation[afds][achan].Channel_state;
-	strtemp2 = theApp.socketClient.strstatus(ufData1);
-				  COleDateTime oleDateTime=m_ADMainDis[afds][achan].ATime ;
-	strtemp = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-	oleDateTime=m_ADMainDis[afds][achan].BTime ;
-	strtempB = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-	if(oleDateTime.GetYear() == 1900)
-		strtempB ="";
-	oleDateTime=m_ADMainDis[afds][achan].NTime ;
-	strtempN = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-	if(oleDateTime.GetYear() == 1900)
-		strtempN ="";
-	  oleDateTime=m_SlaveStation[afds][achan].ValueTime;
-	strtempS = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-
-	int	ufData6 = m_SlaveStation[afds][achan].ptype;
-	if(ufData6 == 2)
-        strtemp1.Format("%d",m_SlaveStation[afds][achan].CValue);
-	else
-    	strtemp1.Format(_T("%.2f"), m_SlaveStation[afds][achan].AValue);
-	if(m_listnum == 500)
-	{
-		m_listnum = m_Warnlist[afds][achan].SFSd = theApp.idis;
-		m_listCtrl.SetItemText(m_listnum, 0,  m_SlaveStation[afds][achan].WatchName);
-		if(ufData1 == 0x10)
-		{
-      		m_listCtrl.SetItemText(m_listnum, 1,  strtemp1);
-    		m_listCtrl.SetItemText(m_listnum, 2,  strtemp);
-    		m_listCtrl.SetItemText(m_listnum, 3,  strtempB);
-    		m_listCtrl.SetItemText(m_listnum, 4,  strtempN);
-		}
-		theApp.idis++;
-	}
-	else
-	{
-		m_listCtrl.SetItemText(m_listnum, 0,  m_SlaveStation[afds][achan].WatchName);
-
-		if(ufData1 == 0x10)
-		{
-      		m_listCtrl.SetItemText(m_listnum, 1,  strtemp1);
-    		m_listCtrl.SetItemText(m_listnum, 2,  strtemp);
-    		m_listCtrl.SetItemText(m_listnum, 3,  strtempB);
-    		m_listCtrl.SetItemText(m_listnum, 4,  strtempN);
-		}
-		if(theApp.m_resnum == 10)
-		{
-    		m_listCtrl.SetItemText(m_listnum, 5,  m_SlaveStation[afds][achan].strSafe+"|"+strtempS);
-	    	theApp.m_resnum = 0;
-		}
-	}
     //Highlight the first item
 //    LV_ITEM lvi;
 //		lvi.mask = LVIF_TEXT;
@@ -501,520 +421,324 @@ void CResourceViewPane::InitLC(unsigned char  afds, unsigned char  achan)
 //	PostMessage(WM_VSCROLL,SB_LINEDOWN,0);
 }
 
-void CResourceViewPane::InitLB(unsigned char  afds, unsigned char  achan)
+void CResourceViewPane::InitFBA(unsigned char  abfnum)
 {
-    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
-    pFWnd->paneResourceView2->Select();
-    	int m_listnum = m_Blist[afds][achan][0].SFSd;
-    	CString strtemp,strtemp1,strtemp2,strfeed,strtempB;
-     	unsigned char	ufData1 = m_SlaveStation[afds][achan].Channel_state;
-      	strtemp2 = theApp.socketClient.strstatus(ufData1);
-				  COleDateTime oleDateTime=m_SlaveStation[afds][achan].ValueTime;
-       	strtemp = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-				  oleDateTime=m_ADMainDis[afds][achan].BTime;
-       	strtempB = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-    	int	ufData6 = m_SlaveStation[afds][achan].ptype;
-	if(ufData6 == 2)
-        strtemp1.Format("%d",m_SlaveStation[afds][achan].CValue);
-	else
-		strtemp1.Format(_T("%.2f"), m_SlaveStation[afds][achan].AValue);
-	if(m_listnum == 500)
-	{
-		int x=0;
-		for(int i= 0 ;i<64 ; i++)
+    int nItemCount= 0;    //列表位置id
+	if(abfnum == 3)
+	{//全部正常的点，清除 af
+    	for(vector<CString>::iterator iter=m_cpstr.begin(); iter!=m_cpstr.end(); )
 		{
-		int y=0;
-		     int cfds = m_ADCbreakE[afds][achan][i].bFSd;
-			 int cchan = m_ADCbreakE[afds][achan][i].bchanel;
-			 if(cfds == 0)
-				 break;
-     		m_listnum = m_Blist[afds][achan][x].SFSd = theApp.bidis;
-      		m_listCtrl.SetItemText(m_listnum, 0,  m_SlaveStation[afds][achan].WatchName);
-    		if((ufData1 == 0x40)|| (ufData1 == 0x50)|| (ufData1 == 0x60) ||(ufData1 == 0x70)|| (ufData1 == 0x80))
-				strtemp1 = theApp.socketClient.strstatus(ufData1);
+			nItemCount= 0;
+            	CString  strf,strc,dddd,d4;
+	    		dddd = *iter;
+           		strf = dddd.Mid(0,2);
+        		strc = dddd.Mid(3);
+    	    	int nfds = theApp.m_Str2Data.String2Int(strf);
+	        	int nchan = theApp.m_Str2Data.String2Int(strc);
+				int n_fans = m_AFans[nfds][nchan].fchan;
+			if(n_fans == 1)
+				nItemCount = 7;
+    		for(int j=0; j<65; j++)
 			{
-//      	    	m_listCtrl.SetItemText(m_listnum, 1, strtemp2 );
-//           		m_listCtrl.SetItemText(m_listnum, 2,  strtemp);
-			}
-//	    	else if((ufData1 == 0x20)|| (ufData1 == 0x60))
-			{
-         		m_listCtrl.SetItemText(m_listnum, 1,  strtemp1);
-           		m_listCtrl.SetItemText(m_listnum, 2,  strtempB);
-			}
-			//断电关联馈电
-			for(int j= 0 ;j<64 ; j++)
-			{
-    		     int ffds = m_CFeed[cfds][cchan][j].bFSd;
-	       		 int fchan = m_CFeed[cfds][cchan][j].bchanel;
-				 if(ffds == 0)
-	 				 break;
-
-        	 	 m_listnum = m_Blist[afds][achan][x].SFSd = theApp.bidis;
-         		m_listCtrl.SetItemText(m_listnum, 0,  m_SlaveStation[afds][achan].WatchName);
-         		m_listCtrl.SetItemText(m_listnum, 1,  strtemp1);
-           		m_listCtrl.SetItemText(m_listnum, 2,  strtempB);
-        		m_listCtrl.SetItemText(m_listnum, 3,  m_SlaveStation[ffds][fchan].WatchName);
-				 y++;
-				 m_Blist[afds][achan][x].cfds =cfds;
-				 m_Blist[afds][achan][x].cchan = cchan;
-				 m_Blist[afds][achan][x].ffds = ffds;
-				 m_Blist[afds][achan][x].fchan =fchan;
-
-//				  COleDateTime oleDT=m_SlaveStation[ffds][fchan].ValueTime;
-//                 strfeed = oleDT.Format(_T("%Y-%m-%d %H:%M:%S")); 
-				 strfeed = m_SlaveStation[ffds][fchan].FeedState+"|"+strtemp;
-            		m_listCtrl.SetItemText(m_listnum, 4,  strfeed);
-        		theApp.bidis++;
-				x++;
-			}
-			if(y == 0)
-			{
-              	theApp.bidis++;
-				x++;
-			}
-		}
-	}
-	else
-	{
-		for(int i= 0 ;i<64 ; i++)
-		{
-     		m_listnum = m_Blist[afds][achan][i].SFSd ;
-			 if(m_listnum == 500)
-				 break;
-      		m_listCtrl.SetItemText(m_listnum, 0,  m_SlaveStation[afds][achan].WatchName);
-    		if((ufData1 == 0x40)|| (ufData1 == 0x50) ||(ufData1 == 0x70)|| (ufData1 == 0x80)||(ufData1 == 0x90)|| (ufData1 == 0xa0))
-				strtemp1 = theApp.socketClient.strstatus(ufData1);
-			{
-//      	    	m_listCtrl.SetItemText(m_listnum, 1, strtemp2 );
-//           		m_listCtrl.SetItemText(m_listnum, 2,  strtemp);
-			}
-//	    	else if((ufData1 == 0x20)|| (ufData1 == 0x60))
-			{
-         		m_listCtrl.SetItemText(m_listnum, 1,  strtemp1);
-           		m_listCtrl.SetItemText(m_listnum, 2,  strtempB);
-			}
-//		     int cfds = m_Blist[afds][achan][i].cfds;
-//			 int cchan = m_Blist[afds][achan][i].cchan;
-//			 if(cfds != 0)
-
-			int ffds = m_Blist[afds][achan][i].ffds;
-	       		 int fchan = m_Blist[afds][achan][i].fchan;
-				 if(ffds != 0)
-				 {
-         		m_listCtrl.SetItemText(m_listnum, 3, m_SlaveStation[ffds][fchan].WatchName);
-//    				  COleDateTime oleDT=m_SlaveStation[ffds][fchan].ValueTime;
-//                      strfeed = oleDT.Format(_T("%Y-%m-%d %H:%M:%S")); 
-			       	  strfeed = m_SlaveStation[ffds][fchan].FeedState+"|"+strtemp;
-            		  m_listCtrl.SetItemText(m_listnum, 4,  strfeed);
-				 }
-		}
-	}
-}
-
-void CResourceViewPane::InitLF(unsigned char  afds, unsigned char  achan)
-{
-    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
-    pFWnd->paneResourceView3->Select();
-
-	int m_listnum = m_Flist[afds][achan][0].SFSd;
-    	CString strtemp,strtemp1,strtemp2,strfeed,strtempB,strtempN;
-     	unsigned char	ufData1 = m_SlaveStation[afds][achan].Channel_state;
-      	strtemp2 = theApp.socketClient.strstatus(ufData1);
-				  COleDateTime oleDateTime=m_ADMainDis[afds][achan].BTime;
-       	strtempB = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-	if(oleDateTime.GetYear() == 1900)
-		strtempB ="";
-	   oleDateTime=m_SlaveStation[afds][achan].ValueTime;
-       	strtemp = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-	oleDateTime=m_ADMainDis[afds][achan].NTime ;
-	strtempN = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-	if(oleDateTime.GetYear() == 1900)
-		strtempN ="";
-    	int	ufData6 = m_SlaveStation[afds][achan].ptype;
-	if(ufData6 == 2)
-        strtemp1.Format("%d",m_SlaveStation[afds][achan].CValue);
-	else
-		strtemp1.Format(_T("%.2f"), m_SlaveStation[afds][achan].AValue);
-	if(m_listnum == 500)
-	{
-		int x=0;
-		for(int i= 0 ;i<64 ; i++)
-		{
-		int y=0;
-		     int cfds = m_ADCbreakE[afds][achan][i].bFSd;
-			 int cchan = m_ADCbreakE[afds][achan][i].bchanel;
-			 if(cfds == 0)
-				 break;
-     		m_listnum = m_Flist[afds][achan][x].SFSd = theApp.fidis;
-      		m_listCtrl.SetItemText(m_listnum, 0,  m_SlaveStation[afds][achan].WatchName);
-//    		if((ufData1 == 0x40)|| (ufData1 == 0x50) ||(ufData1 == 0x70))
-//      	    	m_listCtrl.SetItemText(m_listnum, 1, strtemp );
-//	    	else if((ufData1 == 0x20)|| (ufData1 == 0x60))
-           		m_listCtrl.SetItemText(m_listnum, 1,  strtempB);
-//	    	else if(ufData1 == 0x00)
-    	    	m_listCtrl.SetItemText(m_listnum, 2,  strtempN);
-			for(int j= 0 ;j<64 ; j++)
-			{
-    		     int ffds = m_CFeed[cfds][cchan][j].bFSd;
-	       		 int fchan = m_CFeed[cfds][cchan][j].bchanel;
-				 if(ffds == 0)
-	 				 break;
-
-        		m_listCtrl.SetItemText(m_listnum, 3,  m_SlaveStation[ffds][fchan].WatchName);
-				 y++;
-        	 	 m_listnum = m_Flist[afds][achan][x].SFSd = theApp.fidis;
-				 m_Flist[afds][achan][x].cfds =cfds;
-				 m_Flist[afds][achan][x].cchan = cchan;
-				 m_Flist[afds][achan][x].ffds = ffds;
-				 m_Flist[afds][achan][x].fchan =fchan;
-
-//				  COleDateTime oleDT=m_SlaveStation[ffds][fchan].ValueTime;
-//                 strfeed = oleDT.Format(_T("%Y-%m-%d %H:%M:%S")); 
-				 strfeed = m_SlaveStation[ffds][fchan].FeedState+"|"+strtemp;
-            		m_listCtrl.SetItemText(m_listnum, 4,  strfeed);
-        		theApp.fidis++;
-				x++;
-			}
-			if(y == 0)
-			{
-              	theApp.fidis++;
-				x++;
-			}
-		}
-	}
-	else
-	{
-		for(int i= 0 ;i<64 ; i++)
-		{
-     		m_listnum = m_Flist[afds][achan][i].SFSd ;
-			 if(m_listnum == 500)
-				 break;
-      		m_listCtrl.SetItemText(m_listnum, 0,  m_SlaveStation[afds][achan].WatchName);
-//    		if((ufData1 == 0x40)|| (ufData1 == 0x50) ||(ufData1 == 0x70))
-//      	    	m_listCtrl.SetItemText(m_listnum, 1, strtemp );
-//	    	else if((ufData1 == 0x20)|| (ufData1 == 0x60))
-           		m_listCtrl.SetItemText(m_listnum, 1,  strtempB);
-//	    	else if(ufData1 == 0x00)
-    	    	m_listCtrl.SetItemText(m_listnum, 2,  strtempN);
-//		     int cfds = m_Blist[afds][achan][i].cfds;
-//			 int cchan = m_Blist[afds][achan][i].cchan;
-//			 if(cfds != 0)
-
-			int ffds = m_Flist[afds][achan][i].ffds;
-	       		 int fchan = m_Flist[afds][achan][i].fchan;
-				 if(ffds != 0)
-				 {
-         		m_listCtrl.SetItemText(m_listnum, 3, m_SlaveStation[ffds][fchan].WatchName);
-//    				  COleDateTime oleDT=m_SlaveStation[ffds][fchan].ValueTime;
-//                      strfeed = oleDT.Format(_T("%Y-%m-%d %H:%M:%S")); 
-			       	  strfeed = m_SlaveStation[ffds][fchan].FeedState+"|"+strtemp;
-            		  m_listCtrl.SetItemText(m_listnum, 4,  strfeed);
-				 }
-		}
-	}
-}
-
-void CResourceViewPane::InitLDAB(unsigned char  afds, unsigned char  achan)
-{
-    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
-    pFWnd->paneResourceView4->Select();
-    	int m_listnum = m_DABlist[afds][achan][0].SFSd;
-    	CString strtemp,strtemp1,strtemp2,strfeed,strtempB,strtempN,strtempA;
-     	unsigned char	ufData1 = m_SlaveStation[afds][achan].Channel_state;
-      	strtemp2 = theApp.socketClient.strstatus(ufData1);
-				  COleDateTime oleDateTime=m_SlaveStation[afds][achan].ValueTime;
-       	strtemp = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-				  oleDateTime=m_ADMainDis[afds][achan].BTime;
-       	strtempB = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-	if(oleDateTime.GetYear() == 1900)
-		strtempB ="";
-	oleDateTime=m_ADMainDis[afds][achan].NTime ;
-	strtempN = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-	if(oleDateTime.GetYear() == 1900)
-		strtempN ="";
-				  oleDateTime=m_ADMainDis[afds][achan].ATime;
-       	strtempA = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-	if(oleDateTime.GetYear() == 1900)
-		strtempA ="";
-
-//    	int	ufData6 = m_SlaveStation[afds][achan].ptype;
-		int dvalue= m_SlaveStation[afds][achan].CValue;
-		if(dvalue == 0)
-    		strtemp1 =  m_SlaveStation[afds][achan].ZeroState;
-		else if(dvalue == 1)
-    		strtemp1 =  m_SlaveStation[afds][achan].OneState;
-		else if(dvalue == 2)
-    		strtemp1 =  m_SlaveStation[afds][achan].TwoState;
-	if(m_listnum == 500)
-	{
-		int x=0;
-		for(int i= 0 ;i<64 ; i++)
-		{
-     		m_listnum = m_DABlist[afds][achan][x].SFSd = theApp.dabidis;
-      		m_listCtrl.SetItemText(m_listnum, 0,  m_SlaveStation[afds][achan].WatchName);
-				if((ufData1 == 0x70) ||(ufData1 == 0x80))
-         	        strtemp1= strtemp2 ;
-
-				m_listCtrl.SetItemText(m_listnum, 1, strtemp1 );
-      	    	m_listCtrl.SetItemText(m_listnum, 2, strtempA );
-      	    	m_listCtrl.SetItemText(m_listnum, 3, strtempB );
-    		int y=0;
-		     int cfds = m_ADCbreakE[afds][achan][i].bFSd;
-			 int cchan = m_ADCbreakE[afds][achan][i].bchanel;
-			 if(cfds == 0)
-			 {
-              	theApp.dabidis++;
-				 break;
-			 }
-
-			for(int j= 0 ;j<64 ; j++)
-			{
-    		     int ffds = m_CFeed[cfds][cchan][j].bFSd;
-	       		 int fchan = m_CFeed[cfds][cchan][j].bchanel;
-				 if(ffds == 0)
-	 				 break;
-
-        		m_listCtrl.SetItemText(m_listnum, 4,  m_SlaveStation[ffds][fchan].WatchName);
-				 y++;
-        	 	 m_listnum = m_DABlist[afds][achan][x].SFSd = theApp.dabidis;
-				 m_DABlist[afds][achan][x].cfds =cfds;
-				 m_DABlist[afds][achan][x].cchan = cchan;
-				 m_DABlist[afds][achan][x].ffds = ffds;
-				 m_DABlist[afds][achan][x].fchan =fchan;
-
-//				  COleDateTime oleDT=m_SlaveStation[ffds][fchan].ValueTime;
-//                 strfeed = oleDT.Format(_T("%Y-%m-%d %H:%M:%S")); 
-				 strfeed = m_SlaveStation[ffds][fchan].FeedState+"|"+strtemp;
-            		m_listCtrl.SetItemText(m_listnum, 5,  strfeed);
-        		theApp.dabidis++;
-				x++;
-			}
-			if(y == 0)
-			{
-              	theApp.dabidis++;
-				x++;
-			}
-		}
-	}
-	else
-	{
-		for(int i= 0 ;i<64 ; i++)
-		{
-     		m_listnum = m_DABlist[afds][achan][i].SFSd ;
-			 if(m_listnum == 500)
-				 break;
-      		m_listCtrl.SetItemText(m_listnum, 0,  m_SlaveStation[afds][achan].WatchName);
-				if((ufData1 == 0x70) ||(ufData1 == 0x80))
-         	        strtemp1= strtemp2 ;
-       	    	m_listCtrl.SetItemText(m_listnum, 1, strtemp1 );
-      	    	m_listCtrl.SetItemText(m_listnum, 2, strtempA );
-      	    	m_listCtrl.SetItemText(m_listnum, 3, strtempB );
-//		     int cfds = m_Blist[afds][achan][i].cfds;
-//			 int cchan = m_Blist[afds][achan][i].cchan;
-//			 if(cfds != 0)
-
-			int ffds = m_DABlist[afds][achan][i].ffds;
-	       		 int fchan = m_DABlist[afds][achan][i].fchan;
-				 if(ffds != 0)
-				 {
-             		m_listCtrl.SetItemText(m_listnum, 4, m_SlaveStation[ffds][fchan].WatchName);
-//    				  COleDateTime oleDT=m_SlaveStation[ffds][fchan].ValueTime;
-//                      strfeed = oleDT.Format(_T("%Y-%m-%d %H:%M:%S")); 
-			       	  strfeed = m_SlaveStation[ffds][fchan].FeedState+"|"+strtemp;
-            		  m_listCtrl.SetItemText(m_listnum, 5,  strfeed);
-				 }
-	    	if((theApp.m_resnum == 10)&&(i== 0))
-			{
-    	    	m_listCtrl.SetItemText(m_listnum, 6,  m_SlaveStation[afds][achan].strSafe+"|"+strtemp);
-	        	theApp.m_resnum = 0;
-			}
-		}
-	}
-}
-
-void CResourceViewPane::InitLDF(unsigned char  afds, unsigned char  achan)
-{
-    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
-    pFWnd->paneResourceView5->Select();
-    	int m_listnum = m_DFlist[afds][achan][0].SFSd;
-    	CString strtemp,strtemp1,strtemp2,strfeed,strtempB;
-     	unsigned char	ufData1 = m_SlaveStation[afds][achan].Channel_state;
-      	strtemp2 = theApp.socketClient.strstatus(ufData1);
-				  COleDateTime oleDateTime=m_SlaveStation[afds][achan].ValueTime;
-       	strtemp = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-				  oleDateTime=m_ADMainDis[afds][achan].BTime;
-       	strtempB = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-
-		int dvalue= m_SlaveStation[afds][achan].CValue;
-		if(dvalue == 0)
-    		strtemp1 =  m_SlaveStation[afds][achan].ZeroState;
-		else if(dvalue == 1)
-    		strtemp1 =  m_SlaveStation[afds][achan].OneState;
-		else if(dvalue == 2)
-    		strtemp1 =  m_SlaveStation[afds][achan].TwoState;
-	if(m_listnum == 500)
-	{
-		int x=0;
-		for(int i= 0 ;i<64 ; i++)
-		{
-    		int y=0;
-		     int cfds = m_ADCbreakE[afds][achan][i].bFSd;
-			 int cchan = m_ADCbreakE[afds][achan][i].bchanel;
-			 if(cfds == 0)
-				 break;
-     		m_listnum = m_DFlist[afds][achan][x].SFSd = theApp.dfidis;
-			for(int j= 0 ;j<64 ; j++)
-			{
-    		     int ffds = m_CFeed[cfds][cchan][j].bFSd;
-	       		 int fchan = m_CFeed[cfds][cchan][j].bchanel;
-				 if(ffds == 0)
-	 				 break;
-
-           		m_listCtrl.SetItemText(m_listnum, 0,  m_SlaveStation[afds][achan].WatchName);
-				if((ufData1 == 0x70) ||(ufData1 == 0x80))
-         	        strtemp1= strtemp2 ;
-   	        	m_listCtrl.SetItemText(m_listnum, 1, strtemp1 );
-      	        	m_listCtrl.SetItemText(m_listnum, 2, strtempB );
-        		m_listCtrl.SetItemText(m_listnum, 3,  m_SlaveStation[ffds][fchan].WatchName);
-				 y++;
-        	 	 m_listnum = m_DFlist[afds][achan][x].SFSd = theApp.dfidis;
-				 m_DFlist[afds][achan][x].cfds =cfds;
-				 m_DFlist[afds][achan][x].cchan = cchan;
-				 m_DFlist[afds][achan][x].ffds = ffds;
-				 m_DFlist[afds][achan][x].fchan =fchan;
-
-//				  COleDateTime oleDT=m_SlaveStation[ffds][fchan].ValueTime;
-//                 strfeed = oleDT.Format(_T("%Y-%m-%d %H:%M:%S")); 
-				 strfeed = m_SlaveStation[ffds][fchan].FeedState+"|"+strtemp;
-            		m_listCtrl.SetItemText(m_listnum, 4,  strfeed);
-        		theApp.dfidis++;
-				x++;
-			}
-			if(y == 0)
-			{
-              	theApp.dfidis++;
-				x++;
-			}
-		}
-	}
-	else
-	{
-		for(int i= 0 ;i<64 ; i++)
-		{
-     		m_listnum = m_DFlist[afds][achan][i].SFSd ;
-			 if(m_listnum == 500)
-				 break;
-			int ffds = m_DFlist[afds][achan][i].ffds;
-	       		 int fchan = m_DFlist[afds][achan][i].fchan;
-				 if(ffds != 0)
-				 {
-               		m_listCtrl.SetItemText(m_listnum, 0,  m_SlaveStation[afds][achan].WatchName);
-            		if((ufData1 == 0x70)||(ufData1 == 0x80))
-         	             strtemp1= strtemp2 ;
-   	              	m_listCtrl.SetItemText(m_listnum, 1, strtemp1 );
-              	    	m_listCtrl.SetItemText(m_listnum, 2, strtempB );
-
-              		m_listCtrl.SetItemText(m_listnum, 3, m_SlaveStation[ffds][fchan].WatchName);
-//    				  COleDateTime oleDT=m_SlaveStation[ffds][fchan].ValueTime;
-//                      strfeed = oleDT.Format(_T("%Y-%m-%d %H:%M:%S")); 
-			       	  strfeed = m_SlaveStation[ffds][fchan].FeedState+"|"+strtemp;
-            		  m_listCtrl.SetItemText(m_listnum, 4,  strfeed);
-				 }
-		}
-	}
-}
-
-void CResourceViewPane::InitLDCH(unsigned char  afds, unsigned char  achan)
-{
-    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
-//    pFWnd->paneResourceView6->Select();
-    	int m_listnum = m_DCHlist[afds][achan][0].SFSd; //列表位置id
-    	CString strtemp,strtemp1,strtemp2,strfeed;
-     	unsigned char	ufData1 = m_SlaveStation[afds][achan].Channel_state;
-      	strtemp2 = theApp.socketClient.strstatus(ufData1);
-				  COleDateTime oleDateTime=m_SlaveStation[afds][achan].ValueTime;
-       	strtemp = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
-		int dvalue= m_SlaveStation[afds][achan].CValue;
-		if(dvalue == 0)
-    		strtemp1 =  m_SlaveStation[afds][achan].ZeroState;
-		else if(dvalue == 1)
-    		strtemp1 =  m_SlaveStation[afds][achan].OneState;
-		else if(dvalue == 2)
-    		strtemp1 =  m_SlaveStation[afds][achan].TwoState;
-	if(m_listnum == 500)
-	{
-		int x=0;
-		for(int i= 0 ;i<64 ; i++)
-		{
-			//m_listnum  点号
-     		m_listnum = m_DCHlist[afds][achan][x].SFSd = theApp.dchidis;
-           		m_listCtrl.SetItemText(m_listnum, 0,  m_SlaveStation[afds][achan].WatchName);
-				if((ufData1 == 0x70) ||(ufData1 == 0x80))
-         	        m_listCtrl.SetItemText(m_listnum, 1, strtemp2 );
-				else
-         	        m_listCtrl.SetItemText(m_listnum, 1, strtemp1 );
-      	        m_listCtrl.SetItemText(m_listnum, 2, strtemp );
-    		int y=0;
-		     int cfds = m_ADCbreakE[afds][achan][i].bFSd;
-			 int cchan = m_ADCbreakE[afds][achan][i].bchanel;
-			 if(cfds == 0)
-			 {
-              	theApp.dchidis++;
-				 break;
-			 }
-    			for(int j= 0 ;j<64 ; j++)
+		    	if(m_ADCbreakE[nfds][nchan][j].bFSd ==0)
+		       		break;
+    	    	int cfds = m_ADCbreakE[nfds][nchan][j].bFSd;
+	        	int cchan = m_ADCbreakE[nfds][nchan][j].bchanel;
+          		for(int k=0; k<65; k++)
 				{
-    		     int ffds = m_CFeed[cfds][cchan][j].bFSd;
-	       		 int fchan = m_CFeed[cfds][cchan][j].bchanel;
-				 if(ffds == 0)
-	 				 break;
-        		m_listCtrl.SetItemText(m_listnum, 3,  m_SlaveStation[ffds][fchan].WatchName);
-				 y++;
-        	 	 m_listnum = m_DCHlist[afds][achan][x].SFSd = theApp.dchidis;
-				 m_DCHlist[afds][achan][x].cfds =cfds;
-				 m_DCHlist[afds][achan][x].cchan = cchan;
-				 m_DCHlist[afds][achan][x].ffds = ffds;
-				 m_DCHlist[afds][achan][x].fchan =fchan;
-
-//				  COleDateTime oleDT=m_SlaveStation[ffds][fchan].ValueTime;
-//                 strfeed = oleDT.Format(_T("%Y-%m-%d %H:%M:%S")); 
-				 strfeed = m_SlaveStation[ffds][fchan].FeedState+"|"+strtemp;
-            		m_listCtrl.SetItemText(m_listnum, 4,  strfeed);
-        		theApp.dchidis++;
-				x++;
+	        		//断电关联馈电
+	    	     	if(m_CFeed[cfds][cchan][k].bFSd ==0)
+		         		break;
+    	            int ffds = m_CFeed[cfds][cchan][k].bFSd;
+	             	int fchan = m_CFeed[cfds][cchan][k].bchanel;
+					if(m_ABFlist[ffds][fchan].cchan == 1)
+					{
+						nItemCount = 7;
+	    	       		break;
+					}
 				}
-			if(y == 0)
+				if(nItemCount == 7)
+	    	       		break;
+			}//int j=0; j<65; j++)
+			if(nItemCount == 0)
 			{
-              	theApp.dchidis++;
-				x++;
+	        		iter = m_cpstr.erase(iter);
+					m_ABFlist[nfds][nchan].cchan =0;
+					B_change = TRUE;
+			}
+	    	else
+			    	iter++;
+
+		}//i=m_cpstr.size()-1; i>=0; i--)
+	}//if(abfnum == 3)
+    nItemCount= 0;
+	if(abfnum == 5)
+	{//全部正常的点，清除 af
+    	for(vector<CString>::iterator iter=m_cpstr.begin(); iter!=m_cpstr.end(); )
+		{
+			nItemCount= 0;
+            	CString  strf,strc,dddd,d4;
+	    		dddd = *iter;
+           		strf = dddd.Mid(0,2);
+        		strc = dddd.Mid(3);
+    	    	int nfds = theApp.m_Str2Data.String2Int(strf);
+	        	int nchan = theApp.m_Str2Data.String2Int(strc);
+    		for(int j=0; j<65; j++)
+			{
+		    	if(m_ADCbreakE[nfds][nchan][j].bFSd ==0)
+		       		break;
+    	    	int cfds = m_ADCbreakE[nfds][nchan][j].bFSd;
+	        	int cchan = m_ADCbreakE[nfds][nchan][j].bchanel;
+          		for(int k=0; k<65; k++)
+				{
+	    	     	if(m_CFeed[cfds][cchan][k].bFSd ==0)
+		         		break;
+    	            int ffds = m_CFeed[cfds][cchan][k].bFSd;
+	             	int fchan = m_CFeed[cfds][cchan][k].bchanel;
+					if(m_ABFlist[ffds][fchan].fchan == 1)
+					{
+						nItemCount = 7;
+	    	       		break;
+					}
+				}
+				if(nItemCount == 7)
+	    	       		break;
+			}//int j=0; j<65; j++)
+			if(nItemCount == 0)
+			{
+	        		iter = m_cpstr.erase(iter);
+					m_ABFlist[nfds][nchan].fchan =0;
+					B_change = TRUE;
+			}
+	    	else
+			    	iter++;
+
+		}//i=m_cpstr.size()-1; i>=0; i--)
+	}//if(abfnum == 5)
+
+	if(B_change)
+		BuildList(abfnum);
+    UpList( abfnum);
+}
+
+void CResourceViewPane::BuildList(int abfnum)
+{
+    m_listCtrl.DeleteAllItems();
+    int nItemCount= 0;
+	for(int i=m_cpstr.size()-1; i>=0; i--)
+	{
+            	CString  strf,strc,dddd,d4;
+				dddd = m_cpstr[i];
+           		strf = dddd.Mid(0,2);
+        		strc = dddd.Mid(3);
+    	    	int nfds = theApp.m_Str2Data.String2Int(strf);
+	        	int nchan = theApp.m_Str2Data.String2Int(strc);
+		for(int j=0; j<65; j++)
+		{
+			if(m_ADCbreakE[nfds][nchan][j].bFSd ==0)
+				break;
+    	    	int cfds = m_ADCbreakE[nfds][nchan][j].bFSd;
+	        	int cchan = m_ADCbreakE[nfds][nchan][j].bchanel;
+    		for(int k=0; k<65; k++)
+			{
+		     	if(m_CFeed[cfds][cchan][k].bFSd ==0)
+		     		break;
+    	m_listCtrl.InsertItem(nItemCount, m_SlaveStation[nfds][nchan].WatchName+"|"+m_SlaveStation[nfds][nchan].strPN, 0);
+        m_listCtrl.SetRowColor(nItemCount, RGB(255,0,0), RGB(255,255,255));
+		       	nItemCount++;
+			}
+			if(k == 0)
+			{
+    	m_listCtrl.InsertItem(nItemCount, m_SlaveStation[nfds][nchan].WatchName+"|"+m_SlaveStation[nfds][nchan].strPN, 0);
+        m_listCtrl.SetRowColor(nItemCount, RGB(255,0,0), RGB(255,255,255));
+    			nItemCount++;
 			}
 		}
+			if(j == 0)
+			{
+    	m_listCtrl.InsertItem(nItemCount, m_SlaveStation[nfds][nchan].WatchName+"|"+m_SlaveStation[nfds][nchan].strPN, 0);
+        m_listCtrl.SetRowColor(nItemCount, RGB(255,0,0), RGB(255,255,255));
+    			nItemCount++;
+			}
 	}
-	else
-	{
-		for(int i= 0 ;i<64 ; i++)
-		{
-     		m_listnum = m_DCHlist[afds][achan][i].SFSd ;
-			 if(m_listnum == 500)
-				 break;
-			int ffds = m_DCHlist[afds][achan][i].ffds;
-	       		 int fchan = m_DCHlist[afds][achan][i].fchan;
-//				 if(ffds != 0)
-				 {
-               		m_listCtrl.SetItemText(m_listnum, 0,  m_SlaveStation[afds][achan].WatchName);
-				if((ufData1 == 0x70) ||(ufData1 == 0x80))
-         	        m_listCtrl.SetItemText(m_listnum, 1, strtemp2 );
-				else
-      	            m_listCtrl.SetItemText(m_listnum, 1, strtemp1 );
-              	    m_listCtrl.SetItemText(m_listnum, 2, strtemp );
-				if(ffds == 0)
-	    			 break;
-              		m_listCtrl.SetItemText(m_listnum, 3, m_SlaveStation[ffds][fchan].WatchName);
-//    				  COleDateTime oleDT=m_SlaveStation[ffds][fchan].ValueTime;
-//                      strfeed = oleDT.Format(_T("%Y-%m-%d %H:%M:%S")); 
-			       	  strfeed = m_SlaveStation[ffds][fchan].FeedState+"|"+strtemp;
-            		  m_listCtrl.SetItemText(m_listnum, 4,  strfeed);
-				 }
-		}
-	}
+	B_change = FALSE;
 }
+
+void CResourceViewPane::UpList(int abfnum)
+{
+	int nItemCount= 0;
+	for(int i=m_cpstr.size()-1; i>=0; i--)
+	{
+            	CString  strf,strc,dddd,d4;
+				dddd = m_cpstr[i];
+           		strf = dddd.Mid(0,2);
+        		strc = dddd.Mid(3);
+    	    	int nfds = theApp.m_Str2Data.String2Int(strf);
+	        	int nchan = theApp.m_Str2Data.String2Int(strc);
+
+	CString strtempA,strtempv,strtemp2,strtempB,strtempS,strtempN;
+	strtemp2="";
+	unsigned char	nstatus = m_SlaveStation[nfds][nchan].Channel_state;
+				  COleDateTime oleDateTime=m_ADMainDis[nfds][nchan].ATime ;
+	strtempA = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+	oleDateTime=m_ADMainDis[nfds][nchan].BTime ;
+	strtempB = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+	if(oleDateTime.GetYear() == 1900)
+		strtempB ="";
+	oleDateTime=m_ADMainDis[nfds][nchan].NTime ;
+	strtempN = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+	if(oleDateTime.GetYear() == 1900)
+		strtempN ="";
+	  oleDateTime=m_SlaveStation[nfds][nchan].ValueTime;
+	strtempS = oleDateTime.Format(_T("%Y-%m-%d %H:%M:%S")); 
+
+	int	ufData6 = m_SlaveStation[nfds][nchan].ptype;
+	     			  if( ufData6<3)
+					  {
+						  if(m_SlaveStation[nfds][nchan].AValue > m_SlaveStation[nfds][nchan].m_RangeH)
+						  {}
+				    	  else
+						  {
+							  if(ufData6 == 2)
+            					  strtempv.Format("%.0f",m_SlaveStation[nfds][nchan].AValue);
+							  else
+    	     			    	  strtempv.Format("%.2f",m_SlaveStation[nfds][nchan].AValue);
+							  strtempv += m_SlaveStation[nfds][nchan].m_Unit;
+						  }
+					  }
+			    	  else
+					  {
+				    	  int nstatus1 = m_SlaveStation[nfds][nchan].CValue;
+					     if(nstatus1 == 0)
+						  strtempv= m_SlaveStation[nfds][nchan].ZeroState;
+					     else if(nstatus1 == 1)
+						  strtempv= m_SlaveStation[nfds][nchan].OneState;
+				     	  else if(nstatus1 == 2)
+						  strtempv= m_SlaveStation[nfds][nchan].TwoState;
+					  }
+					  if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x80)||(nstatus == 0x70)||(nstatus == 0x90)|| (nstatus == 0xa0) || (nstatus == 0xa1))
+				    		  strtempv= theApp.m_RTDM.strstatus(nstatus);
+
+		for(int j=0; j<65; j++)
+		{
+			if(m_ADCbreakE[nfds][nchan][j].bFSd ==0)
+				break;
+    	    	int cfds = m_ADCbreakE[nfds][nchan][j].bFSd;
+	        	int cchan = m_ADCbreakE[nfds][nchan][j].bchanel;
+    		for(int k=0; k<65; k++)
+			{
+		     	if(m_CFeed[cfds][cchan][k].bFSd ==0)
+		     		break;
+    	        int ffds = m_CFeed[cfds][cchan][k].bFSd;
+	        	int fchan = m_CFeed[cfds][cchan][k].bchanel;
+				if(abfnum == 1)//aa
+				{
+                	m_listCtrl.SetItemText(nItemCount, 1, strtempv);
+                	m_listCtrl.SetItemText(nItemCount, 2, strtempA);
+                	m_listCtrl.SetItemText(nItemCount, 3, strtempB);
+                	m_listCtrl.SetItemText(nItemCount, 4, strtempN);
+                	m_listCtrl.SetItemText(nItemCount, 5, m_SlaveStation[ffds][fchan].strPN+"|"+m_SlaveStation[ffds][fchan].FeedState+"|"+m_ADMainDis[ffds][fchan].RTime.Format(_T("%Y-%m-%d %H:%M:%S")));
+		    		if(m_SlaveStation[nfds][nchan].strSafe !="")
+		    			strtemp2 =m_SlaveStation[nfds][nchan].strSafe+"|"+m_ADMainDis[nfds][nchan].AMaxTime.Format(_T("%Y-%m-%d %H:%M:%S"));
+                 	m_listCtrl.SetItemText(nItemCount, 6, strtemp2);
+				}
+				else if(abfnum == 2)//ab
+				{
+                	m_listCtrl.SetItemText(nItemCount, 1, strtempv);
+                	m_listCtrl.SetItemText(nItemCount, 2, strtempB);
+                	m_listCtrl.SetItemText(nItemCount, 3, m_SlaveStation[nfds][nchan].strBS);
+                	m_listCtrl.SetItemText(nItemCount, 4, m_SlaveStation[ffds][fchan].strPN+"|"+m_SlaveStation[ffds][fchan].FeedState+"|"+m_ADMainDis[ffds][fchan].RTime.Format(_T("%Y-%m-%d %H:%M:%S")));
+		    		if(m_SlaveStation[nfds][nchan].strSafe !="")
+		    			strtemp2 =m_SlaveStation[nfds][nchan].strSafe+"|"+m_ADMainDis[nfds][nchan].AMaxTime.Format(_T("%Y-%m-%d %H:%M:%S"));
+                 	m_listCtrl.SetItemText(nItemCount, 5, strtemp2);
+				}
+				else if(abfnum == 3 || abfnum == 4 || abfnum == 5)//af dab  df
+				{
+                    	m_listCtrl.SetItemText(nItemCount, 1, strtempv);
+                    	m_listCtrl.SetItemText(nItemCount, 2, strtempA);
+                	m_listCtrl.SetItemText(nItemCount, 3, strtempB);
+                	m_listCtrl.SetItemText(nItemCount, 4, m_SlaveStation[nfds][nchan].strBS);
+                	m_listCtrl.SetItemText(nItemCount, 5, m_SlaveStation[ffds][fchan].strPN+"|"+m_SlaveStation[ffds][fchan].FeedState+"|"+m_ADMainDis[ffds][fchan].RTime.Format(_T("%Y-%m-%d %H:%M:%S")));
+		        		if(m_SlaveStation[nfds][nchan].strSafe !="")
+		        			strtemp2 =m_SlaveStation[nfds][nchan].strSafe+"|"+m_ADMainDis[nfds][nchan].AMaxTime.Format(_T("%Y-%m-%d %H:%M:%S"));
+                    	m_listCtrl.SetItemText(nItemCount, 6, strtemp2);
+				}
+		       	nItemCount++;
+			}//for(int k=0; k<65; k++)
+			if(k == 0)
+			{
+				if(abfnum == 1)//aa
+				{
+                	m_listCtrl.SetItemText(nItemCount, 1, strtempv);
+                	m_listCtrl.SetItemText(nItemCount, 2, strtempA);
+                 	m_listCtrl.SetItemText(nItemCount, 3, strtempB);
+                 	m_listCtrl.SetItemText(nItemCount, 4, strtempN);
+                 	m_listCtrl.SetItemText(nItemCount, 5, "");
+		    		if(m_SlaveStation[nfds][nchan].strSafe !="")
+	    				strtemp2 =m_SlaveStation[nfds][nchan].strSafe+"|"+m_ADMainDis[nfds][nchan].AMaxTime.Format(_T("%Y-%m-%d %H:%M:%S"));
+                	m_listCtrl.SetItemText(nItemCount, 6, strtemp2);
+				}
+				else if(abfnum == 2)//ab
+				{
+                	m_listCtrl.SetItemText(nItemCount, 1, strtempv);
+                	m_listCtrl.SetItemText(nItemCount, 2, strtempB);
+                	m_listCtrl.SetItemText(nItemCount, 3, m_SlaveStation[nfds][nchan].strBS);
+                	m_listCtrl.SetItemText(nItemCount, 4, "");
+		    		if(m_SlaveStation[nfds][nchan].strSafe !="")
+		    			strtemp2 =m_SlaveStation[nfds][nchan].strSafe+"|"+m_ADMainDis[nfds][nchan].AMaxTime.Format(_T("%Y-%m-%d %H:%M:%S"));
+                 	m_listCtrl.SetItemText(nItemCount, 5, strtemp2);
+				}
+				else if(abfnum == 4)// dab
+				{
+                    	m_listCtrl.SetItemText(nItemCount, 1, strtempv);
+                    	m_listCtrl.SetItemText(nItemCount, 2, strtempA);
+                	m_listCtrl.SetItemText(nItemCount, 3, strtempB);
+                	m_listCtrl.SetItemText(nItemCount, 4, m_SlaveStation[nfds][nchan].strBS);
+                	m_listCtrl.SetItemText(nItemCount, 5, "");
+		        		if(m_SlaveStation[nfds][nchan].strSafe !="")
+		        			strtemp2 =m_SlaveStation[nfds][nchan].strSafe+"|"+m_ADMainDis[nfds][nchan].AMaxTime.Format(_T("%Y-%m-%d %H:%M:%S"));
+                    	m_listCtrl.SetItemText(nItemCount, 6, strtemp2);
+				}
+    			nItemCount++;
+			}
+		}//for(int j=0; j<65; j++)
+			if(j == 0)
+			{
+				if(abfnum == 1)//aa
+				{
+                 	m_listCtrl.SetItemText(nItemCount, 1, strtempv);
+                	m_listCtrl.SetItemText(nItemCount, 2, strtempA);
+                	m_listCtrl.SetItemText(nItemCount, 3, strtempB);
+                	m_listCtrl.SetItemText(nItemCount, 4, strtempN);
+                	m_listCtrl.SetItemText(nItemCount, 5, "");
+    				if(m_SlaveStation[nfds][nchan].strSafe !="")
+	    				strtemp2 =m_SlaveStation[nfds][nchan].strSafe+"|"+m_ADMainDis[nfds][nchan].AMaxTime.Format(_T("%Y-%m-%d %H:%M:%S"));
+                	m_listCtrl.SetItemText(nItemCount, 6, strtemp2);
+				}
+				else if(abfnum == 2)//ab
+				{
+                	m_listCtrl.SetItemText(nItemCount, 1, strtempv);
+                	m_listCtrl.SetItemText(nItemCount, 2, strtempB);
+                	m_listCtrl.SetItemText(nItemCount, 3, m_SlaveStation[nfds][nchan].strBS);
+                	m_listCtrl.SetItemText(nItemCount, 4, "");
+		    		if(m_SlaveStation[nfds][nchan].strSafe !="")
+		    			strtemp2 =m_SlaveStation[nfds][nchan].strSafe+"|"+m_ADMainDis[nfds][nchan].AMaxTime.Format(_T("%Y-%m-%d %H:%M:%S"));
+                 	m_listCtrl.SetItemText(nItemCount, 5, strtemp2);
+				}
+				else if(abfnum == 4)// dab
+				{
+                    	m_listCtrl.SetItemText(nItemCount, 1, strtempv);
+                    	m_listCtrl.SetItemText(nItemCount, 2, strtempA);
+                	m_listCtrl.SetItemText(nItemCount, 3, strtempB);
+                	m_listCtrl.SetItemText(nItemCount, 4, m_SlaveStation[nfds][nchan].strBS);
+                	m_listCtrl.SetItemText(nItemCount, 5, "");
+		        		if(m_SlaveStation[nfds][nchan].strSafe !="")
+		        			strtemp2 =m_SlaveStation[nfds][nchan].strSafe+"|"+m_ADMainDis[nfds][nchan].AMaxTime.Format(_T("%Y-%m-%d %H:%M:%S"));
+                    	m_listCtrl.SetItemText(nItemCount, 6, strtemp2);
+				}
+       			nItemCount++;
+			}
+	}//for(int i=m_cpstr.size()-1; i>=0; i--)
+}
+
+

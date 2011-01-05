@@ -494,7 +494,7 @@ void CAccountDlg::OnBnClickedOk()
 {
   try
   {
-	 CString strItem;
+	 CString strItem,strab;     strab=strItem ="";
    	if(m_ADTypeTable[1].TableName ==  strtable)  //开关量
     {
 			COleDateTime CTime;
@@ -524,11 +524,14 @@ void CAccountDlg::OnBnClickedOk()
 		  int D6 = m_ComBoxD6.GetCurSel();
 		  if((D5==0)&&(D6==0))  //不报警
 		  {
+			  strab ="不报警,不断电";
     		  m_pAccountSet->m_szpalms = 0;
     		  m_pAccountSet->m_szfalm = "";  //报警音乐
 		  }
 		  else if(D6 ==0)
-		  {   
+		  {
+			  if(D5 == 1)              strab ="0态报警";
+			  else if(D5 == 2)         strab ="1态报警";
     		  m_pAccountSet->m_szpalms = D5;
     		  m_pAccountSet->m_szfalm = str7;  //报警音乐
     		  if(str7 == "")
@@ -539,6 +542,8 @@ void CAccountDlg::OnBnClickedOk()
 		  }
 		  else if(D5 ==0)
 		  {   
+			  if(D6 == 1)              strab ="0态断电";
+			  else if(D6 == 2)         strab ="1态断电";
     		  m_pAccountSet->m_szpalms = D6 +2;
     		  m_pAccountSet->m_szfalm = str7;
     		  if(str7 == "")
@@ -548,7 +553,13 @@ void CAccountDlg::OnBnClickedOk()
 			  }
 		  }
           if(m_ComBoxD.GetCurSel() == 2)//控制量
-    		  m_pAccountSet->m_szpalms = 5 + m_ComBoxD9.GetCurSel();
+		  {
+			  int D9 = m_ComBoxD9.GetCurSel();
+			  if(D9 == 0)              strab ="常开";
+			  else if(D9 == 1)         strab ="常闭";
+			  else if(D9 == 2)         strab ="电平";
+    		  m_pAccountSet->m_szpalms = 5 + D9;
+		  }
 
 		  if(m_ComBoxD.GetCurSel() == 3)//三态
 		  {
@@ -565,7 +576,12 @@ void CAccountDlg::OnBnClickedOk()
 		  m_pAccountSet->m_szptype = m_ComBoxD.GetCurSel();
 		  m_pAccountSet->m_szrecdate = CTime.GetCurrentTime();
 		  m_pAccountSet->m_szUseridadd = theApp.curuser;
-		strItem =str1 +"||" +str2 +"||"+str3 +"||"+str4 +"||"+str7 +"||"+ theApp.curuser;
+		  if((D5==0)&&(D6==0))  //不报警
+		strItem =str1 +" 0态:" +str2 +" 1态:"+str3 +" 2态:"+str4 +" 报警类型、状态:"+strab +"||"+ theApp.curuser;
+		  else
+		strItem =str1 +" 0态:" +str2 +" 1态:"+str3 +" 2态:"+str4 +" 报警类型、状态:"+strab+" 报警音乐:"+str7 +"||"+ theApp.curuser;
+          if(m_ComBoxD.GetCurSel() == 2)//控制量
+		strItem =str1 +" 0态:" +str2 +" 1态:"+str3 +" 2态:"+str4 +" 控制量类型:"+strab +"||"+ theApp.curuser;
 
 			if ( !m_bEditMode )
 			{
@@ -622,16 +638,28 @@ void CAccountDlg::OnBnClickedOk()
 		  }
 		  m_pContactSet->m_szName = str1;
 		  m_pContactSet->m_szltop = fstr2;
+		  strab.Format(" 量程高值：%.2f",fstr2);
+		  strItem += strab;
 		  m_pContactSet->m_szlbom = fstr3;
+		  strab.Format(" 量程低值：%.2f",fstr3);
+		  strItem += strab;
 		  m_pContactSet->m_szpalmu = fstr4;
+		  strab.Format(" 报警上限：%.2f",fstr4);
+		  strItem += strab;
 		  m_pContactSet->m_szpalmd = fstr5;
+		  strab.Format(" 报警下限：%.2f",fstr5);
+		  strItem += strab;
 		  m_pContactSet->m_szpbrk = fstr6;
+		  strab.Format(" 断电值：%.2f",fstr6);
+		  strItem += strab;
 		  m_pContactSet->m_szprtn = fstr9;
+		  strab.Format(" 复电值：%.2f",fstr9);
+		  strItem += strab;
 		  m_pContactSet->m_szrecdate = CTime.GetCurrentTime();
 		  m_pContactSet->m_szpunit = str8;
 		  m_pContactSet->m_szfalm = str7;
 		  m_pContactSet->m_szUseridadd = theApp.curuser;
-		strItem =str1 +"||" + theApp.curuser;
+		strItem =str1 +strItem+" 单位：" +str8 +" 报警音乐：" +str7 + "||" +theApp.curuser;
 
 		if ( !m_bEditMode )
 		{
@@ -650,17 +678,34 @@ void CAccountDlg::OnBnClickedOk()
 	else if(m_ADTypeTable[2].TableName ==  strtable)   //安装地点
 	{
     	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
-    	pFWnd->m_pSetHostDlg->SetFocus();
+   		UpdateData(TRUE);           //Exchange dialog data
+		if ( !m_bEditMode )
+         	pFWnd->m_pSetHostDlg->SetFocus();
+        for ( int i = 0; i < theApp.m_Lstr.size(); i++)//安装地点
+		{
+		    	if(str1 == theApp.m_Lstr[i])
+				{
+                AfxMessageBox("安装地点名称已存在，请重新输入！", MB_OK);
+		    	return;
+				}
+		}
+
 //		CWnd* pWnd=GetDlgItem(IDD_DIALOG_HOST_SETTING);
 		if ( !m_bEditMode )
 		{
     		  pFWnd->m_pSetHostDlg->m_MAlocation.m_szlocationID = acdid;
     		  pFWnd->m_pSetHostDlg->m_MAlocation.AddNew();
 //    		  m_pMAlocation->AddNew();  //Add a new, blank record
+    		  pFWnd->m_pSetHostDlg->m_MAlocation.m_szName = str1;
+       		pFWnd->m_pSetHostDlg->m_MAlocation.Update();    //Update the recordset
+    		acdid++;
 		}
-		UpdateData(TRUE);           //Exchange dialog data
-		  pFWnd->m_pSetHostDlg->m_MAlocation.m_szName = str1;
-		pFWnd->m_pSetHostDlg->m_MAlocation.Update();    //Update the recordset
+		else
+		{
+    		  m_pMAlocation->m_szName = acdid;
+    		  m_pMAlocation->m_szName = str1;
+       		  m_pMAlocation->Update();    //Update the recordset
+		}
 				  strItem =str1 +"||" + theApp.curuser;
 
 		//If this is a new record, requery the database table
@@ -668,11 +713,10 @@ void CAccountDlg::OnBnClickedOk()
 		if ( !m_bEditMode )
 		{
     		  pFWnd->m_pSetHostDlg->m_MAlocation.Requery();
-      g_Log.StatusOut("增加安装地点：" + strItem );
+            g_Log.StatusOut("增加安装地点：" + strItem );
 		}
 		else
-      g_Log.StatusOut("修改安装地点：" + strItem );
-		acdid++;
+           g_Log.StatusOut("修改安装地点：" + strItem );
 
 		if (m_bEditMode )
 		{

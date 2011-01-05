@@ -22,7 +22,7 @@ static char THIS_FILE[] = __FILE__;
 
 extern ADMainDis         m_ADMainDis[MAX_FDS][MAX_CHAN];          //调用显示
 extern CommonStr             m_CommonStr[20];
-extern ADCbreakE             m_CFeed[MAX_FDS][9][65];
+extern ADCbreakE             m_CFeed[MAX_FDS][MAX_CHAN][65];
 extern ADCbreakE             m_ADCbreakE[MAX_FDS][MAX_CHAN][65];
 extern SerialF                  m_Colorref[200];
 extern  SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
@@ -125,8 +125,8 @@ void CSampleFormView::OnInitialUpdate()
 {
 	CFormView::OnInitialUpdate();
 
-//	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
-//   	pFWnd->m_pSampleFormView=this;
+	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+   	pFWnd->m_pSampleFormView=this;
 
 	if (!CreateImageList(m_SampleFormImageList, IDB_CLASSTREE))
 		return ;
@@ -413,6 +413,8 @@ void CSampleFormView::SetMonitorListHead()
 //dwStyle &= ~(LVS_EDITLABELS);
 	 if(m_CommonStr[n_cF].strc[1]== "0")  //不可见
           dwStyle &= ~(WS_VISIBLE);
+	 else if(m_CommonStr[n_cF].strc[1]== "1")  //可见
+          dwStyle |= WS_VISIBLE;
 //dwStyle |=  LVS_EX_SUBITEMIMAGES;
 //设置新风格
      SetWindowLong(m_List1.m_hWnd, GWL_STYLE,dwStyle );
@@ -443,6 +445,8 @@ void CSampleFormView::SetMonitorListHead()
      dwStyle = ::GetWindowLong(m_List2.m_hWnd, GWL_STYLE);
 	 if(m_CommonStr[n_cF].strc[31]== "0")//不可见
           dwStyle &= ~(WS_VISIBLE);
+	 else if(m_CommonStr[n_cF].strc[31]== "1")  //可见
+          dwStyle |= WS_VISIBLE;
      SetWindowLong(m_List2.m_hWnd, GWL_STYLE,dwStyle );
 
 	n_cur = m_Str2Data.String2Int(m_CommonStr[n_cF].strc[63]);
@@ -464,6 +468,8 @@ void CSampleFormView::SetMonitorListHead()
      dwStyle = ::GetWindowLong(m_List3.m_hWnd, GWL_STYLE);
 	 if(m_CommonStr[n_cF].strc[61]== "0")
           dwStyle &= ~(WS_VISIBLE);
+	 else if(m_CommonStr[n_cF].strc[61]== "1")  //可见
+          dwStyle |= WS_VISIBLE;
      SetWindowLong(m_List3.m_hWnd, GWL_STYLE,dwStyle );
 
 //	n_cur = m_Str2Data.String2Int(m_CommonStr[n_cF].strc[2]);
@@ -1035,7 +1041,7 @@ void CSampleFormView::Openadjust()
          	m_SlaveStation[ffds][fchan].Adjust_state =1;
 		}
 	}
-	theApp.InitDisplay();
+	theApp.m_RTDM.InitDisplay();
 
 	strItem += "标校";
 //	m_DisplayPoint[ilistaj][m_Itemnum].CPpointnum =strItem;
@@ -1087,7 +1093,7 @@ void CSampleFormView::Deladjust()
          	m_SlaveStation[ffds][fchan].Adjust_state =0;
 		}
 	}
-	theApp.InitDisplay();
+	theApp.m_RTDM.InitDisplay();
 	strItem = strItem.Mid(0,5);
 //	m_DisplayPoint[ilistaj][m_Itemnum].CPpointnum =strItem;
 /*    	if(nlistaj == 3)
@@ -1177,8 +1183,6 @@ void CSampleFormView::BuildList(int nlist ,int ilist)
 void CSampleFormView::BuildLEXT(int nlist ,int nfds,int nchan,int i) 
 {
     	CString  strf;
-		int nItemCount;
-
 		int k=3;
        	for (int j = 3; j < 19; j++)
 		{
@@ -1285,8 +1289,8 @@ void CSampleFormView::DisList(int nlist ,int ilist)
 				     	  else if(nstatus1 == 2)
 						  dddd= m_SlaveStation[nfds][nchan].TwoState;
 					  }
-					  if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x80)||(nstatus == 0x70)||(nstatus == 0x90)|| (nstatus == 0xa0))
-				    		  dddd= socketClient.strstatus(nstatus);
+					  if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x80)||(nstatus == 0x70)||(nstatus == 0x90)|| (nstatus == 0xa0) || (nstatus == 0xa1))
+				    		  dddd= theApp.m_RTDM.strstatus(nstatus);
 //							  if(m_SlaveStation[nfds][nchan].AValue<666660)
             		if(nlist == 1)
     	     	      	  m_List1.SetItemText(i, 1, dddd);
@@ -1455,7 +1459,7 @@ void CSampleFormView::OnDRAWS()
     		strpo = pString.Mid(m_ishave-3,3);
 	if(strpo != "rsf")
 	    pString += ".rsf";
-	CFormDraw dlg;
+	CFormDraw dlg;//改名
 	dlg.m_dorf=2;
 	dlg.m_result = pString;
 	dlg.DoModal();

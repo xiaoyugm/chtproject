@@ -64,6 +64,7 @@
 #ifndef _AFX_NO_AFXCMN_SUPPORT
 #include <afxcmn.h>         // MFC support for Windows Common Controls
 #endif // _AFX_NO_AFXCMN_SUPPORT
+#include <afxctl.h>
 
 
 // Lets help compiler to skip some headers
@@ -120,7 +121,7 @@ using namespace Gdiplus;
 #include <list>
 #include <vector>
 #include <algorithm>
-using namespace std;
+//using namespace std;
 
 #include "CGridListCtrlEx\CGridColumnManagerProfile.h"
 #include "CGridListCtrlEx\CGridColumnTraitDateTime.h"
@@ -138,12 +139,20 @@ using namespace std;
 #include "msado15.tlh"
 //#pragma warning(default:4146)
 //using namespace ADOCust;
+//#include "ado2.h"
 
 #pragma warning (disable : 4201)
 	#include "mmsystem.h"
 	#pragma comment(lib,"winmm.lib") 
 	#pragma message("Automatically linking with winmm.lib")
 #pragma warning (default : 4201)
+
+//extern CAppModule _Module;
+//#include <atlbase.h>
+//#include <atlstr.h>
+//#include <atlapp.h>
+//#include <atlwin.h>
+
 /*
 struct CCharFormat : public WPD_CHARFORMAT
 {

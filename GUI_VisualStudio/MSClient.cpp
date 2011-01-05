@@ -2,11 +2,13 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+
 #include "stdafx.h"
 #include "GUI_VisualStudio.h"
 #include "MSClient.h"
 
 #include "MainFrm.h"
+
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -20,10 +22,7 @@ static char THIS_FILE[]=__FILE__;
 
 CMSClient::CMSClient()
 {
-//		m_ndkSend=NULL;
 //	ConnectDB();
-//	m_nodialog = true;
-	m_adjustnum = 0;
 }
 
 CMSClient::~CMSClient()
@@ -84,55 +83,6 @@ void CMSClient::OnDisconnect(NDKClientDisconnection disconnectionType)
 //连接数据库
 void CMSClient::ConnectDB()
 {
-/*    CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
-                          User ID=sa;Password=sunset;\
-                          Data Source=") +m_OthersSetting.DBname+ _T(";Initial Catalog=BJygjl");
-//All calls to the AxLib should be wrapped in a try / catch block
-  try
-  {
-    dbAx::Init();
-    m_Cn.Create();
-//    m_Cn._SetConnectionEvents(new CCardFileEvents);
-    m_Cn.CursorLocation(adUseClient);
-    m_Cn.Open((LPCTSTR)szConnect);
-
-		m_Adjustdata.Create();
-		m_Adjustdata.CursorType(adOpenDynamic);
-		m_Adjustdata.CacheSize(50);
-//		m_Adjustdata._SetRecordsetEvents(new CAccountSetEvents);
-		m_Adjustdata.Open("Select * From rtadjustdata" , &m_Cn);
-		m_Adjustdata.MarshalOptions(adMarshalModifiedOnly);
-	    m_AdjustdataNew = &m_Adjustdata;
-
-		CTime t=CTime::GetCurrentTime();
-		CString sztime;
-		sztime.Format("%d",t.GetYear());
-		szConnect = "Select * From rt";
-		szConnect += sztime;
-		int m_mon = t.GetMonth();
-		if(m_mon>9)
-     		sztime.Format("%d",m_mon);
-		else
-     		sztime.Format("0%d",m_mon);
-		szConnect += sztime;
-		szConnect += "data";
-
-		m_Realtimedata.Create();
-		m_Realtimedata.CursorType(adOpenDynamic);
-		m_Realtimedata.CacheSize(50);
-		m_Realtimedata.Open(szConnect , &m_Cn);
-		m_Realtimedata.MarshalOptions(adMarshalModifiedOnly);
-	    m_RealtimedataNew = &m_Realtimedata;
-
-//	    m_ndkRTD = new unsigned char[6];
-  }
-  catch ( dbAx::CAxException *e )
-  {
-		AfxMessageBox(e->m_szErrorDesc +  _T("BJygjl Message"));
-//    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-    return ;
-  }*/
 
 }
 
@@ -162,20 +112,6 @@ void CMSClient::Close()
   {
 /*    if ( m_AccountSet._IsOpen() )
       m_AccountSet.Close();
-    if ( m_ContactSet._IsOpen() )
-      m_ContactSet.Close();
-    if ( m_MAlocation._IsOpen() )
-      m_MAlocation.Close();
-    if ( m_PointDes._IsOpen() )
-      m_PointDes.Close();
-    if ( m_Control._IsOpen() )
-      m_Control.Close();
-    if ( m_SControl._IsOpen() )
-      m_SControl.Close();
-//    if ( m_Realtimedata._IsOpen() )
-//      m_Realtimedata.Close();
-//    if ( m_Adjustdata._IsOpen() )
-//      m_Adjustdata.Close();
 
     m_Cn.Close();
     //Cleanup the AxLib library

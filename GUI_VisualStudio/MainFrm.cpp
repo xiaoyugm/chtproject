@@ -1,6 +1,7 @@
 // MainFrm.cpp : implementation of the CMainFrame class
 //
 // This file is a part of the XTREME TOOLKIT PRO MFC class library.
+
 // (c)1998-2009 Codejock Software, All Rights Reserved.
 //
 // THIS SOURCE FILE IS THE PROPERTY OF CODEJOCK SOFTWARE AND IS NOT TO BE
@@ -17,6 +18,7 @@
 // http://www.codejock.com
 //
 /////////////////////////////////////////////////////////////////////////////
+
 
 #include "stdafx.h"
 #include "GUI_VisualStudio.h"
@@ -47,6 +49,80 @@
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
+
+#ifdef ATLASSERT
+// for ATL
+#define THREADASSERT ATLASSERT
+#elif defined ASSERT
+// for MfC
+#define THREADASSERT ASSERT
+#endif	// defined ATLASSERT
+
+#ifndef THREADASSERT
+#define THREADASSERT
+#endif
+
+#ifndef _ATL_MIN_CRT
+#define THREADPOOL_USE_CRT
+#endif
+
+LONG CThreadObject::s_lNext = 0;
+LONG CThreadObject::s_lCount = 0;
+
+CThreadObject::CThreadObject(HWND hWnd, int nRuns) : m_hWndNotify(hWnd), m_nRuns(nRuns)
+{
+	m_n = InterlockedIncrement(&s_lNext);
+	InterlockedIncrement(&s_lCount);
+	if (::IsWindow(m_hWndNotify))
+		PostMessage(m_hWndNotify, WMX_OBJECT_ADDED, NULL, (LPARAM)m_n);
+}
+
+void CThreadObject::Run(CThreadPoolThreadCallback &pool)
+{
+	if (::IsWindow(m_hWndNotify))
+		PostMessage(m_hWndNotify, WMX_OBJECT_START, (WPARAM)GetCurrentThreadId(), (LPARAM)m_n);
+//	Sleep(1000);
+//	for (int n = 0; n < m_nRuns; n++)
+	{
+		if (!pool.CanContinue())
+			return;
+		if(m_nRuns ==1)
+        	theApp.InitRTData(); //读取当天数据
+		else if(m_nRuns ==2)
+		{
+        	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+			pFWnd->m_pDCH5m->DCH5mInitList();
+		}
+		else if(m_nRuns ==3)//清空报表
+		{
+//        	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+//			pFWnd->OnOpenR();
+		}
+		else if(m_nRuns ==4)//查询报表
+		{
+        	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+			pFWnd->OnOpenR();
+		}
+		else if(m_nRuns ==5)//查询报表
+		{
+        	CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+			pFWnd->m_MadeCert->OnTAuto();
+		}
+//		if (::IsWindow(m_hWndNotify))
+//			PostMessage(m_hWndNotify, WMX_OBJECT_PROGRESS, (WPARAM)MAKELONG(n,m_nRuns), (LPARAM)m_n);
+//		Sleep(500);
+	}
+//	if (::IsWindow(m_hWndNotify))
+//		PostMessage(m_hWndNotify, WMX_OBJECT_DONE, NULL, (LPARAM)m_n);
+}
+
+void CThreadObject::Done()
+{
+	InterlockedDecrement(&s_lCount);
+	if (::IsWindow(m_hWndNotify))
+		PostMessage(m_hWndNotify, WMX_OBJECT_REMOVED, NULL, (LPARAM)m_n);
+	delete this;
+}
 
 /*
 #define ID_COMMAND_0                    2000
@@ -81,10 +157,21 @@ static char THIS_FILE[] = __FILE__;
 #define ID_COMMAND_29                    2029
 */
 
+CString strRTData1[6000];
+CString strRTData2[6000];
+extern SerialF               m_SerialF[MAX_FDS];
+extern BYTE     m_ndkSend[MAX_FDS][44];//44BUFFER_SIZE
 extern SlaveStation             m_SlaveStation[MAX_FDS][MAX_CHAN];
-//SerialF               m_one[MAX_FDS][MAX_CHAN];
 /////////////////////////////////////////////////////////////////////////////
 // CMainFrame
+static UINT RTDATAThread(void*);
+
+enum
+{
+	UIREFRESH = 100,
+	CALRTDATA = 200,
+	ABFREFRESH = 300
+};
 
 IMPLEMENT_DYNAMIC(CMainFrame, CMDIFrameWnd)
 
@@ -98,7 +185,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND_RANGE(2000,2050,OnFileMenuItems)
 //	ON_WM_LBUTTONDOWN()	// OnLButtonDown(UINT nFlags, CPoint point)
 	ON_COMMAND(ID_OnSimulation, OnSimulation)
-	ON_COMMAND(ID_OnGenus, OnGenus)
+//	ON_COMMAND(ID_OnGenus, OnGenus)
 
 	ON_COMMAND(ID_MANIPULATE, OnSoundPath)
 	ON_UPDATE_COMMAND_UI(ID_MANIPULATE, OnUpdateOnSoundPath)
@@ -147,6 +234,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_DIS_DSC, OnDisDSC)
 	ON_COMMAND(ID_OPTXT, OnOPTXT)
 	ON_COMMAND(ID_WORKTXT, OnWORKTXT)
+	ON_COMMAND(ID_OnGenus, OnDebugInfo)
+	ON_COMMAND(ID_DEMO_TEST, OnTest)
+	ON_COMMAND(ID_DEMO_TEST1, OnTest1)
 
 		//记录查询显示
 	ON_COMMAND(ID_REC_AAD, OnRECAAD)
@@ -181,7 +271,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_DRAW_CA, OnCAALARM)
 	ON_COMMAND(ID_DRAW_CB, OnCABREAK)
 	ON_COMMAND(ID_DRAW_CFE, OnCAFEED)
-	ON_COMMAND(ID_ECURVE, OnCASelect)
+	ON_COMMAND(ID_ECURVE, OnCurveADP)
 	ON_COMMAND(ID_EDRAW, OnEDRAW) //模拟图编辑
 
 	ON_COMMAND(ID_MADE_MADE, OnMadeMade)
@@ -246,6 +336,15 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_CONTEXT_HELP, CXTPMDIFrameWnd::OnContextHelp)
 	ON_COMMAND(ID_DEFAULT_HELP, CXTPMDIFrameWnd::OnHelpFinder)
 
+	ON_MESSAGE(WM_RTDATA_THREAD_MESSAGE, OnThreadMessage)
+//	ON_MESSAGE(WM_RTDATA_THREAD_MESSAGE, On1000ThreadMessage)
+
+		ON_MESSAGE(WMX_OBJECT_ADDED, OnObjectAdded)
+		ON_MESSAGE(WMX_OBJECT_START, OnObjectStart)
+		ON_MESSAGE(WMX_OBJECT_PROGRESS, OnObjectProgress)
+		ON_MESSAGE(WMX_OBJECT_DONE, OnObjectDone)
+		ON_MESSAGE(WMX_OBJECT_REMOVED, OnObjectRemoved)
+
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -269,7 +368,10 @@ CMainFrame::CMainFrame()
 	m_bFullScreen = FALSE;
 	m_bSoundPath = TRUE;
 	m_m300 =0;
+	n_m60 =1;
 	m_bIsDraw =  TRUE;
+	n_timer60=0;
+	n_derr60=0;
 
 	// get path of executable
 	TCHAR szBuff[_MAX_PATH];
@@ -286,7 +388,7 @@ CMainFrame::CMainFrame()
 	m_nTheme = ID_THEME_VC9;
 //	m_nOtherView = ID_VIEW_CLASSVIEW;
 
-	m_pMade=NULL;
+//	m_pMade=NULL;
 //	m_pMenu=NULL;
 //	m_pMenuCommandSet=	new MenuCommandSet();
 
@@ -294,12 +396,26 @@ CMainFrame::CMainFrame()
 	XTPSkinManager()->GetResourceFile()->SetModuleHandle(AfxGetInstanceHandle());
 #endif
 
-//	m_pSampleFormView = NULL;
+	m_MadeCert = NULL;
+	m_pSampleFormView = NULL;
+	m_pDCH5m = NULL;
 //	m_ontime =0;
 	m_nPaneID =1;
 	m_RepeatFlag = FALSE;
 	m_ViewPos = NULL;
 	s_ViewPos = NULL;
+	m_pSetTimeDlg  = NULL;
+
+	m_nTimerID = 0;
+	m_pTimerThread = NULL;
+	m_ThreadParam.nTime = 0;
+	m_ThreadParam.hTimerEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	m_ThreadParam.hExitEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	for(int i=0; i<6000 ;i++)
+	{
+		strRTData1[i]="";
+		strRTData2[i]="";
+	}
 }
 
 CMainFrame::~CMainFrame()
@@ -352,7 +468,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("Failed to create toolbar\n");
 		return -1;
 	}
-	pCommandBart->SetVisible(FALSE);
+	if(strmes == "On")
+    	pCommandBart->SetVisible(FALSE);//
+	else
+    	pCommandBart->SetVisible(TRUE);//FALSE
 
 	/*	CXTPToolBar* pWebBar = (CXTPToolBar*)pCommandBars->Add(_T("Web"), xtpBarTop);Standard
 	if (!pWebBar ||
@@ -422,38 +541,37 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 //			m_paneManager.AttachPane(paneResourceView3,paneResourceView2);
 					if (!m_wndResourceView3.GetSafeHwnd())
 					{
-						theApp.m_resnum = 3;
+						m_wndResourceView3.m_numabf = 3;
 						m_wndResourceView3.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
 					}
 					paneResourceView3->Attach(&m_wndResourceView3);
 					if (!m_wndResourceView2.GetSafeHwnd())
 					{
-						theApp.m_resnum = 2;
+						m_wndResourceView2.m_numabf = 2;
 						m_wndResourceView2.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
 					}
 					paneResourceView2->Attach(&m_wndResourceView2);
 					if (!m_wndResourceView.GetSafeHwnd())
 					{
-						theApp.m_resnum = 1;
+						m_wndResourceView.m_numabf = 1;
 						m_wndResourceView.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
 					}
 					paneResourceView->Attach(&m_wndResourceView);
 
 					if (!m_wndResourceView4.GetSafeHwnd())
 					{
-						theApp.m_resnum = 4;
+						m_wndResourceView4.m_numabf = 4;
 						m_wndResourceView4.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
 					}
 					paneResourceView4->Attach(&m_wndResourceView4);
 					if (!m_wndResourceView5.GetSafeHwnd())
 					{
-						theApp.m_resnum = 5;
+						m_wndResourceView5.m_numabf = 5;
 						m_wndResourceView5.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
 					}
 					paneResourceView5->Attach(&m_wndResourceView5);
 //					if (!m_wndResourceView6.GetSafeHwnd())
 //					{
-//						theApp.m_resnum = 6;
 //						m_wndResourceView6.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
 //					}
 //					paneResourceView6->Attach(&m_wndResourceView6);
@@ -539,10 +657,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     	AddLogo();
 	m_wndStatusBar.SetRibbonDividerIndex(m_wndStatusBar.GetPaneCount() - 1);
 //	AddSwitchButtons();
+	AddProgress();
 	AddEdit();
 	AddUser();
 	AddMessage("");
-//	AddProgress();
 //	AddAnimation();
 //	AddZoomButton();
 //	AddZoomSlider();
@@ -550,6 +668,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	// Load the previous state for command bars.
 	LoadCommandBars(_T("CommandBars"));
+
 
 #ifdef _DEBUG
 #else
@@ -561,9 +680,22 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		OnMadeMade();
 	}
 	else 
-    	SetTimer(120,1000,NULL);
+	{
+	// create the pool with 2 initial threads and a maximum of 10 threads
+    	HRESULT hr = m_ThreadPool.Init(2, 10);
+    	ATLASSERT(S_OK == hr);
+    	if (FAILED(hr))
+		{
+	    	MessageBox(_T("Initializing thread pool failed"), _T("RTThreadPool"), MB_OK|MB_ICONERROR);
+    		return -1;
+		}
+    	m_ThreadPool.Add(new CThreadObject(*this, 1));
 
-
+//		OnDisasysmenu();
+//    	OnDisableMinbox();
+//		OnDisableMaxbox();
+//		OnDisableClose();
+	}
 	return 0;
 }
 
@@ -591,9 +723,11 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 //	CXTPDrawHelpers::RegisterWndClass(AfxGetInstanceHandle(), cs.lpszClass, 
 //		CS_DBLCLKS, AfxGetApp()->LoadIcon(IDR_MAINFRAME));
 	cs.style = WS_OVERLAPPED | WS_CAPTION | FWS_ADDTOTITLE
-		| WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX  ;
+		| WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
 //		| WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_MAXIMIZE ;
-
+//去除最大化、最小化按钮 去掉系统菜单
+	// disable the maxmini box 最大化按钮变灰
+//	cs.style&=~WS_MAXIMIZEBOX;     //
 //	cs.style&=~(LONG)FWS_ADDTOTITLE;     //去掉标题栏前半部分和“—”
 	// Helps to reduce screen flicker.
 //	cs.lpszClass = AfxRegisterWndClass(0, NULL, NULL,
@@ -851,7 +985,6 @@ LRESULT CMainFrame::OnDockingPaneNotify(WPARAM wParam, LPARAM lParam)
 				case ID_VIEW_RESOURCEVIEW:
 					if (!m_wndResourceView.GetSafeHwnd())
 					{
-						theApp.m_resnum = 1;
 						m_wndResourceView.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
 					}
 					pPane->Attach(&m_wndResourceView);
@@ -859,7 +992,6 @@ LRESULT CMainFrame::OnDockingPaneNotify(WPARAM wParam, LPARAM lParam)
 				case ID_VIEW_RESOURCEVIEW2:
 					if (!m_wndResourceView2.GetSafeHwnd())
 					{
-						theApp.m_resnum = 2;
 						m_wndResourceView2.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
 					}
 					pPane->Attach(&m_wndResourceView2);
@@ -867,7 +999,6 @@ LRESULT CMainFrame::OnDockingPaneNotify(WPARAM wParam, LPARAM lParam)
 				case ID_VIEW_RESOURCEVIEW3:
 					if (!m_wndResourceView3.GetSafeHwnd())
 					{
-						theApp.m_resnum = 3;
 						m_wndResourceView3.Create(_T("STATIC"), NULL, WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, CXTPEmptyRect(), this, 0);
 					}
 					pPane->Attach(&m_wndResourceView3);
@@ -1176,14 +1307,13 @@ void CMainFrame::OnUpdateEditPlatform(CCmdUI* pCmdUI)
 
 void CMainFrame::OnClose()
 {
-	CString strmes = theApp.strargc.Mid(0,2);
+//        KillTimer(UIREFRESH);
+//        KillTimer(CALRTDATA);
   CString szMsg;
          szMsg= "你确定要退出吗？";
 
 #ifdef _DEBUG
 #else
-	if(strmes != "On")
-	{
 		 theApp.m_bLogIn = FALSE;
 			CLoginDlg dlglogin;
 			dlglogin.m_strdism = "login";
@@ -1204,8 +1334,11 @@ void CMainFrame::OnClose()
            MessageBeep(MB_ICONEXCLAMATION);
            int Reply = AfxMessageBox(szMsg, MB_YESNO);
            if ( Reply != IDYES )
+		   {
+//             	SetTimer(UIREFRESH,1000,NULL);
+//             	SetTimer(CALRTDATA,20,NULL);
         		return;
-	}
+		   }
 #endif //_DEBUG
 
 
@@ -1232,11 +1365,20 @@ void CMainFrame::OnClose()
 	}*/
 
 //	CommonTools CT;
-	if(strmes == "On")
-	{
-	}
-	else
-	{
+    	m_ThreadPool.Close();//结束线程池pool
+    	//结束定时线程
+    	if (m_pTimerThread != NULL)
+		{
+		//设置退出事件
+    		SetEvent(m_ThreadParam.hExitEvent);
+		//等待定时线程结束
+    		::WaitForSingleObject(m_pTimerThread->m_hThread, INFINITE);
+    		delete m_pTimerThread;
+    		m_pTimerThread = NULL;
+		}	
+    	CloseHandle(m_ThreadParam.hTimerEvent);
+       	CloseHandle(m_ThreadParam.hExitEvent);
+
 		if(theApp.socketClient.IsConnected())
          	theApp.socketClient.Close();
 		if(theApp.sFC.IsConnected())
@@ -1256,7 +1398,7 @@ void CMainFrame::OnClose()
 		}
     	theApp.SocketServer.StopServer();
 //    	theApp.sMSb.StopServer();
-		C_Ts.KillProcess("RSDRAW-YSDB.EXE");
+//		C_Ts.KillProcess("RSDRAW-YSDB.EXE");
 #endif //_DEBUG
 
 //		m_wndResourceView.m_listCtrl.DestroyWindow();
@@ -1271,8 +1413,8 @@ void CMainFrame::OnClose()
 	 paneResourceView3->Close();
 	 paneResourceView2->Close();
 	 paneResourceView->Close();
-	}
-	CMDIFrameWnd::OnClose();
+
+	 CMDIFrameWnd::OnClose();
 }
 
 
@@ -1713,101 +1855,147 @@ void CMainFrame::OnDRIVERE()    //设备故障
 ////列表显示///记录查询显示///////////////
 void CMainFrame::OnRECAAD()  //模拟量报警记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECAAD",5,0x00000001);
+	theApp.strargc = "OnRECAAD";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECAAD",5,0x00000001);
 }
 void CMainFrame::OnRECABD()  //模拟量断电记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECABD",5,0x00000001);
+	theApp.strargc = "OnRECABD";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECABD",5,0x00000001);
 }
 void CMainFrame::OnRECAFED() //模拟量馈电异常记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECAFED",5,0x00000001);
+	theApp.strargc = "OnRECAFED";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECAFED",5,0x00000001);
 }
 void CMainFrame::OnRECASR() //模拟量统计值记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECASR",5,0x00000001);
+	theApp.strargc = "OnRECASR";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECASR",5,0x00000001);
 }
 void CMainFrame::OnRECDABD() //开关量报警记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDABD",5,0x00000001);
+	theApp.strargc = "OnRECDABD";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDABD",5,0x00000001);
 }
 void CMainFrame::OnRECDABB() //开关量断电记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDABB",5,0x00000001);
+	theApp.strargc = "OnRECDABB";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDABB",5,0x00000001);
 }
 void CMainFrame::OnRECDSCD() //开关量状态变动记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDSCD",5,0x00000001);
+	theApp.strargc = "OnRECDSCD";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDSCD",5,0x00000001);
 }
 void CMainFrame::OnRECDFED() //开关量馈电异常记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDFED",5,0x00000001);
+	theApp.strargc = "OnRECDFED";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDFED",5,0x00000001);
 }
 void CMainFrame::OnRECDRIVERE() //设备故障记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDRIVERE",5,0x00000001);
+	theApp.strargc = "OnRECDRIVERE";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnRECDRIVERE",5,0x00000001);
 }
 ///////记录查询显示/////打印////////////
 void CMainFrame::OnEXCELA()  //模拟量记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELA",5,0x00000001);
+	theApp.strargc = "OnEXCELA";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELA",5,0x00000001);
 }
 void CMainFrame::OnEXCELAA()  //模拟量报警记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELAA",5,0x00000001);
+	theApp.strargc = "OnEXCELAA";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELAA",5,0x00000001);
 }
 void CMainFrame::OnEXCELAB()  //模拟量断电记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELAB",5,0x00000001);
+	theApp.strargc = "OnEXCELAB";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELAB",5,0x00000001);
 }
 void CMainFrame::OnEXCELAFE() //模拟量馈电异常记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELAFE",5,0x00000001);
+	theApp.strargc = "OnEXCELAFE";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELAFE",5,0x00000001);
 }
 void CMainFrame::OnEXCELASR() //模拟量统计值记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELASR",5,0x00000001);
+	theApp.strargc = "OnEXCELASR";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELASR",5,0x00000001);
 }
 void CMainFrame::OnEXCELDA() //开关量报警记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDA",5,0x00000001);
+	theApp.strargc = "OnEXCELDA";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDA",5,0x00000001);
 }
 void CMainFrame::OnEXCELDAB() //开关量断电记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDAB",5,0x00000001);
+	theApp.strargc = "OnEXCELDAB";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDAB",5,0x00000001);
 }
 void CMainFrame::OnEXCELDSCD() //开关量状态变动记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDSCD",5,0x00000001);
+	theApp.strargc = "OnEXCELDSCD";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDSCD",5,0x00000001);
 }
 void CMainFrame::OnEXCELDFE() //开关量馈电异常记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDFE",5,0x00000001);
+	theApp.strargc = "OnEXCELDFE";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDFE",5,0x00000001);
 }
 void CMainFrame::OnEXCELDRIVERE() //设备故障记录
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDRIVERE",5,0x00000001);
+	theApp.strargc = "OnEXCELDRIVERE";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnEXCELDRIVERE",5,0x00000001);
 }
 ///////打印/////分类查询//////////
 
 void CMainFrame::OnALARMS() 
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnALARMS",5,0x00000001);
+	theApp.strargc = "OnALARMS";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnALARMS",5,0x00000001);
 }
 
 void CMainFrame::OnBREAKES() 
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnBREAKES",5,0x00000001);
+	theApp.strargc = "OnBREAKES";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnBREAKES",5,0x00000001);
 }
 
 void CMainFrame::OnFEEDES() 
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnFEEDES",5,0x00000001);
+	theApp.strargc = "OnFEEDES";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnFEEDES",5,0x00000001);
 }
 
 void CMainFrame::OnSELECTS() 
 {
-	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnSELECTS",5,0x00000001);
+	theApp.strargc = "OnSELECTS";
+	OnMadeMade();
+//	C_Ts.CreateP(gstrTimeOut +"\\RSDRAW-YRun.EXE", "OnSELECTS",5,0x00000001);
 }
 ///////////////////////分类查询/////////////////////////////
 ///////////////////////模拟图显示/////////////////////////////
@@ -1854,7 +2042,7 @@ void CMainFrame::OnWSYSTEM()
 			if (!pMenuBar)
 				return;
 //			pMenuBar->SetFlags(xtpFlagAddMDISysPopup);
-	for(int i=11; i>6 ;i--)   //总的菜单项
+	for(int i=12; i>6 ;i--)   //总的菜单项0-12
 			pMenuBar->GetControls()->Remove(i);
 //			pMenuBar->GetControls()->RemoveAll();
 //			pMenuBar->GetControls()->Copy(pMenuBar->GetControl(1));
@@ -1871,8 +2059,11 @@ void CMainFrame::OnWSYSTEM()
 	CString strrsy = theApp.m_strms[18].strl + strMetrics+ "rsy\\";
     for( i =0; i < 100 ;i++)
 	{
-		CString strclm = theApp.sFC.m_strdf[theApp.Initfbl(strMetrics)][i].strl;
+		CString strclm = theApp.m_RTDM.m_strdf[theApp.m_RTDM.Initfbl(strMetrics)][i].strl;
 		strclm.Replace(strrsy,"");
+		int n_ish = strclm.Find("\\");
+		if(n_ish>0)
+			break;
 		if(strclm == "")
 			break;
 		int m_ishave = strclm.GetLength();
@@ -1883,7 +2074,7 @@ void CMainFrame::OnWSYSTEM()
 //	pPopup->DeleteMenu(11,MF_BYPOSITION);
 //	kkkk=pPopup->GetMenuItemCount();
 #ifdef _DEBUG
-	for( i=7; i<12 ;i++)
+	for( i=7; i<13 ;i++)
        pMenuBar->GetControls()->AddMenuItem(&menu,i);
 //       pCommandBars->GetMenuBar()->LoadMenu(&menu , TRUE); ;
 #else
@@ -1989,6 +2180,11 @@ void CMainFrame::OnCAFEED()
 {
 	strCli = "OnCAFEED|"+strCli;
 	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", m_Str2Data.CStringtocharp(strCli),5,0x00000001);
+}
+//曲线页面编辑
+void CMainFrame::OnCurveADP() 
+{
+	C_Ts.CreateP(gstrTimeOut +"\\RS_YCurve.exe", "OnCurveADP",5,0x00000001);
 }
 
 ///////////////////////模拟图编辑显示/////////////////////////////
@@ -2132,12 +2328,12 @@ void CMainFrame::OnGenus()
 		}
 	}
 }
-
+//模拟图显示menu
 void CMainFrame::OnMView(int menun,int myf) 
 {
 	CString strrsy,strTemp1 ;
 	strrsy = theApp.m_strms[18].strl + strMetrics+ "rsy\\";
-	strTemp1 = theApp.sFC.m_strdf[theApp.Initfbl(strMetrics)][menun].strl;
+	strTemp1 = theApp.m_RTDM.m_strdf[theApp.m_RTDM.Initfbl(strMetrics)][menun].strl;
 	strTemp1.Replace(strrsy,"");
 	strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\" ;
 	if(myf == 1)
@@ -2150,6 +2346,7 @@ void CMainFrame::OnMView(int menun,int myf)
                	CDrawView *pView = (CDrawView*)pChild->GetActiveView();	
 				CSampleFormView *sview =(CSampleFormView*)pChild->GetActiveView();
 		        CString strTemp; int m_isdrawf = 0;
+				m_ViewPos = NULL;
 
 				for(int i=0;i<theApp.m_addfilesy.size()+2;i++)
 				{
@@ -2344,7 +2541,7 @@ void CMainFrame::AddSwitchButtons()
 //		ID_INDICATOR_DRAFT,
 	};
 
-	CXTPStatusBarSwitchPane* pSwitchPane = (CXTPStatusBarSwitchPane*)m_wndStatusBar.AddIndicator(new CXTPStatusBarSwitchPane(), 4);
+	CXTPStatusBarSwitchPane* pSwitchPane = (CXTPStatusBarSwitchPane*)m_wndStatusBar.AddIndicator(new CXTPStatusBarSwitchPane(), 5);
 //	CXTPStatusBarSwitchPane* pSwitchPane = (CXTPStatusBarSwitchPane*)m_wndStatusBar.AddIndicator(new CXTPStatusBarSwitchPane(), ID_INDICATOR_VIEW);
 	pSwitchPane->SetSwitches(switches, sizeof(switches)/sizeof(UINT));
 	pSwitchPane->SetChecked(IDI_STOP);
@@ -2390,7 +2587,7 @@ void CMainFrame::AddEdit()
 	CString s=time.Format("%Y-%m-%d %H:%M:%S");//转换时间格式
 
 	// add the indicator to the status bar.   ID_INDICATOR_EDIT
-	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_EDIT,2);
+	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_EDIT,3);
 
 	// Initialize the pane info and add the control.
 	int nIndex = m_wndStatusBar.CommandToIndex(ID_INDICATOR_EDIT);
@@ -2407,7 +2604,7 @@ void CMainFrame::AddEdit()
 void CMainFrame::AddUser()
 {
 	// add the indicator to the status bar.   ID_INDICATOR_EDIT
-	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_USER,3);
+	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_USER,4);
 
 	// Initialize the pane info and add the control.
 	int nIndex = m_wndStatusBar.CommandToIndex(ID_INDICATOR_USER);
@@ -2424,7 +2621,7 @@ void CMainFrame::AddUser()
 void CMainFrame::AddMessage(CString strMessage)
 {
 	// add the indicator to the status bar.   ID_INDICATOR_EDIT
-	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_MESSAGE,1);
+	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_MESSAGE,2);
 
 	// Initialize the pane info and add the control.
 	int nIndex = m_wndStatusBar.CommandToIndex(ID_INDICATOR_MESSAGE);
@@ -2492,25 +2689,24 @@ void CMainFrame::AddProgress()
 	}
 
 	// add the indicator to the status bar.
-	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_PROG);
+	CXTPStatusBarPane* pPane = m_wndStatusBar.AddIndicator(ID_INDICATOR_PROG,1);
 
 	// Initialize the pane info and add the control.
 	int nIndex = m_wndStatusBar.CommandToIndex(ID_INDICATOR_PROG);
 	ASSERT (nIndex != -1);
 
 	pPane->SetCaption(pPane->GetText());
-	pPane->SetText(_T(""));
+	pPane->SetText(_T("edrrrgrdffffff"));
 
 	m_wndStatusBar.SetPaneWidth(nIndex, 150);
 	m_wndStatusBar.SetPaneStyle(nIndex, m_wndStatusBar.GetPaneStyle(nIndex) | SBPS_NOBORDERS);
 	m_wndStatusBar.AddControl(&m_wndProgCtrl, ID_INDICATOR_PROG, FALSE);
 
 	// initialize progress control.
-	m_wndProgCtrl.SetRange (0, 5000);
-	m_wndProgCtrl.SetPos (0);
-	m_wndProgCtrl.SetStep (1);
-
-	pPane->SetCustomizationVisible(FALSE);
+//	m_wndProgCtrl.SetRange (0, 5000);
+//	m_wndProgCtrl.SetPos (0);
+//	m_wndProgCtrl.SetStep (1);
+	pPane->SetCustomizationVisible(TRUE);
 }
 
 
@@ -2608,11 +2804,39 @@ void CMainFrame::OnUpdateLog(CCmdUI* pCmdUI)
 	pCmdUI->Enable(!theApp.m_bLogIn);
 }
 
+void CMainFrame::OnOpenR() 
+{
+            	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
+              	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
+//               	m_MadeCert = (CMadeCertView*)pChild->GetActiveView();
+//    			if(m_MadeCert->IsKindOf(RUNTIME_CLASS(CMadeCertView)) && m_MadeCert != NULL)
+				{
+        			CRViewDoc* pThisOne ;//= (CRViewDoc *)pChild->GetActiveDocument() ;
+	         		pThisOne->OnCloseD();
+				}
+//    m_ThreadPool.Add(new CThreadObject(*this, 3));  
+}
+void CMainFrame::OnCloseR() 
+{
+    m_ThreadPool.Add(new CThreadObject(*this, 4));
+}
+
 void CMainFrame::OnMadeMade() 
 {
-	// TODO: Add your command handler code here
-//	m_currentwin=4;//制作
-	if(m_pMade!=NULL)
+            	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
+              	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
+               	CMadeCertView *prView = (CMadeCertView*)pChild->GetActiveView();
+    			if(prView->IsKindOf(RUNTIME_CLASS(CMadeCertView)) && prView != NULL)
+				{
+        			CRViewDoc* pThisOne = (CRViewDoc *)pChild->GetActiveDocument() ;
+	         		pThisOne->OnCloseDocument();
+				}
+	CString strrsy;
+	strrsy = gstrTimeOut + "\\" + strMetrics+ "rsy\\";
+    theApp.pRDocTemplate->OpenDocumentFile(strrsy + "实时数据.rsf") ;
+
+	//	m_currentwin=4;//制作
+/*	if(m_pMade!=NULL)
 	{
 		m_pMade->MDIActivate();
 		return;
@@ -2626,7 +2850,7 @@ void CMainFrame::OnMadeMade()
 //	m_pMade->SetWindowPos(this,0,0,GetSystemMetrics(SM_CXSCREEN)-8,140,SWP_NOMOVE|SWP_NOZORDER | SWP_NOACTIVATE|SWP_SHOWWINDOW);
 	m_pMade->ShowWindow(SW_SHOWNORMAL);
 //	m_pMade->InitialUpdateFrame(NULL,true);   //如用就加载两次
-
+*/
 }
 
 void CMainFrame::ModifySystem()
@@ -2837,83 +3061,248 @@ void CMainFrame::Sqlite3init()
 			theApp.db3.execDML(strSQL);
 		}
 }
+
+//LRESULT CMainFrame::On1000ThreadMessage(WPARAM wParam, LPARAM)
 void CMainFrame::OnTimer(UINT nIDEvent) 
 {
-//		if(m_nodialog)
-//	 m_nPaneID++;
 //	 if(m_nPaneID == 60)
-//		 m_nPaneID= 1;
-//	 if(theApp.m_FdsScan == 50)
-	 {
-//    	 for( int k =1 ; k<MAX_FDS; k++)
-//        	theApp.socketClient.CalRTdata(1);
-	 }
+    CTime terror = CTime::GetCurrentTime();
+	int  n_t =terror.GetYear();
+	int  n_tm =terror.GetMonth();
+	if(n_t>2010 && n_tm>6)
+		return;
 
-//	    	theApp.socketClient.m_nodialog = TRUE;
+#ifdef _DEBUG
+LARGE_INTEGER liCount1,liCount2,ui1,ui2;
+LARGE_INTEGER liFrequency;
+QueryPerformanceFrequency(&liFrequency);//每秒记数
+#endif //_DEBUG
+//	DWORD t1, t2; 
+	switch(nIDEvent)
+	{
+    	case CALRTDATA: 
+			{
+				CString strclm1;
+#ifdef _DEBUG
+				QueryPerformanceCounter(&liCount1);
+//				t1 = timeGetTime();
+#endif //_DEBUG
+				if(m_SlaveStation[1][0].Channel_state != 0xa0 && theApp.m_FdsScan ==50)
+				{
+					for(int i = n_m60; i<61 ;i++)//过滤没定义分站
+					{
+                     	if(m_ndkSend[i][1]>0 && m_ndkSend[i][1]<61)
+						{ 
+							if(m_SlaveStation[i][0].Channel_state != 0x90 && m_SlaveStation[i][0].Channel_state != 0xa1 && m_SerialF[i].cfds !=0)
+							{
+                             	theApp.b_startc =FALSE;
+        		     		    theApp.m_RTDM.CalRTdata(i);
+                             	theApp.b_startc = TRUE;
+    		            		strclm1.Format(":      %d",i);
+							}
+    			        	n_m60 = i+1;
+	       					if(n_m60==61)
+            					n_m60 =1;
+							break;
+						}
+						if(i==60)
+        					n_m60 =1;
+					}
+				}
 
-//    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+				//caohaitao
+				CString strclm;
+#ifdef _DEBUG
+				QueryPerformanceCounter(&liCount2);
+//				t2 = timeGetTime();
+				double f_ms= (double)(liCount2.QuadPart-liCount1.QuadPart)*1000/(double)liFrequency.QuadPart;
+				if(f_ms >5)
+				{
+    				strclm.Format("        RT:           %.3f ms",f_ms);
+					theApp.m_DebugInfo.push_back(terror.Format("%Y-%m-%d,%H:%M:%S    ")+strclm +strclm1);
+//                    g_Log.StatusOut(strclm);
+				}
+#endif //_DEBUG
+			}
+			break;
+    	case UIREFRESH:  
+			{
+			}
+     		break;
+    	case ABFREFRESH:  
+			{
+#ifdef _DEBUG
+				QueryPerformanceCounter(&liCount1);
+#endif //_DEBUG
+				CString strneterr;
+				theApp.internet30s++;
+				if((theApp.internet30s == 2||theApp.internet30s == 4)) //10 25
+				{
+					if(theApp.m_FdsScan ==0 && theApp.internet30s == 2)
+					{
+				    		theApp.StartClient();
+					}
+					if(theApp.m_FdsScan ==50 )//连接成功
+					{
+        	            CNDKMessage message1(SENDSTARTTIME);
+	    				message1.Add(0x7E);
+				    	if(theApp.DocNum == 0)
+		            		theApp.Sync(message1,3);
+			     		//caohaitao
+#ifdef _DEBUG
+						strneterr.Format("%s ：以太网通讯错误:%d次",terror.Format("%Y-%m-%d,%H:%M:%S"),theApp.internet30s);
+						theApp.m_DebugInfo.push_back(strneterr);
+#endif //_DEBUG
+//                        g_Log.StatusOut("以太网通讯错误111");
+					}
+					if(theApp.internet30s == 4 && theApp.m_FdsScan ==50)//先关闭，试着连接
+					{
+								 theApp.m_FdsScan =0;
+                                 theApp.socketClient.Close();
+           				theApp.internet30s=0;
+					}
+				}
+				else if(theApp.internet30s >10 && theApp.DocNum != 7)
+				{
+			    		 unsigned char   Warn_state = m_SlaveStation[1][0].Channel_state;
+				       	    if(Warn_state != 0xa0)
+							{
+//    	                 socketClient.AddWarn( "以太网通讯错误", strCTime, "", "", "", "", "", "");
+								theApp.m_RTDM.NCError();
+								 theApp.m_FdsScan =0;
+                        		if(theApp.socketClient.IsConnected())
+                                      theApp.socketClient.Close();
+							}
+					theApp.internet30s = 0;
+				}
+
             	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
               	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
                	CSampleFormView *pFView = (CSampleFormView*)pChild->GetActiveView();
+    			if(pFView->IsKindOf(RUNTIME_CLASS(CSampleFormView)) && pFView != NULL)
+				{
+				  	pFView->DisList123();
+				}
+
+				//caohaitao
+				CString strclm;
+#ifdef _DEBUG
+				QueryPerformanceCounter(&liCount2);
+//				t2 = timeGetTime();
+				double f_ms= (double)(liCount2.QuadPart-liCount1.QuadPart)*1000/(double)liFrequency.QuadPart;
+				if(f_ms >300)
+				{
+    				strclm.Format("ABF:%.3f ms",f_ms);
+					theApp.m_DebugInfo.push_back(terror.Format("%Y-%m-%d,%H:%M:%S    ")+strclm );
+//                    g_Log.StatusOut(strclm);
+				}
+#endif //_DEBUG
+			}
+     		break;
+//      	default:
+//    		break;
+	}
+	CMDIFrameWnd::OnTimer(nIDEvent);
+//	return 0;
+}
+
+//窗口置顶代码
+void CMainFrame::OnTopWindow() 
+{
+//	::SetWindowPos(AfxGetMainWnd()->m_hWnd,HWND_TOPMOST,
+//    -1,-1,-1,-1,SWP_NOMOVE/SWP_NOSIZE);
+   int i= SetWindowPos(&CWnd::wndTopMost,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE);
+//   if (i==0)
+//    return false;
+//   else
+//    return true;
+}
+//取消窗口置顶
+/*
+bool SetWindowTop(CWnd* pWnd)
+{
+if(!pWnd)
+{
+   return false;
+}
+if(pWnd->GetExStyle()&WS_EX_TOPMOST)
+{
+   return true;
+}
+else
+{
+   int i= pWnd->SetWindowPos(&CWnd::wndTopMost,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE);
+   if (i==0)
+    return false;
+   else
+    return true;
+
+}
+}
+CancelWindowTop(CWnd* pWnd)
+{
+if(pWnd)
+{
+   int x=pWnd->SetWindowPos(&CWnd::wndNoTopMost,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE);
+   if(x==0)
+    return false;
+   else
+    return true;
+}
+else
+{
+   return false;
+}
+}*/
+
+/*
+//时间点１(例如按某个button的时间)
+QueryPerformanceCounter(&liCount1);
+//你的其他代码...
+//时间点２(例如某事件完成的时间)
+QueryPerformanceCounter(&liCount2);
+fSeconds=(double)(liCount2.QuadPart -liCount1.QuadPart )/(double)liFrequency.QuadPart; //时间点２和时间点１之间的精确秒数
+*/
+
+// The thread message handler (WM_MY_THREAD_MESSAGE)
+// -- #define WM_MY_THREAD_MESSAGE	WM_APP+100
+// -- ON_MESSAGE(WM_MY_THREAD_MESSAGE, OnThreadMessage)
+LRESULT CMainFrame::OnThreadMessage(WPARAM wParam, LPARAM)
+{
+//	int nProgress= (int)wParam;
+//    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+    CTime terror = CTime::GetCurrentTime();
+#ifdef _DEBUG
+LARGE_INTEGER liCount1,liCount2,ui1,ui2;
+LARGE_INTEGER liFrequency;
+QueryPerformanceFrequency(&liFrequency);//每秒记数
+#endif //_DEBUG
+
+			     		//caohaitao
+             	CString strt1,strt2,strt3 ; double f_ms;
+#ifdef _DEBUG
+				QueryPerformanceCounter(&ui1);
+#endif //_DEBUG
+//				t1 = timeGetTime();
+//    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
 
             	CTime t = CTime::GetCurrentTime();
 				int m_cnum =t.GetTime()%3600;
-/*				if((m_cnum > 3) &&(m_cnum < 3597) )//开关量整点存数据
-				{
-					if(m_bIsDraw)
-					{
-                 		for(int i = 1; i < MAX_FDS;i++ )
-						{
-                			for(int j = 1; j < MAX_CHAN;j++ )
-							{
-              					m_one[i][j].SFSd =23;
-							}
-						}
-						m_bIsDraw =FALSE;
-					}
-				}*/
-				if( (m_cnum==3599) || (m_cnum==1))
+				if( (m_cnum==3599) || (m_cnum==1))//A D 量整点存数据
 				{
                  		for(int i = 1; i < MAX_FDS;i++ )
                 			for(int j = 1; j < MAX_CHAN;j++ )
               					m_SlaveStation[i][j].AlarmState =0;
 	COleDateTime timetemp(t.GetYear(),t.GetMonth(),t.GetDay(),t.GetHour(),t.GetMinute(),t.GetSecond());
-//	COleDateTime timetemp1;
-//										COleDateTimeSpan olespan(0,0,0,2);
-//										timetemp1 =timetemp+olespan;
                  		for( i = 1; i < MAX_FDS;i++ )
 						{
                 			for(int j = 0; j < MAX_CHAN;j++ )
 							{
 	        					if(m_SlaveStation[i][j].WatchName != "")
 								{
-                                    CString dddd,strtime2 ;
-                                    strtime2   =   timetemp.Format(_T("%Y-%m-%d %H:%M:%S")); 
-					        		int nptype = m_SlaveStation[i][j].ptype;
-					        		if(nptype ==1 || nptype ==0)
-    			    		      	  dddd.Format("%.2f%s",m_SlaveStation[i][j].AValue,m_SlaveStation[i][j].m_Unit);
-					          		else if(nptype ==2 )
-    			    	        	  	  dddd.Format("%.0f%s",m_SlaveStation[i][j].AValue,m_SlaveStation[i][j].m_Unit);
-					         		else 
-									{
-								int ncvalue = m_SlaveStation[i][j].CValue;
-								if(ncvalue ==0)
-				        		  dddd= m_SlaveStation[i][j].ZeroState;
-			            		else if(ncvalue == 1)
-					        	  dddd= m_SlaveStation[i][j].OneState;
-				         	    else if(ncvalue == 2)
-				          		  dddd= m_SlaveStation[i][j].TwoState;
-									}
-					     		theApp.m_RTData.push_back(DCHm5(m_SlaveStation[i][j].WatchName,
-										m_SlaveStation[i][j].strPN, dddd,strtime2));
-//									if(m_one[i][j].SFSd == 23)
-									{
-                    					theApp.socketClient.CalTime(timetemp);
-    	     							theApp.SocketServer.SyncCRTData(i,j,0); 
-//                    					theApp.socketClient.CalTime(timetemp1);
-//    	     							theApp.SocketServer.SyncCRTData(i,j,0); 
-//										m_one[i][j].SFSd = 1;
-									}
+									theApp.m_RTDM.SaveRT24Data(i,j,24);
+									m_SlaveStation[i][j].ValueTime =timetemp;
+    	     						theApp.m_RTDM.SyncCRTData(i,j,0); 
 								}//(m_SlaveStation[i][j].WatchName != "")
 							}
 						}
@@ -2972,13 +3361,15 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 		if(t.GetHour() == 23 && t.GetMinute() == 59 && t.GetSecond()>57)
 		{//取消标校，24小时最大、最小初始化 建日志
     		theApp.b_5m =false;
-        	strclm = t.Format(_T("%Y%m%d1")); 
+    		theApp.db3m.execDML("delete from rtdata;");
+    		theApp.b_5m =true;
+			CTimeSpan t1day(1,0,0,0);
+			terror += t1day;
+        	strclm = terror.Format(_T("%Y%m%d")); 
             g_Log.Init("\\log\\操作日志"+strclm+".ini");
             g_Log1.Init("\\log\\中心站运行日志"+strclm+".txt");
-            g_Log.StatusOut("操作日志记录：");
-            g_Log1.StatusOut("系统开始运行！");
-	     	theApp.m_RTData.clear();
-    		theApp.b_5m =true;
+            g_Log.StatusOut(strclm+"操作日志记录：");
+            g_Log1.StatusOut("系统继续运行！");
 
             for(int i = 1; i < MAX_FDS;i++)
 			{
@@ -2993,11 +3384,9 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 					m_SlaveStation[i][j].m24_ATotalValue =0;
 				}
 			}
-        	theApp.InitDisplay();
+        	theApp.m_RTDM.InitDisplay();
 		}
-//            	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
-//              	CMDIChildWnd *pChild = (CMDIChildWnd *) pFrame->GetActiveFrame();
-//               	CSampleFormView *pFView = (CSampleFormView*)pChild->GetActiveView();
+
 	if(theApp.m_senddata)
 	{
 //		BlockInput(TRUE);     //屏蔽键盘和鼠标
@@ -3005,103 +3394,475 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 		theApp.m_senddata =false;
 //		BlockInput(FALSE);   //解除屏蔽
 	}
-                	if(pFView == NULL)
-                		return;
-    			if(pFView->IsKindOf(RUNTIME_CLASS(CSampleFormView)))
+				if(paneResourceView->IsSelected() || theApp.idis ==1)
 				{
-				  	pFView->DisList123();
+					m_wndResourceView.InitFBA(1);
+//                    paneResourceView->Select();
+					theApp.idis =0;
 				}
-
-				theApp.internet30s++;
-				if( theApp.internet30s == 10 || theApp.internet30s == 25) 
+				else if(paneResourceView2->IsSelected()|| theApp.idis ==2)
 				{
-					if(m_SlaveStation[1][0].Channel_state == 0xa0 && theApp.m_FdsScan !=50)
-						theApp.StartClient();
-					if(theApp.m_FdsScan ==50)
+					m_wndResourceView2.InitFBA(2);
+//                    paneResourceView2->Select();
+					theApp.idis =0;
+				}
+				else if(paneResourceView3->IsSelected()|| theApp.idis ==3)
+				{
+					m_wndResourceView3.InitFBA(3);
+//                    paneResourceView3->Select();
+					theApp.idis =0;
+				}
+				else if(paneResourceView4->IsSelected()|| theApp.idis ==4)
+				{
+					m_wndResourceView4.InitFBA(4);
+//                    paneResourceView4->Select();
+					theApp.idis =0;
+				}
+				else if(paneResourceView5->IsSelected()|| theApp.idis ==5)
+				{
+					m_wndResourceView5.InitFBA(5);
+//                    paneResourceView5->Select();
+					theApp.idis =0;
+				}
+#ifdef _DEBUG
+				QueryPerformanceCounter(&ui2);
+				f_ms= (double)(ui2.QuadPart-ui1.QuadPart)*1000/(double)liFrequency.QuadPart;
+				strt2.Format(":   %.3f ms",f_ms);
+#endif //_DEBUG
+
+
+//		SetEvent(m_ThreadParam.hTimerEvent);
+            	AddEdit();
+				if(theApp.fidis == 0 && theApp.b_SaveRT)//save db data
+				{
+					theApp.fidis =1;
+					theApp.bidis =0;
+                 	for(int i=1; i<6000 ;i++)
 					{
-       	            CNDKMessage message1(SENDSTARTTIME);
-					message1.Add(0x7E);
-		    		theApp.Sync(message1,1);
+						if(strRTData1[i] =="")
+							break;
+						//caohaitao
+#ifdef _DEBUG
+#else
+                    	theApp.m_pConnection->Execute(_bstr_t(strRTData1[i]),NULL,adCmdText);
+#endif //_DEBUG
+						strRTData1[i] ="";
 					}
+					strt1.Format("num:%d   ",i);
 				}
-				else if(theApp.internet30s >30)
+				else if(theApp.fidis == 1 && theApp.b_SaveRT)
 				{
-			    		 unsigned char   Warn_state = m_SlaveStation[1][0].Channel_state;
-				       	    if(Warn_state != 0xa0)
-							{
-//			CTime t=CTime::GetCurrentTime();
-//			CString strCTime;
-//            strCTime = t.Format(_T("%Y-%m-%d %H:%M:%S")); 
-//    	                 socketClient.AddWarn( "以太网通讯错误", strCTime, "", "", "", "", "", "");
-                        		 for(int j = 1; j < MAX_FDS;j++)
-								 {
-                             		 for(int i = 0; i < MAX_CHAN;i++)
-									 {
-										 m_SlaveStation[j][i].ValueTime = COleDateTime::GetCurrentTime();
-             		    		    	 m_SlaveStation[j][i].Channel_state = 0xa0;
-									 }
-								 }
-								 theApp.m_FdsScan =0;
-                                 theApp.socketClient.Close();
-							}
-//							else if(Warn_state == 0xa0 && theApp.m_FdsScan ==50)
-//							{
-//								 theApp.m_FdsScan =0;
-//                                 theApp.socketClient.Close();
-//							}
-					theApp.internet30s = 0;
+					theApp.fidis =0;
+					theApp.bidis =0;
+                 	for(int i=1; i<6000 ;i++)
+					{
+						if(strRTData2[i] =="")
+							break;
+						//caohaitao
+#ifdef _DEBUG
+#else
+                     	theApp.m_pConnection->Execute(_bstr_t(strRTData2[i]),NULL,adCmdText);
+#endif //_DEBUG
+						strRTData2[i] ="";
+					}
+					strt1.Format("num:%d   ",i);
+				}
+#ifdef _DEBUG
+				QueryPerformanceCounter(&ui2);
+				f_ms= (double)(ui2.QuadPart-ui1.QuadPart)*1000/(double)liFrequency.QuadPart;
+				strt3.Format(":   %.3f ms",f_ms);
+#endif //_DEBUG
+				if(n_timer60>0 && theApp.m_FdsScan ==50)//校时
+				{
+                	unsigned char nfds ; CString strPointNo;
+                 	unsigned char* m_ndkSendt = new  unsigned char[11];
+//					for(int i = 1; i<61 ;i++)//过滤没定义分站
+					{
+						if(n_timer60 == 1)
+		    				m_pSetTimeDlg->m_listC.DeleteAllItems();
+						if(m_SerialF[n_timer60].SFSd !=0)
+						{
+        		            m_ndkSendt[0] = 0x7E;
+           		            m_ndkSendt[1] = n_timer60;
+         		            m_ndkSendt[2] = 0x54;
+                          	CTime t=CTime::GetCurrentTime();
+         					strPointNo.Format("%d",t.GetYear()-2000);
+        					nfds = m_Str2Data.Str2HEX(strPointNo);
+        		            m_ndkSendt[3] = nfds;
+        					strPointNo.Format("%d",t.GetMonth());
+        					nfds = m_Str2Data.Str2HEX(strPointNo);
+        		            m_ndkSendt[4] = nfds;
+         					strPointNo.Format("%d",t.GetDay());
+        					nfds = m_Str2Data.Str2HEX(strPointNo);
+          		            m_ndkSendt[5] = nfds;
+         					strPointNo.Format("%d",t.GetDayOfWeek()-1);
+        					nfds = m_Str2Data.Str2HEX(strPointNo);
+           		            m_ndkSendt[6] = nfds;
+          					strPointNo.Format("%d",t.GetHour());
+        					nfds = m_Str2Data.Str2HEX(strPointNo);
+	        	            m_ndkSendt[7] = nfds;
+		        			strPointNo.Format("%d",t.GetMinute());
+		        			nfds = m_Str2Data.Str2HEX(strPointNo);
+		                    m_ndkSendt[8] = nfds;
+         					strPointNo.Format("%d",t.GetSecond());
+           					nfds = m_Str2Data.Str2HEX(strPointNo);
+	         	            m_ndkSendt[9] = nfds;
+	           	            m_ndkSendt[10] = 0x21;
+                          	CNDKMessage message1(VERIFYTIMER);
+	          				message1.Add(m_ndkSendt , 200);
+         					if(theApp.DocNum == 0)
+		             			theApp.Sync(message1,1);
+         					strPointNo.Format("%d号分站，校时完成。",n_timer60);
+                            g_Log.StatusOut(strPointNo);
+						}
+					}
+					n_timer60++;
+					if(n_timer60 ==61)
+					{
+						n_timer60 =0;
+					}
+                	delete m_ndkSendt;
+				}
+				if(n_derr60>0 && theApp.m_FdsScan ==50)
+				{
+                	CString strPointNo;
+                 	unsigned char* m_ndkSendt = new  unsigned char[11];
+//					for(int i = 1; i<61 ;i++)//过滤没定义分站
+					{
+						if(n_derr60 == 1)
+		    				m_pSetTimeDlg->m_listC.DeleteAllItems();
+						if(m_SerialF[n_derr60].SFSd !=0)
+						{
+          				    m_ndkSendt[0] = 0x7E;
+         		            m_ndkSendt[1] = n_derr60;
+        		            m_ndkSendt[2] = 0x5A;
+        		            m_ndkSendt[3] = 0x00;
+          		            m_ndkSendt[4] = 0x21;
+                        	CNDKMessage message1(FAULTATRESIA);
+          					message1.Add(m_ndkSendt , 200);
+	        				if(theApp.DocNum == 0)
+        	    				theApp.Sync(message1,1);
+							theApp.n_temp =0;
+         					strPointNo.Format("%d号分站故障闭锁初始化,设为：关闭。",n_derr60);
+                            g_Log.StatusOut(strPointNo);
+						}
+					}
+					n_derr60++;
+					if(n_derr60 ==61)
+					{
+						n_derr60 =0;
+                		if(m_pSetTimeDlg != NULL)
+            	             m_pSetTimeDlg->Init5A();
+					}
+                	delete m_ndkSendt;
 				}
 
-     	AddEdit();
+			     		//caohaitao
+#ifdef _DEBUG
+				QueryPerformanceCounter(&ui2);
+//				t2 = timeGetTime();
+				f_ms= (double)(ui2.QuadPart-ui1.QuadPart)*1000/(double)liFrequency.QuadPart;
+				if(f_ms >30)
+				{
+			    	strclm.Format("UI: %.3f ms",f_ms);
+					theApp.m_DebugInfo.push_back(terror.Format("%Y-%m-%d,%H:%M:%S    ")+strt1+strt2+strt3);
+//                    g_Log.StatusOut(strclm);
+				}
+#endif //_DEBUG
 
-	CMDIFrameWnd::OnTimer(nIDEvent);
+	return 1;
 }
 
-//窗口置顶代码
-void CMainFrame::OnTopWindow() 
+void CMainFrame::StartTimer()
 {
-//	::SetWindowPos(AfxGetMainWnd()->m_hWnd,HWND_TOPMOST,
-//    -1,-1,-1,-1,SWP_NOMOVE/SWP_NOSIZE);
-   int i= SetWindowPos(&CWnd::wndTopMost,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE);
-//   if (i==0)
-//    return false;
-//   else
-//    return true;
+    	SetTimer(ABFREFRESH,1011,NULL);
+//    	SetTimer(UIREFRESH,1031,NULL);
+    	SetTimer(CALRTDATA,20,NULL);
+    	// Start off the thread UIREFRESH
+//    	AfxBeginThread(RTDATAThread, this);
+
+    	m_ThreadParam.hWnd = GetSafeHwnd();
+     	m_ThreadParam.nTime = 0;
+    	TIMECAPS tc;
+    	//获得定时器分辨率
+    	if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) != TIMERR_NOERROR) 
+		{
+     		return ;
+		}
+    	UINT nResolution = min(max(tc.wPeriodMin, 1), tc.wPeriodMax);
+    	UINT nInterval = 1000;
+	    if (nInterval < nResolution)
+		{
+	    	nInterval = nResolution;
+		}
+    	//设置定时最小分辨率
+	    timeBeginPeriod(nResolution);
+     	//设置定时器
+    	m_nTimerID = timeSetEvent(nInterval, nResolution, 
+     		(LPTIMECALLBACK)m_ThreadParam.hTimerEvent, 
+     		(DWORD)this, TIME_PERIODIC | TIME_CALLBACK_EVENT_SET);
+      	//创建定时线程
+       	m_pTimerThread = (CTimerThread*)AfxBeginThread(RUNTIME_CLASS(CTimerThread),
+      		THREAD_PRIORITY_ABOVE_NORMAL, 0, CREATE_SUSPENDED);
+       	m_pTimerThread->m_bAutoDelete = FALSE;
+     	m_pTimerThread->m_pThreadParam = &m_ThreadParam;
+      	m_pTimerThread->ResumeThread();
 }
-//取消窗口置顶
-/*
-bool SetWindowTop(CWnd* pWnd)
+
+UINT RTDATAThread(void *pParam)
 {
-if(!pWnd)
-{
-   return false;
+	theApp.InitRTData(); //读取当天数据
+//	CExample1_Dlg* pThis= (CExample1_Dlg*)pParam;	
+
+//	for (int nValue = pThis->StartFrom; nValue <= pThis->EndTo;  ++nValue)
+//		this->SendMessage(WM_MY_THREAD_MESSAGE, nValue);
+//    CMainFrame* pFWnd=(CMainFrame*)AfxGetMainWnd();
+//	for(;;)
+	{
+//		if(WaitForSingleObject(eventWriteD, INFINITE) == WAIT_OBJECT_0)
+		{
+//    	WaitForSingleObject(eventWriteD.m_hObject,INFINITE);
+//            CMainFrame* pFWnd=(CMainFrame*)pParam;
+//    		if(!theApp.socketClient.m_nodialog && theApp.b_startc)
+			{
+//			theApp.b_startc =FALSE;
+//			pFWnd->SendMessage(WM_RTDATA_THREAD_MESSAGE, 1);
+			}
+		}
+
+	}
+
+	return 0;
 }
-if(pWnd->GetExStyle()&WS_EX_TOPMOST)
+
+int CMainFrame::FindItem(LPARAM lP)
 {
-   return true;
+	LVFINDINFO inf = {LVFI_PARAM,NULL,lP,{0,0},0};
+//	return m_ListObjects.FindItem(&inf, -1);
+	return 1;
 }
-else
+
+void CMainFrame::UpdateThreadList()
 {
-   int i= pWnd->SetWindowPos(&CWnd::wndTopMost,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE);
-   if (i==0)
-    return false;
-   else
-    return true;
+	size_t m = m_ThreadPool.GetMaxThreadCount();
+	CString s,s1;
+	for (size_t n = 0; n < m; n++)
+	{
+//		DWORD dw = m_ListThreads.GetItemData(n);
+		int threadID = (int)m_ThreadPool.GetThreadId(n);
+		if (0 != threadID)
+		{
+//			if (0 == dw)
+				s.Format(_T("%i"), threadID);
+			s1 = (m_ThreadPool.GetThreadStatus(n)) ? _T("Working") : _T("Waiting");
+		}
+	}
+}
+
+LRESULT CMainFrame::OnObjectAdded(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
+	return 0;
+}
+
+LRESULT CMainFrame::OnObjectStart(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+{
+//	UpdateThreadList();
+	return 0;
+}
+
+LRESULT CMainFrame::OnObjectProgress(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+{
+//	int iItem = FindItem(lParam);
+//	if (-1 == iItem)
+//		return 0;
+//	CString s;
+//	s.Format(_T("%i of %i"), LOWORD(wParam), HIWORD(wParam));
+
+	return 0;
+}
+
+LRESULT CMainFrame::OnObjectDone(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
+
+	return 0;
+}
+
+LRESULT CMainFrame::OnObjectRemoved(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
+	return 0;
+}
+
+//LRESULT CMainFrame::OnAddObject(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+//{
+//	m_ThreadPool.Add(new CThreadObject(*this, 5 + (rand()%60)));
+//	return 0;
+//}
+
+LRESULT CMainFrame::OnEmptyQueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	m_ThreadPool.EmptyQueue();
+	return 0;
+}
+
+void CMainFrame::OnDebugInfo() //debug info
+{
+	CDCH5m dlg;
+	dlg.n_select =5;
+	dlg.DoModal();
+}
+
+void CMainFrame::OnTest() //test
+{
+	theApp.db3m.execDML("Drop TABLE rtdatar");
+}
+
+void CMainFrame::OnTest1() //test
+{
+
+		CString  temp,dddd,sztime,strTable;
+        theApp.db3m.execDML("create table rtdatar(RTfds smallint, RTchan smallint, LP1 char(20), LP2 char(20) );");
+
+		strTable ="Select * From rt201012data";
+    CString strDBLink = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
+                          User ID=sa;Password=sunset;\
+                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
+	try
+	{
+		theApp.pRS.CreateInstance(__uuidof(ADOCust::Recordset));
+		theApp.pRS->Open(_bstr_t(strTable),_bstr_t(strDBLink), ADOCust::adOpenStatic ,ADOCust::adLockReadOnly , ADOCust::adCmdText );
+	}
+	catch(_com_error &e)
+	{
+		AfxMessageBox(e.ErrorMessage());
+	}
+
+		while ( !theApp.pRS->EndOfFile)
+		{
+				int afds = theApp.pRS->Fields->Item["fds"]->Value.lVal;
+				int achan = theApp.pRS->Fields->Item["chan"]->Value.lVal;
+				int cv = theApp.pRS->Fields->Item["CDValue"]->Value.lVal;
+				float av = theApp.pRS->Fields->Item["AValue"]->Value.fltVal;
+         	    int nptype = m_SlaveStation[afds][achan].ptype;
+    			int nstatus = theApp.pRS->Fields->Item["ADStatus"]->Value.lVal;
+				COleDateTime dt(theApp.pRS->Fields->Item["recdate"]->Value);
+//    	   	 int dbp = mPoint[theApp.pRS->Fields->Item["PID"]->Value.lVal];
+//             if(dbp != 6666)
+			 {
+	            if(nptype ==1 || nptype ==0)
+                	dddd.Format("%.2f%s",av,m_SlaveStation[afds][achan].m_Unit);
+         		else if(nptype ==2 )
+            	  	  dddd.Format("%.0f%s",av,m_SlaveStation[afds][achan].m_Unit);
+        		else 
+				{
+								if(cv ==0)
+				        		  dddd= m_SlaveStation[afds][achan].ZeroState;
+			            		else if(cv == 1)
+					        	  dddd= m_SlaveStation[afds][achan].OneState;
+				         	    else if(cv == 2)
+				          		  dddd= m_SlaveStation[afds][achan].TwoState;
+				}
+        		if((nstatus == 0x40)||(nstatus == 0x50)||(nstatus == 0x80)||(nstatus == 0x70)||(nstatus == 0x90)|| (nstatus == 0xa0) || (nstatus == 0xa1))
+          		      dddd= theApp.m_RTDM.strstatus(nstatus);
+				sztime = dt.Format(_T("%Y-%m-%d %H:%M:%S"));
+
+    			temp.Format("insert into rtdatar values(%d, %d, '%s','%s');",afds,achan,dddd,sztime);
+    			theApp.db3m.execDML(temp);
+			 }//dbp != 6666
+			theApp.pRS->MoveNext();
+		}
+
 
 }
-}
-CancelWindowTop(CWnd* pWnd)
+//使对话框的关闭按钮无效：在对话框的OnInitDialog中调用如下代码
+// CMenu *mnu=this->GetSystemMenu(FALSE);
+//    mnu->ModifyMenu(SC_CLOSE,MF_BYCOMMAND|MF_GRAYED);
+// mnu->EnableMenuItem(SC_CLOSE,MF_BYCOMMAND|MF_GRAYED);  也可
+//去掉系统菜单
+void CMainFrame::OnDisasysmenu()
 {
-if(pWnd)
-{
-   int x=pWnd->SetWindowPos(&CWnd::wndNoTopMost,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE);
-   if(x==0)
-    return false;
-   else
-    return true;
+CMenu *menu;  
+menu = GetSystemMenu(FALSE);  
+menu->RemoveMenu(SC_MINIMIZE,MF_BYCOMMAND);  
+menu->RemoveMenu(SC_MAXIMIZE,MF_BYCOMMAND);  
+menu->RemoveMenu(SC_MOVE,MF_BYCOMMAND);  
+menu->RemoveMenu(SC_SIZE,MF_BYCOMMAND);
+//menu->RemoveMenu(SC_CLOSE,MF_BYCOMMAND);
+menu->RemoveMenu(SC_RESTORE,MF_BYCOMMAND);
+menu->RemoveMenu(0,MF_BYCOMMAND);
 }
-else
+//使最小化按钮无效
+void CMainFrame::OnDisableMinbox()
 {
-   return false;
+    //获得窗口风格
+    LONG style = ::GetWindowLong(m_hWnd,GWL_STYLE);
+    //设置新的风格
+    style &=  ~(WS_MINIMIZEBOX);
+    ::SetWindowLong(m_hWnd,GWL_STYLE,style);
+    //重化窗口边框
+    CRect rc;
+    GetWindowRect(&rc);
+    ::SetWindowPos(m_hWnd,HWND_NOTOPMOST,rc.left,rc.top,rc.Width(),rc.Height(),SWP_DRAWFRAME);
 }
-}*/
+//使最大化按钮无效
+void CMainFrame::OnDisableMaxbox()
+{
+	//动态的改变窗口的风格
+	ModifyStyle(WS_MAXIMIZEBOX, 0);
+    //获得窗口风格
+//    LONG style = ::GetWindowLong(m_hWnd,GWL_STYLE);
+    //设置新的风格
+//    style &=  ~(WS_MAXIMIZEBOX);
+//    ::SetWindowLong(m_hWnd,GWL_STYLE,style);
+    //重化窗口边框
+//    CRect rc;
+//    GetWindowRect(&rc);
+//    ::SetWindowPos(m_hWnd,HWND_NOTOPMOST,rc.left,rc.top,rc.Width(),rc.Height(),SWP_DRAWFRAME);
+}
+//使关闭按钮无效
+void CMainFrame::OnDisableClose()
+{
+    //获得系统菜单
+    CMenu *pMenu=GetSystemMenu(FALSE);
+    //获得关闭按钮的ID
+    int x=pMenu->GetMenuItemCount();
+    UINT pID=pMenu->GetMenuItemID(x-1);
+    //使关闭按钮无效
+    pMenu->EnableMenuItem(pID, MF_DISABLED);
+}
+//使最小化按钮有效
+void CMainFrame::OnAbleMinbox()
+{
+    //获得窗口风格
+    LONG style = ::GetWindowLong(m_hWnd,GWL_STYLE);
+    //设置新的风格
+    style |= WS_MINIMIZEBOX;
+    ::SetWindowLong(m_hWnd,GWL_STYLE,style);
+    //重化窗口边框
+    CRect rc;
+    GetWindowRect(&rc);
+    ::SetWindowPos(m_hWnd,HWND_NOTOPMOST,rc.left,rc.top,rc.Width(),rc.Height(),SWP_DRAWFRAME);    
+}
+//使最大化按钮有效
+void CMainFrame::OnAbleMaxbox()
+{
+    //获得窗口风格
+    LONG style = ::GetWindowLong(m_hWnd,GWL_STYLE);
+    //设置新的风格
+    style |= WS_MAXIMIZEBOX;
+    ::SetWindowLong(m_hWnd,GWL_STYLE,style);
+    //重化窗口边框
+    CRect rc;
+    GetWindowRect(&rc);
+    ::SetWindowPos(m_hWnd,HWND_NOTOPMOST,rc.left,rc.top,rc.Width(),rc.Height(),SWP_DRAWFRAME);
+}
+//使关闭按钮有效
+void CMainFrame::OnAbleClose()
+{
+    //获得系统菜单
+    CMenu *pMenu=GetSystemMenu(FALSE);
+    //获得关闭按钮的ID
+    int x=pMenu->GetMenuItemCount();
+    UINT pID=pMenu->GetMenuItemID(x-1);
+    //使关闭按钮有效
+    pMenu->EnableMenuItem(pID, MF_ENABLED);
+}

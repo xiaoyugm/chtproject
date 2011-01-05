@@ -9,18 +9,6 @@
 
 //#include "CListCtrl_DataModel.h"
 //Derived AxLib classes
-#include "dbAx\AxFeedE.hpp"
-#include "dbAx\AxSControl.hpp"
-#include "dbAx\AxControl.hpp"
-#include "dbAx\AxDisPoint.hpp"
-#include "dbAx\AxPointDescription.hpp"
-#include "dbAx\AxMAlocationSet.hpp"
-#include "dbAx\AxAccountSet.hpp"
-#include "dbAx\AxContactCmd.hpp"
-#include "dbAx\AxContactSet.hpp"
-#include "dbAx\CardFileEvents.hpp"
-#include "dbAx\AccountSetEvents.hpp"
-
 
 /////////////////////////////////////////////////////////////////////////////
 // CSettingHostDlg dialog
@@ -31,7 +19,7 @@ class CSettingHostDlg : public CXTResizeDialog
 public:
 	CSettingHostDlg(CWnd* pParent = NULL);   // standard constructor
 
-    CCardFileEvents *pCnEvents;
+//    CCardFileEvents *pCnEvents;
 // Dialog Data
 	//{{AFX_DATA(CSettingHostDlg)
 	enum { IDD = IDD_DIALOG_HOST_SETTING };
@@ -76,14 +64,13 @@ public:
 	ListV m_strl[100];
 
   //AxLib objects
-  CAxConnection   m_Cn;
   CAxAccountSet   m_AccountSet;
   CAxContactSet   m_ContactSet;
   CAxMAlocationSet   m_MAlocation;
   CAxPointDescription  m_PointDes;
   CAxPointDescription  *m_PointDesNew;
   CAxDisPoint      *m_DisPointNew;
-  CAxContactCmd   m_ContactCmd;
+//  CAxContactCmd   m_ContactCmd;
   CAxControl      m_Control;
   CAxControl      *m_ControlNew;
   CAxSControl     m_SControl;

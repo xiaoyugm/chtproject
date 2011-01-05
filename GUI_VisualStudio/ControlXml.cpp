@@ -11,8 +11,8 @@
 using namespace std;
 
 ADTypeTable	     m_ADTypeTable[9];
-OthersSetting    m_OthersSetting;
-ViewWindows      m_ViewWindows[4];
+//OthersSetting    m_OthersSetting;
+//ViewWindows      m_ViewWindows[4];
 //FormView         m_FormView[20];
 //DrawView         m_DrawView[20];
 //////////////////////////////////////////////////////////////////////////////
@@ -112,9 +112,9 @@ bool CControlXml::ParseGroups(CMarkup& xml)
         CString strnumForm = xml.GetAttrib(_T("Port"));
 		int numForms;
     	m_Str2Data.StringToInteger(strnumForm,numForms);
-		m_OthersSetting.Port = numForms;
+//		m_OthersSetting.Port = numForms;
         strnumForm = xml.GetAttrib(_T("IP"));
-		m_OthersSetting.IP = strnumForm;
+//		m_OthersSetting.IP = strnumForm;
         return true;
 	}
 	else if ( xml.FindElem(_T("ReportSort")) )
@@ -138,7 +138,7 @@ bool CControlXml::ParseGroups(CMarkup& xml)
     // Extract the group name.
         CString strnumForm = xml.GetAttrib(_T("numForms"));
         strnumForm = xml.GetAttrib(_T("Name"));
-		m_OthersSetting.DBname = strnumForm;
+//		m_OthersSetting.DBname = strnumForm;
 
         if ( xml.IntoElem() )
         {
@@ -159,7 +159,7 @@ bool CControlXml::ParseGroups(CMarkup& xml)
 		int numForms;
     	m_Str2Data.StringToInteger(strnumForm,numForms);
         strnumForm = xml.GetAttrib(_T("Name"));
-		m_ViewWindows[numForms].VWName = strnumForm;
+//		m_ViewWindows[numForms].VWName = strnumForm;
 
         if ( xml.IntoElem() )
         {
@@ -172,7 +172,7 @@ bool CControlXml::ParseGroups(CMarkup& xml)
 				numw++;
             }
             xml.OutOfElem();
-			m_ViewWindows[numForms].numFormView = numw;
+//			m_ViewWindows[numForms].numFormView = numw;
         }
         return true;
     }
@@ -183,7 +183,7 @@ bool CControlXml::ParseGroups(CMarkup& xml)
 		int numForms;
     	m_Str2Data.StringToInteger(strnumForm,numForms);
         strnumForm = xml.GetAttrib(_T("Name"));
-		m_ViewWindows[numForms].VWName = strnumForm;
+//		m_ViewWindows[numForms].VWName = strnumForm;
 
         if ( xml.IntoElem() )
         {
@@ -196,7 +196,7 @@ bool CControlXml::ParseGroups(CMarkup& xml)
 				numw++;
             }
             xml.OutOfElem();
-			m_ViewWindows[numForms].numDrawView = numw;
+//			m_ViewWindows[numForms].numDrawView = numw;
         }
         return true;
 	}

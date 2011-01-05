@@ -7,8 +7,6 @@
 // ClassTime.h : header file
 //
 
-#include "dbAx\AxLogin.hpp"
-#include "dbAx\AccountSetEvents.hpp"
 /////////////////////////////////////////////////////////////////////////////
 // CClassTime dialog
 
@@ -27,8 +25,7 @@ public:
 //	CString	strcd;
 //	CString    strcn;
 	//}}AFX_DATA
-    CCardFileEvents *pCnEvents;
-    CAxConnection   m_Cn;
+//    CCardFileEvents *pCnEvents;
     CAxCommonSet        m_CommonSet;
     CAxCommonSet        *m_CommonSetNew;
 	CXTFlatComboBox	    m_CB_FBL;

@@ -1,12 +1,14 @@
 // DrawDoc.cpp : implementation of the CDrawDoc class
 //
 
+
 #include "stdafx.h"
 #include "GUI_VisualStudio.h"
 
 #include "DrawDoc.h"
 ///#include "CntrItem.h"
 #include "SrvrItem.h"
+
 
 #include "drawview.h"
 #include "drawobj.h"
@@ -284,6 +286,7 @@ void CDrawDoc::OnCloseDocument()
 				if(strpo == (strrsy+m_strDocName))
 				{
 	        		iter = theApp.m_addfilesy.erase(iter);
+					break;
 				}
 		    	else
 			    	iter++;

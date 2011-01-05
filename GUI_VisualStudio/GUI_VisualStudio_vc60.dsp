@@ -210,6 +210,10 @@ SOURCE=.\GUI_VisualStudioView.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\LangPreviewView.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MadeCertView.cpp
 # End Source File
 # Begin Source File
@@ -238,6 +242,10 @@ SOURCE=.\PropertiesPane.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\RTDataManage.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SafeMethod.cpp
 # End Source File
 # Begin Source File
@@ -252,6 +260,14 @@ SOURCE=.\SplashWnd.cpp
 
 SOURCE=.\StdAfx.cpp
 # ADD CPP /Yc"stdafx.h"
+# End Source File
+# Begin Source File
+
+SOURCE=.\TimerThread.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\XProgressWnd.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -315,6 +331,10 @@ SOURCE=.\GUI_VisualStudioView.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\LangPreviewView.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\MadeCertView.h
 # End Source File
 # Begin Source File
@@ -347,6 +367,10 @@ SOURCE=.\Resource.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\RTDataManage.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\SafeMethod.h
 # End Source File
 # Begin Source File
@@ -360,6 +384,14 @@ SOURCE=.\SplashWnd.h
 # Begin Source File
 
 SOURCE=.\StdAfx.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TimerThread.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\XProgressWnd.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -1635,7 +1667,27 @@ SOURCE=.\QZoomView.h
 # End Group
 # Begin Source File
 
+SOURCE=.\res\download.avi
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\find.avi
+# End Source File
+# Begin Source File
+
 SOURCE=.\res\heartbeat.avi
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\sync.avi
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\update.avi
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\write.avi
 # End Source File
 # End Target
 # End Project

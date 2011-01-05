@@ -86,25 +86,11 @@ BOOL CColorSetDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	//进行初始化
-    CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
-                          User ID=sa;Password=sunset;\
-                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
-
-//All calls to the AxLib should be wrapped in a try / catch block
-  try
-  {
-    dbAx::Init();
-    m_Cn.Create();
-//    m_Cn._SetConnectionEvents(new CCardFileEvents);
-    m_Cn.CursorLocation(adUseClient);
-    m_Cn.Open((LPCTSTR)szConnect);
-
 		m_Colorset.Create();
 		m_Colorset.CursorType(adOpenDynamic);
 		m_Colorset.CacheSize(50);
 		m_Colorset._SetRecordsetEvents(new CAccountSetEvents);
-		m_Colorset.Open(_T("Select * From colorset"), &m_Cn);
+		m_Colorset.Open(_T("Select * From colorset"), &theApp.m_Cn);
 		m_Colorset.MarshalOptions(adMarshalModifiedOnly);
 
 		int coxx,vcolor;
@@ -135,13 +121,6 @@ BOOL CColorSetDlg::OnInitDialog()
 //				  iItem++;
 			m_Colorset.MoveNext();
 		}
-  }
-  catch ( dbAx::CAxException *e )
-  {
-    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-    return (FALSE);
-  }
 
   if(m_ntrans >0)
   {
@@ -196,19 +175,8 @@ void CColorSetDlg::OnSelendokComboPosition()
 
 void CColorSetDlg::OnDestroy() 
 {
-  try
-  {
     if ( m_Colorset._IsOpen() )
       m_Colorset.Close();
-    m_Cn.Close();
-    //Cleanup the AxLib library
-    dbAx::Term();
-  }
-  catch ( CAxException *e )
-  {
-    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-  }
   CDialog::OnDestroy();	
 }
 
@@ -272,7 +240,7 @@ void CColorSetDlg::OnButSend()
 			    	     strrsy1, m_ntrans ,m_color1 , coxx );
 			theApp.db3.execDML(strSQL);
         theApp.InitSQLite3();
-    	theApp.InitDisplay();
+    	theApp.m_RTDM.InitDisplay();
 	}
         EndDialog(IDOK);
 }

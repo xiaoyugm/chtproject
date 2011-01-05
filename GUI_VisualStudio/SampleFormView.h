@@ -7,7 +7,6 @@
 // SampleFormView.h : header file
 //
 
-#include "MQClient.h"
 #include "CListCtrl_DataModel.h"
 /////////////////////////////////////////////////////////////////////////////
 // CSampleFormView form view
@@ -54,7 +53,6 @@ public:
 	HICON           m_hIcon;
 //	int nlist;
 
-	CMQClient socketClient;
 	ListV m_strl1[100];
 	vector<CString> m_vl1;
 	vector<CString> m_vl2;

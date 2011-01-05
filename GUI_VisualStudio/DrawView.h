@@ -13,7 +13,6 @@
 #include "QZoomView.h"
 #include "DrawDoc.h"
 #include <String2DataType.h>
-#include "MQClient.h"
 
 // Hints for UpdateAllViews/OnUpdate
 #define HINT_UPDATE_WINDOW      0
@@ -35,6 +34,7 @@ protected: // create from serialization only
 	CDrawView();
 	DECLARE_DYNCREATE(CDrawView)
 
+	void OnFilePrintPreview(void); 
 // Attributes
 public:
 	CDrawDoc* GetDocument();
@@ -49,7 +49,6 @@ public:
 
 	CString2DataType m_Str2Data;
 ///    void   ConnectDB();
-    CMQClient socketClient;
 
 	void SetPageSize(CSize size);
 	CRect GetInitialPosition();

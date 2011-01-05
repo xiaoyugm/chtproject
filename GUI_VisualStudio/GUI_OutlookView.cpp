@@ -173,7 +173,6 @@ void CGUI_OutlookView::InitializeHeaderControl()
 	SubclassHeader();
 
 	// add images to the header columns.
-	int nCol;
 //	for (nCol = 0; nCol < _countof(arHeaderBmps); ++nCol) {
 //		m_flatHeader.SetBitmap(nCol, arHeaderBmps[nCol]/*, HDF_STRING*/);
 //	}

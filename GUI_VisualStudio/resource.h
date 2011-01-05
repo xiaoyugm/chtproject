@@ -94,10 +94,15 @@
 #define IDD_DIA_LISTEXT                 185
 #define IDC_POPDRAWNOP                  186
 #define ID_Menu                         187
+#define IDC_WRITE_AVI                   187
 #define IDB_BITMAP_PANEICONS            188
+#define IDC_DOWNLOAD_AVI                188
 #define IDR_TOOLBAR_WEB                 189
+#define IDC_FIND_AVI                    189
 #define ID_WEBBROWSER_STOP              190
+#define IDC_SYNC_AVI                    190
 #define ID_WEBBROWSER_REFRESH           191
+#define IDC_UPDATE_AVI                  191
 #define ID_WEBBROWSER_FAVORITES         192
 #define ID_WEBBROWSER_ORGANIZE          193
 #define ID_BUTTON32806                  194
@@ -412,6 +417,7 @@
 #define ID_DIS_DSC                      32826
 #define ID_DIS_DFER                     32827
 #define ID_MADE_MADE                    32828
+#define ID_DEMO_TEST                    32828
 #define ID_DIS_AAR                      32829
 #define ID_DIS_ABR                      32830
 #define ID_ALARMS                       32831
@@ -476,6 +482,7 @@
 #define ID_FORMPAGESO                   32900
 #define ID_DRAWPAGESO                   32901
 #define ID_FORMSLISTEXT                 32902
+#define ID_DEMO_TEST1                   32903
 #define ID_OnSimulation                 32905
 #define ID_OnGenus                      32906
 #define ID_MANIPULATE                   32907
@@ -489,8 +496,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        187
-#define _APS_NEXT_COMMAND_VALUE         32903
+#define _APS_NEXT_RESOURCE_VALUE        192
+#define _APS_NEXT_COMMAND_VALUE         32904
 #define _APS_NEXT_CONTROL_VALUE         1100
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

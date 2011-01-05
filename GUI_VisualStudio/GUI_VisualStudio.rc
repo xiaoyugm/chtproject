@@ -49,21 +49,17 @@ BEGIN
         MENUITEM "设置模拟图显示页",            ID_DRAWS
         MENUITEM "数据显示页属性",              ID_FORMPROP
         MENUITEM "列表",                        ID_ELREPORT
+        MENUITEM "开关量断电日(班)报表",        ID_EXCEL_DAB
+        MENUITEM "工具栏",                      ID_VIEW_TOOLBAR
     END
     POPUP "页面编辑"
     BEGIN
         MENUITEM "FLAT_TAB_PROP",               ID_FLAT_TAB_PROP
         MENUITEM "FormView风格",                IDC_COMBO_THEMES
-        MENUITEM "baobiao",                     ID_MADE_MADE
     END
     POPUP "模拟图显示"
     BEGIN
         MENUITEM "打开",                        ID_OnSimulation
-    END
-    POPUP "实时显示"
-    BEGIN
-        MENUITEM "分类显示",                    ID_OnGenus
-        MENUITEM "安全措施",                    ID_DLGAM
     END
     POPUP "帮助(&H)"
     BEGIN
@@ -362,7 +358,6 @@ BEGIN
         MENUITEM "设置数据显示页",              ID_FORMS
         MENUITEM SEPARATOR
         MENUITEM "报警音乐",                    ID_MANIPULATE
-        MENUITEM "工具栏",                      ID_VIEW_TOOLBAR
         MENUITEM "状态栏",                      ID_VIEW_STATUS_BAR
     END
     POPUP "页面编辑"
@@ -421,8 +416,7 @@ BEGIN
         MENUITEM "模拟量断电日(班)报表",        ID_EXCEL_AB
         MENUITEM "模拟量馈电异常日(班)报表",    ID_EXCEL_AFE
         MENUITEM "模拟量统计值日(班)报表",      ID_EXCEL_ASR
-        MENUITEM "开关量报警日(班)报表",        ID_EXCEL_DA
-        MENUITEM "开关量断电日(班)报表",        ID_EXCEL_DAB
+        MENUITEM "开关量报警断电日(班)报表",    ID_EXCEL_DA
         MENUITEM "开关量状态变动日(班)报表",    ID_EXCEL_DSCD
         MENUITEM "开关量馈电异常日(班)报表",    ID_EXCEL_DFE
         MENUITEM "监控设备故障日(班)报表",      ID_EXCEL_DRIVERE
@@ -454,6 +448,14 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "操作日志",                    ID_OPTXT
         MENUITEM "中心站运行日志",              ID_WORKTXT
+    END
+    POPUP "实时显示"
+    BEGIN
+        MENUITEM "DebugInfo",                   ID_OnGenus
+        MENUITEM "安全措施",                    ID_DLGAM
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "temp",                        ID_DEMO_TEST
+        MENUITEM "temp1",                       ID_DEMO_TEST1
     END
 END
 
@@ -593,7 +595,7 @@ END
 IDD_DIALOG_SET_TIMER DIALOGEX 0, 0, 446, 261
 STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "校时操作"
-FONT 9, "宋体", 0, 0, 0x1
+FONT 9, "宋体"
 BEGIN
     DEFPUSHBUTTON   "保存、发送命令",IDOK_SEND,57,240,66,14
     PUSHBUTTON      "退出(&C)",IDCANCEL,337,240,50,14
@@ -616,7 +618,7 @@ BEGIN
     CONTROL         "List1",IDC_LIST_C2,"SysListView32",LVS_REPORT | 
                     LVS_SHOWSELALWAYS | WS_TABSTOP,322,22,117,199,
                     WS_EX_STATICEDGE
-    PUSHBUTTON      "解除",IDC_BUT_RES,207,240,50,14
+    PUSHBUTTON      "解除",IDC_BUT_RES,197,240,60,14
 END
 
 IDD_FORMVIEW DIALOG DISCARDABLE  0, 0, 187, 94
@@ -1073,6 +1075,11 @@ IDI_ICONMA              ICON    DISCARDABLE     "res\\iconMA.ico"
 //
 
 IDR_HEARTBEAT           AVI     DISCARDABLE     "res\\heartbeat.avi"
+IDC_WRITE_AVI           AVI     DISCARDABLE     "res\\write.avi"
+IDC_DOWNLOAD_AVI        AVI     DISCARDABLE     "res\\download.avi"
+IDC_FIND_AVI            AVI     DISCARDABLE     "res\\find.avi"
+IDC_SYNC_AVI            AVI     DISCARDABLE     "res\\sync.avi"
+IDC_UPDATE_AVI          AVI     DISCARDABLE     "res\\update.avi"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1508,6 +1515,7 @@ BEGIN
     ID_FORMPAGESO           "设为初始页面"
     ID_DRAWPAGESO           "设为初始页面"
     ID_FORMSLISTEXT         "选择列表显示项"
+    ID_OnGenus              "DebugInfo"
 END
 
 #endif    // Chinese (P.R.C.) resources

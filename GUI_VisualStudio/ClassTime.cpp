@@ -88,7 +88,7 @@ BOOL CClassTime::OnInitDialog()
        	m_CB_FBL.AddString("1920");
        	m_CB_FBL.AddString("2048");
        	m_CB_FBL.AddString("2560");
-		m_CB_FBL.SetCurSel(theApp.Initfbl(theApp.m_strms[3].strl));
+		m_CB_FBL.SetCurSel(theApp.m_RTDM.Initfbl(theApp.m_strms[3].strl));
 
 //		szFind.Format("%d",m_CommonSet.m_sznum2);
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -97,31 +97,13 @@ BOOL CClassTime::OnInitDialog()
 
 void CClassTime::ConnectDB()
 {
-  CString szConnect = _T("Provider=SQLOLEDB.1;Persist Security Info=True;\
-                          User ID=sa;Password=sunset;\
-                          Data Source=") +strDBname+ _T(";Initial Catalog=BJygjl");
-	try
-	{
-       dbAx::Init();
-       m_Cn.Create();
-//       m_Cn._SetConnectionEvents(new CCardFileEvents);
-       m_Cn.CursorLocation(adUseClient);
-       m_Cn.Open((LPCTSTR)szConnect);
-
 		m_CommonSet.Create();
 		m_CommonSet.CursorType(adOpenDynamic);
 		m_CommonSet.CacheSize(50);
 		m_CommonSet._SetRecordsetEvents(new CAccountSetEvents);
-		m_CommonSet.Open(_T("Select * From commonset"), &m_Cn);
+		m_CommonSet.Open(_T("Select * From commonset"), &theApp.m_Cn);
 		m_CommonSet.MarshalOptions(adMarshalModifiedOnly);
      	m_CommonSetNew = &m_CommonSet;
-	}
-    catch ( dbAx::CAxException *e )
-	{
-    MessageBox(e->m_szErrorDesc, _T("BJygjl Message"), MB_OK);
-    delete e;
-    return ;
-	}
 }
 
 void CClassTime::OnChadayr() 
@@ -167,7 +149,7 @@ void CClassTime::OnOK()
 		m_CommonSet._SetRecordsetEvents(new CAccountSetEvents);
 		CString strPointNo; 
 		strPointNo.Format(_T("SELECT * From commonset WHERE CommonID = %d"),i);
-		m_CommonSet.Open(strPointNo, &m_Cn);
+		m_CommonSet.Open(strPointNo, &theApp.m_Cn);
 		m_CommonSet.MarshalOptions(adMarshalModifiedOnly);
      	m_CommonSetNew = &m_CommonSet;
             				try
@@ -192,8 +174,6 @@ void CClassTime::OnOK()
 	}
     if ( m_CommonSet._IsOpen() )
       m_CommonSet.Close();
-    m_Cn.Close();
-    dbAx::Term();
 
 	theApp.InitData();
 
@@ -206,15 +186,12 @@ void CClassTime::OnCancel()
 	
     if ( m_CommonSet._IsOpen() )
       m_CommonSet.Close();
-    m_Cn.Close();
-    dbAx::Term();
 	CDialog::OnCancel();
 }
 
 
 void CClassTime::OnCB_FBL() 
 {
-	int eYear,eMonth,eDay,m_fds,m_chan;
 	CString   strname,strSQL,strrsy1;
 	strrsy1 ="dispoint"+strMetrics;
 	UpdateData(TRUE);
