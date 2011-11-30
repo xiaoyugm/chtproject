@@ -13,6 +13,7 @@ static char THIS_FILE[] = __FILE__;
 // Mask for control's type
 #define BS_TYPEMASK SS_TYPEMASK
 
+
 CButtonST::CButtonST()
 {
 	m_bIsPressed		= FALSE;
