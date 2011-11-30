@@ -14,6 +14,7 @@ using namespace ADOCust;
 #pragma once
 #endif // _MSC_VER > 1000
 
+
 class ADOConn  
 {
 // 定义变量
