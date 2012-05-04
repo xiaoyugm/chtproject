@@ -1,0 +1,5 @@
+bin\Debug\tenpayLib.dll
+bin\Debug\tenpayLib.pdb
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\tenpayLib.dll
+obj\Debug\tenpayLib.pdb
