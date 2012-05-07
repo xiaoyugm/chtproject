@@ -1,3 +1,0 @@
-登录地址：https://testebank.sdb.com.cn/corporbank/logon_basic.jsp
-用户名：test0
-密码：999999
