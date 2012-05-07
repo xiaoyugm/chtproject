@@ -1,0 +1,343 @@
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<link href="/sdbsite/website/zh/zh_CN/css/website.css" rel="stylesheet" type="text/css">
+<title>深圳发展银行</title>
+<script language=vbs>
+   Function IsVista
+		Dim info
+		info = Navigator.appVersion
+		If InStr(Info,"NT 6.0")>0 Then
+			IsVista = true
+		Else
+			IsVista = false
+		End if
+	End Function	
+  Function Submit_OnClick()
+    If IsVista() Then
+           Submit_OnClick = VistaCheck()                 
+      Else
+           Submit_OnClick = OtherCheck()
+      End if
+      If Submit_OnClick Then
+	disableBtn()
+      End if
+  End Function
+
+	Function OtherCheck()
+		Dim theForm
+		Dim pkcs10req
+		Dim Enroll
+		Set theForm=Document.IERequest
+		On Error Resume Next
+
+		theForm.refNo.value=Trim(theForm.refNo.value)
+		theForm.authcode.value=Trim(theForm.authcode.value)
+		strLen=Len(theForm.refNo.value)
+		if Not(Len(theForm.refNo.value)=8) then
+			errorString = "参考号输入位数不正确,应为8位。您输入了" & strLen & "位。"
+                	err=MsgBox(errorString,0,"Internet Explorer Certificate Request")
+			OtherCheck=false
+			Exit Function
+		end if
+                strLen=Len(theForm.authcode.value)
+		if Not(Len(theForm.authcode.value)=14) and Not(Len(theForm.authcode.value)=19) and  Not(Len(theForm.authcode.value)=24) then
+			errorString = "授权码输入位数不正确,应为14位、19位或者24位。您输入了" & strLen & "位。"
+                	err=MsgBox(errorString,0,"Internet Explorer Certificate Request")
+			OtherCheck=false
+			Exit Function
+		end if
+		Set Enroll = EnrollNew
+		if(0 = len(Enroll.enumProviders(0,0))) Then
+			Set Enroll = EnrollOld
+		end if
+
+		set options = document.all.cryptProv.options
+		index = options.selectedIndex
+		Enroll.providerName = options(index).text
+		Enroll.providerType = options(index).value
+		Enroll.HashAlgorithm = "MD5"
+		cn="cn=" & theForm.refNo.value
+		Enroll.KeySpec = 1
+		Enroll.GenKeyFlags = 3
+		pkcs10req=Enroll.CreatePKCS10(cn, "1.3.6.1.5.5.7.3.2")
+		theForm.myKey.Value=pkcs10req
+
+		if(pkcs10req=Empty) Then
+			errorString="(错误号： '" & hex(Err.Number) & "')"& chr(13) & chr(10)
+			errorString=errorStr & "无法产生PKCS#10证书请求，请检查选择CSP是否正确。"
+			err=MsgBox(errorString,0,"Internet Explorer Certificate Request")
+			OtherCheck=false
+			exit Function
+		end if
+
+		'Exit Function
+	End Function
+	Function VistaCheck()
+        	Dim enroll
+		Dim privateKey
+		Dim pkcs10Req
+		Dim objectID
+		Dim SubName
+		Dim isE01
+		Dim theForm
+		Set theForm=Document.IERequest
+		On Error Resume Next
+
+		theForm.refNo.value=Trim(theForm.refNo.value)
+		theForm.authcode.value=Trim(theForm.authcode.value)
+		strLen=Len(theForm.refNo.value)
+		if Not(Len(theForm.refNo.value)=8) then
+			errorString = "参考号输入位数不正确,应为8位。您输入了" & strLen & "位。"
+                	err=MsgBox(errorString,0,"Internet Explorer Certificate Request")
+			VistaCheck=false
+			Exit Function
+		end if
+                strLen=Len(theForm.authcode.value)
+		if Not(Len(theForm.authcode.value)=14) and Not(Len(theForm.authcode.value)=19) and  Not(Len(theForm.authcode.value)=24) then
+			errorString = "授权码输入位数不正确,应为14位、19位或者24位。您输入了" & strLen & "位。"
+                	err=MsgBox(errorString,0,"Internet Explorer Certificate Request")
+			VistaCheck=false
+			Exit Function
+		end if
+
+		Set enroll = CreateObject("X509Enrollment.CX509Enrollment")
+		Set privateKey = CreateObject("X509Enrollment.CX509PrivateKey")
+		Set pkcs10Req = CreateObject("X509Enrollment.CX509CertificateRequestPkcs10")
+		Set objectID = CreateObject("X509Enrollment.CObjectId")
+		Set SubName = CreateObject("X509Enrollment.CX500DistinguishedName")
+
+
+		set options = document.all.cryptProv.options
+		index = options.selectedIndex
+                privateKey.ProviderName = options(index).text
+                privateKey.Existing = False
+                privateKey.ExportPolicy = 1 'XCN_NCRYPT_ALLOW_EXPORT_FLAG=1
+                privateKey.KeySpec = 1 'XCN_AT_SIGNATURE=2, XCN_AT_KEYEXCHANGE=1
+		objectID.InitializeFromValue "1.2.840.113549.2.5"  'MD5
+                SubName.Encode "cn=" & theForm.refNo.value, 3 'XCN_CERT_X500_NAME_STR=3
+		pkcs10Req.InitializeFromPrivateKey 1, privateKey, ""  'ContextUser=1
+		pkcs10Req.HashAlgorithm = objectID
+		pkcs10Req.Subject = SubName
+		enroll.InitializeFromRequest pkcs10Req
+		pkcs10req = enroll.CreateRequest(1)
+		theForm.myKey.Value=pkcs10req
+
+		if(pkcs10req=Empty) Then
+			errorString="(错误号： '" & hex(Err.Number) & "')"& chr(13) & chr(10)
+			errorString=errorStr & "无法产生PKCS#10证书请求，请检查选择CSP是否正确。"
+			err=MsgBox(errorString,0,"Internet Explorer Certificate Request")
+			VistaCheck=false
+			exit Function
+		end if
+
+		'Exit Function
+	End Function
+  sub FindProviders
+		If IsVista() Then
+			EnumCspsVista
+		Else
+			EnumCspsOthers
+		End if
+	End Sub
+	sub EnumCspsOthers
+		Dim i, count
+		i = 0
+		count=0
+		Dim el
+		Dim temp
+		Dim selectprov
+		Dim Enroll
+		selectprov = -1
+		On Error Resume Next
+		Set Enroll = EnrollNew
+		if(0 = len(Enroll.enumProviders(0,0))) Then
+			Set Enroll = EnrollOld
+		end if
+
+		Do While True
+			temp = ""
+			Enroll.providerType = 1
+			temp = Enroll.enumProviders(i,0)
+			If Len(temp) = 0 Then
+				Exit Do
+			Else
+				If checkCSPName(temp) Then
+						set el = document.createElement("OPTION")
+						el.text = temp
+						el.value = 1
+						document.all.cryptprov.add(el)
+						count = count + 1
+						If selectprov = -1 Then
+							'设置默认的CSP
+							If el.text = "Microsoft Enhanced Cryptographic Provider v1.0" Then
+								selectprov = count
+							End If
+						End If
+				End If
+				i = i + 1
+			End If
+		Loop
+		If document.all.cryptprov.length=0 Then
+			MsgBox "您没有安装或者正确的安装USB Key的驱动程序，" & Chr(13) &_
+			"请您正确的安装了驱动程序之后，再进行证书的下载！"
+		End If
+		If selectprov = -1 Then
+			selectprov = 0
+		End If
+		document.all.cryptprov.selectedIndex = selectprov
+	End Sub
+  Sub EnumCspsVista
+        	Dim Csps
+		Dim Csp
+		Dim el
+		Dim i
+		Dim indexEnhanced
+
+		On Error Resume Next
+
+		i = 0
+		indexEnhanced = 0
+
+		Set Csps = CreateObject("X509Enrollment.CCspInformations")
+		Csps.AddAvailableCsps
+
+		For i=0 To Csps.Count - 1
+			Set Csp = Csps.ItemByIndex(i)
+
+			If Csp.Type = 1 Then
+					If checkCSPName(Csp.Name) Then
+							set el = document.createElement("OPTION")
+							el.text = Csp.Name
+							el.value = Csp.Name
+							document.all.cryptprov.add(el)
+							count = count + 1
+							If selectprov = -1 Then
+								'设置默认的CSP
+								If el.text = "Microsoft Enhanced Cryptographic Provider v1.0" Then
+									selectprov = count
+								End If
+							End If
+					End If
+				End If
+		Next
+		If document.all.cryptprov.length=0 Then
+			MsgBox "您没有安装或者正确的安装USB Key的驱动程序，" & Chr(13) &_
+			"请您正确的安装了驱动程序之后，再进行证书的下载！"
+		End If
+		If selectprov = -1 Then
+				selectprov = 0
+		End If
+
+		document.all.cryptprov.selectedIndex = selectprov
+	End Sub
+	
+	Function checkCSPName(ProvideName)
+		dim isOK
+		isOK=false
+		'将需要过滤出来的CSP的名称列在下面。
+		Select Case ProvideName
+			Case "WatchData Cryptographic Provider v2.0" isOK=false
+			Case "SafeSign CSP Version 1.0" isOK=false
+			Case "Gemini CSP SDB" isOK=false
+			Case "StarSec CSP SDB" isOK=false
+			Case "Tendyron OnKey CSP SDB v1.0" isOK=false
+			Case "EnterSafe ePass3003 CSP For SDB v1.0" isOK=false
+			Case "Microsoft Enhanced Cryptographic Provider v1.0" isOK=true
+			Case Else isOK=false
+		End Select
+		checkCSPName=isOK
+	End Function
+
+
+</script>
+<body leftmargin="0" topmargin="0" onLoad="FindProviders()">
+<OBJECT
+	classid="clsid:43f8f289-7a20-11d0-8f06-00c04fc295e1"
+	CODEBASE="xenroll.dll"
+	id=EnrollOld
+	>
+</OBJECT>
+
+<OBJECT
+	classid="clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1"
+	id=EnrollNew
+	>
+</OBJECT>
+<table width="560" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr align="center"> 
+    <td width="18%"><strong><font color="#FF0000">证书下载</font></strong></td>
+  </tr>
+</table>
+<br>
+<table width="560" height="400" border="0" align="center" cellpadding="4" cellspacing="1" bgcolor="#CCCCCC">
+  <form action="http://cert.sdb.com.cn/sdbra/CertDownload.jsp" method="post" name="IERequest">
+  <tr> 
+      <td bgcolor="#FFFFFF"><br>
+        <table width="88%" border="0" align="center" cellpadding="5" cellspacing="0">
+          <tr> 
+            <td width="36%" align="right">参考号：</td>
+            <td width="64%">
+<input name="refNo" type="text" class="input" size="30"></td>
+        </tr>
+        <tr> 
+          <td align="right">授权码：</td>
+          <td><input name="authcode" type="text" class="input" size="30"></td>
+        </tr>
+        <tr> 
+          <td align="right">下载到：</td>
+            <td><select name="cryptProv">
+                <option selected>－－请选择USBKey型号－－</option>
+              </select></td>
+        </tr>
+      </table>
+      <br>
+      <table width="300" border="0" align="center" cellpadding="0" cellspacing="0">
+        <tr align="center"> 
+            <td> <input type="submit" name="Submit" value="提　交"></td>
+            <td><input type="reset" name="Reset" value="取　消"></td>
+        </tr>
+      </table> 
+        <br>
+        <table width="90%" border="0" align="center" cellpadding="4" cellspacing="0">
+          <tr> 
+            <td align="center"><a href="/sdbsite/article/66696c6573/77636d73/534442/7a68/7a685f434e/4542616e6b696e67/e7bd91e4b88ae993b6e8a18c/e7bd91e4b88ae993b6e8a18ce7ae80e4bb8b/e696b0e8af81e4b9a6e4b88be8bdbde6bc94e7a4ba312e68746d" target="_blank" class="link_blue2red">证书下载演示流程</a></td>
+          </tr>
+          <tr> 
+            <td> 
+              <input type="hidden" name="action" value="getBrowserCert"> 
+              <input type="hidden" name="myKey"> <input type="hidden" name="sessionID">
+              <br>
+              提示：</td>
+          </tr>
+          <tr> 
+            <td style="line-height:200%"><font face="Arial">　　1．下载前请确认您浏览器的密钥长度为128位，密钥长度的查看方法如下：在浏览器中选择［帮助］</font>--&gt;<font face="Arial">［关于Internet 
+              Explorer］。如果密钥长度不是128位，请在<a href="/sdbsite/article/files/wcms/SDB/zh/zh_CN/Others/DownloadCenter/index.html" target="_blank" class="link_blue2red"><u>［下载中心］</u></a></font>--&gt;<font face="Arial">［系统类］</font>--&gt;<font face="Arial">［浏览器补丁］中打相应的补丁，使密钥长度升级至128位；</font></td>
+          </tr>
+          <tr> 
+            <td style="line-height:200%"><font face="Arial">　　2．请确认您已安装USB 
+              Key驱动程序，如没安装，请您到<a href="/sdbsite/article/files/wcms/SDB/zh/zh_CN/Others/DownloadCenter/index.html" target="_blank" class="link_blue2red"><u>［下载中心］</u></a>下载并安装相应型号的USB 
+              Key驱动程序；&quot;<br>
+              　　注：下载到“请选择相应的USB 
+              Key型号”，握奇USB 
+              Key请选择WatchData Cryptographic Provider v2.0；捷德（2006版蓝色）USB 
+              Key请选择SafeSign CSP Version 1.0；捷德（2007版黑色）USB 
+              Key请选择StarSec CSP SDB；天地融（黑色）USB Key请选择Tendyron OnKey CSP SDB v1.0</font></td>
+          </tr>
+          <tr> 
+            <td style="line-height:200%"><font face="Arial">　　3．USB Key的初始密码为：<font color="#FF0000"><strong>12345678</strong></font><br>              　　<font color="#0000FF">握奇USB 
+              Key</font>：请通过［开始］</font>--&gt;<font face="Arial">［程序］</font>--&gt;<font face="Arial">［WatchSafe 2.0］</font>--&gt;<font face="Arial">［WatchSafe用户工具］进行更改或［深圳发展银行USB 
+              Key工具（握奇）］</font>--&gt;<font face="Arial">［WatchSafe用户工具］进行更改<br>
+              　　<font color="#0000FF">捷德（2006版蓝色）USB Key</font>：请通过［开始］</font>--&gt;<font face="Arial">［程序］</font>--&gt;<font face="Arial">［深圳发展银行USB Key工具（捷德）］</font>--&gt;<font face="Arial">［USB Key工具（捷德）］进行更改<br>
+              　　<font color="#0000FF">捷德（2007版黑色）USB Key</font>：请通过［开始］</font>--&gt;<font face="Arial">［程序］</font>--&gt;<font face="Arial"> 深圳发展银行无驱USB Key工具（捷德）］</font>--&gt;<font face="Arial">StarKey220</font>--&gt;<font face="Arial">［USB Key工具（捷德）］进行更改<br>
+              　　<font color="#0000FF">天地融USB Key：</font>请通过［开始］--&gt;［程序］--&gt;［深圳发展银行USB Key工具（天地融）］--&gt;［OnKey管理工具］（菜单-OnKey-修改密码）进行更改
+              </font></td>
+          </tr>
+          <tr>
+            <td style="line-height:200%"><font face="Arial">　　4．如有其他问题，请参阅<a href="/sdbsite/category/66696c6573/77636d73/534442/7a68/7a685f434e/4542616e6b696e67/e7bd91e4b88ae993b6e8a18c/e79691e99abee8a7a3e7ad9428e695b0e5ad97e8af81e4b9a629" target="_blank" class="link_blue2red"><u>疑难解答</u></a>。或咨询<strong>CFCA</strong>客户服务热线：<font color="#FF0000"><strong>400-800-9888</strong></font></font></td>
+          </tr>
+        </table>
+        <br>
+        <br>
+      </td>
+  </tr>
+  </form>
+</table>

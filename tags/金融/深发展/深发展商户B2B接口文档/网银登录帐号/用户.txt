@@ -1,0 +1,9 @@
+买家
+复核员（订单复核）：
+录入员（订单录入）：test1  
+密码：999999
+
+商户用户
+登录地址：https://testebank.sdb.com.cn/corporbank/logon_basic.jsp
+用户名(复核员)：test0
+密码：999999
