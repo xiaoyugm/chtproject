@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+ <servlet>
+        <servlet-name>mersend</servlet-name>
+        <jsp-file>/mersend.jsp</jsp-file>
+    </servlet>
+
+     <servlet>
+        <servlet-name>select</servlet-name>
+        <jsp-file>/select.jsp</jsp-file>
+    </servlet>
+
+  <servlet-mapping>
+        <servlet-name>select</servlet-name>
+        <url-pattern>/select.jsp</url-pattern>
+    </servlet-mapping>
+
+
+  <servlet-mapping>
+        <servlet-name>mersend</servlet-name>
+        <url-pattern>/mersend.jsp</url-pattern>
+    </servlet-mapping>
+
+</web-app>
